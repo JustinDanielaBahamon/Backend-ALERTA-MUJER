@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: alerta-mujer-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-alerta_mujer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alerta_mujer_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-alerta_mujer}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alerta_mujer} -d ${POSTGRES_DB:-alerta_mujer}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build: ./gateway
+    container_name: alerta-mujer-gateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - IDENTITY_SERVICE_URL=http://identity:3001
+      - ALERT_SERVICE_URL=http://alert:3002
+      - RESOURCE_SERVICE_URL=http://resource:3003
+      - ADMIN_SERVICE_URL=http://admin:3004
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      - identity
+      - alert
+      - resource
+      - admin
+
+  identity:
+    build: ./services/am-identity-service
+    container_name: alerta-mujer-identity
+    restart: unless-stopped
+    environment:
+      - PORT=3001
+      - DATABASE_URL=postgres://${POSTGRES_USER:-alerta_mujer}:${POSTGRES_PASSWORD:-alerta_mujer_2026}@postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  alert:
+    build: ./services/am-alert-service
+    container_name: alerta-mujer-alert
+    restart: unless-stopped
+    environment:
+      - PORT=3002
+      - DATABASE_URL=postgres://${POSTGRES_USER:-alerta_mujer}:${POSTGRES_PASSWORD:-alerta_mujer_2026}@postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  resource:
+    build: ./services/am-resource-service
+    container_name: alerta-mujer-resource
+    restart: unless-stopped
+    environment:
+      - PORT=3003
+      - DATABASE_URL=postgres://${POSTGRES_USER:-alerta_mujer}:${POSTGRES_PASSWORD:-alerta_mujer_2026}@postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  admin:
+    build: ./services/am-admin-service
+    container_name: alerta-mujer-admin
+    restart: unless-stopped
+    environment:
+      - PORT=3004
+      - DATABASE_URL=postgres://${POSTGRES_USER:-alerta_mujer}:${POSTGRES_PASSWORD:-alerta_mujer_2026}@postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
