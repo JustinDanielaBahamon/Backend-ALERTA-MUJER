@@ -1,6 +1,6 @@
 -- ============================================
 -- AlertaMujer - PostgreSQL 16 Schema + Seed
--- Based on SRS requirements
+-- Based on SRS and team database design
 -- ============================================
 
 CREATE SCHEMA IF NOT EXISTS identity;
@@ -14,111 +14,58 @@ CREATE SCHEMA IF NOT EXISTS admin;
 
 CREATE TABLE identity.role (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
-    description TEXT
+    name VARCHAR(30) NOT NULL UNIQUE,
+    description VARCHAR(255)
 );
 
 CREATE TABLE identity.users (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    role_id INTEGER NOT NULL DEFAULT 1 REFERENCES identity.role(id),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    telephone VARCHAR(20) UNIQUE,
     email VARCHAR(150) NOT NULL UNIQUE,
-    correo VARCHAR(150) NOT NULL,
-    telefono VARCHAR(30),
-    fecha_registro VARCHAR(20),
-    alertas INTEGER DEFAULT 0,
-    ultima_actividad VARCHAR(50),
-    estado VARCHAR(30) DEFAULT 'Activa',
-    rol VARCHAR(30) DEFAULT 'Usuaria',
-    contacto_emergencia VARCHAR(100),
-    avatar_color VARCHAR(20) DEFAULT '#7c3aed',
-    role_id INTEGER DEFAULT 1 REFERENCES identity.role(id),
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    document_number VARCHAR(30) DEFAULT '',
-    document_type VARCHAR(20) DEFAULT '',
-    birthdate TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
+    document_number VARCHAR(20) UNIQUE,
+    document_type VARCHAR(20),
+    birthdate DATE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE identity.account (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
     password_hash VARCHAR(255) NOT NULL,
-    status VARCHAR(20) DEFAULT 'active',
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
     last_access TIMESTAMP
 );
 
 CREATE TABLE identity.user_profile (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    profile_photo_url TEXT,
-    tutorial_completed BOOLEAN DEFAULT FALSE,
+    user_id INTEGER NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
+    profile_photo_url VARCHAR(500),
+    tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE,
     tutorial_seen_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
 CREATE TABLE identity.admin_profile (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    permissions JSONB,
-    created_at TIMESTAMP DEFAULT NOW()
+    account_id INTEGER NOT NULL UNIQUE REFERENCES identity.account(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE identity.recovery_request (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    token VARCHAR(255) NOT NULL UNIQUE,
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    method VARCHAR(20) NOT NULL,
+    token_hash VARCHAR(255) NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
-    used BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE identity.device (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    name VARCHAR(100),
-    os_version VARCHAR(30),
-    type VARCHAR(10),
-    imei VARCHAR(30),
-    phone VARCHAR(30),
-    status VARCHAR(20) DEFAULT 'Activo',
-    last_sync VARCHAR(50),
-    icon VARCHAR(50),
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE identity.device_permission (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
-    permission_name VARCHAR(50),
-    granted BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE identity.device_session (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
-    session_token VARCHAR(255),
-    started_at TIMESTAMP,
-    ended_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE identity.alert_activation_setting (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    activation_method VARCHAR(50),
-    is_enabled BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE identity.user_preference (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    preference_key VARCHAR(50) NOT NULL,
-    preference_value TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    used_at TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    attempts INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    requested_ip VARCHAR(45)
 );
 
 -- ============================================
@@ -127,96 +74,100 @@ CREATE TABLE identity.user_preference (
 
 CREATE TABLE alert.emergency_contact (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     contact_name VARCHAR(100) NOT NULL,
-    telephone VARCHAR(30) NOT NULL,
-    relationship VARCHAR(50),
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE alert.alert (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    nombre VARCHAR(100),
-    descripcion TEXT,
-    medio_activacion VARCHAR(50),
-    tiempo VARCHAR(50),
-    ubicacion VARCHAR(100),
-    lat DECIMAL(10, 7),
-    lng DECIMAL(10, 7),
-    estado VARCHAR(30) DEFAULT 'Pendiente',
-    alert_type VARCHAR(20) DEFAULT 'main',
-    activation_method VARCHAR(30),
-    status VARCHAR(20) DEFAULT 'active',
-    message TEXT,
-    started_at TIMESTAMP,
-    ended_at TIMESTAMP,
-    cancelled_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
+    telephone VARCHAR(20) NOT NULL,
+    email VARCHAR(150),
+    relationship VARCHAR(30),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE alert.alert_contact (
     id SERIAL PRIMARY KEY,
     alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
-    contact_name VARCHAR(100),
-    telephone VARCHAR(30),
-    notified_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT NOW()
+    emergency_contact_id INTEGER NOT NULL REFERENCES alert.emergency_contact(id) ON DELETE CASCADE,
+    channel VARCHAR(20) NOT NULL,
+    destination VARCHAR(150) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    sent_at TIMESTAMP,
+    delivered_at TIMESTAMP,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    error_message VARCHAR(500),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(alert_id, emergency_contact_id, channel)
 );
 
 CREATE TABLE alert.location_log (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    time VARCHAR(20),
-    address VARCHAR(200),
-    gps_signal VARCHAR(20),
-    battery INTEGER,
-    lat DECIMAL(10, 7),
-    lng DECIMAL(10, 7),
-    created_at TIMESTAMP DEFAULT NOW()
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
+    latitude DECIMAL(9,6) NOT NULL,
+    longitude DECIMAL(9,6) NOT NULL,
+    accuracy DECIMAL(6,2),
+    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE alert.alert (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    device_id INTEGER NOT NULL,
+    alert_type VARCHAR(20) NOT NULL DEFAULT 'main',
+    activation_method VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    message VARCHAR(500),
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP,
+    cancelled_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE alert.notification (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
+    type VARCHAR(30) NOT NULL,
+    priority VARCHAR(20) NOT NULL DEFAULT 'normal',
+    title VARCHAR(100) NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    is_persistent BOOLEAN NOT NULL DEFAULT FALSE,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE alert.evidence (
+    id SERIAL PRIMARY KEY,
+    alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
+    media_type VARCHAR(20) NOT NULL,
+    file_url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE alert.frequent_location (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    address VARCHAR(255),
+    city VARCHAR(100),
+    latitude DECIMAL(9,6) NOT NULL,
+    longitude DECIMAL(9,6) NOT NULL,
+    notes VARCHAR(255),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE alert.alert_reminder (
     id SERIAL PRIMARY KEY,
     alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
-    reminder_type VARCHAR(50),
-    scheduled_at TIMESTAMP,
-    sent BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE alert.frequent_location (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    name VARCHAR(100),
-    lat DECIMAL(10, 7),
-    lng DECIMAL(10, 7),
-    visit_count INTEGER DEFAULT 0,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE alert.evidence (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    tipo VARCHAR(20),
-    tipo_alerta VARCHAR(20),
-    nombre VARCHAR(150),
-    tamanio VARCHAR(20),
-    fecha VARCHAR(20),
-    alerta VARCHAR(20),
-    estado VARCHAR(20) DEFAULT 'En la nube',
-    ubicacion JSONB,
-    en_vivo BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE alert.notification (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    title VARCHAR(200),
-    message TEXT,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
+    reminder_type VARCHAR(20) NOT NULL,
+    sequence_number INTEGER NOT NULL,
+    scheduled_at TIMESTAMP NOT NULL,
+    sent_at TIMESTAMP,
+    status VARCHAR(20) NOT NULL DEFAULT 'scheduled',
+    error_message VARCHAR(500),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -225,42 +176,63 @@ CREATE TABLE alert.notification (
 
 CREATE TABLE resource.zone (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    ciudad VARCHAR(50),
-    tipo VARCHAR(30) DEFAULT 'Riesgo Medio',
-    alertas INTEGER DEFAULT 0,
-    estado VARCHAR(20) DEFAULT 'Activa',
-    updated_at TIMESTAMP DEFAULT NOW()
+    created_by_admin_id INTEGER,
+    name VARCHAR(150) NOT NULL,
+    zone_type VARCHAR(20) NOT NULL,
+    risk_level VARCHAR(20) NOT NULL DEFAULT 'medium',
+    description VARCHAR(500),
+    address VARCHAR(255),
+    city VARCHAR(100) NOT NULL,
+    latitude DECIMAL(9,6) NOT NULL,
+    longitude DECIMAL(9,6) NOT NULL,
+    radius_meters DECIMAL(8,2) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE resource.zone_report (
     id SERIAL PRIMARY KEY,
     zone_id INTEGER NOT NULL REFERENCES resource.zone(id) ON DELETE CASCADE,
-    report_type VARCHAR(30),
-    generated_at TIMESTAMP DEFAULT NOW()
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    classification VARCHAR(20) NOT NULL,
+    comment VARCHAR(500),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    reviewed_by_admin_id INTEGER,
+    reviewed_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(zone_id, user_profile_id)
 );
 
 CREATE TABLE resource.emergency_resource (
     id SERIAL PRIMARY KEY,
-    tipo VARCHAR(30) NOT NULL,
-    nombre VARCHAR(100) NOT NULL,
-    numero VARCHAR(30),
-    descripcion TEXT,
-    disponibilidad VARCHAR(50),
-    categoria VARCHAR(30),
-    lat DECIMAL(10, 7),
-    lng DECIMAL(10, 7),
-    abierto BOOLEAN DEFAULT TRUE,
-    estado VARCHAR(50),
-    created_at TIMESTAMP DEFAULT NOW()
+    name VARCHAR(150) NOT NULL,
+    resource_type VARCHAR(40) NOT NULL,
+    telephone VARCHAR(30),
+    secondary_telephone VARCHAR(30),
+    email VARCHAR(150),
+    address VARCHAR(255),
+    city VARCHAR(100) NOT NULL,
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
+    description VARCHAR(500),
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE resource.resource_call (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    resource_type VARCHAR(30),
-    resource_id INTEGER,
-    called_at TIMESTAMP DEFAULT NOW()
+    emergency_resource_id INTEGER NOT NULL REFERENCES resource.emergency_resource(id) ON DELETE CASCADE,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
+    device_id INTEGER,
+    telephone_dialed VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP,
+    duration_seconds INTEGER,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -269,39 +241,107 @@ CREATE TABLE resource.resource_call (
 
 CREATE TABLE admin.audit_log (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES identity.users(id) ON DELETE SET NULL,
-    action VARCHAR(50),
-    details JSONB,
-    created_at TIMESTAMP DEFAULT NOW()
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INTEGER,
+    description VARCHAR(500),
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE admin.user_report (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    report_type VARCHAR(30),
-    reason TEXT,
-    generated_at TIMESTAMP DEFAULT NOW()
+    reported_user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    reporter_user_id INTEGER REFERENCES identity.users(id) ON DELETE SET NULL,
+    reason VARCHAR(100) NOT NULL,
+    description VARCHAR(1000) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    reviewed_by_admin_id INTEGER,
+    reviewed_at TIMESTAMP,
+    resolution_notes VARCHAR(1000),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE admin.moderation_action (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
-    action_type VARCHAR(30),
-    reason TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    user_report_id INTEGER NOT NULL REFERENCES admin.user_report(id) ON DELETE CASCADE,
+    admin_perfil_id INTEGER NOT NULL,
+    action_type VARCHAR(30) NOT NULL,
+    notes VARCHAR(1000),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE admin.system_configuration (
-    id SERIAL PRIMARY KEY,
-    singleton_key VARCHAR(20) DEFAULT 'SYSTEM',
-    sos_max_duration_minutes INTEGER DEFAULT 30,
-    emergency_phone_number VARCHAR(20),
-    admin_email VARCHAR(100),
-    notifications_enabled BOOLEAN DEFAULT TRUE,
-    default_notification_priority VARCHAR(20) DEFAULT 'normal',
-    default_theme VARCHAR(20) DEFAULT 'light',
+    id SERIAL PRIMARY KEY DEFAULT 1,
+    singleton_key VARCHAR(10) NOT NULL UNIQUE DEFAULT 'SYSTEM',
+    sos_max_duration_minutes INTEGER NOT NULL,
+    emergency_phone_number VARCHAR(20) NOT NULL,
+    admin_email VARCHAR(150) NOT NULL,
+    notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    default_notification_priority VARCHAR(20) NOT NULL DEFAULT 'normal',
+    default_theme VARCHAR(20) NOT NULL DEFAULT 'light',
     updated_by_admin_id INTEGER,
-    created_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- ============================================
+-- DEVICE TABLES (Identity Service)
+-- ============================================
+
+CREATE TABLE identity.device (
+    id SERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    device_uuid VARCHAR(255) NOT NULL UNIQUE,
+    brand VARCHAR(50),
+    model VARCHAR(100),
+    os_name VARCHAR(30) NOT NULL,
+    os_version VARCHAR(30),
+    app_version VARCHAR(30),
+    gps_status VARCHAR(20) NOT NULL DEFAULT 'unknown',
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    last_access TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE identity.device_permission (
+    id SERIAL PRIMARY KEY,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    permission_type VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(device_id, permission_type)
+);
+
+CREATE TABLE identity.device_session (
+    id SERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    refresh_token_hash VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    expires_at TIMESTAMP NOT NULL,
+    last_used_at TIMESTAMP,
+    revoked_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE identity.alert_activation_setting (
+    id SERIAL PRIMARY KEY,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    activation_method VARCHAR(30) NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(device_id, activation_method)
+);
+
+CREATE TABLE identity.user_preference (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL UNIQUE REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    language VARCHAR(10) NOT NULL DEFAULT 'es',
+    theme VARCHAR(20) NOT NULL DEFAULT 'light',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
 
@@ -313,16 +353,16 @@ INSERT INTO identity.role (id, name, description) VALUES
 (1, 'user', 'Usuario estándar de la aplicación'),
 (2, 'administrator', 'Administrador del sistema');
 
-INSERT INTO identity.users (id, nombre, email, correo, telefono, fecha_registro, alertas, ultima_actividad, estado, rol, contacto_emergencia, avatar_color, role_id, first_name, last_name, document_number, document_type, birthdate, created_at) VALUES
-(1, 'María Pérez', 'maria.perez@test.com', 'maria.perez@test.com', '+57 311 000 0001', '29/05/2023', 7, 'hace 2 horas', 'Activa', 'Usuaria', 'Ana Gómez (+57 311 111 0001)', '#7c3aed', 1, 'María', 'Pérez', '', '', NULL, '2023-05-29T00:00:00'),
-(2, 'Ana Gómez', 'ana.gomez@test.com', 'ana.gomez@test.com', '+57 312 000 0002', '27/05/2023', 2, 'hace 3 días', 'Inactiva', 'Usuaria', 'Luis Díaz (+57 312 111 0002)', '#a78bfa', 1, 'Ana', 'Gómez', '', '', NULL, '2023-05-27T00:00:00'),
-(3, 'Laura Torres', 'laura.torres@test.com', 'laura.torres@test.com', '+57 313 000 0003', '27/05/2023', 12, 'hace 1 semana', 'Bloqueada por Fraude', 'Usuaria', 'Pedro Flores (+57 313 111 0003)', '#ec4899', 1, 'Laura', 'Torres', '', '', NULL, '2023-05-27T00:00:00'),
-(4, 'Sofía Ruiz', 'sofia.ruiz@test.com', 'sofia.ruiz@test.com', '+57 314 000 0004', '27/05/2023', 9, 'hace 5 días', 'Bloqueada por Fraude', 'Usuaria', 'Rosa Gomez (+57 314 111 0004)', '#6d28d9', 1, 'Sofía', 'Ruiz', '', '', NULL, '2023-05-27T00:00:00'),
-(5, 'Camila Ortiz', 'camila.ortiz@test.com', 'camila.ortiz@test.com', '+57 315 000 0005', '27/05/2023', 3, 'hace 1 hora', 'Activa', 'Usuaria', 'José Tian (+57 315 111 0005)', '#7c3aed', 1, 'Camila', 'Ortiz', '', '', NULL, '2023-05-27T00:00:00'),
-(6, 'Diana Morales', 'diana.morales@test.com', 'diana.morales@test.com', '+57 316 000 0006', '27/05/2023', 15, 'hace 2 semanas', 'Bloqueada por Fraude', 'Usuaria', 'N/A', '#c4b5fd', 1, 'Diana', 'Morales', '', '', NULL, '2023-05-27T00:00:00'),
-(7, 'Paola Vargas', 'paola.vargas@test.com', 'paola.vargas@test.com', '+57 317 000 0007', '27/05/2023', 6, 'hace 4 días', 'Bloqueada por Fraude', 'Usuaria', 'María Flores (+57 317 111 0007)', '#ec4899', 1, 'Paola', 'Vargas', '', '', NULL, '2023-05-27T00:00:00'),
-(8, 'Admin Principal', 'admin@test.com', 'admin@test.com', '+57 318 000 0008', '27/05/2023', 0, 'hace 30 min', 'Activa', 'Admin', 'N/A', '#16a34a', 2, 'Admin', 'Principal', '', '', NULL, '2023-05-27T00:00:00'),
-(9, 'Raquel', 'Raquel@gmail.com', 'Raquel@gmail.com', '+57 320 000 0009', '17/09/2026', 0, 'recién registrado', 'Activa', 'Usuaria', 'N/A', '#7c3aed', 1, 'Raquel', '', '', '', NULL, '2026-09-17T00:00:00');
+INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email, document_number, document_type, birthdate, created_at) VALUES
+(1, 1, 'María', 'Pérez', '+57 311 000 0001', 'maria.perez@test.com', '', '', NULL, '2023-05-29 00:00:00'),
+(2, 1, 'Ana', 'Gómez', '+57 312 000 0002', 'ana.gomez@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(3, 1, 'Laura', 'Torres', '+57 313 000 0003', 'laura.torres@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(4, 1, 'Sofía', 'Ruiz', '+57 314 000 0004', 'sofia.ruiz@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(5, 1, 'Camila', 'Ortiz', '+57 315 000 0005', 'camila.ortiz@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(6, 1, 'Diana', 'Morales', '+57 316 000 0006', 'diana.morales@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(7, 1, 'Paola', 'Vargas', '+57 317 000 0007', 'paola.vargas@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(8, 2, 'Admin', 'Principal', '+57 318 000 0008', 'admin@test.com', '', '', NULL, '2023-05-27 00:00:00'),
+(9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', '', '', NULL, '2026-09-17 00:00:00');
 
 INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUES
 (1, 'Alerta@123', 'active', NULL),
@@ -336,69 +376,69 @@ INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUE
 (9, 'Noruega@123', 'active', NULL);
 
 INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_completed, tutorial_seen_at, created_at, updated_at) VALUES
-(1, NULL, FALSE, NULL, '2023-05-29T00:00:00', NULL),
-(2, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(3, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(4, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(5, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(6, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(7, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(8, NULL, FALSE, NULL, '2023-05-27T00:00:00', NULL),
-(9, NULL, FALSE, NULL, '2026-09-17T00:00:00', NULL);
+(1, NULL, FALSE, NULL, '2023-05-29 00:00:00', NULL),
+(2, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(3, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(4, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(5, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(6, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(7, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(8, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
+(9, NULL, FALSE, NULL, '2026-09-17 00:00:00', NULL);
 
-INSERT INTO alert.emergency_contact (user_id, contact_name, telephone, relationship, created_at) VALUES
-(1, 'Juan Pérez', '3111234567', 'Amigo', '2026-09-17T00:00:00'),
-(1, 'Ana Gómez', '300 111 0001', 'Hermano/a', '2026-09-17T00:00:00'),
-(1, 'Luis Díaz', '300 222 0002', 'Pareja', '2026-09-17T00:00:00'),
-(2, 'justin', '3226662738', 'Padre', '2026-09-17T00:00:00'),
-(2, 'justing', '3186866594', 'Hermano/a', '2026-09-17T00:00:00'),
-(9, 'DavidE', '573112082620', 'Amigo', '2026-09-17T00:00:00'),
-(9, 'Andrea', '573102307889', 'Amiga', '2026-09-17T00:00:00'),
-(9, 'Orueba', '12345678994976', 'Familia', '2026-09-17T21:35:10'),
-(9, 'Prueba', '3124928565', 'Femilia', '2026-09-22T02:38:25'),
-(9, 'Fotocopia', '573178863134', 'Vtvrv', '2026-09-24T21:55:16');
+INSERT INTO alert.emergency_contact (user_profile_id, contact_name, telephone, email, relationship, created_at, updated_at) VALUES
+(1, 'Juan Pérez', '3111234567', NULL, 'Amigo', '2026-09-17 00:00:00', NULL),
+(1, 'Ana Gómez', '300 111 0001', NULL, 'Hermano/a', '2026-09-17 00:00:00', NULL),
+(1, 'Luis Díaz', '300 222 0002', NULL, 'Pareja', '2026-09-17 00:00:00', NULL),
+(2, 'justin', '3226662738', NULL, 'Padre', '2026-09-17 00:00:00', NULL),
+(2, 'justing', '3186866594', NULL, 'Hermano/a', '2026-09-17 00:00:00', NULL),
+(9, 'DavidE', '573112082620', NULL, 'Amigo', '2026-09-17 00:00:00', NULL),
+(9, 'Andrea', '573102307889', NULL, 'Amiga', '2026-09-17 00:00:00', NULL),
+(9, 'Orueba', '12345678994976', NULL, 'Familia', '2026-09-17 21:35:10', NULL),
+(9, 'Prueba', '3124928565', NULL, 'Femilia', '2026-09-22 02:38:25', NULL),
+(9, 'Fotocopia', '573178863134', NULL, 'Vtvrv', '2026-09-24 21:55:16', NULL);
 
-INSERT INTO alert.alert (id, user_id, nombre, descripcion, medio_activacion, tiempo, ubicacion, lat, lng, estado, alert_type, activation_method, status, message, started_at, ended_at, cancelled_at, created_at) VALUES
-(1, 1, 'María Pérez', 'Pánico activado', 'Botón de pánico', 'Hace 2 min', 'Centro', 4.711, -74.0721, 'Atendida', 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-16T14:32:00', NULL, NULL, '2026-09-16T14:32:00'),
-(2, 1, 'María Pérez', 'Emergencia médica', 'Botón de pánico', 'Hace 2 min', 'Centro', 4.7118, -74.0715, 'Atendida', 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-16T09:20:00', NULL, NULL, '2026-09-16T09:20:00'),
-(3, 2, 'Ana Gómez', 'Pánico activado', 'Botón de pánico', 'Hace 3 min', 'Centro', 4.7105, -74.0728, 'Atendida', 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-15T20:10:00', NULL, NULL, '2026-09-15T20:10:00'),
-(4, 1, 'María Pérez', 'Emergencia médica', 'Botón de pánico', 'Hace 5 min', 'Chapinero', 4.72, -74.065, 'Atendida', 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-15T22:05:00', NULL, NULL, '2026-09-15T22:05:00'),
-(5, 1, 'María Pérez', 'Pánico activado', 'Botón de pánico', 'Hace 6 min', 'Centro', 4.7112, -74.0719, 'Atendida', 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-14T18:40:00', NULL, NULL, '2026-09-14T18:40:00'),
-(6, 3, 'Laura Torres', 'Robo a mano armada', 'Botón de pánico', 'Hace 8 min', 'Calle 80', 4.716, -74.068, 'Atendida', 'main', 'panic_button', 'resolved', 'Robo a mano armada', '2026-09-14T11:05:00', NULL, NULL, '2026-09-14T11:05:00'),
-(7, 4, 'Sofía Ruiz', 'Acoso en transporte', 'Botón de pánico', 'Hace 10 min', 'Av. Caracas', 4.7055, -74.076, 'Atendida', 'main', 'panic_button', 'resolved', 'Acoso en transporte', '2026-09-13T08:15:00', NULL, NULL, '2026-09-13T08:15:00'),
-(8, 5, 'Camila Ortiz', 'Emergencia médica', 'Botón de pánico', 'Hace 12 min', 'Chapinero', 4.721, -74.064, 'Atendida', 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-12T16:55:00', NULL, NULL, '2026-09-12T16:55:00'),
-(9, 6, 'Diana Morales', 'Pánico activado', 'Botón de pánico', 'Hace 15 min', 'Centro', 4.7108, -74.0724, 'Atendida', 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-11T19:30:00', NULL, NULL, '2026-09-11T19:30:00'),
-(10, 7, 'Paola Vargas', 'Acoso en calle', 'Botón de pánico', 'Hace 18 min', 'Av. Caracas', 4.706, -74.0758, 'Pendiente', 'main', 'panic_button', 'active', 'Acoso en calle', '2026-09-10T07:45:00', NULL, NULL, '2026-09-10T07:45:00');
+INSERT INTO alert.alert (id, user_profile_id, device_id, alert_type, activation_method, status, message, started_at, ended_at, cancelled_at, created_at) VALUES
+(1, 1, 1, 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-16 14:32:00', NULL, NULL, '2026-09-16 14:32:00'),
+(2, 1, 1, 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-16 09:20:00', NULL, NULL, '2026-09-16 09:20:00'),
+(3, 2, 2, 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-15 20:10:00', NULL, NULL, '2026-09-15 20:10:00'),
+(4, 1, 1, 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-15 22:05:00', NULL, NULL, '2026-09-15 22:05:00'),
+(5, 1, 1, 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-14 18:40:00', NULL, NULL, '2026-09-14 18:40:00'),
+(6, 3, 3, 'main', 'panic_button', 'resolved', 'Robo a mano armada', '2026-09-14 11:05:00', NULL, NULL, '2026-09-14 11:05:00'),
+(7, 4, 4, 'main', 'panic_button', 'resolved', 'Acoso en transporte', '2026-09-13 08:15:00', NULL, NULL, '2026-09-13 08:15:00'),
+(8, 5, 5, 'main', 'panic_button', 'resolved', 'Emergencia médica', '2026-09-12 16:55:00', NULL, NULL, '2026-09-12 16:55:00'),
+(9, 6, 6, 'main', 'panic_button', 'resolved', 'Pánico activado', '2026-09-11 19:30:00', NULL, NULL, '2026-09-11 19:30:00'),
+(10, 7, 7, 'main', 'panic_button', 'active', 'Acoso en calle', '2026-09-10 07:45:00', NULL, NULL, '2026-09-10 07:45:00');
 
-INSERT INTO alert.location_log (user_id, time, address, gps_signal, battery, lat, lng) VALUES
-(1, '11:30 AM', 'Calle Principal 123, Ciudad', 'Fuerte', 85, 4.711, -74.0721),
-(1, '11:15 AM', 'Parque Central', 'Fuerte', 82, 4.7095, -74.0698),
-(1, '10:45 AM', 'Centro Comercial', 'Moderada', 79, 4.708, -74.075),
-(1, '10:30 AM', 'Av. Libertad 456', 'Fuerte', 76, 4.706, -74.073),
-(1, '9:30 AM', 'Zona Norte, Barrio El Prado', 'Débil', 70, 4.704, -74.071),
-(2, '12:00 PM', 'Av. Caracas, Centro', 'Fuerte', 90, 4.7055, -74.076),
-(2, '11:40 AM', 'Estación Norte', 'Moderada', 88, 4.71, -74.07);
+INSERT INTO alert.location_log (user_profile_id, alert_id, latitude, longitude, accuracy, recorded_at) VALUES
+(1, NULL, 4.711000, -74.072100, 10.00, '2026-09-16 14:32:00'),
+(1, NULL, 4.709500, -74.069800, 15.00, '2026-09-16 14:33:00'),
+(1, NULL, 4.708000, -74.075000, 12.00, '2026-09-16 14:34:00'),
+(1, NULL, 4.706000, -74.073000, 8.00, '2026-09-16 14:35:00'),
+(1, NULL, 4.704000, -74.071000, 20.00, '2026-09-16 14:36:00'),
+(2, NULL, 4.705500, -74.076000, 10.00, '2026-09-15 20:10:00'),
+(2, NULL, 4.710000, -74.070000, 15.00, '2026-09-15 20:11:00');
 
-INSERT INTO resource.zone (id, nombre, ciudad, tipo, alertas, estado, updated_at) VALUES
-(1, 'Parque Santander', 'Neiva', 'Riesgo Alto', 37, 'Activa', '2026-09-27T15:30:00'),
-(2, 'Universidad Surcolombiana', 'Neiva', 'Segura', 3, 'Activa', '2026-09-27T17:45:00'),
-(3, 'Parque Leesburg', 'Bogotá', 'Riesgo Alto', 28, 'Activa', '2026-09-26T12:00:00'),
-(4, 'Centro Comercial San Pedro', 'Cali', 'Riesgo Medio', 14, 'Revisión', '2026-09-27T13:30:00'),
-(5, 'Parque de la Música', 'Medellín', 'Segura', 2, 'Activa', '2026-09-27T17:15:00'),
-(6, 'Terminal de Transportes', 'Barranquilla', 'Riesgo Bajo', 8, 'Activa', '2026-09-27T09:30:00');
+INSERT INTO resource.zone (id, created_by_admin_id, name, zone_type, risk_level, description, address, city, latitude, longitude, radius_meters, is_active, created_at, updated_at) VALUES
+(1, NULL, 'Parque Santander', 'risk', 'high', 'Zona de alto riesgo', 'Calle 5 #10-20', 'Neiva', 4.711000, -74.072100, 500.00, TRUE, '2026-09-27 15:30:00', '2026-09-27 15:30:00'),
+(2, NULL, 'Universidad Surcolombiana', 'safe', 'low', 'Zona segura', 'Carrera 5 #21-45', 'Neiva', 4.709500, -74.069800, 300.00, TRUE, '2026-09-27 17:45:00', '2026-09-27 17:45:00'),
+(3, NULL, 'Parque Leesburg', 'risk', 'high', 'Zona de alto riesgo', 'Av. Caracas', 'Bogotá', 4.705500, -74.076000, 400.00, TRUE, '2026-09-26 12:00:00', '2026-09-26 12:00:00'),
+(4, NULL, 'Centro Comercial San Pedro', 'risk', 'medium', 'Zona de riesgo medio', 'Calle 100 #15-20', 'Cali', 4.716000, -74.068000, 350.00, TRUE, '2026-09-27 13:30:00', '2026-09-27 13:30:00'),
+(5, NULL, 'Parque de la Música', 'safe', 'low', 'Zona segura', 'Cra. 43 #1-20', 'Medellín', 4.721000, -74.064000, 250.00, TRUE, '2026-09-27 17:15:00', '2026-09-27 17:15:00'),
+(6, NULL, 'Terminal de Transportes', 'risk', 'low', 'Zona de riesgo bajo', 'Calle 26 #45-60', 'Barranquilla', 4.706000, -74.075800, 450.00, TRUE, '2026-09-27 09:30:00', '2026-09-27 09:30:00');
 
-INSERT INTO resource.emergency_resource (tipo, nombre, numero, descripcion, disponibilidad, categoria, lat, lng, abierto, estado) VALUES
-('emergencia', 'Línea de Emergencias 123', '123', 'Atención inmediata para cualquier emergencia.', 'Disponible 24/7', 'emergencia', 4.711, -74.0721, TRUE, 'Activo'),
-('mujeres', 'Línea Púrpura', '018000112137', 'Orientación y apoyo para mujeres en situación de violencia.', 'Disponible 24/7', 'mujeres', 4.7055, -74.076, TRUE, 'Activo'),
-('policia', 'Policía Nacional', '123', 'Reporta situaciones de riesgo o delitos en curso.', 'Disponible 24/7', 'seguridad', 4.716, -74.068, TRUE, 'Activo'),
-('saludMental', 'Línea de Salud Mental', '106', 'Apoyo psicológico y contención emocional.', 'Disponible 24/7', 'salud', 4.704, -74.071, TRUE, 'Activo'),
-('centro', 'Casa de la Mujer', 'N/A', 'Atención integral y acompañamiento para mujeres.', '8:00 AM - 5:00 PM', 'mujeres', 4.704, -74.071, TRUE, 'Atención al público'),
-('centro', 'CAI Centro', 'N/A', 'Comando de Atención Inmediata de la Policía.', '24/7', 'seguridad', 4.7115, -74.07, TRUE, 'Servicio permanente'),
-('centro', 'Hospital La Victoria', 'N/A', 'Urgencias médicas y atención primaria.', '24/7', 'salud', 4.706, -74.0755, TRUE, 'Urgencias 24 horas'),
-('centro', 'Defensoría del Pueblo', 'N/A', 'Orientación legal y defensa de derechos.', '8:00 AM - 5:00 PM', 'legal', 4.72, -74.065, FALSE, 'Cierra a las 5:00 pm');
+INSERT INTO resource.emergency_resource (name, resource_type, telephone, secondary_telephone, email, address, city, latitude, longitude, description, is_active, created_at, updated_at) VALUES
+('Línea de Emergencias 123', 'emergency_line', '123', NULL, NULL, NULL, 'Bogotá', NULL, NULL, 'Atención inmediata para cualquier emergencia.', TRUE, '2026-09-17 00:00:00', NULL),
+('Línea Púrpura', 'emergency_line', '018000112137', NULL, NULL, NULL, 'Bogotá', NULL, NULL, 'Orientación y apoyo para mujeres en situación de violencia.', TRUE, '2026-09-17 00:00:00', NULL),
+('Policía Nacional', 'police_station', '123', NULL, NULL, NULL, 'Bogotá', NULL, NULL, 'Reporta situaciones de riesgo o delitos en curso.', TRUE, '2026-09-17 00:00:00', NULL),
+('Línea de Salud Mental', 'health_center', '106', NULL, NULL, NULL, 'Bogotá', NULL, NULL, 'Apoyo psicológico y contención emocional.', TRUE, '2026-09-17 00:00:00', NULL),
+('Casa de la Mujer', 'support_organization', NULL, NULL, NULL, 'Calle 5 #21-45', 'Neiva', 4.704000, -74.071000, 'Atención integral y acompañamiento para mujeres.', TRUE, '2026-09-17 00:00:00', NULL),
+('CAI Centro', 'police_post', NULL, NULL, NULL, 'Carrera 7 #12-30', 'Bogotá', 4.711500, -74.070000, 'Comando de Atención Inmediata de la Policía.', TRUE, '2026-09-17 00:00:00', NULL),
+('Hospital La Victoria', 'hospital', NULL, NULL, NULL, 'Av. Caracas', 'Bogotá', 4.706000, -74.075500, 'Urgencias médicas y atención primaria.', TRUE, '2026-09-17 00:00:00', NULL),
+('Defensoría del Pueblo', 'support_organization', NULL, NULL, NULL, 'Calle 15 #8-20', 'Bogotá', 4.720000, -74.065000, 'Orientación legal y defensa de derechos.', TRUE, '2026-09-17 00:00:00', NULL);
 
 INSERT INTO admin.system_configuration (singleton_key, sos_max_duration_minutes, emergency_phone_number, admin_email, notifications_enabled, default_notification_priority, default_theme, updated_by_admin_id, created_at, updated_at) VALUES
-('SYSTEM', 30, '123', 'admin@test.com', TRUE, 'normal', 'light', NULL, '2023-05-27T00:00:00', NULL);
+('SYSTEM', 30, '123', 'admin@test.com', TRUE, 'normal', 'light', NULL, '2023-05-27 00:00:00', NULL);
 
 -- Reset sequences
 SELECT setval('identity.users_id_seq', (SELECT MAX(id) FROM identity.users));
