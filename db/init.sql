@@ -13,14 +13,14 @@ CREATE SCHEMA IF NOT EXISTS admin;
 -- ============================================
 
 CREATE TABLE identity.role (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(30) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
 
 CREATE TABLE identity.users (
-    id SERIAL PRIMARY KEY,
-    role_id INTEGER NOT NULL DEFAULT 1 REFERENCES identity.role(id),
+    id BIGSERIAL PRIMARY KEY,
+    role_id BIGINT NOT NULL DEFAULT 1 REFERENCES identity.role(id),
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     telephone VARCHAR(20) UNIQUE,
@@ -32,16 +32,16 @@ CREATE TABLE identity.users (
 );
 
 CREATE TABLE identity.account (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
     password_hash VARCHAR(255) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'active',
     last_access TIMESTAMP
 );
 
 CREATE TABLE identity.user_profile (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES identity.users(id) ON DELETE CASCADE,
     profile_photo_url VARCHAR(500),
     tutorial_completed BOOLEAN NOT NULL DEFAULT FALSE,
     tutorial_seen_at TIMESTAMP,
@@ -50,27 +50,27 @@ CREATE TABLE identity.user_profile (
 );
 
 CREATE TABLE identity.admin_profile (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL UNIQUE REFERENCES identity.account(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL UNIQUE REFERENCES identity.account(id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE identity.recovery_request (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
     method VARCHAR(20) NOT NULL,
     token_hash VARCHAR(255) NOT NULL UNIQUE,
     expires_at TIMESTAMP NOT NULL,
     used_at TIMESTAMP,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
-    attempts INTEGER NOT NULL DEFAULT 0,
+    attempts BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     requested_ip VARCHAR(45)
 );
 
 CREATE TABLE identity.device (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
     device_uuid VARCHAR(255) NOT NULL UNIQUE,
     brand VARCHAR(50),
     model VARCHAR(100),
@@ -84,8 +84,8 @@ CREATE TABLE identity.device (
 );
 
 CREATE TABLE identity.device_permission (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
     permission_type VARCHAR(30) NOT NULL,
     status VARCHAR(20) NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -93,9 +93,9 @@ CREATE TABLE identity.device_permission (
 );
 
 CREATE TABLE identity.device_session (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    device_id BIGINT NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
     refresh_token_hash VARCHAR(255) NOT NULL UNIQUE,
     status VARCHAR(20) NOT NULL DEFAULT 'active',
     expires_at TIMESTAMP NOT NULL,
@@ -105,8 +105,8 @@ CREATE TABLE identity.device_session (
 );
 
 CREATE TABLE identity.alert_activation_setting (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
     activation_method VARCHAR(30) NOT NULL,
     is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -114,8 +114,8 @@ CREATE TABLE identity.alert_activation_setting (
 );
 
 CREATE TABLE identity.user_preference (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL UNIQUE REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL UNIQUE REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     language VARCHAR(10) NOT NULL DEFAULT 'es',
     theme VARCHAR(20) NOT NULL DEFAULT 'light',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -127,8 +127,8 @@ CREATE TABLE identity.user_preference (
 -- ============================================
 
 CREATE TABLE alert.emergency_contact (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     contact_name VARCHAR(100) NOT NULL,
     telephone VARCHAR(20) NOT NULL,
     email VARCHAR(150),
@@ -138,9 +138,9 @@ CREATE TABLE alert.emergency_contact (
 );
 
 CREATE TABLE alert.alert (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    device_id BIGINT NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
     alert_type VARCHAR(20) NOT NULL DEFAULT 'main',
     activation_method VARCHAR(30) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'active',
@@ -152,23 +152,23 @@ CREATE TABLE alert.alert (
 );
 
 CREATE TABLE alert.alert_contact (
-    id SERIAL PRIMARY KEY,
-    alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
-    emergency_contact_id INTEGER NOT NULL REFERENCES alert.emergency_contact(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    alert_id BIGINT NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
+    emergency_contact_id BIGINT NOT NULL REFERENCES alert.emergency_contact(id) ON DELETE CASCADE,
     channel VARCHAR(20) NOT NULL,
     destination VARCHAR(150) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     sent_at TIMESTAMP,
     delivered_at TIMESTAMP,
-    attempts INTEGER NOT NULL DEFAULT 0,
+    attempts BIGINT NOT NULL DEFAULT 0,
     error_message VARCHAR(500),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(alert_id, emergency_contact_id, channel)
 );
 
 CREATE TABLE alert.location_log (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
     latitude DECIMAL(9,6) NOT NULL,
     longitude DECIMAL(9,6) NOT NULL,
@@ -177,8 +177,8 @@ CREATE TABLE alert.location_log (
 );
 
 CREATE TABLE alert.notification (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
     type VARCHAR(30) NOT NULL,
     priority VARCHAR(20) NOT NULL DEFAULT 'normal',
@@ -191,16 +191,16 @@ CREATE TABLE alert.notification (
 );
 
 CREATE TABLE alert.evidence (
-    id SERIAL PRIMARY KEY,
-    alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    alert_id BIGINT NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
     media_type VARCHAR(20) NOT NULL,
     file_url VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE alert.frequent_location (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     address VARCHAR(255),
     city VARCHAR(100),
@@ -213,8 +213,8 @@ CREATE TABLE alert.frequent_location (
 );
 
 CREATE TABLE alert.alert_reminder (
-    id SERIAL PRIMARY KEY,
-    alert_id INTEGER NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    alert_id BIGINT NOT NULL REFERENCES alert.alert(id) ON DELETE CASCADE,
     reminder_type VARCHAR(20) NOT NULL,
     sequence_number INTEGER NOT NULL,
     scheduled_at TIMESTAMP NOT NULL,
@@ -229,7 +229,7 @@ CREATE TABLE alert.alert_reminder (
 -- ============================================
 
 CREATE TABLE resource.zone (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     created_by_admin_id INTEGER,
     name VARCHAR(150) NOT NULL,
     zone_type VARCHAR(20) NOT NULL,
@@ -246,9 +246,9 @@ CREATE TABLE resource.zone (
 );
 
 CREATE TABLE resource.zone_report (
-    id SERIAL PRIMARY KEY,
-    zone_id INTEGER NOT NULL REFERENCES resource.zone(id) ON DELETE CASCADE,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    zone_id BIGINT NOT NULL REFERENCES resource.zone(id) ON DELETE CASCADE,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     classification VARCHAR(20) NOT NULL,
     comment VARCHAR(500),
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
@@ -259,7 +259,7 @@ CREATE TABLE resource.zone_report (
 );
 
 CREATE TABLE resource.emergency_resource (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     resource_type VARCHAR(40) NOT NULL,
     telephone VARCHAR(30),
@@ -276,9 +276,9 @@ CREATE TABLE resource.emergency_resource (
 );
 
 CREATE TABLE resource.resource_call (
-    id SERIAL PRIMARY KEY,
-    emergency_resource_id INTEGER NOT NULL REFERENCES resource.emergency_resource(id) ON DELETE CASCADE,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    emergency_resource_id BIGINT NOT NULL REFERENCES resource.emergency_resource(id) ON DELETE CASCADE,
+    user_profile_id BIGINT NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
     device_id INTEGER REFERENCES identity.device(id) ON DELETE SET NULL,
     telephone_dialed VARCHAR(30) NOT NULL,
@@ -294,8 +294,8 @@ CREATE TABLE resource.resource_call (
 -- ============================================
 
 CREATE TABLE admin.audit_log (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    account_id BIGINT NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
     action VARCHAR(100) NOT NULL,
     entity_type VARCHAR(50) NOT NULL,
     entity_id INTEGER,
@@ -305,8 +305,8 @@ CREATE TABLE admin.audit_log (
 );
 
 CREATE TABLE admin.user_report (
-    id SERIAL PRIMARY KEY,
-    reported_user_id INTEGER NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    reported_user_id BIGINT NOT NULL REFERENCES identity.users(id) ON DELETE CASCADE,
     reporter_user_id INTEGER REFERENCES identity.users(id) ON DELETE SET NULL,
     reason VARCHAR(100) NOT NULL,
     description VARCHAR(1000) NOT NULL,
@@ -319,8 +319,8 @@ CREATE TABLE admin.user_report (
 );
 
 CREATE TABLE admin.moderation_action (
-    id SERIAL PRIMARY KEY,
-    user_report_id INTEGER NOT NULL REFERENCES admin.user_report(id) ON DELETE CASCADE,
+    id BIGSERIAL PRIMARY KEY,
+    user_report_id BIGINT NOT NULL REFERENCES admin.user_report(id) ON DELETE CASCADE,
     admin_perfil_id INTEGER NOT NULL,
     action_type VARCHAR(30) NOT NULL,
     notes VARCHAR(1000),
@@ -328,7 +328,7 @@ CREATE TABLE admin.moderation_action (
 );
 
 CREATE TABLE admin.system_configuration (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     singleton_key VARCHAR(10) NOT NULL UNIQUE DEFAULT 'SYSTEM',
     sos_max_duration_minutes INTEGER NOT NULL,
     emergency_phone_number VARCHAR(20) NOT NULL,
