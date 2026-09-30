@@ -38,12 +38,11 @@ public class AuthService {
         }
 
         User user = new User();
-        user.setNombre(nombre);
-        user.setEmail(email);
-        user.setCorreo(email);
-        user.setTelefono(telefono);
         user.setFirstName(nombre.split(" ")[0]);
         user.setLastName(nombre.split(" ").length > 1 ? nombre.split(" ")[1] : "");
+        user.setEmail(email);
+        user.setTelephone(telefono);
+        user.setRoleId(1L);
         user = userRepository.save(user);
 
         Account account = new Account();
@@ -78,7 +77,7 @@ public class AuthService {
         account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
 
-        String token = generateToken(user.getId(), "Admin".equals(user.getRol()) ? "admin" : "user");
+        String token = generateToken(user.getId(), user.getRoleId() == 2L ? "admin" : "user");
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);

@@ -24,17 +24,20 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (updates.containsKey("nombre")) {
-            user.setNombre((String) updates.get("nombre"));
+        if (updates.containsKey("firstName")) {
+            user.setFirstName((String) updates.get("firstName"));
         }
-        if (updates.containsKey("telefono")) {
-            user.setTelefono((String) updates.get("telefono"));
+        if (updates.containsKey("lastName")) {
+            user.setLastName((String) updates.get("lastName"));
         }
-        if (updates.containsKey("avatarColor")) {
-            user.setAvatarColor((String) updates.get("avatarColor"));
+        if (updates.containsKey("telephone")) {
+            user.setTelephone((String) updates.get("telephone"));
         }
-        if (updates.containsKey("contactoEmergencia")) {
-            user.setContactoEmergencia((String) updates.get("contactoEmergencia"));
+        if (updates.containsKey("documentNumber")) {
+            user.setDocumentNumber((String) updates.get("documentNumber"));
+        }
+        if (updates.containsKey("documentType")) {
+            user.setDocumentType((String) updates.get("documentType"));
         }
 
         return userRepository.save(user);
