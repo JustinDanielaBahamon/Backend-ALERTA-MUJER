@@ -1,7 +1,6 @@
 package com.alertamujer.identity.infrastructure.controller;
 
 import com.alertamujer.identity.application.service.AuthService;
-import com.alertamujer.identity.domain.model.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,27 +18,33 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(authService.register(
+            request.get("nombre"),
+            request.get("email"),
+            request.get("password"),
+            request.get("telefono")
+        ));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(authService.login(
+            request.get("email"),
+            request.get("password")
+        ));
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
-        return ResponseEntity.ok(authService.forgotPassword(request.email()));
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(authService.forgotPassword(request.get("email")));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        return ResponseEntity.ok(authService.resetPassword(request.token(), request.newPassword()));
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(authService.resetPassword(
+            request.get("token"),
+            request.get("newPassword")
+        ));
     }
-
-    public record RegisterRequest(String nombre, String email, String password, String telefono) {}
-    public record LoginRequest(String email, String password) {}
-    public record ForgotPasswordRequest(String email) {}
-    public record ResetPasswordRequest(String token, String newPassword) {}
 }

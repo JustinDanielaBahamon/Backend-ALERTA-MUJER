@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -32,23 +32,23 @@ public class AuthService {
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Map<String, Object> register(AuthController.RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+    public Map<String, Object> register(String nombre, String email, String password, String telefono) {
+        if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
 
         User user = new User();
-        user.setNombre(request.nombre());
-        user.setEmail(request.email());
-        user.setCorreo(request.email());
-        user.setTelefono(request.telefono());
-        user.setFirstName(request.nombre().split(" ")[0]);
-        user.setLastName(request.nombre().split(" ").length > 1 ? request.nombre().split(" ")[1] : "");
+        user.setNombre(nombre);
+        user.setEmail(email);
+        user.setCorreo(email);
+        user.setTelefono(telefono);
+        user.setFirstName(nombre.split(" ")[0]);
+        user.setLastName(nombre.split(" ").length > 1 ? nombre.split(" ")[1] : "");
         user = userRepository.save(user);
 
         Account account = new Account();
         account.setUserId(user.getId());
-        account.setPasswordHash(passwordEncoder.encode(request.password()));
+        account.setPasswordHash(passwordEncoder.encode(password));
         account.setStatus("active");
         accountRepository.save(account);
 
@@ -60,8 +60,8 @@ public class AuthService {
         return response;
     }
 
-    public Map<String, Object> login(AuthController.LoginRequest request) {
-        User user = userRepository.findByEmail(request.email())
+    public Map<String, Object> login(String email, String password) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
         Account account = accountRepository.findByUserId(user.getId())
@@ -71,11 +71,11 @@ public class AuthService {
             throw new RuntimeException("Account blocked");
         }
 
-        if (!passwordEncoder.matches(request.password(), account.getPasswordHash())) {
+        if (!passwordEncoder.matches(password, account.getPasswordHash())) {
             throw new RuntimeException("Invalid credentials");
         }
 
-        account.setLastAccess(new Date());
+        account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
 
         String token = generateToken(user.getId(), "Admin".equals(user.getRol()) ? "admin" : "user");
@@ -88,16 +88,12 @@ public class AuthService {
 
     public Map<String, String> forgotPassword(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
-            // In production: send email with reset token
-            // For now, just log it
             System.out.println("Password reset requested for: " + email);
         });
         return Map.of("message", "If the email exists, a reset link will be sent");
     }
 
     public Map<String, String> resetPassword(String token, String newPassword) {
-        // In production: validate token from database
-        // For now, just return success
         return Map.of("message", "Password updated successfully");
     }
 
