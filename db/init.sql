@@ -9,7 +9,7 @@ CREATE SCHEMA IF NOT EXISTS resource;
 CREATE SCHEMA IF NOT EXISTS admin;
 
 -- ============================================
--- IDENTITY SERVICE TABLES
+-- IDENTITY SERVICE TABLES (order matters for FK)
 -- ============================================
 
 CREATE TABLE identity.role (
@@ -68,8 +68,62 @@ CREATE TABLE identity.recovery_request (
     requested_ip VARCHAR(45)
 );
 
+CREATE TABLE identity.device (
+    id SERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    device_uuid VARCHAR(255) NOT NULL UNIQUE,
+    brand VARCHAR(50),
+    model VARCHAR(100),
+    os_name VARCHAR(30) NOT NULL,
+    os_version VARCHAR(30),
+    app_version VARCHAR(30),
+    gps_status VARCHAR(20) NOT NULL DEFAULT 'unknown',
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    last_access TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE identity.device_permission (
+    id SERIAL PRIMARY KEY,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    permission_type VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(device_id, permission_type)
+);
+
+CREATE TABLE identity.device_session (
+    id SERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    refresh_token_hash VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    expires_at TIMESTAMP NOT NULL,
+    last_used_at TIMESTAMP,
+    revoked_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE identity.alert_activation_setting (
+    id SERIAL PRIMARY KEY,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    activation_method VARCHAR(30) NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(device_id, activation_method)
+);
+
+CREATE TABLE identity.user_preference (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL UNIQUE REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    language VARCHAR(10) NOT NULL DEFAULT 'es',
+    theme VARCHAR(20) NOT NULL DEFAULT 'light',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
 -- ============================================
--- ALERT SERVICE TABLES
+-- ALERT SERVICE TABLES (order matters for FK)
 -- ============================================
 
 CREATE TABLE alert.emergency_contact (
@@ -81,6 +135,20 @@ CREATE TABLE alert.emergency_contact (
     relationship VARCHAR(30),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
+);
+
+CREATE TABLE alert.alert (
+    id SERIAL PRIMARY KEY,
+    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
+    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
+    alert_type VARCHAR(20) NOT NULL DEFAULT 'main',
+    activation_method VARCHAR(30) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'active',
+    message VARCHAR(500),
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ended_at TIMESTAMP,
+    cancelled_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE alert.alert_contact (
@@ -106,20 +174,6 @@ CREATE TABLE alert.location_log (
     longitude DECIMAL(9,6) NOT NULL,
     accuracy DECIMAL(6,2),
     recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE alert.alert (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
-    device_id INTEGER NOT NULL,
-    alert_type VARCHAR(20) NOT NULL DEFAULT 'main',
-    activation_method VARCHAR(30) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'active',
-    message VARCHAR(500),
-    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ended_at TIMESTAMP,
-    cancelled_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE alert.notification (
@@ -226,7 +280,7 @@ CREATE TABLE resource.resource_call (
     emergency_resource_id INTEGER NOT NULL REFERENCES resource.emergency_resource(id) ON DELETE CASCADE,
     user_profile_id INTEGER NOT NULL REFERENCES identity.user_profile(id) ON DELETE CASCADE,
     alert_id INTEGER REFERENCES alert.alert(id) ON DELETE SET NULL,
-    device_id INTEGER,
+    device_id INTEGER REFERENCES identity.device(id) ON DELETE SET NULL,
     telephone_dialed VARCHAR(30) NOT NULL,
     status VARCHAR(20) NOT NULL,
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -288,64 +342,6 @@ CREATE TABLE admin.system_configuration (
 );
 
 -- ============================================
--- DEVICE TABLES (Identity Service)
--- ============================================
-
-CREATE TABLE identity.device (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
-    device_uuid VARCHAR(255) NOT NULL UNIQUE,
-    brand VARCHAR(50),
-    model VARCHAR(100),
-    os_name VARCHAR(30) NOT NULL,
-    os_version VARCHAR(30),
-    app_version VARCHAR(30),
-    gps_status VARCHAR(20) NOT NULL DEFAULT 'unknown',
-    status VARCHAR(20) NOT NULL DEFAULT 'active',
-    last_access TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE identity.device_permission (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
-    permission_type VARCHAR(30) NOT NULL,
-    status VARCHAR(20) NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(device_id, permission_type)
-);
-
-CREATE TABLE identity.device_session (
-    id SERIAL PRIMARY KEY,
-    account_id INTEGER NOT NULL REFERENCES identity.account(id) ON DELETE CASCADE,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
-    refresh_token_hash VARCHAR(255) NOT NULL UNIQUE,
-    status VARCHAR(20) NOT NULL DEFAULT 'active',
-    expires_at TIMESTAMP NOT NULL,
-    last_used_at TIMESTAMP,
-    revoked_at TIMESTAMP,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE identity.alert_activation_setting (
-    id SERIAL PRIMARY KEY,
-    device_id INTEGER NOT NULL REFERENCES identity.device(id) ON DELETE CASCADE,
-    activation_method VARCHAR(30) NOT NULL,
-    is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(device_id, activation_method)
-);
-
-CREATE TABLE identity.user_preference (
-    id SERIAL PRIMARY KEY,
-    user_profile_id INTEGER NOT NULL UNIQUE REFERENCES identity.user_profile(id) ON DELETE CASCADE,
-    language VARCHAR(10) NOT NULL DEFAULT 'es',
-    theme VARCHAR(20) NOT NULL DEFAULT 'light',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP
-);
-
--- ============================================
 -- SEED DATA
 -- ============================================
 
@@ -385,6 +381,16 @@ INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_complete
 (7, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
 (8, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
 (9, NULL, FALSE, NULL, '2026-09-17 00:00:00', NULL);
+
+INSERT INTO identity.device (account_id, device_uuid, brand, model, os_name, os_version, app_version, gps_status, status, last_access, created_at) VALUES
+(1, 'device-001', 'Samsung', 'Galaxy A54', 'Android', '13', '1.0.0', 'active', 'active', NULL, '2023-05-29 00:00:00'),
+(2, 'device-002', 'Apple', 'iPhone 13', 'iOS', '16.6', '1.0.0', 'active', 'active', NULL, '2023-05-27 00:00:00'),
+(3, 'device-003', 'Xiaomi', 'Redmi Note 12', 'Android', '12', '1.0.0', 'inactive', 'inactive', NULL, '2023-05-27 00:00:00'),
+(4, 'device-004', 'Motorola', 'G60', 'Android', '11', '1.0.0', 'active', 'active', NULL, '2023-05-27 00:00:00'),
+(5, 'device-005', 'Apple', 'iPhone 11', 'iOS', '15.4', '1.0.0', 'active', 'blocked', NULL, '2023-05-27 00:00:00'),
+(6, 'device-006', 'Samsung', 'Galaxy S22', 'Android', '13', '1.0.0', 'active', 'active', NULL, '2023-05-27 00:00:00'),
+(7, 'device-007', 'Huawei', 'P30 Pro', 'Android', '10', '1.0.0', 'inactive', 'inactive', NULL, '2023-05-27 00:00:00'),
+(8, 'device-008', 'Apple', 'iPhone SE', 'iOS', '17.0', '1.0.0', 'active', 'active', NULL, '2023-05-27 00:00:00');
 
 INSERT INTO alert.emergency_contact (user_profile_id, contact_name, telephone, email, relationship, created_at, updated_at) VALUES
 (1, 'Juan Pérez', '3111234567', NULL, 'Amigo', '2026-09-17 00:00:00', NULL),
@@ -445,6 +451,7 @@ SELECT setval('identity.users_id_seq', (SELECT MAX(id) FROM identity.users));
 SELECT setval('identity.role_id_seq', (SELECT MAX(id) FROM identity.role));
 SELECT setval('identity.account_id_seq', (SELECT MAX(id) FROM identity.account));
 SELECT setval('identity.user_profile_id_seq', (SELECT MAX(id) FROM identity.user_profile));
+SELECT setval('identity.device_id_seq', (SELECT MAX(id) FROM identity.device));
 SELECT setval('alert.alert_id_seq', (SELECT MAX(id) FROM alert.alert));
 SELECT setval('alert.location_log_id_seq', (SELECT MAX(id) FROM alert.location_log));
 SELECT setval('alert.emergency_contact_id_seq', (SELECT MAX(id) FROM alert.emergency_contact));
