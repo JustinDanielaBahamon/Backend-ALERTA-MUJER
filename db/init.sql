@@ -350,7 +350,7 @@ INSERT INTO identity.role (id, name, description) VALUES
 (2, 'administrator', 'Administrador del sistema');
 
 INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email, document_number, document_type, birthdate, created_at) VALUES
-(1, 1, 'María', 'Pérez', '+57 311 000 0001', 'maria.perez@test.com', NULL, NULL, NULL, '2023-05-29 00:00:00'),
+(1, 1, 'Mujer', 'Test', '+57 311 000 0001', 'mujer@gmail.com', NULL, NULL, NULL, '2023-05-29 00:00:00'),
 (2, 1, 'Ana', 'Gómez', '+57 312 000 0002', 'ana.gomez@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
 (3, 1, 'Laura', 'Torres', '+57 313 000 0003', 'laura.torres@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
 (4, 1, 'Sofía', 'Ruiz', '+57 314 000 0004', 'sofia.ruiz@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
@@ -358,18 +358,20 @@ INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email
 (6, 1, 'Diana', 'Morales', '+57 316 000 0006', 'diana.morales@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
 (7, 1, 'Paola', 'Vargas', '+57 317 000 0007', 'paola.vargas@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
 (8, 2, 'Admin', 'Principal', '+57 318 000 0008', 'admin@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
-(9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', NULL, NULL, NULL, '2026-09-17 00:00:00');
+(9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', NULL, NULL, NULL, '2026-09-17 00:00:00'),
+(10, 1, 'Alerta', 'Usuario', '+57 321 000 0010', 'alerta@gmail.com', NULL, NULL, NULL, '2026-09-30 00:00:00');
 
 INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUES
-(1, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
-(2, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'inactive', NULL),
-(3, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
-(4, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
-(5, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
-(6, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
-(7, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
-(8, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
-(9, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL);
+(1, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
+(2, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'inactive', NULL),
+(3, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
+(4, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
+(5, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
+(6, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
+(7, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
+(8, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
+(9, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
+(10, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL);
 
 INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_completed, tutorial_seen_at, created_at, updated_at) VALUES
 (1, NULL, FALSE, NULL, '2023-05-29 00:00:00', NULL),
@@ -380,7 +382,8 @@ INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_complete
 (6, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
 (7, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
 (8, NULL, FALSE, NULL, '2023-05-27 00:00:00', NULL),
-(9, NULL, FALSE, NULL, '2026-09-17 00:00:00', NULL);
+(9, NULL, FALSE, NULL, '2026-09-17 00:00:00', NULL),
+(10, NULL, FALSE, NULL, '2026-09-30 00:00:00', NULL);
 
 INSERT INTO identity.device (account_id, device_uuid, brand, model, os_name, os_version, app_version, gps_status, status, last_access, created_at) VALUES
 (1, 'device-001', 'Samsung', 'Galaxy A54', 'Android', '13', '1.0.0', 'active', 'active', NULL, '2023-05-29 00:00:00'),

@@ -1,60 +1,60 @@
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/domain/model/Device.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/controller/ZoneController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/NotificationRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/controller/ZoneReportController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/application/service/UserService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/AlertContactRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/application/service/ZoneService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/UserRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/controller/ResourceCallController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/LocationLogRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/UserProfile.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/UserController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/EmergencyResourceService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/domain/model/Evidence.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/UserReport.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/config/JwtAuthenticationFilter.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/AccountRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/ResourceCallService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/infrastructure/repository/DeviceRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/domain/model/EmergencyResource.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/EmergencyContact.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/AlertContact.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/AlertService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/application/service/DeviceService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/application/service/AdminService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/AuthController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/repository/UserReportRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/EmergencyContactService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/controller/AlertController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/Account.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/repository/ZoneReportRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/AlertRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/EmergencyContactRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Notification.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/controller/AdminController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/domain/model/ResourceCall.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/LocationLog.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/AlertaMujerBackendApplication.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/controller/EmergencyResourceController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/UserProfileRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Alert.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/AuditLog.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/User.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/domain/model/Zone.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/application/service/EvidenceService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/application/service/AuthService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/controller/EmergencyContactController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/infrastructure/controller/HealthController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/config/SecurityConfig.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/repository/EmergencyResourceRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/repository/ZoneRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/repository/EvidenceRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/repository/AuditLogRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/repository/ResourceCallRepository.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/controller/EvidenceController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/domain/model/ZoneReport.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/application/service/ZoneReportService.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/Role.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/infrastructure/controller/DeviceController.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/RoleRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/domain/model/ZoneReport.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/EmergencyContactService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/EmergencyContactRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Notification.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/infrastructure/controller/HealthController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/Account.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/domain/model/Evidence.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/repository/AuditLogRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/domain/model/ResourceCall.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/domain/model/EmergencyResource.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/repository/EmergencyResourceRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/domain/model/Zone.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/config/SecurityConfig.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/AlertRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/UserController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Alert.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/UserRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/infrastructure/controller/DeviceController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/application/service/AuthService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/AlertaMujerBackendApplication.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/application/service/ZoneReportService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/UserProfileRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/controller/EvidenceController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/AlertContactRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/EmergencyContact.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/domain/model/Device.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/repository/EvidenceRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/AuditLog.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/AuthController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/controller/ZoneReportController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/controller/AlertController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/controller/ResourceCallController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/AlertService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/repository/ZoneRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/controller/AdminController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/LocationLog.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/config/JwtAuthenticationFilter.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/NotificationRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/application/service/EvidenceService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/EmergencyResourceService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/repository/UserReportRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/application/service/DeviceService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/infrastructure/repository/DeviceRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/controller/ZoneController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/Role.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/application/service/ZoneService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/UserReport.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/UserProfile.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/application/service/UserService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/ResourceCallService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/repository/ResourceCallRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/controller/EmergencyResourceController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/User.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/AccountRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/controller/EmergencyContactController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/LocationLogRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/AlertContact.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/RoleRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/application/service/AdminService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/repository/ZoneReportRepository.java
