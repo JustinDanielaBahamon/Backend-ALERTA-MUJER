@@ -350,15 +350,15 @@ INSERT INTO identity.role (id, name, description) VALUES
 (2, 'administrator', 'Administrador del sistema');
 
 INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email, document_number, document_type, birthdate, created_at) VALUES
-(1, 1, 'María', 'Pérez', '+57 311 000 0001', 'maria.perez@test.com', '', '', NULL, '2023-05-29 00:00:00'),
-(2, 1, 'Ana', 'Gómez', '+57 312 000 0002', 'ana.gomez@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(3, 1, 'Laura', 'Torres', '+57 313 000 0003', 'laura.torres@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(4, 1, 'Sofía', 'Ruiz', '+57 314 000 0004', 'sofia.ruiz@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(5, 1, 'Camila', 'Ortiz', '+57 315 000 0005', 'camila.ortiz@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(6, 1, 'Diana', 'Morales', '+57 316 000 0006', 'diana.morales@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(7, 1, 'Paola', 'Vargas', '+57 317 000 0007', 'paola.vargas@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(8, 2, 'Admin', 'Principal', '+57 318 000 0008', 'admin@test.com', '', '', NULL, '2023-05-27 00:00:00'),
-(9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', '', '', NULL, '2026-09-17 00:00:00');
+(1, 1, 'María', 'Pérez', '+57 311 000 0001', 'maria.perez@test.com', NULL, NULL, NULL, '2023-05-29 00:00:00'),
+(2, 1, 'Ana', 'Gómez', '+57 312 000 0002', 'ana.gomez@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(3, 1, 'Laura', 'Torres', '+57 313 000 0003', 'laura.torres@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(4, 1, 'Sofía', 'Ruiz', '+57 314 000 0004', 'sofia.ruiz@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(5, 1, 'Camila', 'Ortiz', '+57 315 000 0005', 'camila.ortiz@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(6, 1, 'Diana', 'Morales', '+57 316 000 0006', 'diana.morales@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(7, 1, 'Paola', 'Vargas', '+57 317 000 0007', 'paola.vargas@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(8, 2, 'Admin', 'Principal', '+57 318 000 0008', 'admin@test.com', NULL, NULL, NULL, '2023-05-27 00:00:00'),
+(9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', NULL, NULL, NULL, '2026-09-17 00:00:00');
 
 INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUES
 (1, 'Alerta@123', 'active', NULL),

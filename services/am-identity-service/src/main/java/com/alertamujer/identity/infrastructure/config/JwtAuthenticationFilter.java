@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final SecretKey jwtKey;
 
     public JwtAuthenticationFilter() {
-        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_2026");
+        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_super_secure_jwt_secret_key_2026");
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 

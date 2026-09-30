@@ -45,7 +45,7 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
       - POSTGRES_USER=${POSTGRES_USER:-alerta_mujer}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
-      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_super_secure_jwt_secret_key_2026}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     depends_on:
@@ -61,7 +61,7 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
       - POSTGRES_USER=${POSTGRES_USER:-alerta_mujer}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
-      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_super_secure_jwt_secret_key_2026}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     depends_on:
       postgres:
@@ -76,7 +76,7 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
       - POSTGRES_USER=${POSTGRES_USER:-alerta_mujer}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
-      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_super_secure_jwt_secret_key_2026}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     depends_on:
       postgres:
@@ -91,7 +91,7 @@ services:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
       - POSTGRES_USER=${POSTGRES_USER:-alerta_mujer}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
-      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_2026}
+      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_super_secure_jwt_secret_key_2026}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
     depends_on:
       postgres:

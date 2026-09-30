@@ -28,7 +28,7 @@ public class AuthService {
     public AuthService(UserRepository userRepository, AccountRepository accountRepository) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
-        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_2026");
+        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_super_secure_jwt_secret_key_2026");
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
