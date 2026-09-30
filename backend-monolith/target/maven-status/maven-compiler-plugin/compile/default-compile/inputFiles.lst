@@ -9,7 +9,6 @@
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/controller/ResourceCallController.java
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/LocationLogRepository.java
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/UserProfile.java
-/home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/EvidenceRepository.java
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/UserController.java
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/EmergencyResourceService.java
 /home/maicol/Documentos/Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/domain/model/Evidence.java

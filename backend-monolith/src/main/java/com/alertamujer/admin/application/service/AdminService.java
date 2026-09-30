@@ -6,7 +6,7 @@ import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
 import com.alertamujer.admin.infrastructure.repository.UserReportRepository;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
-import com.alertamujer.alerts.infrastructure.repository.EvidenceRepository;
+import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import com.alertamujer.zones.infrastructure.repository.ZoneRepository;

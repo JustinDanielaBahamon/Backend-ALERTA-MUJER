@@ -13,7 +13,6 @@ com/alertamujer/alerts/infrastructure/repository/NotificationRepository.class
 com/alertamujer/resources/infrastructure/controller/EmergencyResourceController.class
 com/alertamujer/alerts/infrastructure/repository/EmergencyContactRepository.class
 com/alertamujer/admin/application/service/AdminService.class
-com/alertamujer/alerts/infrastructure/repository/EvidenceRepository.class
 com/alertamujer/alerts/infrastructure/repository/LocationLogRepository.class
 com/alertamujer/alerts/infrastructure/controller/AlertController.class
 com/alertamujer/admin/domain/model/UserReport.class
