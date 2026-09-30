@@ -361,15 +361,15 @@ INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email
 (9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', NULL, NULL, NULL, '2026-09-17 00:00:00');
 
 INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUES
-(1, 'Alerta@123', 'active', NULL),
-(2, 'Alerta@123', 'inactive', NULL),
-(3, 'Alerta@123', 'blocked', NULL),
-(4, 'Alerta@123', 'blocked', NULL),
-(5, 'Alerta@123', 'active', NULL),
-(6, 'Alerta@123', 'blocked', NULL),
-(7, 'Alerta@123', 'blocked', NULL),
-(8, 'Admin@2026', 'active', NULL),
-(9, 'Noruega@123', 'active', NULL);
+(1, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
+(2, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'inactive', NULL),
+(3, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
+(4, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
+(5, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
+(6, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
+(7, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'blocked', NULL),
+(8, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL),
+(9, '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'active', NULL);
 
 INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_completed, tutorial_seen_at, created_at, updated_at) VALUES
 (1, NULL, FALSE, NULL, '2023-05-29 00:00:00', NULL),
