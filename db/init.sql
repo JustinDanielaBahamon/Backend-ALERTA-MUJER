@@ -328,7 +328,7 @@ CREATE TABLE admin.moderation_action (
 );
 
 CREATE TABLE admin.system_configuration (
-    id SERIAL PRIMARY KEY DEFAULT 1,
+    id SERIAL PRIMARY KEY,
     singleton_key VARCHAR(10) NOT NULL UNIQUE DEFAULT 'SYSTEM',
     sos_max_duration_minutes INTEGER NOT NULL,
     emergency_phone_number VARCHAR(20) NOT NULL,
