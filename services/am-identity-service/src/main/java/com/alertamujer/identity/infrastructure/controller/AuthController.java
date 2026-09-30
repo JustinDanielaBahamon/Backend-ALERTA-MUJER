@@ -1,7 +1,6 @@
 package com.alertamujer.identity.infrastructure.controller;
 
 import com.alertamujer.identity.application.service.AuthService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +17,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(authService.register(
             request.get("nombre"),
             request.get("email"),
@@ -28,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(authService.login(
             request.get("email"),
             request.get("password")
@@ -41,7 +40,7 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(authService.resetPassword(
             request.get("token"),
             request.get("newPassword")
