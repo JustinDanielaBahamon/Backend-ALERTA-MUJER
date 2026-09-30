@@ -18,6 +18,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, String> request) {
+        System.out.println("=== CONTROLLER REGISTER START ===");
+        System.out.println("Request: " + request);
         return ResponseEntity.ok(authService.register(
             request.get("nombre"),
             request.get("email"),
