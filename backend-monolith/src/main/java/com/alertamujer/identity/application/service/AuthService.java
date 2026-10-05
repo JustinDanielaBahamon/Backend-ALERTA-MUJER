@@ -2,7 +2,9 @@ package com.alertamujer.identity.application.service;
 
 import com.alertamujer.identity.domain.model.Account;
 import com.alertamujer.identity.domain.model.User;
+import com.alertamujer.identity.domain.model.UserProfile;
 import com.alertamujer.identity.infrastructure.repository.AccountRepository;
+import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,12 +24,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final UserProfileRepository userProfileRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecretKey jwtKey;
 
-    public AuthService(UserRepository userRepository, AccountRepository accountRepository) {
+    public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
+        this.userProfileRepository = userProfileRepository;
         String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7");
 
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -51,6 +55,13 @@ public class AuthService {
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setStatus("active");
         accountRepository.save(account);
+
+        // Crear también el perfil de la usuaria: sin él no puede crear alertas, contactos ni ubicaciones
+        if (!userProfileRepository.existsByUserId(user.getId())) {
+            UserProfile profile = new UserProfile();
+            profile.setUserId(user.getId());
+            userProfileRepository.save(profile);
+        }
 
         String token = generateToken(user.getId(), "user");
 
