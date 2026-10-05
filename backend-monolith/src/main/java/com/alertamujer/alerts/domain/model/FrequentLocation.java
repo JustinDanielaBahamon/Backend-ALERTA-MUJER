@@ -28,6 +28,9 @@ public class FrequentLocation {
 
     private String notes;
 
+    @Column(name = "risk_level", nullable = false)
+    private String riskLevel = "moderada";
+
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
@@ -61,6 +64,8 @@ public class FrequentLocation {
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+    public String getRiskLevel() { return riskLevel; }
+    public void setRiskLevel(String riskLevel) { this.riskLevel = riskLevel; }
 
     public Boolean getIsActive() { return isActive; }
     public void setIsActive(Boolean isActive) { this.isActive = isActive; }

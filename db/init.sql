@@ -145,6 +145,8 @@ CREATE TABLE alert.alert (
     activation_method VARCHAR(30) NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'active',
     message VARCHAR(500),
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
     started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP,
     cancelled_at TIMESTAMP,
@@ -207,6 +209,7 @@ CREATE TABLE alert.frequent_location (
     latitude DECIMAL(9,6) NOT NULL,
     longitude DECIMAL(9,6) NOT NULL,
     notes VARCHAR(255),
+    risk_level VARCHAR(20) NOT NULL DEFAULT 'moderada',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP

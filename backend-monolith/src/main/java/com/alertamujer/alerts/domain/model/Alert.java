@@ -27,6 +27,12 @@ public class Alert {
 
     private String message;
 
+    @Column(name = "latitude", precision = 9, scale = 6)
+    private java.math.BigDecimal latitude;
+
+    @Column(name = "longitude", precision = 9, scale = 6)
+    private java.math.BigDecimal longitude;
+
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt = LocalDateTime.now();
 
@@ -54,6 +60,10 @@ public class Alert {
     public void setStatus(String status) { this.status = status; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+    public java.math.BigDecimal getLatitude() { return latitude; }
+    public void setLatitude(java.math.BigDecimal latitude) { this.latitude = latitude; }
+    public java.math.BigDecimal getLongitude() { return longitude; }
+    public void setLongitude(java.math.BigDecimal longitude) { this.longitude = longitude; }
     public LocalDateTime getStartedAt() { return startedAt; }
     public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
     public LocalDateTime getEndedAt() { return endedAt; }

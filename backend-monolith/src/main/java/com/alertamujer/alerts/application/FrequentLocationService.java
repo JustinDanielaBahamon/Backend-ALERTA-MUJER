@@ -34,6 +34,9 @@ public class FrequentLocationService {
     @Transactional
     public FrequentLocation create(FrequentLocation frequentLocation) {
         frequentLocation.setCreatedAt(java.time.LocalDateTime.now());
+        if (frequentLocation.getRiskLevel() == null || frequentLocation.getRiskLevel().isBlank()) {
+            frequentLocation.setRiskLevel("moderada");
+        }
         return frequentLocationRepository.save(frequentLocation);
     }
 
@@ -42,13 +45,18 @@ public class FrequentLocationService {
         FrequentLocation existing = frequentLocationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("FrequentLocation not found"));
         
-        existing.setName(frequentLocation.getName());
+        existing.setName(frequentLocation.getName() != null && !frequentLocation.getName().isBlank()
+                ? frequentLocation.getName()
+                : existing.getName());
         existing.setAddress(frequentLocation.getAddress());
         existing.setCity(frequentLocation.getCity());
-        existing.setLatitude(frequentLocation.getLatitude());
-        existing.setLongitude(frequentLocation.getLongitude());
+        existing.setLatitude(frequentLocation.getLatitude() != null ? frequentLocation.getLatitude() : existing.getLatitude());
+        existing.setLongitude(frequentLocation.getLongitude() != null ? frequentLocation.getLongitude() : existing.getLongitude());
         existing.setNotes(frequentLocation.getNotes());
-        existing.setIsActive(frequentLocation.getIsActive());
+        existing.setRiskLevel(frequentLocation.getRiskLevel() != null && !frequentLocation.getRiskLevel().isBlank()
+                ? frequentLocation.getRiskLevel()
+                : existing.getRiskLevel());
+        existing.setIsActive(frequentLocation.getIsActive() != null ? frequentLocation.getIsActive() : existing.getIsActive());
         existing.setUpdatedAt(java.time.LocalDateTime.now());
         
         return frequentLocationRepository.save(existing);

@@ -39,6 +39,14 @@ public class UserService {
         if (updates.containsKey("documentType")) {
             user.setDocumentType((String) updates.get("documentType"));
         }
+        if (updates.containsKey("birthdate") && updates.get("birthdate") != null) {
+            Object raw = updates.get("birthdate");
+            try {
+                user.setBirthdate(java.time.LocalDate.parse(String.valueOf(raw)));
+            } catch (Exception ignored) {
+                // Formato inválido: se ignora el valor de birthdate
+            }
+        }
 
         return userRepository.save(user);
     }
