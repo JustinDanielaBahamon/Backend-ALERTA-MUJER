@@ -39,12 +39,12 @@ public class AlertService {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Alert not found"));
         
-        alert.setAlertType(alertDetails.getAlertType());
-        alert.setActivationMethod(alertDetails.getActivationMethod());
-        alert.setStatus(alertDetails.getStatus());
-        alert.setMessage(alertDetails.getMessage());
-        alert.setEndedAt(alertDetails.getEndedAt());
-        alert.setCancelledAt(alertDetails.getCancelledAt());
+        if (alertDetails.getAlertType() != null) alert.setAlertType(alertDetails.getAlertType());
+        if (alertDetails.getActivationMethod() != null) alert.setActivationMethod(alertDetails.getActivationMethod());
+        if (alertDetails.getStatus() != null) alert.setStatus(alertDetails.getStatus());
+        if (alertDetails.getMessage() != null) alert.setMessage(alertDetails.getMessage());
+        if (alertDetails.getEndedAt() != null) alert.setEndedAt(alertDetails.getEndedAt());
+        if (alertDetails.getCancelledAt() != null) alert.setCancelledAt(alertDetails.getCancelledAt());
         
         return alertRepository.save(alert);
     }
