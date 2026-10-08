@@ -2,6 +2,10 @@ package com.alertamujer.devices.application.service;
 
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
+import com.alertamujer.identity.domain.model.Account;
+import com.alertamujer.identity.infrastructure.repository.AccountRepository;
+import com.alertamujer.shared.exception.AccessDeniedException;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,9 +14,11 @@ import java.util.List;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final AccountRepository accountRepository;
 
-    public DeviceService(DeviceRepository deviceRepository) {
+    public DeviceService(DeviceRepository deviceRepository, AccountRepository accountRepository) {
         this.deviceRepository = deviceRepository;
+        this.accountRepository = accountRepository;
     }
 
     public List<Device> getAllDevices() {
@@ -21,15 +27,24 @@ public class DeviceService {
 
     public Device getDeviceById(Long id) {
         return deviceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Device not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Device", id));
     }
 
-    public Device createDevice(Device device) {
+    public Device getDeviceById(Long id, Long currentUserId) {
+        Device device = getDeviceById(id);
+        validateOwnership(device, currentUserId);
+        return device;
+    }
+
+    public Device createDevice(Device device, Long currentUserId) {
+        Account account = accountRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
+        device.setAccountId(account.getId());
         return deviceRepository.save(device);
     }
 
-    public Device updateDevice(Long id, Device device) {
-        Device existing = getDeviceById(id);
+    public Device updateDevice(Long id, Device device, Long currentUserId) {
+        Device existing = getDeviceById(id, currentUserId);
         existing.setDeviceUuid(device.getDeviceUuid());
         existing.setBrand(device.getBrand());
         existing.setModel(device.getModel());
@@ -42,7 +57,16 @@ public class DeviceService {
         return deviceRepository.save(existing);
     }
 
-    public void deleteDevice(Long id) {
+    public void deleteDevice(Long id, Long currentUserId) {
+        Device device = getDeviceById(id, currentUserId);
         deviceRepository.deleteById(id);
+    }
+
+    private void validateOwnership(Device device, Long currentUserId) {
+        Account account = accountRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
+        if (!device.getAccountId().equals(account.getId())) {
+            throw new AccessDeniedException("No puedes acceder a dispositivos de otro usuario");
+        }
     }
 }

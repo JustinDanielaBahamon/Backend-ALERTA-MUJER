@@ -2,6 +2,8 @@ package com.alertamujer.zones.application.service;
 
 import com.alertamujer.zones.domain.model.ZoneReport;
 import com.alertamujer.zones.infrastructure.repository.ZoneReportRepository;
+import com.alertamujer.shared.exception.AccessDeniedException;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -25,6 +27,11 @@ public class ZoneReportService {
         return zoneReportRepository.findById(id);
     }
 
+    public Optional<ZoneReport> getReportById(Long id, Long currentUserId) {
+        return zoneReportRepository.findById(id)
+                .filter(report -> report.getUserProfileId().equals(currentUserId));
+    }
+
     public List<ZoneReport> getReportsByZone(Long zoneId) {
         return zoneReportRepository.findByZoneId(zoneId);
     }
@@ -37,13 +44,16 @@ public class ZoneReportService {
         return zoneReportRepository.findByStatus(status);
     }
 
-    public ZoneReport createReport(ZoneReport report) {
+    public ZoneReport createReport(ZoneReport report, Long currentUserId) {
+        if (!report.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes crear reportes para otro usuario");
+        }
         return zoneReportRepository.save(report);
     }
 
     public ZoneReport approveReport(Long id, Integer adminId) {
         ZoneReport report = zoneReportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Zone report not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
         
         report.setStatus("approved");
         report.setReviewedByAdminId(adminId);
@@ -54,7 +64,7 @@ public class ZoneReportService {
 
     public ZoneReport rejectReport(Long id, Integer adminId) {
         ZoneReport report = zoneReportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Zone report not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
         
         report.setStatus("rejected");
         report.setReviewedByAdminId(adminId);
@@ -63,7 +73,14 @@ public class ZoneReportService {
         return zoneReportRepository.save(report);
     }
 
-    public void deleteReport(Long id) {
+    public void deleteReport(Long id, Long currentUserId) {
+        ZoneReport report = zoneReportRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
+        
+        if (!report.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes eliminar reportes de otro usuario");
+        }
+        
         zoneReportRepository.deleteById(id);
     }
 }

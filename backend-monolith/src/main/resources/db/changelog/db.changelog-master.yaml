@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-schemas
+      author: alerta-mujer-team
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS identity
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS alert
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS resource
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS admin
+      rollback:
+        - sql:
+            sql: DROP SCHEMA IF EXISTS admin CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS resource CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS alert CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS identity CASCADE
+
+  - include:
+      file: changesets/v1.0.0/01-identity-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/02-alert-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/03-resource-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/04-admin-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/05-seed-data.yaml
+      relativeToChangelogFile: true
+      context: test,dev
+
+  - include:
+      file: changesets/v1.1.0/06-migrate-personal-data.yaml
+      relativeToChangelogFile: true

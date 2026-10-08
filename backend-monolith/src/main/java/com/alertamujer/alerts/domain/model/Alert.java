@@ -2,12 +2,21 @@ package com.alertamujer.alerts.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * Alert entity following database schema: Alert state and type.
+ * References user_profile_id and device_id as foreign keys.
+ */
 @Entity
 @Table(name = "alert", schema = "alert")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "user_profile_id", nullable = false)
@@ -42,34 +51,6 @@ public class Alert {
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getUserProfileId() { return userProfileId; }
-    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
-    public Long getDeviceId() { return deviceId; }
-    public void setDeviceId(Long deviceId) { this.deviceId = deviceId; }
-    public String getAlertType() { return alertType; }
-    public void setAlertType(String alertType) { this.alertType = alertType; }
-    public String getActivationMethod() { return activationMethod; }
-    public void setActivationMethod(String activationMethod) { this.activationMethod = activationMethod; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-    public java.math.BigDecimal getLatitude() { return latitude; }
-    public void setLatitude(java.math.BigDecimal latitude) { this.latitude = latitude; }
-    public java.math.BigDecimal getLongitude() { return longitude; }
-    public void setLongitude(java.math.BigDecimal longitude) { this.longitude = longitude; }
-    public LocalDateTime getStartedAt() { return startedAt; }
-    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
-    public LocalDateTime getEndedAt() { return endedAt; }
-    public void setEndedAt(LocalDateTime endedAt) { this.endedAt = endedAt; }
-    public LocalDateTime getCancelledAt() { return cancelledAt; }
-    public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

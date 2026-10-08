@@ -2,13 +2,29 @@ package com.alertamujer.identity.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+/**
+ * Account entity following database schema: Contains authentication credentials.
+ * OneToOne with User via user_id foreign key.
+ */
 @Entity
 @Table(name = "account", schema = "identity")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "user")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_account_user"))
+    @ToString.Exclude
+    private User user;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
@@ -20,16 +36,4 @@ public class Account {
 
     @Column(name = "last_access")
     private LocalDateTime lastAccess;
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getLastAccess() { return lastAccess; }
-    public void setLastAccess(LocalDateTime lastAccess) { this.lastAccess = lastAccess; }
 }

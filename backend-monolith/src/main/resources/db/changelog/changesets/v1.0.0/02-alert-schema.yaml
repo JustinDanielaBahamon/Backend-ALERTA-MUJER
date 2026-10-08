@@ -1,0 +1,504 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-emergency-contact-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: emergency_contact
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_emergency_contact_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: contact_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: telephone
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(150)
+              - column:
+                  name: relationship
+                  type: VARCHAR(30)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: emergency_contact
+
+  - changeSet:
+      id: create-alert-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: alert
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_device
+                    references: identity.device(id)
+                    onDelete: CASCADE
+              - column:
+                  name: alert_type
+                  type: VARCHAR(20)
+                  defaultValue: 'main'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: activation_method
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'active'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: VARCHAR(500)
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+              - column:
+                  name: started_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ended_at
+                  type: TIMESTAMP
+              - column:
+                  name: cancelled_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: alert
+
+  - changeSet:
+      id: create-alert-contact-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: alert_contact
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: alert_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_contact_alert
+                    references: alert.alert(id)
+                    onDelete: CASCADE
+              - column:
+                  name: emergency_contact_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_contact_emergency_contact
+                    references: alert.emergency_contact(id)
+                    onDelete: CASCADE
+              - column:
+                  name: channel
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: destination
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'pending'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sent_at
+                  type: TIMESTAMP
+              - column:
+                  name: delivered_at
+                  type: TIMESTAMP
+              - column:
+                  name: attempts
+                  type: BIGINT
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: error_message
+                  type: VARCHAR(500)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: alert
+            tableName: alert_contact
+            columnNames: alert_id, emergency_contact_id, channel
+            constraintName: uk_alert_contact
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: alert_contact
+
+  - changeSet:
+      id: create-location-log-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: location_log
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_location_log_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: alert_id
+                  type: INTEGER
+                  constraints:
+                    foreignKeyName: fk_location_log_alert
+                    references: alert.alert(id)
+                    onDelete: SET NULL
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: accuracy
+                  type: DECIMAL(6,2)
+              - column:
+                  name: recorded_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: location_log
+
+  - changeSet:
+      id: create-notification-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: notification
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_notification_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: alert_id
+                  type: INTEGER
+                  constraints:
+                    foreignKeyName: fk_notification_alert
+                    references: alert.alert(id)
+                    onDelete: SET NULL
+              - column:
+                  name: type
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: priority
+                  type: VARCHAR(20)
+                  defaultValue: 'normal'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_read
+                  type: BOOLEAN
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_persistent
+                  type: BOOLEAN
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: notification
+
+  - changeSet:
+      id: create-evidence-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: evidence
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: alert_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_evidence_alert
+                    references: alert.alert(id)
+                    onDelete: CASCADE
+              - column:
+                  name: media_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_url
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: evidence
+
+  - changeSet:
+      id: create-frequent-location-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: frequent_location
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_frequent_location_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: notes
+                  type: VARCHAR(255)
+              - column:
+                  name: risk_level
+                  type: VARCHAR(20)
+                  defaultValue: 'moderada'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: frequent_location
+
+  - changeSet:
+      id: create-alert-reminder-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: alert
+            tableName: alert_reminder
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: alert_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_reminder_alert
+                    references: alert.alert(id)
+                    onDelete: CASCADE
+              - column:
+                  name: reminder_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sequence_number
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scheduled_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sent_at
+                  type: TIMESTAMP
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'scheduled'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: error_message
+                  type: VARCHAR(500)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: alert
+            tableName: alert_reminder

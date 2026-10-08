@@ -3,12 +3,21 @@ package com.alertamujer.alerts.domain.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * LocationLog entity following database schema: Location tracking.
+ * References user_profile_id and alert_id as foreign keys.
+ */
 @Entity
 @Table(name = "location_log", schema = "alert")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class LocationLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "user_profile_id", nullable = false)
@@ -27,20 +36,4 @@ public class LocationLog {
 
     @Column(name = "recorded_at", nullable = false)
     private LocalDateTime recordedAt = LocalDateTime.now();
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getUserProfileId() { return userProfileId; }
-    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
-    public Long getAlertId() { return alertId; }
-    public void setAlertId(Long alertId) { this.alertId = alertId; }
-    public BigDecimal getLatitude() { return latitude; }
-    public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
-    public BigDecimal getLongitude() { return longitude; }
-    public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
-    public BigDecimal getAccuracy() { return accuracy; }
-    public void setAccuracy(BigDecimal accuracy) { this.accuracy = accuracy; }
-    public LocalDateTime getRecordedAt() { return recordedAt; }
-    public void setRecordedAt(LocalDateTime recordedAt) { this.recordedAt = recordedAt; }
 }

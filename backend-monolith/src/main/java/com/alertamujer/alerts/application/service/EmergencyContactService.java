@@ -2,6 +2,8 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
+import com.alertamujer.shared.exception.AccessDeniedException;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,17 +26,29 @@ public class EmergencyContactService {
         return emergencyContactRepository.findById(id);
     }
 
+    public Optional<EmergencyContact> getContactById(Long id, Long currentUserId) {
+        return emergencyContactRepository.findById(id)
+                .filter(contact -> contact.getUserProfileId().equals(currentUserId));
+    }
+
     public List<EmergencyContact> getContactsByUserProfile(Long userProfileId) {
         return emergencyContactRepository.findByUserProfileId(userProfileId);
     }
 
-    public EmergencyContact createContact(EmergencyContact contact) {
+    public EmergencyContact createContact(EmergencyContact contact, Long currentUserId) {
+        if (!contact.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes crear contactos para otro usuario");
+        }
         return emergencyContactRepository.save(contact);
     }
 
-    public EmergencyContact updateContact(Long id, EmergencyContact contactDetails) {
+    public EmergencyContact updateContact(Long id, EmergencyContact contactDetails, Long currentUserId) {
         EmergencyContact contact = emergencyContactRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Emergency contact not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
+        
+        if (!contact.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes modificar contactos de otro usuario");
+        }
         
         contact.setContactName(contactDetails.getContactName());
         contact.setTelephone(contactDetails.getTelephone());
@@ -44,7 +58,14 @@ public class EmergencyContactService {
         return emergencyContactRepository.save(contact);
     }
 
-    public void deleteContact(Long id) {
+    public void deleteContact(Long id, Long currentUserId) {
+        EmergencyContact contact = emergencyContactRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
+        
+        if (!contact.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes eliminar contactos de otro usuario");
+        }
+        
         emergencyContactRepository.deleteById(id);
     }
 }

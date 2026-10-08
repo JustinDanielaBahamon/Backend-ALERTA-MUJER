@@ -2,6 +2,8 @@ package com.alertamujer.alerts.application;
 
 import com.alertamujer.alerts.domain.model.FrequentLocation;
 import com.alertamujer.alerts.infrastructure.repository.FrequentLocationRepository;
+import com.alertamujer.shared.exception.AccessDeniedException;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +30,23 @@ public class FrequentLocationService {
     }
 
     public FrequentLocation getById(Long id) {
-        return frequentLocationRepository.findById(id).orElse(null);
+        return frequentLocationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("FrequentLocation", id));
+    }
+
+    public FrequentLocation getById(Long id, Long currentUserId) {
+        FrequentLocation location = getById(id);
+        if (!location.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes acceder a ubicaciones frecuentes de otro usuario");
+        }
+        return location;
     }
 
     @Transactional
-    public FrequentLocation create(FrequentLocation frequentLocation) {
+    public FrequentLocation create(FrequentLocation frequentLocation, Long currentUserId) {
+        if (!frequentLocation.getUserProfileId().equals(currentUserId)) {
+            throw new AccessDeniedException("No puedes crear ubicaciones frecuentes para otro usuario");
+        }
         frequentLocation.setCreatedAt(java.time.LocalDateTime.now());
         if (frequentLocation.getRiskLevel() == null || frequentLocation.getRiskLevel().isBlank()) {
             frequentLocation.setRiskLevel("moderada");
@@ -41,9 +55,8 @@ public class FrequentLocationService {
     }
 
     @Transactional
-    public FrequentLocation update(Long id, FrequentLocation frequentLocation) {
-        FrequentLocation existing = frequentLocationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("FrequentLocation not found"));
+    public FrequentLocation update(Long id, FrequentLocation frequentLocation, Long currentUserId) {
+        FrequentLocation existing = getById(id, currentUserId);
         
         existing.setName(frequentLocation.getName() != null && !frequentLocation.getName().isBlank()
                 ? frequentLocation.getName()
@@ -63,7 +76,8 @@ public class FrequentLocationService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, Long currentUserId) {
+        FrequentLocation existing = getById(id, currentUserId);
         frequentLocationRepository.deleteById(id);
     }
 }

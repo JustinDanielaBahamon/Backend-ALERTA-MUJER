@@ -3,16 +3,29 @@ package com.alertamujer.identity.domain.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+/**
+ * User entity following database schema: Contains personal data and role.
+ * Credentials are in Account, biometrics/preferences in UserProfile.
+ */
 @Entity
 @Table(name = "users", schema = "identity")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "role")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "role_id", nullable = false)
-    private Long roleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false, foreignKey = @ForeignKey(name = "fk_users_role"))
+    @ToString.Exclude
+    private Role role;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -34,28 +47,6 @@ public class User {
 
     private LocalDate birthdate;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getRoleId() { return roleId; }
-    public void setRoleId(Long roleId) { this.roleId = roleId; }
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-    public String getTelephone() { return telephone; }
-    public void setTelephone(String telephone) { this.telephone = telephone; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getDocumentNumber() { return documentNumber; }
-    public void setDocumentNumber(String documentNumber) { this.documentNumber = documentNumber; }
-    public String getDocumentType() { return documentType; }
-    public void setDocumentType(String documentType) { this.documentType = documentType; }
-    public LocalDate getBirthdate() { return birthdate; }
-    public void setBirthdate(LocalDate birthdate) { this.birthdate = birthdate; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

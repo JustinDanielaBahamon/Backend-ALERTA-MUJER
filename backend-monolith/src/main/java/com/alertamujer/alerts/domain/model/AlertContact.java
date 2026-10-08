@@ -2,12 +2,22 @@ package com.alertamujer.alerts.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * AlertContact entity following database schema: Alert-contact link table.
+ * References alert_id and emergency_contact_id as foreign keys.
+ */
 @Entity
-@Table(name = "alert_contact", schema = "alert")
+@Table(name = "alert_contact", schema = "alert",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"alert_id", "emergency_contact_id", "channel"}, name = "uk_alert_contact"))
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AlertContact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "alert_id", nullable = false)
@@ -33,30 +43,6 @@ public class AlertContact {
     @Column(name = "error_message")
     private String errorMessage;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getAlertId() { return alertId; }
-    public void setAlertId(Long alertId) { this.alertId = alertId; }
-    public Long getEmergencyContactId() { return emergencyContactId; }
-    public void setEmergencyContactId(Long emergencyContactId) { this.emergencyContactId = emergencyContactId; }
-    public String getChannel() { return channel; }
-    public void setChannel(String channel) { this.channel = channel; }
-    public String getDestination() { return destination; }
-    public void setDestination(String destination) { this.destination = destination; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getSentAt() { return sentAt; }
-    public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
-    public LocalDateTime getDeliveredAt() { return deliveredAt; }
-    public void setDeliveredAt(LocalDateTime deliveredAt) { this.deliveredAt = deliveredAt; }
-    public Integer getAttempts() { return attempts; }
-    public void setAttempts(Integer attempts) { this.attempts = attempts; }
-    public String getErrorMessage() { return errorMessage; }
-    public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

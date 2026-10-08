@@ -3,6 +3,7 @@ package com.alertamujer.resources.infrastructure.controller;
 import com.alertamujer.resources.application.service.EmergencyResourceService;
 import com.alertamujer.resources.domain.model.EmergencyResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,16 +41,19 @@ public class EmergencyResourceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmergencyResource> createResource(@RequestBody EmergencyResource resource) {
         return ResponseEntity.ok(emergencyResourceService.createResource(resource));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmergencyResource> updateResource(@PathVariable Long id, @RequestBody EmergencyResource resource) {
         return ResponseEntity.ok(emergencyResourceService.updateResource(id, resource));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteResource(@PathVariable Long id) {
         emergencyResourceService.deleteResource(id);
         return ResponseEntity.noContent().build();

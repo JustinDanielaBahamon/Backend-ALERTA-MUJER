@@ -1,12 +1,25 @@
 package com.alertamujer.identity.domain.model;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+/**
+ * Role entity following 3NF: User roles/permissions.
+ * Maintains OneToMany relationship with User.
+ */
 @Entity
 @Table(name = "role", schema = "identity")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = "users")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -14,11 +27,7 @@ public class Role {
 
     private String description;
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<User> users = new ArrayList<>();
 }

@@ -1,13 +1,14 @@
 package com.alertamujer.identity.application.service;
 
 import com.alertamujer.identity.domain.model.Account;
+import com.alertamujer.identity.domain.model.Role;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
 import com.alertamujer.identity.infrastructure.repository.AccountRepository;
+import com.alertamujer.identity.infrastructure.repository.RoleRepository;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,19 +26,21 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
     private final UserProfileRepository userProfileRepository;
+    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecretKey jwtKey;
 
-    public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository) {
+    public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.userProfileRepository = userProfileRepository;
+        this.roleRepository = roleRepository;
         String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7");
 
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public Map<String, Object> register(String nombre, String email, String password, String telefono) {
+    public User register(String nombre, String email, String password, String telefono) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
@@ -47,7 +50,16 @@ public class AuthService {
         user.setLastName(nombre.split(" ").length > 1 ? nombre.split(" ")[1] : "");
         user.setEmail(email);
         user.setTelephone(telefono);
-        user.setRoleId(1L);
+        
+        Role userRole = roleRepository.findById(1L).orElseGet(() -> {
+            Role role = new Role();
+            role.setId(1L);
+            role.setName("user");
+            role.setDescription("Usuario estándar de la aplicación");
+            return roleRepository.save(role);
+        });
+        user.setRole(userRole);
+        
         user = userRepository.save(user);
 
         Account account = new Account();
@@ -59,16 +71,11 @@ public class AuthService {
         // Crear también el perfil de la usuaria: sin él no puede crear alertas, contactos ni ubicaciones
         if (!userProfileRepository.existsByUserId(user.getId())) {
             UserProfile profile = new UserProfile();
-            profile.setUserId(user.getId());
+            profile.setUser(user);
             userProfileRepository.save(profile);
         }
 
-        String token = generateToken(user.getId(), "user");
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
-        response.put("user", user);
-        return response;
+        return user;
     }
 
     public Map<String, Object> login(String email, String password) {
@@ -89,12 +96,18 @@ public class AuthService {
         account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
 
-        String token = generateToken(user.getId(), user.getRoleId() == 2L ? "admin" : "user");
+        String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+        String token = generateToken(user.getId(), role);
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
         response.put("user", user);
         return response;
+    }
+
+    public String generateTokenForUser(User user) {
+        String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+        return generateToken(user.getId(), role);
     }
 
     public Map<String, String> forgotPassword(String email) {

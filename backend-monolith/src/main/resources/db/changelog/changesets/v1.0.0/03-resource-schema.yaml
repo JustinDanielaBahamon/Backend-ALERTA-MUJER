@@ -1,0 +1,288 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-zone-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: resource
+            tableName: zone
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: created_by_admin_id
+                  type: INTEGER
+              - column:
+                  name: name
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: zone_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: risk_level
+                  type: VARCHAR(20)
+                  defaultValue: 'medium'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: radius_meters
+                  type: DECIMAL(8,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: resource
+            tableName: zone
+
+  - changeSet:
+      id: create-zone-report-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: resource
+            tableName: zone_report
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: zone_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_zone_report_zone
+                    references: resource.zone(id)
+                    onDelete: CASCADE
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_zone_report_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: classification
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: VARCHAR(500)
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'pending'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: reviewed_by_admin_id
+                  type: INTEGER
+              - column:
+                  name: reviewed_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: resource
+            tableName: zone_report
+            columnNames: zone_id, user_profile_id
+            constraintName: uk_zone_report
+      rollback:
+        - dropTable:
+            schemaName: resource
+            tableName: zone_report
+
+  - changeSet:
+      id: create-emergency-resource-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: resource
+            tableName: emergency_resource
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: resource_type
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: telephone
+                  type: VARCHAR(30)
+              - column:
+                  name: secondary_telephone
+                  type: VARCHAR(30)
+              - column:
+                  name: email
+                  type: VARCHAR(150)
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: DECIMAL(9,6)
+              - column:
+                  name: longitude
+                  type: DECIMAL(9,6)
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: resource
+            tableName: emergency_resource
+
+  - changeSet:
+      id: create-resource-call-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: resource
+            tableName: resource_call
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: emergency_resource_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_resource_call_emergency_resource
+                    references: resource.emergency_resource(id)
+                    onDelete: CASCADE
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_resource_call_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: alert_id
+                  type: INTEGER
+                  constraints:
+                    foreignKeyName: fk_resource_call_alert
+                    references: alert.alert(id)
+                    onDelete: SET NULL
+              - column:
+                  name: device_id
+                  type: INTEGER
+                  constraints:
+                    foreignKeyName: fk_resource_call_device
+                    references: identity.device(id)
+                    onDelete: SET NULL
+              - column:
+                  name: telephone_dialed
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: started_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ended_at
+                  type: TIMESTAMP
+              - column:
+                  name: duration_seconds
+                  type: INTEGER
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: resource
+            tableName: resource_call

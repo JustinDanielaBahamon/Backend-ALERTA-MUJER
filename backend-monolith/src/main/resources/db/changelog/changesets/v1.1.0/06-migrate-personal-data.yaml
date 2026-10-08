@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: migrate-personal-data-to-user-profile
+      author: alerta-mujer-team
+      changes:
+        - sql:
+            sql: |
+              -- Migrate personal data from users to user_profile
+              UPDATE identity.user_profile up
+              SET first_name = u.first_name,
+                  last_name = u.last_name,
+                  telephone = u.telephone,
+                  email = u.email,
+                  document_number = u.document_number,
+                  document_type = u.document_type,
+                  birthdate = u.birthdate
+              FROM identity.users u
+              WHERE up.user_id = u.id
+                  AND up.first_name IS NULL
+      rollback:
+        - sql:
+            sql: |
+              -- Rollback: Not easily reversible without backup
+              -- This is a data migration, rollback requires manual intervention
+
+  - changeSet:
+      id: remove-personal-data-columns-from-users
+      author: alerta-mujer-team
+      changes:
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: first_name
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: last_name
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: telephone
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: email
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: document_number
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: document_type
+        - dropColumn:
+            schemaName: identity
+            tableName: users
+            columnName: birthdate
+      rollback:
+        - sql:
+            sql: |
+              -- Rollback: Add columns back
+              ALTER TABLE identity.users ADD COLUMN first_name VARCHAR(100) NOT NULL;
+              ALTER TABLE identity.users ADD COLUMN last_name VARCHAR(100) NOT NULL;
+              ALTER TABLE identity.users ADD COLUMN telephone VARCHAR(20) UNIQUE;
+              ALTER TABLE identity.users ADD COLUMN email VARCHAR(150) NOT NULL UNIQUE;
+              ALTER TABLE identity.users ADD COLUMN document_number VARCHAR(20) UNIQUE;
+              ALTER TABLE identity.users ADD COLUMN document_type VARCHAR(20);
+              ALTER TABLE identity.users ADD COLUMN birthdate DATE;
+
+  - changeSet:
+      id: remove-location-columns-from-alert
+      author: alerta-mujer-team
+      changes:
+        - dropColumn:
+            schemaName: alert
+            tableName: alert
+            columnName: latitude
+        - dropColumn:
+            schemaName: alert
+            tableName: alert
+            columnName: longitude
+      rollback:
+        - sql:
+            sql: |
+              -- Rollback: Add columns back
+              ALTER TABLE alert.alert ADD COLUMN latitude DECIMAL(9,6);
+              ALTER TABLE alert.alert ADD COLUMN longitude DECIMAL(9,6);

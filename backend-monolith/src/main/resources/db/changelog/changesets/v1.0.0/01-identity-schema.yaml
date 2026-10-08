@@ -1,0 +1,553 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-role-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: role
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: description
+                  type: VARCHAR(255)
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: role
+
+  - changeSet:
+      id: create-users-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: role_id
+                  type: BIGINT
+                  defaultValue: 1
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_users_role
+                    references: identity.role(id)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: telephone
+                  type: VARCHAR(20)
+                  constraints:
+                    unique: true
+              - column:
+                  name: email
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: document_number
+                  type: VARCHAR(20)
+                  constraints:
+                    unique: true
+              - column:
+                  name: document_type
+                  type: VARCHAR(20)
+              - column:
+                  name: birthdate
+                  type: DATE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: users
+
+  - changeSet:
+      id: create-account-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: account
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_account_user
+                    references: identity.users(id)
+                    onDelete: CASCADE
+              - column:
+                  name: password_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'active'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_access
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: account
+
+  - changeSet:
+      id: create-user-profile-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: user_profile
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_user_profile_user
+                    references: identity.users(id)
+                    onDelete: CASCADE
+              - column:
+                  name: profile_photo_url
+                  type: VARCHAR(500)
+              - column:
+                  name: tutorial_completed
+                  type: BOOLEAN
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tutorial_seen_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: user_profile
+
+  - changeSet:
+      id: create-admin-profile-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: admin_profile
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_admin_profile_account
+                    references: identity.account(id)
+                    onDelete: CASCADE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: admin_profile
+
+  - changeSet:
+      id: create-recovery-request-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: recovery_request
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_recovery_request_account
+                    references: identity.account(id)
+                    onDelete: CASCADE
+              - column:
+                  name: method
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: token_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used_at
+                  type: TIMESTAMP
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'pending'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attempts
+                  type: BIGINT
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+              - column:
+                  name: requested_ip
+                  type: VARCHAR(45)
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: recovery_request
+
+  - changeSet:
+      id: create-device-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: device
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_account
+                    references: identity.account(id)
+                    onDelete: CASCADE
+              - column:
+                  name: device_uuid
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: brand
+                  type: VARCHAR(50)
+              - column:
+                  name: model
+                  type: VARCHAR(100)
+              - column:
+                  name: os_name
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: os_version
+                  type: VARCHAR(30)
+              - column:
+                  name: app_version
+                  type: VARCHAR(30)
+              - column:
+                  name: gps_status
+                  type: VARCHAR(20)
+                  defaultValue: 'unknown'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'active'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_access
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: device
+
+  - changeSet:
+      id: create-device-permission-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: device_permission
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_permission_device
+                    references: identity.device(id)
+                    onDelete: CASCADE
+              - column:
+                  name: permission_type
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: identity
+            tableName: device_permission
+            columnNames: device_id, permission_type
+            constraintName: uk_device_permission
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: device_permission
+
+  - changeSet:
+      id: create-device-session-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: device_session
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: account_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_session_account
+                    references: identity.account(id)
+                    onDelete: CASCADE
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_device_session_device
+                    references: identity.device(id)
+                    onDelete: CASCADE
+              - column:
+                  name: refresh_token_hash
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: 'active'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_used_at
+                  type: TIMESTAMP
+              - column:
+                  name: revoked_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: device_session
+
+  - changeSet:
+      id: create-alert-activation-setting-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: alert_activation_setting
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: device_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_alert_activation_setting_device
+                    references: identity.device(id)
+                    onDelete: CASCADE
+              - column:
+                  name: activation_method
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_enabled
+                  type: BOOLEAN
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            schemaName: identity
+            tableName: alert_activation_setting
+            columnNames: device_id, activation_method
+            constraintName: uk_alert_activation_setting
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: alert_activation_setting
+
+  - changeSet:
+      id: create-user-preference-table
+      author: alerta-mujer-team
+      changes:
+        - createTable:
+            schemaName: identity
+            tableName: user_preference
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: user_profile_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    unique: true
+                    foreignKeyName: fk_user_preference_user_profile
+                    references: identity.user_profile(id)
+                    onDelete: CASCADE
+              - column:
+                  name: language
+                  type: VARCHAR(10)
+                  defaultValue: 'es'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: theme
+                  type: VARCHAR(20)
+                  defaultValue: 'light'
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+      rollback:
+        - dropTable:
+            schemaName: identity
+            tableName: user_preference

@@ -3,6 +3,8 @@ package com.alertamujer.alerts.infrastructure.controller;
 import com.alertamujer.alerts.application.FrequentLocationService;
 import com.alertamujer.alerts.domain.model.FrequentLocation;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class FrequentLocationController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<FrequentLocation>> getAll() {
         List<FrequentLocation> locations = frequentLocationService.getAllByUserProfileId(null);
         return ResponseEntity.ok(locations);
@@ -29,30 +32,32 @@ public class FrequentLocationController {
         return ResponseEntity.ok(locations);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<FrequentLocation>> getMyLocations(@AuthenticationPrincipal Long currentUserId) {
+        List<FrequentLocation> locations = frequentLocationService.getActiveByUserProfileId(currentUserId);
+        return ResponseEntity.ok(locations);
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<FrequentLocation> getById(@PathVariable Long id) {
-        FrequentLocation location = frequentLocationService.getById(id);
-        if (location == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(location);
+    public ResponseEntity<FrequentLocation> getById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(frequentLocationService.getById(id, currentUserId));
     }
 
     @PostMapping
-    public ResponseEntity<FrequentLocation> create(@RequestBody FrequentLocation frequentLocation) {
-        FrequentLocation created = frequentLocationService.create(frequentLocation);
+    public ResponseEntity<FrequentLocation> create(@RequestBody FrequentLocation frequentLocation, @AuthenticationPrincipal Long currentUserId) {
+        FrequentLocation created = frequentLocationService.create(frequentLocation, currentUserId);
         return ResponseEntity.ok(created);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FrequentLocation> update(@PathVariable Long id, @RequestBody FrequentLocation frequentLocation) {
-        FrequentLocation updated = frequentLocationService.update(id, frequentLocation);
+    public ResponseEntity<FrequentLocation> update(@PathVariable Long id, @RequestBody FrequentLocation frequentLocation, @AuthenticationPrincipal Long currentUserId) {
+        FrequentLocation updated = frequentLocationService.update(id, frequentLocation, currentUserId);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        frequentLocationService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
+        frequentLocationService.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

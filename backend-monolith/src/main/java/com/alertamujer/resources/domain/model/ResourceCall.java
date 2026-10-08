@@ -2,12 +2,21 @@ package com.alertamujer.resources.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+/**
+ * ResourceCall entity following database schema: Emergency resource call records.
+ * References emergency_resource_id, user_profile_id, alert_id, device_id as foreign keys.
+ */
 @Entity
 @Table(name = "resource_call", schema = "resource")
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ResourceCall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "emergency_resource_id", nullable = false)
@@ -22,13 +31,13 @@ public class ResourceCall {
     @Column(name = "device_id")
     private Long deviceId;
 
-    @Column(name = "telephone_dialed")
+    @Column(name = "telephone_dialed", nullable = false)
     private String telephoneDialed;
 
     private String status = "completed";
 
-    @Column(name = "started_at")
-    private LocalDateTime startedAt;
+    @Column(name = "started_at", nullable = false)
+    private LocalDateTime startedAt = LocalDateTime.now();
 
     @Column(name = "ended_at")
     private LocalDateTime endedAt;
@@ -36,30 +45,6 @@ public class ResourceCall {
     @Column(name = "duration_seconds")
     private Integer durationSeconds;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getEmergencyResourceId() { return emergencyResourceId; }
-    public void setEmergencyResourceId(Long emergencyResourceId) { this.emergencyResourceId = emergencyResourceId; }
-    public Long getUserProfileId() { return userProfileId; }
-    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
-    public Long getAlertId() { return alertId; }
-    public void setAlertId(Long alertId) { this.alertId = alertId; }
-    public Long getDeviceId() { return deviceId; }
-    public void setDeviceId(Long deviceId) { this.deviceId = deviceId; }
-    public String getTelephoneDialed() { return telephoneDialed; }
-    public void setTelephoneDialed(String telephoneDialed) { this.telephoneDialed = telephoneDialed; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getStartedAt() { return startedAt; }
-    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
-    public LocalDateTime getEndedAt() { return endedAt; }
-    public void setEndedAt(LocalDateTime endedAt) { this.endedAt = endedAt; }
-    public Integer getDurationSeconds() { return durationSeconds; }
-    public void setDurationSeconds(Integer durationSeconds) { this.durationSeconds = durationSeconds; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
