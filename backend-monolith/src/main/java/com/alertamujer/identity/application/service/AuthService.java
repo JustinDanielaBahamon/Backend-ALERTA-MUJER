@@ -63,7 +63,7 @@ public class AuthService {
         user = userRepository.save(user);
 
         Account account = new Account();
-        account.setUserId(user.getId());
+        account.setUser(user);
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setStatus("active");
         accountRepository.save(account);

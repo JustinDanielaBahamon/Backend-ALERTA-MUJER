@@ -15,7 +15,6 @@ import lombok.ToString;
 @Table(name = "role", schema = "identity")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "users")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

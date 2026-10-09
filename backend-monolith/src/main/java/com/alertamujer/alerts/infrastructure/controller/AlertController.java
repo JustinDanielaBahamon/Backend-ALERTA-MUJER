@@ -33,8 +33,10 @@ public class AlertController {
     }
 
     @GetMapping("/user/{userProfileId}")
-    public ResponseEntity<List<Alert>> getAlertsByUser(@PathVariable Long userProfileId) {
-        return ResponseEntity.ok(alertService.getAlertsByUserProfile(userProfileId));
+    public ResponseEntity<List<Alert>> getAlertsByUser(
+            @PathVariable Long userProfileId, 
+            @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(alertService.getAlertsByUserProfile(userProfileId, currentUserId));
     }
 
     @PostMapping

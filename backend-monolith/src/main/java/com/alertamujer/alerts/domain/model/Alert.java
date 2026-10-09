@@ -36,12 +36,6 @@ public class Alert {
 
     private String message;
 
-    @Column(name = "latitude", precision = 9, scale = 6)
-    private java.math.BigDecimal latitude;
-
-    @Column(name = "longitude", precision = 9, scale = 6)
-    private java.math.BigDecimal longitude;
-
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt = LocalDateTime.now();
 

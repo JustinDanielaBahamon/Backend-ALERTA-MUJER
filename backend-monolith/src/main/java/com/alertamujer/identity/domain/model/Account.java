@@ -14,7 +14,6 @@ import lombok.ToString;
 @Table(name = "account", schema = "identity")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "user")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +25,7 @@ public class Account {
     @ToString.Exclude
     private User user;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     private Long userId;
 
     @Column(name = "password_hash", nullable = false)

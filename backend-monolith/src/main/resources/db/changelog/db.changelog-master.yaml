@@ -41,7 +41,3 @@ databaseChangeLog:
       file: changesets/v1.0.0/05-seed-data.yaml
       relativeToChangelogFile: true
       context: test,dev
-
-  - include:
-      file: changesets/v1.1.0/06-migrate-personal-data.yaml
-      relativeToChangelogFile: true
