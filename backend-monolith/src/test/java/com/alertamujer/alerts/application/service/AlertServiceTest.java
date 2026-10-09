@@ -137,10 +137,11 @@ class AlertServiceTest {
         updateData.setMessage("Todo resuelto");
 
         when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(testUserProfile));
         when(alertRepository.save(any(Alert.class))).thenReturn(testAlert);
 
-        // Act
-        Alert result = alertService.updateAlert(1L, updateData, 10L);
+        // Act - Ahora pasamos userId (1L) no userProfileId (10L)
+        Alert result = alertService.updateAlert(1L, updateData, 1L);
 
         // Assert
         assertNotNull(result);
@@ -155,9 +156,13 @@ class AlertServiceTest {
         Alert updateData = new Alert();
         updateData.setStatus("resolved");
 
-        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        UserProfile otherProfile = new UserProfile();
+        otherProfile.setId(999L);
 
-        // Act & Assert
+        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(999L)).thenReturn(Optional.of(otherProfile));
+
+        // Act & Assert - userId diferente (999L) no es dueño de la alerta
         AccessDeniedException exception = assertThrows(AccessDeniedException.class, () ->
             alertService.updateAlert(1L, updateData, 999L)
         );
@@ -169,10 +174,11 @@ class AlertServiceTest {
     void testDeleteAlert_Success() {
         // Arrange
         when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(testUserProfile));
         doNothing().when(alertRepository).deleteById(1L);
 
-        // Act
-        alertService.deleteAlert(1L, 10L);
+        // Act - Ahora pasamos userId (1L) no userProfileId (10L)
+        alertService.deleteAlert(1L, 1L);
 
         // Assert
         verify(alertRepository, times(1)).deleteById(1L);
@@ -181,9 +187,13 @@ class AlertServiceTest {
     @Test
     void testDeleteAlert_UnauthorizedOwner_ThrowsAccessDenied() {
         // Arrange
-        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        UserProfile otherProfile = new UserProfile();
+        otherProfile.setId(999L);
 
-        // Act & Assert
+        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(999L)).thenReturn(Optional.of(otherProfile));
+
+        // Act & Assert - userId diferente (999L) no es dueño de la alerta
         AccessDeniedException exception = assertThrows(AccessDeniedException.class, () ->
             alertService.deleteAlert(1L, 999L)
         );
@@ -245,9 +255,10 @@ class AlertServiceTest {
     void testGetAlertById_WithOwnershipCheck() {
         // Arrange
         when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(testUserProfile));
 
-        // Act
-        Optional<Alert> result = alertService.getAlertById(1L, 10L);
+        // Act - Pasar userId (1L) que tiene userProfileId 10L
+        Optional<Alert> result = alertService.getAlertById(1L, 1L);
 
         // Assert
         assertTrue(result.isPresent());
@@ -257,9 +268,13 @@ class AlertServiceTest {
     @Test
     void testGetAlertById_WrongOwner_ReturnsEmpty() {
         // Arrange
-        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        UserProfile otherProfile = new UserProfile();
+        otherProfile.setId(999L);
 
-        // Act
+        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(userProfileRepository.findByUserId(999L)).thenReturn(Optional.of(otherProfile));
+
+        // Act - Pasar userId diferente (999L) que tiene userProfileId 999L
         Optional<Alert> result = alertService.getAlertById(1L, 999L);
 
         // Assert

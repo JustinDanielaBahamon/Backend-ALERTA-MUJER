@@ -37,8 +37,16 @@ public class AlertService {
     }
 
     public Optional<Alert> getAlertById(Long id, Long currentUserId) {
+        // Obtener el userProfile del usuario autenticado
+        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElse(null);
+        
+        if (currentUserProfile == null) {
+            return Optional.empty();
+        }
+        
         return alertRepository.findById(id)
-                .filter(alert -> alert.getUserProfileId().equals(currentUserId));
+                .filter(alert -> alert.getUserProfileId().equals(currentUserProfile.getId()));
     }
 
     public List<Alert> getAlertsByUserProfile(Long userProfileId, Long currentUserId) {
@@ -50,7 +58,10 @@ public class AlertService {
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", currentUserId));
         
-        boolean isAdmin = currentUser.getRole().getName().equals("administrator");
+        // Verificar rol de forma segura (evitar NPE)
+        boolean isAdmin = currentUser.getRole() != null && 
+                          currentUser.getRole().getName() != null &&
+                          currentUser.getRole().getName().equals("administrator");
         
         // Permitir acceso SOLO si:
         // 1. El usuario autenticado es dueño del userProfile solicitado
@@ -75,7 +86,12 @@ public class AlertService {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
 
-        if (!alert.getUserProfileId().equals(currentUserId)) {
+        // Obtener el userProfile del usuario autenticado
+        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
+
+        // Verificar ownership: comparar user_profile.id con user_profile.id
+        if (!alert.getUserProfileId().equals(currentUserProfile.getId())) {
             throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
         }
 
@@ -93,7 +109,12 @@ public class AlertService {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
 
-        if (!alert.getUserProfileId().equals(currentUserId)) {
+        // Obtener el userProfile del usuario autenticado
+        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
+
+        // Verificar ownership: comparar user_profile.id con user_profile.id
+        if (!alert.getUserProfileId().equals(currentUserProfile.getId())) {
             throw new AccessDeniedException("No puedes eliminar alertas de otro usuario");
         }
 
