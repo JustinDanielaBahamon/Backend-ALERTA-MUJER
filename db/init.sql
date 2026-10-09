@@ -364,17 +364,19 @@ INSERT INTO identity.users (id, role_id, first_name, last_name, telephone, email
 (9, 1, 'Raquel', '', '+57 320 000 0009', 'Raquel@gmail.com', NULL, NULL, NULL, '2026-09-17 00:00:00'),
 (10, 1, 'Alerta', 'Usuario', '+57 321 000 0010', 'alerta@gmail.com', NULL, NULL, NULL, '2026-09-30 00:00:00');
 
+-- Contraseña: Alerta@2024 (cumple validaciones: 8+ caracteres, 1 mayúscula, 1 número, 1 especial)
+-- Hash BCrypt: $2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki
 INSERT INTO identity.account (user_id, password_hash, status, last_access) VALUES
-(1, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
-(2, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'inactive', NULL),
-(3, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
-(4, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
-(5, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
-(6, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
-(7, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'blocked', NULL),
-(8, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
-(9, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL),
-(10, '$2a$10$cYDZ66QNFQNBkoOOBKpX.OVAR8SVxymw2jjozdmDy0lWu2bVE.dz2', 'active', NULL);
+(1, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'active', NULL),
+(2, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'inactive', NULL),
+(3, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'blocked', NULL),
+(4, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'blocked', NULL),
+(5, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'active', NULL),
+(6, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'blocked', NULL),
+(7, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'blocked', NULL),
+(8, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'active', NULL),
+(9, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'active', NULL),
+(10, '$2a$10$dQ9xKpvIYMyN4VjpGBdZoemfPpPSpIwgl.b3fFZJccUJM6tnMI7ki', 'active', NULL);
 
 INSERT INTO identity.user_profile (user_id, profile_photo_url, tutorial_completed, tutorial_seen_at, created_at, updated_at) VALUES
 (1, NULL, FALSE, NULL, '2023-05-29 00:00:00', NULL),
