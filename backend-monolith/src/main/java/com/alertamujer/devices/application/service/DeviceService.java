@@ -25,6 +25,12 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
+    public List<Device> getDevicesByUser(Long currentUserId) {
+        Account account = accountRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
+        return deviceRepository.findByAccountId(account.getId());
+    }
+
     public Device getDeviceById(Long id) {
         return deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device", id));

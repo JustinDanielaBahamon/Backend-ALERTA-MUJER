@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface LocationLogRepository extends JpaRepository<LocationLog, Long> {
     List<LocationLog> findByUserProfileId(Long userProfileId);
+    List<LocationLog> findByUserProfileIdOrderByRecordedAtDesc(Long userProfileId);
     List<LocationLog> findByAlertId(Long alertId);
 }

@@ -14,7 +14,7 @@ import lombok.ToString;
 @Table(name = "user_profile", schema = "identity")
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = "user")
+@ToString
 public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,6 @@ public class UserProfile {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_user_profile_user"))
-    @ToString.Exclude
     private User user;
 
     @Column(name = "user_id", nullable = false, insertable = false, updatable = false)

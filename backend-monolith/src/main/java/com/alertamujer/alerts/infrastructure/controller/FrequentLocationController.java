@@ -32,6 +32,12 @@ public class FrequentLocationController {
         return ResponseEntity.ok(locations);
     }
 
+    @GetMapping("/user-id/{userId}")
+    public ResponseEntity<List<FrequentLocation>> getByUserIdProfile(@PathVariable Long userId) {
+        List<FrequentLocation> locations = frequentLocationService.getByUserId(userId);
+        return ResponseEntity.ok(locations);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<List<FrequentLocation>> getMyLocations(@AuthenticationPrincipal Long currentUserId) {
         List<FrequentLocation> locations = frequentLocationService.getActiveByUserProfileId(currentUserId);

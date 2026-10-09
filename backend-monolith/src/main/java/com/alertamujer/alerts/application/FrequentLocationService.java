@@ -2,6 +2,8 @@ package com.alertamujer.alerts.application;
 
 import com.alertamujer.alerts.domain.model.FrequentLocation;
 import com.alertamujer.alerts.infrastructure.repository.FrequentLocationRepository;
+import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,11 @@ import java.util.List;
 public class FrequentLocationService {
 
     private final FrequentLocationRepository frequentLocationRepository;
+    private final UserProfileRepository userProfileRepository;
 
-    public FrequentLocationService(FrequentLocationRepository frequentLocationRepository) {
+    public FrequentLocationService(FrequentLocationRepository frequentLocationRepository, UserProfileRepository userProfileRepository) {
         this.frequentLocationRepository = frequentLocationRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public List<FrequentLocation> getAllByUserProfileId(Long userProfileId) {
@@ -29,14 +33,22 @@ public class FrequentLocationService {
         return frequentLocationRepository.findByUserProfileIdAndIsActiveTrue(userProfileId);
     }
 
+    public List<FrequentLocation> getByUserId(Long userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", userId));
+        return frequentLocationRepository.findByUserProfileId(userProfile.getId());
+    }
+
     public FrequentLocation getById(Long id) {
         return frequentLocationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("FrequentLocation", id));
     }
 
     public FrequentLocation getById(Long id, Long currentUserId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         FrequentLocation location = getById(id);
-        if (!location.getUserProfileId().equals(currentUserId)) {
+        if (!location.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes acceder a ubicaciones frecuentes de otro usuario");
         }
         return location;
@@ -44,9 +56,16 @@ public class FrequentLocationService {
 
     @Transactional
     public FrequentLocation create(FrequentLocation frequentLocation, Long currentUserId) {
-        if (!frequentLocation.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        // Si la ubicación tiene userProfileId, verificar que sea del usuario actual
+        if (frequentLocation.getUserProfileId() != null && !frequentLocation.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes crear ubicaciones frecuentes para otro usuario");
         }
+        
+        // Usar el ID del perfil del usuario actual
+        frequentLocation.setUserProfileId(userProfile.getId());
         frequentLocation.setCreatedAt(java.time.LocalDateTime.now());
         if (frequentLocation.getRiskLevel() == null || frequentLocation.getRiskLevel().isBlank()) {
             frequentLocation.setRiskLevel("moderada");

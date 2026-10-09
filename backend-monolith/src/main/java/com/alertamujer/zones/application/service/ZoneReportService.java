@@ -2,6 +2,8 @@ package com.alertamujer.zones.application.service;
 
 import com.alertamujer.zones.domain.model.ZoneReport;
 import com.alertamujer.zones.infrastructure.repository.ZoneReportRepository;
+import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,9 +16,11 @@ import java.util.Optional;
 public class ZoneReportService {
 
     private final ZoneReportRepository zoneReportRepository;
+    private final UserProfileRepository userProfileRepository;
 
-    public ZoneReportService(ZoneReportRepository zoneReportRepository) {
+    public ZoneReportService(ZoneReportRepository zoneReportRepository, UserProfileRepository userProfileRepository) {
         this.zoneReportRepository = zoneReportRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public List<ZoneReport> getAllReports() {
@@ -28,8 +32,10 @@ public class ZoneReportService {
     }
 
     public Optional<ZoneReport> getReportById(Long id, Long currentUserId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         return zoneReportRepository.findById(id)
-                .filter(report -> report.getUserProfileId().equals(currentUserId));
+                .filter(report -> report.getUserProfileId().equals(userProfile.getId()));
     }
 
     public List<ZoneReport> getReportsByZone(Long zoneId) {
@@ -40,14 +46,25 @@ public class ZoneReportService {
         return zoneReportRepository.findByUserProfileId(userProfileId);
     }
 
+    public List<ZoneReport> getReportsByUserId(Long userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", userId));
+        return zoneReportRepository.findByUserProfileId(userProfile.getId());
+    }
+
     public List<ZoneReport> getReportsByStatus(String status) {
         return zoneReportRepository.findByStatus(status);
     }
 
     public ZoneReport createReport(ZoneReport report, Long currentUserId) {
-        if (!report.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (report.getUserProfileId() != null && !report.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes crear reportes para otro usuario");
         }
+        
+        report.setUserProfileId(userProfile.getId());
         return zoneReportRepository.save(report);
     }
 
@@ -77,7 +94,10 @@ public class ZoneReportService {
         ZoneReport report = zoneReportRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
         
-        if (!report.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (!report.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes eliminar reportes de otro usuario");
         }
         

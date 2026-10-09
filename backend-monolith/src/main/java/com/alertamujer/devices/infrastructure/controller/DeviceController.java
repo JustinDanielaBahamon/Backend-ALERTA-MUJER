@@ -25,6 +25,11 @@ public class DeviceController {
         return ResponseEntity.ok(deviceService.getAllDevices());
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<List<Device>> getDevicesByUser(@AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(deviceService.getDevicesByUser(currentUserId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Device> getDeviceById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(deviceService.getDeviceById(id, currentUserId));

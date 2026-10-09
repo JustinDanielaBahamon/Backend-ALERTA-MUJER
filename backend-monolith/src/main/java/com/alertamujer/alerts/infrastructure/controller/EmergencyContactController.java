@@ -37,6 +37,11 @@ public class EmergencyContactController {
         return ResponseEntity.ok(emergencyContactService.getContactsByUserProfile(userProfileId));
     }
 
+    @GetMapping("/user-id/{userId}")
+    public ResponseEntity<List<EmergencyContact>> getContactsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(emergencyContactService.getContactsByUserId(userId));
+    }
+
     @PostMapping
     public ResponseEntity<EmergencyContact> createContact(@RequestBody EmergencyContact contact, @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(emergencyContactService.createContact(contact, currentUserId));

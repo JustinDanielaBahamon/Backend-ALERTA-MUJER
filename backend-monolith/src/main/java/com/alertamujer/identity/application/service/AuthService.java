@@ -40,7 +40,7 @@ public class AuthService {
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public User register(String nombre, String email, String password, String telefono) {
+    public User register(String nombre, String email, String password, String telefono, String tipoDocumento, String numeroDocumento, String fechaNacimiento) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
@@ -50,7 +50,23 @@ public class AuthService {
         user.setLastName(nombre.split(" ").length > 1 ? nombre.split(" ")[1] : "");
         user.setEmail(email);
         user.setTelephone(telefono);
-        
+        user.setDocumentType(tipoDocumento);
+        user.setDocumentNumber(numeroDocumento);
+
+        // Parsear fecha de nacimiento del formato DD/MM/AAAA a LocalDate
+        try {
+            String[] parts = fechaNacimiento.split("/");
+            if (parts.length == 3) {
+                int day = Integer.parseInt(parts[0]);
+                int month = Integer.parseInt(parts[1]);
+                int year = Integer.parseInt(parts[2]);
+                user.setBirthdate(java.time.LocalDate.of(year, month, day));
+            }
+        } catch (Exception e) {
+            // Si hay error al parsear, se deja null
+            System.out.println("Error parsing birthdate: " + fechaNacimiento);
+        }
+
         Role userRole = roleRepository.findById(1L).orElseGet(() -> {
             Role role = new Role();
             role.setId(1L);
@@ -59,11 +75,11 @@ public class AuthService {
             return roleRepository.save(role);
         });
         user.setRole(userRole);
-        
+
         user = userRepository.save(user);
 
         Account account = new Account();
-        account.setUserId(user.getId());
+        account.setUser(user);
         account.setPasswordHash(passwordEncoder.encode(password));
         account.setStatus("active");
         accountRepository.save(account);

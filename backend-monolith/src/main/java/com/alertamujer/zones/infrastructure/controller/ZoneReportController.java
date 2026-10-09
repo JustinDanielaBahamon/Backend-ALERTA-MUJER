@@ -43,6 +43,11 @@ public class ZoneReportController {
         return ResponseEntity.ok(zoneReportService.getReportsByUserProfile(userProfileId));
     }
 
+    @GetMapping("/my-user-id/{userId}")
+    public ResponseEntity<List<ZoneReport>> getMyReportsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(zoneReportService.getReportsByUserId(userId));
+    }
+
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ZoneReport>> getReportsByStatus(@PathVariable String status) {

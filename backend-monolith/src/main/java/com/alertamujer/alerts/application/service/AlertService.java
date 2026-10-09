@@ -2,6 +2,7 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.identity.domain.model.UserProfile;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -30,18 +31,31 @@ public class AlertService {
     }
 
     public Optional<Alert> getAlertById(Long id, Long currentUserId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         return alertRepository.findById(id)
-                .filter(alert -> alert.getUserProfileId().equals(currentUserId));
+                .filter(alert -> alert.getUserProfileId().equals(userProfile.getId()));
     }
 
     public List<Alert> getAlertsByUserProfile(Long userProfileId) {
         return alertRepository.findByUserProfileId(userProfileId);
     }
 
+    public List<Alert> getAlertsByUserId(Long userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", userId));
+        return alertRepository.findByUserProfileId(userProfile.getId());
+    }
+
     public Alert createAlert(Alert alert, Long currentUserId) {
-        if (!alert.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (alert.getUserProfileId() != null && !alert.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes crear alertas para otro usuario");
         }
+        
+        alert.setUserProfileId(userProfile.getId());
         return alertRepository.save(alert);
     }
 
@@ -49,7 +63,10 @@ public class AlertService {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         
-        if (!alert.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (!alert.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
         }
         
@@ -67,7 +84,10 @@ public class AlertService {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         
-        if (!alert.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (!alert.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes eliminar alertas de otro usuario");
         }
         

@@ -2,6 +2,8 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
+import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,11 @@ import java.util.Optional;
 public class EmergencyContactService {
 
     private final EmergencyContactRepository emergencyContactRepository;
+    private final UserProfileRepository userProfileRepository;
 
-    public EmergencyContactService(EmergencyContactRepository emergencyContactRepository) {
+    public EmergencyContactService(EmergencyContactRepository emergencyContactRepository, UserProfileRepository userProfileRepository) {
         this.emergencyContactRepository = emergencyContactRepository;
+        this.userProfileRepository = userProfileRepository;
     }
 
     public List<EmergencyContact> getAllContacts() {
@@ -27,18 +31,33 @@ public class EmergencyContactService {
     }
 
     public Optional<EmergencyContact> getContactById(Long id, Long currentUserId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         return emergencyContactRepository.findById(id)
-                .filter(contact -> contact.getUserProfileId().equals(currentUserId));
+                .filter(contact -> contact.getUserProfileId().equals(userProfile.getId()));
     }
 
     public List<EmergencyContact> getContactsByUserProfile(Long userProfileId) {
         return emergencyContactRepository.findByUserProfileId(userProfileId);
     }
 
+    public List<EmergencyContact> getContactsByUserId(Long userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", userId));
+        return emergencyContactRepository.findByUserProfileId(userProfile.getId());
+    }
+
     public EmergencyContact createContact(EmergencyContact contact, Long currentUserId) {
-        if (!contact.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        // Si el contacto tiene userProfileId, verificar que sea del usuario actual
+        if (contact.getUserProfileId() != null && !contact.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes crear contactos para otro usuario");
         }
+        
+        // Usar el ID del perfil del usuario actual
+        contact.setUserProfileId(userProfile.getId());
         return emergencyContactRepository.save(contact);
     }
 
@@ -46,7 +65,10 @@ public class EmergencyContactService {
         EmergencyContact contact = emergencyContactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
         
-        if (!contact.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (!contact.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes modificar contactos de otro usuario");
         }
         
@@ -62,7 +84,10 @@ public class EmergencyContactService {
         EmergencyContact contact = emergencyContactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
         
-        if (!contact.getUserProfileId().equals(currentUserId)) {
+        UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
+        
+        if (!contact.getUserProfileId().equals(userProfile.getId())) {
             throw new AccessDeniedException("No puedes eliminar contactos de otro usuario");
         }
         
