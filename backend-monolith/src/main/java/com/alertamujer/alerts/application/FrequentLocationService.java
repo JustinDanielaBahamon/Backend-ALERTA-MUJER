@@ -59,12 +59,7 @@ public class FrequentLocationService {
         UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         
-        // Si la ubicación tiene userProfileId, verificar que sea del usuario actual
-        if (frequentLocation.getUserProfileId() != null && !frequentLocation.getUserProfileId().equals(userProfile.getId())) {
-            throw new AccessDeniedException("No puedes crear ubicaciones frecuentes para otro usuario");
-        }
-        
-        // Usar el ID del perfil del usuario actual
+        // Ignorar userProfileId del payload y usar el del JWT
         frequentLocation.setUserProfileId(userProfile.getId());
         frequentLocation.setCreatedAt(java.time.LocalDateTime.now());
         if (frequentLocation.getRiskLevel() == null || frequentLocation.getRiskLevel().isBlank()) {

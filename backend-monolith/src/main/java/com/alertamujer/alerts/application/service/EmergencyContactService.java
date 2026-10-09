@@ -51,12 +51,7 @@ public class EmergencyContactService {
         UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         
-        // Si el contacto tiene userProfileId, verificar que sea del usuario actual
-        if (contact.getUserProfileId() != null && !contact.getUserProfileId().equals(userProfile.getId())) {
-            throw new AccessDeniedException("No puedes crear contactos para otro usuario");
-        }
-        
-        // Usar el ID del perfil del usuario actual
+        // Ignorar userProfileId del payload y usar el del JWT
         contact.setUserProfileId(userProfile.getId());
         return emergencyContactRepository.save(contact);
     }

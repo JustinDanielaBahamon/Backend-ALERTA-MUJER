@@ -51,10 +51,7 @@ public class AlertService {
         UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile", currentUserId));
         
-        if (alert.getUserProfileId() != null && !alert.getUserProfileId().equals(userProfile.getId())) {
-            throw new AccessDeniedException("No puedes crear alertas para otro usuario");
-        }
-        
+        // Ignorar userProfileId del payload y usar el del JWT
         alert.setUserProfileId(userProfile.getId());
         return alertRepository.save(alert);
     }

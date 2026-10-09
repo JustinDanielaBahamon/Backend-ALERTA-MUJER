@@ -37,10 +37,7 @@ public class LocationLogService {
         UserProfile userProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new RuntimeException("UserProfile not found for user: " + currentUserId));
         
-        if (locationLog.getUserProfileId() != null && !locationLog.getUserProfileId().equals(userProfile.getId())) {
-            throw new RuntimeException("Cannot create location log for another user");
-        }
-        
+        // Ignorar userProfileId del payload y usar el del JWT
         locationLog.setUserProfileId(userProfile.getId());
         return locationLogRepository.save(locationLog);
     }
