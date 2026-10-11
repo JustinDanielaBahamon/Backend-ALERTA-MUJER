@@ -30,6 +30,10 @@ yarn-error.log*
 # Angular
 .angular/cache/
 
+# Firebase
+firebase-service-account.json
+
 # Testing
 coverage/
 target/
+src/main/resources/firebase-service-account.json

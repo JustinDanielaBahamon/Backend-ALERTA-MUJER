@@ -8,7 +8,10 @@ import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
+import com.alertamujer.config.FcmService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +22,17 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final UserProfileRepository userProfileRepository;
     private final UserRepository userRepository;
+    private final FcmService fcmService;
 
-    public AlertService(AlertRepository alertRepository, 
+    @Autowired
+    public AlertService(AlertRepository alertRepository,
                        UserProfileRepository userProfileRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       FcmService fcmService) {
         this.alertRepository = alertRepository;
         this.userProfileRepository = userProfileRepository;
         this.userRepository = userRepository;
+        this.fcmService = fcmService;
     }
 
     public List<Alert> getAllAlerts() {
@@ -40,11 +47,11 @@ public class AlertService {
         // Obtener el userProfile del usuario autenticado
         UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElse(null);
-        
+
         if (currentUserProfile == null) {
             return Optional.empty();
         }
-        
+
         return alertRepository.findById(id)
                 .filter(alert -> alert.getUserProfileId().equals(currentUserProfile.getId()));
     }
@@ -53,23 +60,23 @@ public class AlertService {
         // Obtener el userProfile del usuario autenticado
         UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
-        
+
         // Obtener información del usuario para verificar si es ADMIN
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", currentUserId));
-        
+
         // Verificar rol de forma segura (evitar NPE)
-        boolean isAdmin = currentUser.getRole() != null && 
-                          currentUser.getRole().getName() != null &&
-                          currentUser.getRole().getName().equals("administrator");
-        
+        boolean isAdmin = currentUser.getRole() != null &&
+                currentUser.getRole().getName() != null &&
+                currentUser.getRole().getName().equals("administrator");
+
         // Permitir acceso SOLO si:
         // 1. El usuario autenticado es dueño del userProfile solicitado
         // 2. O el usuario autenticado tiene rol ADMIN
         if (!currentUserProfile.getId().equals(userProfileId) && !isAdmin) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
-        
+
         return alertRepository.findByUserProfileId(userProfileId);
     }
 
@@ -102,6 +109,15 @@ public class AlertService {
         if (alertDetails.getEndedAt() != null) alert.setEndedAt(alertDetails.getEndedAt());
         if (alertDetails.getCancelledAt() != null) alert.setCancelledAt(alertDetails.getCancelledAt());
 
+        // Cuando una alerta se actualiza a 'resolved' o 'cancelled', enviar notificaciones
+        if (alertDetails.getStatus() != null) {
+            String newStatus = alertDetails.getStatus();
+            if (newStatus.equals("resolved") || newStatus.equals("cancelled")) {
+                // Notificar cuando se resuelve o cancela una alerta
+                fcmService.notifyAlertTriggered(alert.getId(), alert.getUserProfileId());
+            }
+        }
+
         return alertRepository.save(alert);
     }
 
@@ -119,5 +135,49 @@ public class AlertService {
         }
 
         alertRepository.deleteById(id);
+    }
+
+    /**
+     * Notificar cuando se activa una alerta - enviar push a todos los dispositivos del usuario
+     */
+    @Transactional
+    public void notifyAlertTriggered(Long alertId, Long userProfileId) {
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
+
+        // Obtener dispositivos del usuario
+        List<String> fcmTokens = fcmService.getFcmTokensByUser(userProfileId);
+
+        if (!fcmTokens.isEmpty()) {
+            try {
+                fcmService.sendBatchNotification(fcmTokens, "Alerta activada",
+                        "Se ha activado una alerta de emergencia N°" + alertId,
+                        String.valueOf(alertId), "triggered");
+            } catch (Exception e) {
+                // Log error pero no lanzar excepción para no bloquear el flujo
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Notificar actualización de ubicación en tiempo real
+     */
+    @Transactional
+    public void notifyLocationUpdate(Long alertId, Long userProfileId, double latitude, double longitude) {
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
+
+        // Obtener tokens FCM de los dispositivos del usuario
+        List<String> fcmTokens = fcmService.getFcmTokensByUser(userProfileId);
+
+        if (!fcmTokens.isEmpty()) {
+            try {
+                // Enviar notificación al primer dispositivo
+                fcmService.sendLocationUpdateNotification(String.valueOf(alertId), fcmTokens.get(0), latitude, longitude);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

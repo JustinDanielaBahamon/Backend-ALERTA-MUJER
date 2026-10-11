@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: create-emergency-contact-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: emergency_contact
       changes:
         - createTable:
             schemaName: alert
@@ -53,6 +59,12 @@ databaseChangeLog:
   - changeSet:
       id: create-alert-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: alert
       changes:
         - createTable:
             schemaName: alert
@@ -131,6 +143,12 @@ databaseChangeLog:
   - changeSet:
       id: create-alert-contact-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: alert_contact
       changes:
         - createTable:
             schemaName: alert
@@ -207,6 +225,12 @@ databaseChangeLog:
   - changeSet:
       id: create-location-log-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: location_log
       changes:
         - createTable:
             schemaName: alert
@@ -259,6 +283,12 @@ databaseChangeLog:
   - changeSet:
       id: create-notification-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: notification
       changes:
         - createTable:
             schemaName: alert
@@ -334,6 +364,12 @@ databaseChangeLog:
   - changeSet:
       id: create-evidence-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: evidence
       changes:
         - createTable:
             schemaName: alert
@@ -376,6 +412,12 @@ databaseChangeLog:
   - changeSet:
       id: create-frequent-location-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: frequent_location
       changes:
         - createTable:
             schemaName: alert
@@ -447,6 +489,12 @@ databaseChangeLog:
   - changeSet:
       id: create-alert-reminder-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: alert
+              tableName: alert_reminder
       changes:
         - createTable:
             schemaName: alert

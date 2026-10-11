@@ -1,5 +1,6 @@
 package com.alertamujer.identity.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,5 +29,6 @@ public class Role {
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     @ToString.Exclude
+    @JsonIgnore   // evita la recursión Role → User → Role al serializar
     private List<User> users = new ArrayList<>();
 }

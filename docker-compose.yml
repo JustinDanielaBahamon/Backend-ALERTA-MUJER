@@ -32,9 +32,12 @@ services:
       - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
 
 volumes:
   postgres_data:

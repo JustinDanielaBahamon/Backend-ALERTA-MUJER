@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: create-audit-log-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: admin
+              tableName: audit_log
       changes:
         - createTable:
             schemaName: admin
@@ -53,6 +59,12 @@ databaseChangeLog:
   - changeSet:
       id: create-user-report-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: admin
+              tableName: user_report
       changes:
         - createTable:
             schemaName: admin
@@ -120,6 +132,12 @@ databaseChangeLog:
   - changeSet:
       id: create-moderation-action-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: admin
+              tableName: moderation_action
       changes:
         - createTable:
             schemaName: admin
@@ -165,6 +183,12 @@ databaseChangeLog:
   - changeSet:
       id: create-system-configuration-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: admin
+              tableName: system_configuration
       changes:
         - createTable:
             schemaName: admin

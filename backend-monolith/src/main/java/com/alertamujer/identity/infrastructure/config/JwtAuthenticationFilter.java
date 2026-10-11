@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            try {
+           try {
+                // Lógica de lectura y parseo del JWT
                 Claims claims = Jwts.parser()
                         .setSigningKey(jwtKey)
                         .build()
@@ -57,8 +58,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (Exception e) {
+
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                // 1. Primero atrapamos la expiración específica
                 SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"timestamp\":\"" + java.time.LocalDateTime.now() + 
+                    "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Access Token expirado\"}");
+                return; 
+            } catch (Exception e) {
+                // 2. Luego atrapamos cualquier otro error (firma inválida, malformado, etc.)
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"timestamp\":\"" + java.time.LocalDateTime.now() + 
+                    "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Token inválido o malformado\"}");
+                return;
             }
         }
 

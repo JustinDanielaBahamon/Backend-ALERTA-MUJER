@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthResponse {
-    
     private String token;
-    private UserResponse user;
+    private String refreshToken;
+    private UserResponse user; // <-- Aquí está la corrección exacta
 }

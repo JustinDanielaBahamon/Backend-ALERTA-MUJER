@@ -7,8 +7,10 @@ import com.alertamujer.identity.infrastructure.repository.AccountRepository;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeviceService {
@@ -25,6 +27,12 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
+    public List<Device> getDevicesByCurrentUser(Long currentUserId) {
+        Account account = accountRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
+        return deviceRepository.findByAccountId(account.getId());
+    }
+
     public Device getDeviceById(Long id) {
         return deviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Device", id));
@@ -36,6 +44,7 @@ public class DeviceService {
         return device;
     }
 
+    @Transactional
     public Device createDevice(Device device, Long currentUserId) {
         Account account = accountRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
@@ -43,6 +52,7 @@ public class DeviceService {
         return deviceRepository.save(device);
     }
 
+    @Transactional
     public Device updateDevice(Long id, Device device, Long currentUserId) {
         Device existing = getDeviceById(id, currentUserId);
         existing.setDeviceUuid(device.getDeviceUuid());
@@ -54,9 +64,14 @@ public class DeviceService {
         existing.setGpsStatus(device.getGpsStatus());
         existing.setStatus(device.getStatus());
         existing.setLastAccess(device.getLastAccess());
+        // Actualizar token FCM si viene proporcionado
+        if (device.getFcmToken() != null && !device.getFcmToken().isEmpty()) {
+            existing.setFcmToken(device.getFcmToken());
+        }
         return deviceRepository.save(existing);
     }
 
+    @Transactional
     public void deleteDevice(Long id, Long currentUserId) {
         Device device = getDeviceById(id, currentUserId);
         deviceRepository.deleteById(id);
@@ -68,5 +83,26 @@ public class DeviceService {
         if (!device.getAccountId().equals(account.getId())) {
             throw new AccessDeniedException("No puedes acceder a dispositivos de otro usuario");
         }
+    }
+
+    /**
+     * Actualizar solo el token FCM de un dispositivo
+     */
+    @Transactional
+    public Device updateFcmToken(Long id, String fcmToken, Long currentUserId) {
+        Device device = getDeviceById(id, currentUserId);
+        device.setFcmToken(fcmToken);
+        return deviceRepository.save(device);
+    }
+
+    /**
+     * Obtener todos los tokens FCM activos de los dispositivos de un usuario
+     */
+    public List<String> getFcmTokensByUser(Long userProfileId) {
+        List<Device> devices = deviceRepository.findByAccountId(userProfileId);
+        return devices.stream()
+                .map(Device::getFcmToken)
+                .filter(token -> token != null && !token.isEmpty())
+                .collect(Collectors.toList());
     }
 }

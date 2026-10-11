@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: create-role-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: role
       changes:
         - createTable:
             schemaName: identity
@@ -29,6 +35,12 @@ databaseChangeLog:
   - changeSet:
       id: create-users-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: users
       changes:
         - createTable:
             schemaName: identity
@@ -93,6 +105,12 @@ databaseChangeLog:
   - changeSet:
       id: create-account-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: account
       changes:
         - createTable:
             schemaName: identity
@@ -134,6 +152,12 @@ databaseChangeLog:
   - changeSet:
       id: create-user-profile-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: user_profile
       changes:
         - createTable:
             schemaName: identity
@@ -182,6 +206,12 @@ databaseChangeLog:
   - changeSet:
       id: create-admin-profile-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: admin_profile
       changes:
         - createTable:
             schemaName: identity
@@ -215,6 +245,12 @@ databaseChangeLog:
   - changeSet:
       id: create-recovery-request-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: recovery_request
       changes:
         - createTable:
             schemaName: identity
@@ -279,6 +315,12 @@ databaseChangeLog:
   - changeSet:
       id: create-device-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: device
       changes:
         - createTable:
             schemaName: identity
@@ -303,6 +345,9 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
+              - column:
+                  name: fcm_token
+                  type: VARCHAR(255)
               - column:
                   name: brand
                   type: VARCHAR(50)
@@ -349,6 +394,12 @@ databaseChangeLog:
   - changeSet:
       id: create-device-permission-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: device_permission
       changes:
         - createTable:
             schemaName: identity
@@ -396,6 +447,12 @@ databaseChangeLog:
   - changeSet:
       id: create-device-session-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: device_session
       changes:
         - createTable:
             schemaName: identity
@@ -459,6 +516,12 @@ databaseChangeLog:
   - changeSet:
       id: create-alert-activation-setting-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: alert_activation_setting
       changes:
         - createTable:
             schemaName: identity
@@ -507,6 +570,12 @@ databaseChangeLog:
   - changeSet:
       id: create-user-preference-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: identity
+              tableName: user_preference
       changes:
         - createTable:
             schemaName: identity

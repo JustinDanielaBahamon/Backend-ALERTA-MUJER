@@ -2,6 +2,12 @@ databaseChangeLog:
   - changeSet:
       id: create-zone-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: resource
+              tableName: zone
       changes:
         - createTable:
             schemaName: resource
@@ -80,6 +86,12 @@ databaseChangeLog:
   - changeSet:
       id: create-zone-report-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: resource
+              tableName: zone_report
       changes:
         - createTable:
             schemaName: resource
@@ -145,6 +157,12 @@ databaseChangeLog:
   - changeSet:
       id: create-emergency-resource-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: resource
+              tableName: emergency_resource
       changes:
         - createTable:
             schemaName: resource
@@ -214,6 +232,12 @@ databaseChangeLog:
   - changeSet:
       id: create-resource-call-table
       author: alerta-mujer-team
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              schemaName: resource
+              tableName: resource_call
       changes:
         - createTable:
             schemaName: resource

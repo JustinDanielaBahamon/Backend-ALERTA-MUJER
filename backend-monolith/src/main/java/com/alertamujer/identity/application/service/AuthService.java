@@ -8,6 +8,10 @@ import com.alertamujer.identity.infrastructure.repository.AccountRepository;
 import com.alertamujer.identity.infrastructure.repository.RoleRepository;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.shared.exception.ConflictException;
+import com.alertamujer.shared.exception.InvalidCredentialsException;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -42,7 +46,7 @@ public class AuthService {
 
     public User register(String nombre, String email, String password, String telefono) {
         if (userRepository.existsByEmail(email)) {
-            throw new RuntimeException("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         User user = new User();
@@ -80,29 +84,60 @@ public class AuthService {
 
     public Map<String, Object> login(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         Account account = accountRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         if ("blocked".equals(account.getStatus())) {
-            throw new RuntimeException("Account blocked");
+            throw new InvalidCredentialsException("Account blocked");
         }
 
         if (!passwordEncoder.matches(password, account.getPasswordHash())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new InvalidCredentialsException("Invalid credentials");
         }
 
         account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
 
         String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
-        String token = generateToken(user.getId(), role);
+        String accessToken = generateToken(user.getId(), role);
+        String refreshToken = generateRefreshToken(user.getId());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
+        response.put("token", accessToken);
+        response.put("refreshToken", refreshToken);
         response.put("user", user);
         return response;
+    }
+
+    public Map<String, Object> refreshToken(String refreshToken) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtKey)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+
+            String type = claims.get("type", String.class);
+            if (!"refresh".equals(type)) {
+                throw new InvalidCredentialsException("Invalid token type");
+            }
+
+            Long userId = Long.parseLong(claims.getSubject());
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+            String newAccessToken = generateToken(user.getId(), role);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", newAccessToken);
+            return response;
+
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Refresh token inválido o expirado");
+        }
     }
 
     public String generateTokenForUser(User user) {
@@ -126,7 +161,17 @@ public class AuthService {
                 .subject(userId.toString())
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 86400000))
+                .expiration(new Date(System.currentTimeMillis() + 86400000)) // 24 horas
+                .signWith(jwtKey)
+                .compact();
+    }
+
+    private String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1296000000L)) // 15 días (15 * 24 * 60 * 60 * 1000 ms)
                 .signWith(jwtKey)
                 .compact();
     }

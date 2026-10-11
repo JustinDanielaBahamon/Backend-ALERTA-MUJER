@@ -12,6 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map; // <-- Importación necesaria
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -47,9 +49,11 @@ public class AuthController {
         
         User user = (User) result.get("user");
         String token = (String) result.get("token");
+        String refreshToken = (String) result.get("refreshToken"); // Extraemos el Refresh Token
         
         return ResponseEntity.ok(AuthResponse.builder()
             .token(token)
+            .refreshToken(refreshToken) // Lo incluimos en la respuesta al cliente
             .user(userMapper.toResponse(user))
             .build());
     }
@@ -62,8 +66,31 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        // TODO: Implementar reset password real con token
         authService.resetPassword(request.getToken(), request.getNewPassword());
         return ResponseEntity.ok("Contraseña actualizada correctamente");
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "status", 400,
+                "error", "Bad Request",
+                "message", "El campo refreshToken es obligatorio"
+            ));
+        }
+
+        try {
+            Map<String, Object> tokens = authService.refreshToken(refreshToken);
+            return ResponseEntity.ok(tokens);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of(
+                "status", 401,
+                "error", "Unauthorized",
+                "message", e.getMessage()
+            ));
+        }
     }
 }

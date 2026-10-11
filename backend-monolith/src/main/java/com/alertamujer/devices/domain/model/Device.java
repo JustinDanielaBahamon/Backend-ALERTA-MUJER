@@ -48,4 +48,11 @@ public class Device {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    /**
+     * Firebase Cloud Messaging push registration token
+     * Almacena el token FCM del dispositivo para notificaciones push
+     */
+    @Column(name = "fcm_token", length = 2000)
+    private String fcmToken;
 }
