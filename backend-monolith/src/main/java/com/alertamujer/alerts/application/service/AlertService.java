@@ -35,6 +35,15 @@ public class AlertService {
         this.fcmService = fcmService;
     }
 
+    /** Alertas de la usuaria autenticada, de la más reciente a la más antigua. */
+    public List<Alert> getMine(Long currentUserId) {
+        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
+        return alertRepository.findByUserProfileId(profile.getId()).stream()
+                .sorted((a, b) -> b.getStartedAt().compareTo(a.getStartedAt()))
+                .toList();
+    }
+
     public List<Alert> getAllAlerts() {
         return alertRepository.findAll();
     }

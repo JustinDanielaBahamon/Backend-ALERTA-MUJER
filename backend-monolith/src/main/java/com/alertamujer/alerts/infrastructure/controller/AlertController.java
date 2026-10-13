@@ -38,6 +38,11 @@ public class AlertController {
         return ResponseEntity.ok(alertService.getAllAlerts());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<Alert>> getMine(@AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(alertService.getMine(currentUserId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Alert> getAlertById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
         return alertService.getAlertById(id, currentUserId)

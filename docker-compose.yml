@@ -36,11 +36,14 @@ services:
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - EVIDENCE_STORAGE_DIR=/data/evidence
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+      - evidence_data:/data/evidence
 
 volumes:
   postgres_data:
+  evidence_data:

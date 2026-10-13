@@ -1,6 +1,7 @@
 package com.alertamujer.alerts.domain.model;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -35,6 +36,14 @@ public class Alert {
     private String status = "active";
 
     private String message;
+
+    // La tabla siempre tuvo estas columnas, pero la entidad no las mapeaba y la ubicación
+    // con la que el móvil crea el SOS se perdía.
+    @Column(precision = 9, scale = 6)
+    private BigDecimal latitude;
+
+    @Column(precision = 9, scale = 6)
+    private BigDecimal longitude;
 
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt = LocalDateTime.now();

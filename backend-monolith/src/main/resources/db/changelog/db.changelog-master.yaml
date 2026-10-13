@@ -72,3 +72,8 @@ databaseChangeLog:
   - include:
       file: changesets/v1.2.0/01-saved-route.sql
       relativeToChangelogFile: true
+
+  # v1.3.0 - Evidencias con archivo real (almacenamiento + huella SHA-256)
+  - include:
+      file: changesets/v1.3.0/01-evidence-files.sql
+      relativeToChangelogFile: true
