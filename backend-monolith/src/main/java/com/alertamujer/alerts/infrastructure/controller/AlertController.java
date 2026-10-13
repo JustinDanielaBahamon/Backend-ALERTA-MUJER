@@ -1,6 +1,9 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
 import com.alertamujer.alerts.application.service.AlertService;
+import com.alertamujer.alerts.application.service.LocationLogService;
+import com.alertamujer.alerts.domain.model.LocationLog;
+import org.springframework.security.core.Authentication;
 import com.alertamujer.alerts.domain.model.Alert;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,9 +17,19 @@ import java.util.List;
 public class AlertController {
 
     private final AlertService alertService;
+    private final LocationLogService locationLogService;
 
-    public AlertController(AlertService alertService) {
+    public AlertController(AlertService alertService, LocationLogService locationLogService) {
         this.alertService = alertService;
+        this.locationLogService = locationLogService;
+    }
+
+    /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
+    @GetMapping("/{id}/locations")
+    public ResponseEntity<List<LocationLog>> getAlertLocations(@PathVariable Long id,
+                                                               @AuthenticationPrincipal Long currentUserId,
+                                                               Authentication authentication) {
+        return ResponseEntity.ok(locationLogService.getByAlert(id, currentUserId, LocationLogController.isAdmin(authentication)));
     }
 
     @GetMapping
