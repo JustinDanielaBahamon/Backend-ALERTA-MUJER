@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface ResourceCallRepository extends JpaRepository<ResourceCall, Long> {
     List<ResourceCall> findByUserProfileId(Long userProfileId);
+    List<ResourceCall> findByUserProfileIdOrderByStartedAtDesc(Long userProfileId);
     List<ResourceCall> findByEmergencyResourceId(Long emergencyResourceId);
     List<ResourceCall> findByAlertId(Long alertId);
 }

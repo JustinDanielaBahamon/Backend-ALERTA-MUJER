@@ -34,7 +34,8 @@ public class ResourceCall {
     @Column(name = "telephone_dialed", nullable = false)
     private String telephoneDialed;
 
-    private String status = "completed";
+    // Sin valor por defecto: el servicio decide ("initiated" si el cliente no lo indica)
+    private String status;
 
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startedAt = LocalDateTime.now();

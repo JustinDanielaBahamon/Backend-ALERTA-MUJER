@@ -32,22 +32,26 @@ public class ResourceCallController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/user/{userProfileId}")
-    public ResponseEntity<List<ResourceCall>> getCallsByUser(@PathVariable Long userProfileId) {
-        return ResponseEntity.ok(resourceCallService.getCallsByUserProfile(userProfileId));
+    // userId = users.id. Antes cualquiera con sesión podía ver las llamadas de otra usuaria.
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
+    public ResponseEntity<List<ResourceCall>> getCallsByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(resourceCallService.getCallsByUser(userId));
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<ResourceCall>> getMyCalls(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(resourceCallService.getCallsByUserProfile(currentUserId));
+        return ResponseEntity.ok(resourceCallService.getMyCalls(currentUserId));
     }
 
     @GetMapping("/resource/{emergencyResourceId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCall>> getCallsByResource(@PathVariable Long emergencyResourceId) {
         return ResponseEntity.ok(resourceCallService.getCallsByResource(emergencyResourceId));
     }
 
     @GetMapping("/alert/{alertId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCall>> getCallsByAlert(@PathVariable Long alertId) {
         return ResponseEntity.ok(resourceCallService.getCallsByAlert(alertId));
     }
