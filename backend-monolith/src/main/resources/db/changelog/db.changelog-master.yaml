@@ -41,3 +41,29 @@ databaseChangeLog:
       file: changesets/v1.0.0/05-seed-data.yaml
       relativeToChangelogFile: true
       context: test,dev
+
+  # v1.1.0 - Reemplaza db/phase1..3_improvements.sql y db/security/defense-in-depth.sql
+  # (esos scripts nunca se aplicaron y se contradecían; ver comentarios en cada archivo)
+  - include:
+      file: changesets/v1.1.0/00-sync-sequences.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/01-indexes.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/02-check-constraints.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/03-updated-at.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/04-audit.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/05-app-role.sql
+      relativeToChangelogFile: true

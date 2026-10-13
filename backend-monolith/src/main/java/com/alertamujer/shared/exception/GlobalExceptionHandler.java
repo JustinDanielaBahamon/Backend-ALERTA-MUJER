@@ -50,6 +50,32 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+    // Los servicios lanzan la AccessDeniedException del proyecto, no la de Spring Security
+    @ExceptionHandler(com.alertamujer.shared.exception.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleDomainAccessDenied(com.alertamujer.shared.exception.AccessDeniedException ex) {
+        return ResponseEntity
+            .status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .build());
+    }
+
+    // Violaciones de CHECK / FK / UNIQUE: no exponer el SQL ni los nombres de constraints
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message("Los datos enviados no son válidos")
+                .build());
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity

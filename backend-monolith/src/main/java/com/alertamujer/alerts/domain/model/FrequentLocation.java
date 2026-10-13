@@ -33,11 +33,12 @@ public class FrequentLocation {
 
     private String notes;
 
+    // Sin valor inicial: si no, un PATCH sin este campo lo sobrescribiría. El default se pone en create().
     @Column(name = "risk_level", nullable = false)
-    private String riskLevel = "moderada";
+    private String riskLevel;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

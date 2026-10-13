@@ -1,3 +1,5 @@
+> **⚠️ Documento histórico.** `defense-in-depth.sql` se movió a `db/legacy/` y **no debe ejecutarse**: su trigger de auditoría rompe la actualización de alertas. La versión corregida se aplica sola con Liquibase (`db/changelog/changesets/v1.1.0/`). Ver `db/legacy/README.md`.
+
 # Defense in Depth Security Implementation - AlertaMujer
 
 ## Overview

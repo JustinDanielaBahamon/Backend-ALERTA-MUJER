@@ -26,15 +26,17 @@ public class FrequentLocationController {
         return ResponseEntity.ok(locations);
     }
 
+    // userId = users.id (lo que envían web y móvil). Solo la dueña o un admin.
     @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
     public ResponseEntity<List<FrequentLocation>> getByUserId(@PathVariable Long userId) {
-        List<FrequentLocation> locations = frequentLocationService.getActiveByUserProfileId(userId);
+        List<FrequentLocation> locations = frequentLocationService.getActiveByUserId(userId);
         return ResponseEntity.ok(locations);
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<FrequentLocation>> getMyLocations(@AuthenticationPrincipal Long currentUserId) {
-        List<FrequentLocation> locations = frequentLocationService.getActiveByUserProfileId(currentUserId);
+        List<FrequentLocation> locations = frequentLocationService.getActiveByUserId(currentUserId);
         return ResponseEntity.ok(locations);
     }
 
@@ -49,7 +51,7 @@ public class FrequentLocationController {
         return ResponseEntity.ok(created);
     }
 
-    @PutMapping("/{id}")
+    @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<FrequentLocation> update(@PathVariable Long id, @RequestBody FrequentLocation frequentLocation, @AuthenticationPrincipal Long currentUserId) {
         FrequentLocation updated = frequentLocationService.update(id, frequentLocation, currentUserId);
         return ResponseEntity.ok(updated);
