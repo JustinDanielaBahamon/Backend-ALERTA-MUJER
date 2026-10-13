@@ -67,3 +67,8 @@ databaseChangeLog:
   - include:
       file: changesets/v1.1.0/05-app-role.sql
       relativeToChangelogFile: true
+
+  # v1.2.0 - Recorridos guardados compartidos entre web y móvil
+  - include:
+      file: changesets/v1.2.0/01-saved-route.sql
+      relativeToChangelogFile: true
