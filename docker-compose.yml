@@ -11,7 +11,6 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alerta_mujer} -d ${POSTGRES_DB:-alerta_mujer}"]
       interval: 5s
@@ -26,14 +25,25 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
-      - POSTGRES_USER=${POSTGRES_USER:-alerta_mujer}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
+      # El backend se conecta con un usuario sin privilegios (solo DML), creado por Liquibase
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      # Liquibase (migraciones/DDL) sigue usando el usuario dueño de la base
+      - LIQUIBASE_USER=${POSTGRES_USER:-alerta_mujer}
+      - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
       - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - EVIDENCE_STORAGE_DIR=/data/evidence
     depends_on:
       postgres:
         condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+      - evidence_data:/data/evidence
 
 volumes:
   postgres_data:
+  evidence_data:

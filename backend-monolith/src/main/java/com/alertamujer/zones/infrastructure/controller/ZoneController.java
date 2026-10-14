@@ -3,6 +3,7 @@ package com.alertamujer.zones.infrastructure.controller;
 import com.alertamujer.zones.application.service.ZoneService;
 import com.alertamujer.zones.domain.model.Zone;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,16 +41,19 @@ public class ZoneController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Zone> createZone(@RequestBody Zone zone) {
         return ResponseEntity.ok(zoneService.createZone(zone));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Zone> updateZone(@PathVariable Long id, @RequestBody Zone zone) {
         return ResponseEntity.ok(zoneService.updateZone(id, zone));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteZone(@PathVariable Long id) {
         zoneService.deleteZone(id);
         return ResponseEntity.noContent().build();

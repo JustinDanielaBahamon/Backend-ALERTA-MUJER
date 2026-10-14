@@ -1,0 +1,79 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-schemas
+      author: alerta-mujer-team
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS identity
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS alert
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS resource
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS admin
+      rollback:
+        - sql:
+            sql: DROP SCHEMA IF EXISTS admin CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS resource CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS alert CASCADE
+        - sql:
+            sql: DROP SCHEMA IF EXISTS identity CASCADE
+
+  - include:
+      file: changesets/v1.0.0/01-identity-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/02-alert-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/03-resource-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/04-admin-schema.yaml
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.0.0/05-seed-data.yaml
+      relativeToChangelogFile: true
+      context: test,dev
+
+  # v1.1.0 - Reemplaza db/phase1..3_improvements.sql y db/security/defense-in-depth.sql
+  # (esos scripts nunca se aplicaron y se contradecían; ver comentarios en cada archivo)
+  - include:
+      file: changesets/v1.1.0/00-sync-sequences.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/01-indexes.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/02-check-constraints.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/03-updated-at.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/04-audit.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.1.0/05-app-role.sql
+      relativeToChangelogFile: true
+
+  # v1.2.0 - Recorridos guardados compartidos entre web y móvil
+  - include:
+      file: changesets/v1.2.0/01-saved-route.sql
+      relativeToChangelogFile: true
+
+  # v1.3.0 - Evidencias con archivo real (almacenamiento + huella SHA-256)
+  - include:
+      file: changesets/v1.3.0/01-evidence-files.sql
+      relativeToChangelogFile: true

@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -16,6 +18,8 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -35,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            try {
+           try {
+                // Lógica de lectura y parseo del JWT
                 Claims claims = Jwts.parser()
                         .setSigningKey(jwtKey)
                         .build()
@@ -45,11 +50,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = Long.parseLong(claims.getSubject());
                 String role = claims.get("role", String.class);
 
+                List<GrantedAuthority> authorities = Collections.emptyList();
+                if (role != null) {
+                    authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+                }
+
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                        userId, null, Collections.emptyList());
+                        userId, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (Exception e) {
+
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                // 1. Primero atrapamos la expiración específica
                 SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"timestamp\":\"" + java.time.LocalDateTime.now() + 
+                    "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Access Token expirado\"}");
+                return; 
+            } catch (Exception e) {
+                // 2. Luego atrapamos cualquier otro error (firma inválida, malformado, etc.)
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"timestamp\":\"" + java.time.LocalDateTime.now() + 
+                    "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Token inválido o malformado\"}");
+                return;
             }
         }
 

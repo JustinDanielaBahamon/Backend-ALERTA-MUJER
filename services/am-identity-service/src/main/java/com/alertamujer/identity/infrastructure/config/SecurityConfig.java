@@ -24,9 +24,19 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/auth/**", "/actuator/**", "/health").permitAll()
                 .anyRequest().authenticated()
             )
+
+            .exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() + 
+                        "\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"No tienes permisos para acceder a este recurso\"}");
+                })
+            )
+
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
