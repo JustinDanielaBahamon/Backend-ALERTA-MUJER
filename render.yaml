@@ -1,0 +1,70 @@
+# Blueprint de Render: backend (Docker) + PostgreSQL, ambos en el plan gratis.
+# Pasos y variables: ver DEPLOY_RENDER.md.
+services:
+  - type: web
+    name: alerta-mujer-backend
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: backend-monolith
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      # Conexión a la base (Render entrega host, puerto, nombre, usuario y contraseña por separado)
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      # Liquibase migra con el usuario dueño de la base...
+      - key: LIQUIBASE_USER
+        fromDatabase:
+          name: alerta-mujer-db
+          property: user
+      - key: LIQUIBASE_PASSWORD
+        fromDatabase:
+          name: alerta-mujer-db
+          property: password
+      # ...y el backend se conecta con alerta_app, que solo puede leer y escribir datos.
+      # Liquibase crea ese rol con APP_DB_PASSWORD; POSTGRES_PASSWORD la reutiliza (Spring
+      # resuelve el ${...}).
+      - key: POSTGRES_USER
+        value: alerta_app
+      - key: APP_DB_PASSWORD
+        generateValue: true
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      # Solo roles y configuración base: sin cuentas de prueba con contraseñas conocidas
+      - key: LIQUIBASE_CONTEXTS
+        value: prod
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "*"
+      # Archivo de cuenta de servicio de Firebase: se sube como Secret File en el dashboard
+      - key: FIREBASE_CONFIG_PATH
+        value: /etc/secrets/firebase-service-account.json
+      # El disco del plan gratis se borra en cada despliegue o reinicio
+      - key: EVIDENCE_STORAGE_DIR
+        value: /tmp/evidence
+      - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+        value: never
+      # La instancia gratis tiene 512 MB
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
+
+databases:
+  - name: alerta-mujer-db
+    plan: free
+    region: virginia
+    databaseName: alerta_mujer
+    postgresMajorVersion: "16"
+    user: alerta_admin
