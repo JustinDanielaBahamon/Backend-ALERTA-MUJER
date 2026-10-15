@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
+import com.alertamujer.alerts.application.service.AdminAlertService;
 import com.alertamujer.alerts.application.service.AlertContactService;
 import com.alertamujer.alerts.application.service.AlertService;
 import com.alertamujer.alerts.application.service.LocationLogService;
@@ -20,12 +21,14 @@ public class AlertController {
     private final AlertService alertService;
     private final LocationLogService locationLogService;
     private final AlertContactService alertContactService;
+    private final AdminAlertService adminAlertService;
 
     public AlertController(AlertService alertService, LocationLogService locationLogService,
-                           AlertContactService alertContactService) {
+                           AlertContactService alertContactService, AdminAlertService adminAlertService) {
         this.alertService = alertService;
         this.locationLogService = locationLogService;
         this.alertContactService = alertContactService;
+        this.adminAlertService = adminAlertService;
     }
 
     /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
@@ -38,8 +41,8 @@ public class AlertController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Alert>> getAllAlerts() {
-        return ResponseEntity.ok(alertService.getAllAlerts());
+    public ResponseEntity<List<AdminAlertService.AdminAlertView>> getAllAlerts() {
+        return ResponseEntity.ok(adminAlertService.listar());
     }
 
     @GetMapping("/me")
