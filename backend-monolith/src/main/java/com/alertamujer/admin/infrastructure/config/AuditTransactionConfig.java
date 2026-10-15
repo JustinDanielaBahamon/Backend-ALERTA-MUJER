@@ -1,7 +1,7 @@
 package com.alertamujer.admin.infrastructure.config;
 
+import com.alertamujer.shared.web.RequestInfo;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.EntityManagerHolder;
@@ -11,8 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Los triggers de auditoría (admin.log_row_change) guardan como actor la cuenta que indique
@@ -38,7 +36,7 @@ public class AuditTransactionConfig {
         protected void doBegin(Object transaction, TransactionDefinition definition) {
             super.doBegin(transaction, definition);
             Long userId = usuarioActual();
-            String ip = ipCliente();
+            String ip = RequestInfo.ip();
             if (userId == null && ip == null) return;
             EntityManagerHolder holder = (EntityManagerHolder)
                     TransactionSynchronizationManager.getResource(obtainEntityManagerFactory());
@@ -56,16 +54,6 @@ public class AuditTransactionConfig {
         private static Long usuarioActual() {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             return auth != null && auth.getPrincipal() instanceof Long id ? id : null;
-        }
-
-        /** IP del cliente; detrás del proxy de Render llega en X-Forwarded-For. */
-        static String ipCliente() {
-            if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs)) return null;
-            HttpServletRequest request = attrs.getRequest();
-            String reenviada = request.getHeader("X-Forwarded-For");
-            String ip = reenviada != null && !reenviada.isBlank() ? reenviada.split(",")[0].trim() : request.getRemoteAddr();
-            // Solo caracteres de una IPv4/IPv6; la columna admite 45
-            return ip != null && ip.matches("[0-9a-fA-F.:]{2,45}") ? ip : null;
         }
     }
 }
