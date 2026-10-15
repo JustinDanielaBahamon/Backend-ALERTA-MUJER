@@ -52,6 +52,7 @@ com/alertamujer/evidence/application/service/EvidenceService$StoredEvidence.clas
 com/alertamujer/identity/domain/model/User.class
 com/alertamujer/identity/domain/model/Role.class
 com/alertamujer/identity/application/service/AuthService.class
+com/alertamujer/admin/infrastructure/controller/dto/AdminUserDto.class
 com/alertamujer/identity/infrastructure/repository/AccountRepository.class
 com/alertamujer/zones/domain/model/Zone.class
 com/alertamujer/identity/infrastructure/controller/AuthController.class
@@ -108,6 +109,7 @@ com/alertamujer/alerts/domain/model/EmergencyContact.class
 com/alertamujer/identity/infrastructure/repository/UserRepository.class
 com/alertamujer/admin/infrastructure/repository/AuditLogRepository.class
 com/alertamujer/zones/application/service/ZoneService.class
+com/alertamujer/util/PasswordHashGenerator.class
 com/alertamujer/resources/application/service/EmergencyResourceService.class
 com/alertamujer/alerts/domain/model/AlertReminder.class
 com/alertamujer/config/FirebaseConfig.class

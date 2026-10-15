@@ -10,6 +10,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/UserController.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Alert.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/repository/UserRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/controller/dto/AdminUserDto.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/infrastructure/repository/AlertActivationSettingRepository.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/AlertaMujerBackendApplication.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/shared/exception/AccessDeniedException.java
@@ -43,6 +44,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/dto/ResetPasswordRequest.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/FcmServiceImpl.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/FcmService.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/util/PasswordHashGenerator.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/AlertWebSocketController.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/AlertContactService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/ModerationAction.java
