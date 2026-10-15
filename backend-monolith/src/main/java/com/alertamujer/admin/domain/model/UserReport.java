@@ -23,6 +23,11 @@ public class UserReport {
 
     private String reason;
     private String description;
+
+    /** Gravedad para priorizar la moderación: low, medium, high o critical. */
+    @Column(nullable = false)
+    private String severity = "medium";
+
     private String status = "pending";
 
     @Column(name = "reviewed_by_admin_id")
