@@ -14,9 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,5 +73,22 @@ class AdminAlertServiceTest {
         assertEquals("ana@correo.com", vistas.get(1).userEmail());
         assertEquals(1L, vistas.get(1).userId());
         assertEquals("panic_button", vistas.get(1).activationMethod());
+    }
+
+    @Test
+    void cambiarEstado_resolvedMarcaLaHoraDeCierre() {
+        Alert alert = alerta(5L, 10L, LocalDateTime.now());
+        when(alertRepository.findById(5L)).thenReturn(Optional.of(alert));
+        when(alertRepository.save(any(Alert.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Alert resultado = service.cambiarEstado(5L, "resolved");
+
+        assertEquals("resolved", resultado.getStatus());
+        assertNotNull(resultado.getEndedAt());
+    }
+
+    @Test
+    void cambiarEstado_rechazaEstadosDesconocidos() {
+        assertThrows(IllegalArgumentException.class, () -> service.cambiarEstado(5L, "Atendida"));
     }
 }

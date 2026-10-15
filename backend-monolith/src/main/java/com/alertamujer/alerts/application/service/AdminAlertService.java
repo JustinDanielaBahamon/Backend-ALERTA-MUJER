@@ -6,6 +6,7 @@ import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -23,6 +25,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class AdminAlertService {
+
+    private static final Set<String> ESTADOS = Set.of("active", "resolved", "cancelled", "expired");
 
     private final AlertRepository alertRepository;
     private final UserProfileRepository userProfileRepository;
@@ -59,6 +63,24 @@ public class AdminAlertService {
                             a.getStartedAt(), a.getEndedAt(), a.getCancelledAt(), a.getCreatedAt());
                 })
                 .toList();
+    }
+
+    /**
+     * Cambia el estado de cualquier alerta (solo administración): "resolved" marca la alerta
+     * como atendida y guarda la hora de cierre; "cancelled" guarda la hora de cancelación.
+     */
+    @Transactional
+    public Alert cambiarEstado(Long id, String estado) {
+        if (estado == null || !ESTADOS.contains(estado)) {
+            throw new IllegalArgumentException("Estado no válido: " + estado);
+        }
+        Alert alert = alertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
+        alert.setStatus(estado);
+        LocalDateTime ahora = LocalDateTime.now();
+        if ("resolved".equals(estado) && alert.getEndedAt() == null) alert.setEndedAt(ahora);
+        if ("cancelled".equals(estado) && alert.getCancelledAt() == null) alert.setCancelledAt(ahora);
+        return alertRepository.save(alert);
     }
 
     /** Mismos campos que Alert (los clientes existentes siguen funcionando) más userId, userName y userEmail. */

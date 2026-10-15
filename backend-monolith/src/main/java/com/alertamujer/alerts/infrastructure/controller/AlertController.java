@@ -45,6 +45,13 @@ public class AlertController {
         return ResponseEntity.ok(adminAlertService.listar());
     }
 
+    /** Cambia el estado de una alerta de cualquier usuaria, por ejemplo a "resolved" (atendida). */
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Alert> changeAlertStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+        return ResponseEntity.ok(adminAlertService.cambiarEstado(id, body.get("status")));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<List<Alert>> getMine(@AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(alertService.getMine(currentUserId));
