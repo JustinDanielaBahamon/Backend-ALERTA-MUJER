@@ -1,6 +1,11 @@
 package com.alertamujer.admin.infrastructure.controller;
 
+import com.alertamujer.admin.application.service.AlertReportExporter;
 import com.alertamujer.admin.application.service.AlertReportService;
+import com.alertamujer.alerts.application.service.AdminAlertService.AdminAlertView;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,9 +20,11 @@ import java.util.List;
 public class AlertReportController {
 
     private final AlertReportService alertReportService;
+    private final AlertReportExporter alertReportExporter;
 
-    public AlertReportController(AlertReportService alertReportService) {
+    public AlertReportController(AlertReportService alertReportService, AlertReportExporter alertReportExporter) {
         this.alertReportService = alertReportService;
+        this.alertReportExporter = alertReportExporter;
     }
 
     @GetMapping
@@ -51,5 +58,21 @@ public class AlertReportController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         alertReportService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /** Descarga el informe con sus alertas: {@code format=pdf} o {@code format=csv} (se abre en Excel). */
+    @GetMapping("/{id}/export")
+    public ResponseEntity<byte[]> export(@PathVariable Long id, @RequestParam(defaultValue = "pdf") String format) {
+        boolean pdf = "pdf".equalsIgnoreCase(format);
+        if (!pdf && !"csv".equalsIgnoreCase(format)) throw new IllegalArgumentException("Formato no válido: " + format);
+        AlertReportService.AlertReportView informe = alertReportService.obtener(id);
+        List<AdminAlertView> alertas = alertReportService.alertasDe(id);
+        byte[] archivo = pdf ? alertReportExporter.pdf(informe, alertas) : alertReportExporter.csv(informe, alertas);
+        alertReportService.registrarExportacion(id);
+        return ResponseEntity.ok()
+                .contentType(pdf ? MediaType.APPLICATION_PDF : new MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename("informe-" + id + (pdf ? ".pdf" : ".csv")).build().toString())
+                .body(archivo);
     }
 }
