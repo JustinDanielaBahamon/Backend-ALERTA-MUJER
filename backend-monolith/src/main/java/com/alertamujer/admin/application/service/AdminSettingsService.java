@@ -59,7 +59,10 @@ public class AdminSettingsService {
             c.setAdminEmail(correo);
         }
         c.setUpdatedByAdminId(adminUserId == null ? null : adminUserId.intValue());
-        return vista(repository.save(c));
+        SystemConfiguration guardada = repository.save(c);
+        // updated_at lo pone un trigger de la base; la entidad no lo ve hasta recargarla
+        return new SettingsView(guardada.getSosMaxDurationMinutes(), guardada.getEmergencyPhoneNumber(),
+                guardada.getAdminEmail(), LocalDateTime.now());
     }
 
     private SystemConfiguration buscar() {
