@@ -4,6 +4,7 @@ import com.alertamujer.alerts.application.service.EmergencyContactService;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +33,12 @@ public class EmergencyContactController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/user/{userProfileId}")
-    public ResponseEntity<List<EmergencyContact>> getContactsByUser(@PathVariable Long userProfileId) {
-        return ResponseEntity.ok(emergencyContactService.getContactsByUserProfile(userProfileId));
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<EmergencyContact>> getContactsByUser(@PathVariable Long userId,
+                                                                   @AuthenticationPrincipal Long currentUserId,
+                                                                   Authentication authentication) {
+        return ResponseEntity.ok(emergencyContactService.getContactsForUser(
+                userId, currentUserId, LocationLogController.isAdmin(authentication)));
     }
 
     @PostMapping

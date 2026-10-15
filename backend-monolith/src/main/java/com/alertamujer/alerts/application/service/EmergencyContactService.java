@@ -40,8 +40,24 @@ public class EmergencyContactService {
                 .filter(contact -> profile.getId().equals(contact.getUserProfileId()));
     }
 
-    public List<EmergencyContact> getContactsByUserProfile(Long userProfileId) {
-        return emergencyContactRepository.findByUserProfileId(userProfileId);
+    /**
+     * Contactos de una usuaria. Los clientes envían el id de usuaria (users.id); también se acepta
+     * el id de perfil propio. Una usuaria solo ve sus contactos; el administrador puede ver los de
+     * cualquiera (el id se interpreta como users.id y, si no existe, como user_profile.id).
+     */
+    public List<EmergencyContact> getContactsForUser(Long requestedId, Long currentUserId, boolean isAdmin) {
+        UserProfile own = userProfileRepository.findByUserId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
+        if (requestedId.equals(currentUserId) || requestedId.equals(own.getId())) {
+            return emergencyContactRepository.findByUserProfileId(own.getId());
+        }
+        if (!isAdmin) {
+            throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
+        }
+        Long profileId = userProfileRepository.findByUserId(requestedId)
+                .map(UserProfile::getId)
+                .orElse(requestedId);
+        return emergencyContactRepository.findByUserProfileId(profileId);
     }
 
     public EmergencyContact createContact(EmergencyContact contact, Long currentUserId) {

@@ -2,6 +2,7 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.config.FcmService;
 import com.alertamujer.identity.domain.model.Role;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
@@ -35,6 +36,9 @@ class AlertServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private FcmService fcmService;
 
     @InjectMocks
     private AlertService alertService;
@@ -199,6 +203,19 @@ class AlertServiceTest {
         );
         assertEquals("No puedes eliminar alertas de otro usuario", exception.getMessage());
         verify(alertRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void testGetAlertsByUserProfile_OwnerAccessWithUserId() {
+        // Los clientes envían users.id (1), que no coincide con user_profile.id (10)
+        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(testUserProfile));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(alertRepository.findByUserProfileId(10L)).thenReturn(List.of(testAlert));
+
+        List<Alert> results = alertService.getAlertsByUserProfile(1L, 1L);
+
+        assertEquals(1, results.size());
+        verify(alertRepository).findByUserProfileId(10L);
     }
 
     @Test

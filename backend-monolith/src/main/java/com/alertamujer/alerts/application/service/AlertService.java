@@ -79,14 +79,20 @@ public class AlertService {
                 currentUser.getRole().getName() != null &&
                 currentUser.getRole().getName().equals("administrator");
 
-        // Permitir acceso SOLO si:
-        // 1. El usuario autenticado es dueño del userProfile solicitado
-        // 2. O el usuario autenticado tiene rol ADMIN
-        if (!currentUserProfile.getId().equals(userProfileId) && !isAdmin) {
+        // Los clientes envían el id de usuaria (users.id); también se acepta el id de perfil propio.
+        // Ambos ids no coinciden necesariamente (en producción son distintos).
+        if (userProfileId.equals(currentUserId) || userProfileId.equals(currentUserProfile.getId())) {
+            return alertRepository.findByUserProfileId(currentUserProfile.getId());
+        }
+        // Solo el administrador puede ver alertas de otra usuaria: el id se interpreta como
+        // users.id y, si no existe, como user_profile.id.
+        if (!isAdmin) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
-
-        return alertRepository.findByUserProfileId(userProfileId);
+        Long profileId = userProfileRepository.findByUserId(userProfileId)
+                .map(UserProfile::getId)
+                .orElse(userProfileId);
+        return alertRepository.findByUserProfileId(profileId);
     }
 
     public Alert createAlert(Alert alert, Long currentUserId) {
