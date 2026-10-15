@@ -39,6 +39,13 @@ public class SystemConfiguration {
     @Column(name = "default_theme", nullable = false)
     private String defaultTheme = "light";
 
+    @Column(name = "max_emergency_contacts", nullable = false)
+    private Integer maxEmergencyContacts = 5;
+
+    /** Versión mínima de la app móvil (p. ej. "1.2.0"); null si no se exige ninguna. */
+    @Column(name = "min_app_version")
+    private String minAppVersion;
+
     @Column(name = "updated_by_admin_id")
     private Integer updatedByAdminId;
 
