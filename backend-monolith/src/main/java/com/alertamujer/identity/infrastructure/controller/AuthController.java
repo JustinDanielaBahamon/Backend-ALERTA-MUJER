@@ -75,6 +75,15 @@ public class AuthController {
             .build());
     }
 
+    /** Deja constancia del cierre de sesión (el cliente borra el token). Responde 204 aunque no haya sesión. */
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(org.springframework.security.core.Authentication authentication,
+                                       @RequestBody(required = false) Map<String, String> body) {
+        Long userId = authentication != null && authentication.getPrincipal() instanceof Long id ? id : null;
+        authService.logout(userId, body == null ? null : body.get("reason"));
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
         authService.forgotPassword(request.getEmail());

@@ -42,6 +42,9 @@ class AuthServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private com.alertamujer.admin.application.service.SecurityEventService securityEvents;
+
     @Spy
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -214,5 +217,30 @@ class AuthServiceTest {
 
         assertTrue(new BCryptPasswordEncoder().matches("NuevaClave2026", testAccount.getPasswordHash()));
         verify(accountRepository).save(testAccount);
+    }
+
+    @Test
+    void login_deAdminRegistraEventosDeSesion() {
+        Role adminRole = new Role();
+        adminRole.setId(2L);
+        testUser.setRole(adminRole);
+        when(userRepository.findByEmail("ana@test.com")).thenReturn(Optional.of(testUser));
+        when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
+
+        assertThrows(Exception.class, () -> authService.login("ana@test.com", "mala"));
+        authService.login("ana@test.com", "Test123");
+
+        verify(securityEvents).registrar(1L, "LOGIN_FAILED", "Contraseña incorrecta");
+        verify(securityEvents).registrar(1L, "LOGIN_SUCCESS", "Con correo y contraseña");
+    }
+
+    @Test
+    void login_deUsuariaNoLlenaLaAuditoria() {
+        when(userRepository.findByEmail("ana@test.com")).thenReturn(Optional.of(testUser));
+        when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
+
+        authService.login("ana@test.com", "Test123");
+
+        verifyNoInteractions(securityEvents);
     }
 }

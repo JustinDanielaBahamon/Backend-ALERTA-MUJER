@@ -1,5 +1,6 @@
 package com.alertamujer.identity.application.service;
 
+import com.alertamujer.admin.application.service.SecurityEventService;
 import com.alertamujer.identity.domain.model.Account;
 import com.alertamujer.identity.domain.model.Role;
 import com.alertamujer.identity.domain.model.User;
@@ -31,10 +32,13 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final UserProfileRepository userProfileRepository;
     private final RoleRepository roleRepository;
+    private final SecurityEventService securityEvents;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecretKey jwtKey;
 
-    public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository, RoleRepository roleRepository) {
+    public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository,
+                       RoleRepository roleRepository, SecurityEventService securityEvents) {
+        this.securityEvents = securityEvents;
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.userProfileRepository = userProfileRepository;
@@ -90,15 +94,18 @@ public class AuthService {
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
 
         if ("blocked".equals(account.getStatus())) {
+            if (esAdmin(user)) securityEvents.registrar(account.getId(), SecurityEventService.LOGIN_FAILED, "Cuenta bloqueada");
             throw new InvalidCredentialsException("Account blocked");
         }
 
         if (!passwordEncoder.matches(password, account.getPasswordHash())) {
+            if (esAdmin(user)) securityEvents.registrar(account.getId(), SecurityEventService.LOGIN_FAILED, "Contraseña incorrecta");
             throw new InvalidCredentialsException("Invalid credentials");
         }
 
         account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
+        if (esAdmin(user)) securityEvents.registrar(account.getId(), SecurityEventService.LOGIN_SUCCESS, "Con correo y contraseña");
 
         String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
         String accessToken = generateToken(user.getId(), role);
@@ -123,10 +130,12 @@ public class AuthService {
         Account account = accountRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
         if ("blocked".equals(account.getStatus())) {
+            if (esAdmin(user)) securityEvents.registrar(account.getId(), SecurityEventService.LOGIN_FAILED, "Cuenta bloqueada (Google)");
             throw new InvalidCredentialsException("Account blocked");
         }
         account.setLastAccess(LocalDateTime.now());
         accountRepository.save(account);
+        if (esAdmin(user)) securityEvents.registrar(account.getId(), SecurityEventService.LOGIN_SUCCESS, "Con Google");
 
         String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
         Map<String, Object> response = new HashMap<>();
@@ -211,6 +220,19 @@ public class AuthService {
         }
         account.setPasswordHash(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
+        if (esAdmin(account.getUser())) securityEvents.registrar(account.getId(), SecurityEventService.PASSWORD_CHANGED, null);
+    }
+
+    /** Cierre de sesión voluntario o por inactividad (el JWT no se revoca; queda constancia en la auditoría). */
+    public void logout(Long userId, String motivo) {
+        if (userId == null) return;
+        userRepository.findById(userId).filter(this::esAdmin).ifPresent(u ->
+                accountRepository.findByUserId(userId).ifPresent(a -> securityEvents.registrar(a.getId(),
+                        SecurityEventService.LOGOUT, "inactividad".equals(motivo) ? "Por inactividad" : "Voluntario")));
+    }
+
+    private boolean esAdmin(User user) {
+        return user != null && user.getRole() != null && Long.valueOf(2L).equals(user.getRole().getId());
     }
 
     public Map<String, String> forgotPassword(String email) {
