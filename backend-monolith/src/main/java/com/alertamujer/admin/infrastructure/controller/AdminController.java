@@ -63,11 +63,6 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllZones());
     }
 
-    @GetMapping("/reports")
-    public ResponseEntity<List<?>> getAllZoneReports() {
-        return ResponseEntity.ok(adminService.getAllZoneReports());
-    }
-
     @GetMapping("/audit-logs")
     public ResponseEntity<List<AuditLog>> getAllAuditLogs() {
         return ResponseEntity.ok(adminService.getAllAuditLogs());
