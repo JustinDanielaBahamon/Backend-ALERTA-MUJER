@@ -5,6 +5,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/Account.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/domain/model/ResourceCall.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/repository/ModerationActionRepository.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/dto/GoogleLoginRequest.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/infrastructure/repository/EmergencyResourceRepository.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/UserController.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/Alert.java
@@ -74,6 +75,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/controller/EvidenceController.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/infrastructure/repository/AlertContactRepository.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/EmergencyContact.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/security/GoogleIdentityVerifier.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/controller/AuthController.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/evidence/infrastructure/storage/EvidenceStorage.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/controller/ZoneReportController.java

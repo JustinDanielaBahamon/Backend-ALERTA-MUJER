@@ -111,6 +111,57 @@ public class AuthService {
         return response;
     }
 
+    /**
+     * Inicio de sesión con Google (identidad ya verificada por GoogleIdentityVerifier).
+     * Si el correo ya está registrado, entra a esa cuenta; si no, crea la usuaria y su perfil.
+     * La cuenta creada no tiene una contraseña utilizable: solo puede entrar con Google
+     * (o recuperar la contraseña para usar también correo y contraseña).
+     */
+    public Map<String, Object> loginWithGoogle(String email, String name, String givenName, String familyName) {
+        User user = userRepository.findByEmail(email).orElseGet(() -> crearUsuariaDesdeGoogle(email, name, givenName, familyName));
+
+        Account account = accountRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
+        if ("blocked".equals(account.getStatus())) {
+            throw new InvalidCredentialsException("Account blocked");
+        }
+        account.setLastAccess(LocalDateTime.now());
+        accountRepository.save(account);
+
+        String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", generateToken(user.getId(), role));
+        response.put("refreshToken", generateRefreshToken(user.getId()));
+        response.put("user", user);
+        return response;
+    }
+
+    private User crearUsuariaDesdeGoogle(String email, String name, String givenName, String familyName) {
+        String nombre = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
+        String apellido = familyName != null ? familyName
+                : (name != null && name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "");
+        if (nombre.isBlank()) nombre = email.substring(0, email.indexOf('@'));
+
+        User user = new User();
+        user.setFirstName(nombre.length() > 100 ? nombre.substring(0, 100) : nombre);
+        user.setLastName(apellido.length() > 100 ? apellido.substring(0, 100) : apellido);
+        user.setEmail(email);
+        user.setRole(roleRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Role user not found")));
+        user = userRepository.save(user);
+
+        Account account = new Account();
+        account.setUser(user);
+        // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
+        account.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID() + java.util.UUID.randomUUID().toString()));
+        account.setStatus("active");
+        accountRepository.save(account);
+
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        userProfileRepository.save(profile);
+        return user;
+    }
+
     public Map<String, Object> refreshToken(String refreshToken) {
         try {
             Claims claims = Jwts.parser()

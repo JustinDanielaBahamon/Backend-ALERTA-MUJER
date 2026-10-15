@@ -4,10 +4,12 @@ import com.alertamujer.identity.application.service.AuthService;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.infrastructure.controller.dto.AuthResponse;
 import com.alertamujer.identity.infrastructure.controller.dto.ForgotPasswordRequest;
+import com.alertamujer.identity.infrastructure.controller.dto.GoogleLoginRequest;
 import com.alertamujer.identity.infrastructure.controller.dto.LoginRequest;
 import com.alertamujer.identity.infrastructure.controller.dto.RegisterRequest;
 import com.alertamujer.identity.infrastructure.controller.dto.ResetPasswordRequest;
 import com.alertamujer.identity.infrastructure.controller.mapper.UserMapper;
+import com.alertamujer.identity.infrastructure.security.GoogleIdentityVerifier;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,12 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserMapper userMapper;
+    private final GoogleIdentityVerifier googleIdentityVerifier;
 
-    public AuthController(AuthService authService, UserMapper userMapper) {
+    public AuthController(AuthService authService, UserMapper userMapper, GoogleIdentityVerifier googleIdentityVerifier) {
         this.authService = authService;
         this.userMapper = userMapper;
+        this.googleIdentityVerifier = googleIdentityVerifier;
     }
 
     @PostMapping("/register")
@@ -55,6 +59,19 @@ public class AuthController {
             .token(token)
             .refreshToken(refreshToken) // Lo incluimos en la respuesta al cliente
             .user(userMapper.toResponse(user))
+            .build());
+    }
+
+    /** Inicio de sesión con Google: acepta el token de Firebase (web) o de Google (móvil). */
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
+        var identity = googleIdentityVerifier.verify(request.getIdToken());
+        var result = authService.loginWithGoogle(identity.email(), identity.name(), identity.givenName(), identity.familyName());
+
+        return ResponseEntity.ok(AuthResponse.builder()
+            .token((String) result.get("token"))
+            .refreshToken((String) result.get("refreshToken"))
+            .user(userMapper.toResponse((User) result.get("user")))
             .build());
     }
 

@@ -2,7 +2,9 @@ com/alertamujer/alerts/domain/model/SavedRoute.class
 com/alertamujer/infrastructure/controller/PingController.class
 com/alertamujer/identity/domain/model/AdminProfile.class
 com/alertamujer/zones/domain/model/ZoneReport.class
+com/alertamujer/identity/infrastructure/controller/dto/GoogleLoginRequest.class
 com/alertamujer/alerts/domain/model/LocationLog.class
+com/alertamujer/identity/infrastructure/security/GoogleIdentityVerifier.class
 com/alertamujer/config/FcmServiceImpl.class
 com/alertamujer/devices/domain/model/AlertActivationSetting.class
 com/alertamujer/alerts/infrastructure/controller/SavedRouteController.class
@@ -98,6 +100,7 @@ com/alertamujer/devices/domain/model/DevicePermission.class
 com/alertamujer/admin/infrastructure/repository/ModerationActionRepository.class
 com/alertamujer/alerts/domain/model/Alert.class
 com/alertamujer/identity/infrastructure/controller/UserController.class
+com/alertamujer/identity/infrastructure/security/GoogleIdentityVerifier$GoogleIdentity.class
 com/alertamujer/alerts/domain/model/EmergencyContact.class
 com/alertamujer/identity/infrastructure/repository/UserRepository.class
 com/alertamujer/admin/infrastructure/repository/AuditLogRepository.class
