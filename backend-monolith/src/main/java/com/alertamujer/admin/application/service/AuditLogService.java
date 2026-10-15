@@ -59,13 +59,15 @@ public class AuditLogService {
         List<AuditLog> registros = auditLogRepository.findAll(especificacion(filtro),
                 PageRequest.of(0, MAXIMO_EXPORTACION, Sort.by(Sort.Direction.DESC, "id"))).getContent();
         StringBuilder sb = new StringBuilder("﻿");
-        sb.append("ID;Fecha;Responsable;Correo;Acción;Tipo;Registro;Detalle;IP\r\n");
+        sb.append("ID;Fecha;Responsable;Rol;Correo;Origen;Acción;Tipo;Registro;Detalle;IP\r\n");
         for (AuditLogView v : vistas(registros)) {
             sb.append(String.join(";", List.of(
                     String.valueOf(v.id()),
                     v.createdAt() == null ? "" : FECHA.format(v.createdAt()),
-                    celda(v.actorName() == null ? "Sistema / app" : v.actorName()),
+                    celda(v.actorName() == null ? "Sin responsable" : v.actorName()),
+                    celda(v.actorRole()),
                     celda(v.actorEmail()),
+                    celda(v.source()),
                     celda(v.action()),
                     celda(v.entityType()),
                     v.entityId() == null ? "" : String.valueOf(v.entityId()),
@@ -111,13 +113,19 @@ public class AuditLogService {
         return registros.stream().map(r -> {
             User u = r.getAccountId() == null ? null : usuarios.get(usuarioPorCuenta.get(r.getAccountId()));
             return new AuditLogView(r.getId(), r.getAction(), r.getEntityType(), r.getEntityId(), r.getDescription(),
-                    r.getAccountId(), nombre(u), u == null ? null : u.getEmail(), r.getIpAddress(), r.getCreatedAt());
+                    r.getAccountId(), nombre(u), u == null ? null : u.getEmail(), rol(u), r.getSource(),
+                    r.getIpAddress(), r.getCreatedAt());
         }).toList();
     }
 
     private static String nombre(User u) {
         if (u == null) return null;
         return ((u.getFirstName() == null ? "" : u.getFirstName()) + " " + (u.getLastName() == null ? "" : u.getLastName())).trim();
+    }
+
+    private static String rol(User u) {
+        if (u == null || u.getRole() == null) return null;
+        return Long.valueOf(2L).equals(u.getRole().getId()) ? "Administración" : "Usuaria";
     }
 
     private static String celda(String valor) {
@@ -133,8 +141,11 @@ public class AuditLogService {
 
     public record AuditActor(Long accountId, String name, String email) {}
 
-    /** actorName es null cuando el cambio lo hizo el sistema (p. ej. una tarea programada). */
+    /**
+     * actorName es null si no hubo una sesión detrás del cambio; source dice entonces de dónde vino
+     * (p. ej. una tarea automática). Ambos null = registro anterior a guardar el origen o SQL directo.
+     */
     public record AuditLogView(Long id, String action, String entityType, Integer entityId, String description,
-                               Long actorAccountId, String actorName, String actorEmail, String ipAddress,
-                               LocalDateTime createdAt) {}
+                               Long actorAccountId, String actorName, String actorEmail, String actorRole,
+                               String source, String ipAddress, LocalDateTime createdAt) {}
 }
