@@ -1,6 +1,7 @@
 package com.alertamujer.admin.infrastructure.controller;
 
 import com.alertamujer.admin.application.service.AdminSettingsService;
+import com.alertamujer.admin.application.service.SystemStatusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 public class AdminSettingsController {
 
     private final AdminSettingsService settingsService;
+    private final SystemStatusService systemStatusService;
 
-    public AdminSettingsController(AdminSettingsService settingsService) {
+    public AdminSettingsController(AdminSettingsService settingsService, SystemStatusService systemStatusService) {
         this.settingsService = settingsService;
+        this.systemStatusService = systemStatusService;
     }
 
     @GetMapping("/api/admin/settings")
@@ -32,5 +35,11 @@ public class AdminSettingsController {
     @GetMapping("/api/settings")
     public ResponseEntity<AdminSettingsService.PublicSettings> publicSettings() {
         return ResponseEntity.ok(settingsService.publicos());
+    }
+
+    @GetMapping("/api/admin/system-status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SystemStatusService.SystemStatus> systemStatus() {
+        return ResponseEntity.ok(systemStatusService.estado());
     }
 }

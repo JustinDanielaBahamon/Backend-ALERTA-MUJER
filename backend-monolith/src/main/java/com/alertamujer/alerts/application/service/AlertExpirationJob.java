@@ -24,6 +24,10 @@ public class AlertExpirationJob {
     private final AlertRepository alertRepository;
     private final AdminSettingsService settingsService;
 
+    // Última ejecución, para el estado del sistema en el panel
+    private volatile LocalDateTime ultimaRevision;
+    private volatile int expiradasUltimaRevision;
+
     public AlertExpirationJob(AlertRepository alertRepository, AdminSettingsService settingsService) {
         this.alertRepository = alertRepository;
         this.settingsService = settingsService;
@@ -33,8 +37,19 @@ public class AlertExpirationJob {
     @Scheduled(fixedDelayString = "${alerts.expiration.check-ms:60000}", initialDelay = 30000)
     @Transactional
     public void revisar() {
-        int expiradas = expirarVencidas(LocalDateTime.now());
+        LocalDateTime ahora = LocalDateTime.now();
+        int expiradas = expirarVencidas(ahora);
+        ultimaRevision = ahora;
+        expiradasUltimaRevision = expiradas;
         if (expiradas > 0) log.info("Alertas expiradas por superar la duración máxima: {}", expiradas);
+    }
+
+    public LocalDateTime getUltimaRevision() {
+        return ultimaRevision;
+    }
+
+    public int getExpiradasUltimaRevision() {
+        return expiradasUltimaRevision;
     }
 
     public int expirarVencidas(LocalDateTime ahora) {
