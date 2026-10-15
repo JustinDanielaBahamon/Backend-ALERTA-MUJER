@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.admin.application.service.AdminSettingsService;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
 import com.alertamujer.identity.domain.model.UserProfile;
@@ -16,11 +17,14 @@ public class EmergencyContactService {
 
     private final EmergencyContactRepository emergencyContactRepository;
     private final UserProfileRepository userProfileRepository;
+    private final AdminSettingsService settingsService;
 
     public EmergencyContactService(EmergencyContactRepository emergencyContactRepository,
-                                   UserProfileRepository userProfileRepository) {
+                                   UserProfileRepository userProfileRepository,
+                                   AdminSettingsService settingsService) {
         this.emergencyContactRepository = emergencyContactRepository;
         this.userProfileRepository = userProfileRepository;
+        this.settingsService = settingsService;
     }
 
     public List<EmergencyContact> getAllContacts() {
@@ -64,6 +68,10 @@ public class EmergencyContactService {
         // Resolver userProfileId desde el JWT — nunca confiar en el body (evita IDOR)
         UserProfile profile = userProfileRepository.findByUserId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
+        int maximo = settingsService.maximoContactos();
+        if (emergencyContactRepository.findByUserProfileId(profile.getId()).size() >= maximo) {
+            throw new IllegalArgumentException("Puedes tener como máximo " + maximo + " contactos de emergencia");
+        }
         contact.setUserProfileId(profile.getId());
         return emergencyContactRepository.save(contact);
     }
