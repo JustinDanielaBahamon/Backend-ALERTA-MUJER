@@ -70,6 +70,7 @@ com/alertamujer/identity/infrastructure/repository/AdminProfileRepository.class
 com/alertamujer/zones/infrastructure/controller/ZoneController.class
 com/alertamujer/identity/application/service/UserService.class
 com/alertamujer/alerts/infrastructure/controller/EmergencyContactController.class
+com/alertamujer/admin/infrastructure/controller/dto/UpdateUserRequest.class
 com/alertamujer/identity/infrastructure/repository/RecoveryRequestRepository.class
 com/alertamujer/identity/infrastructure/config/SecurityConfig.class
 com/alertamujer/devices/infrastructure/repository/DevicePermissionRepository.class

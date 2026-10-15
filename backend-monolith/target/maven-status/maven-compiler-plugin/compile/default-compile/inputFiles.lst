@@ -33,6 +33,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/RecoveryRequest.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/infrastructure/config/JwtAuthenticationFilter.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/identity/domain/model/AdminProfile.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/infrastructure/controller/dto/UpdateUserRequest.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/resources/application/service/EmergencyResourceService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/devices/application/service/DeviceService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/domain/model/SavedRoute.java

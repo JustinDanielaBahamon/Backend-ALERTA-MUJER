@@ -4,8 +4,10 @@ import com.alertamujer.admin.application.service.AdminService;
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.admin.infrastructure.controller.dto.AdminUserDto;
+import com.alertamujer.admin.infrastructure.controller.dto.UpdateUserRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,14 @@ public class AdminController {
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDto>> getAllUsers() {
         return ResponseEntity.ok(adminService.getAllUsers());
+    }
+
+    @PatchMapping("/users/{id}")
+    public ResponseEntity<AdminUserDto> updateUser(
+            @PathVariable Long id,
+            @RequestBody UpdateUserRequest request,
+            @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(adminService.updateUser(id, request, currentUserId));
     }
 
     @GetMapping("/alerts")
