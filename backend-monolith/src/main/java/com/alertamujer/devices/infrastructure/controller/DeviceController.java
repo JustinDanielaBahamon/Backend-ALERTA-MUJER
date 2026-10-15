@@ -1,9 +1,11 @@
 package com.alertamujer.devices.infrastructure.controller;
 
+import com.alertamujer.devices.application.service.AdminDeviceService;
 import com.alertamujer.devices.application.service.DeviceService;
 import com.alertamujer.devices.domain.model.Device;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,15 +16,17 @@ import java.util.List;
 public class DeviceController {
 
     private final DeviceService deviceService;
+    private final AdminDeviceService adminDeviceService;
 
-    public DeviceController(DeviceService deviceService) {
+    public DeviceController(DeviceService deviceService, AdminDeviceService adminDeviceService) {
         this.deviceService = deviceService;
+        this.adminDeviceService = adminDeviceService;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Device>> getAllDevices() {
-        return ResponseEntity.ok(deviceService.getAllDevices());
+    public ResponseEntity<List<AdminDeviceService.AdminDeviceView>> getAllDevices() {
+        return ResponseEntity.ok(adminDeviceService.listar());
     }
 
     @GetMapping("/user")
@@ -31,8 +35,21 @@ public class DeviceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Device> getDeviceById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
+    public ResponseEntity<?> getDeviceById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
+                                           Authentication authentication) {
+        // La administradora ve cualquier dispositivo, con los datos de su dueña
+        if (esAdmin(authentication)) {
+            return ResponseEntity.ok(adminDeviceService.obtener(id));
+        }
         return ResponseEntity.ok(deviceService.getDeviceById(id, currentUserId));
+    }
+
+    /** Cambia el estado de cualquier dispositivo: active, inactive, blocked o lost. */
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminDeviceService.AdminDeviceView> changeDeviceStatus(@PathVariable Long id,
+                                                                              @RequestBody java.util.Map<String, String> body) {
+        return ResponseEntity.ok(adminDeviceService.cambiarEstado(id, body.get("status")));
     }
 
     @PostMapping
@@ -46,8 +63,18 @@ public class DeviceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        deviceService.deleteDevice(id, currentUserId);
+    public ResponseEntity<Void> deleteDevice(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
+                                             Authentication authentication) {
+        if (esAdmin(authentication)) {
+            adminDeviceService.eliminar(id);
+        } else {
+            deviceService.deleteDevice(id, currentUserId);
+        }
         return ResponseEntity.noContent().build();
+    }
+
+    private static boolean esAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 }
