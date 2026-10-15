@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
+import com.alertamujer.alerts.application.service.AlertContactService;
 import com.alertamujer.alerts.application.service.AlertService;
 import com.alertamujer.alerts.application.service.LocationLogService;
 import com.alertamujer.alerts.domain.model.LocationLog;
@@ -18,10 +19,13 @@ public class AlertController {
 
     private final AlertService alertService;
     private final LocationLogService locationLogService;
+    private final AlertContactService alertContactService;
 
-    public AlertController(AlertService alertService, LocationLogService locationLogService) {
+    public AlertController(AlertService alertService, LocationLogService locationLogService,
+                           AlertContactService alertContactService) {
         this.alertService = alertService;
         this.locationLogService = locationLogService;
+        this.alertContactService = alertContactService;
     }
 
     /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
@@ -59,7 +63,18 @@ public class AlertController {
 
     @PostMapping
     public ResponseEntity<Alert> createAlert(@RequestBody Alert alert, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(alertService.createAlert(alert, currentUserId));
+        Alert creada = alertService.createAlert(alert, currentUserId);
+        alertContactService.registrarDestinatarios(creada);
+        return ResponseEntity.ok(creada);
+    }
+
+    /** Contactos avisados en una alerta y el estado de cada canal (solo la dueña de la alerta). */
+    @GetMapping("/{id}/contacts")
+    public ResponseEntity<List<AlertContactService.ContactoNotificado>> getAlertContacts(
+            @PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
+        return alertService.getAlertById(id, currentUserId)
+                .map(alert -> ResponseEntity.ok(alertContactService.contactosDeAlerta(alert)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
