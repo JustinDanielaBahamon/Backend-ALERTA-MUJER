@@ -196,6 +196,23 @@ public class AuthService {
         return generateToken(user.getId(), role);
     }
 
+    /** Cambia la contraseña de la cuenta en sesión; exige la actual para evitar cambios desde una sesión ajena. */
+    public void changePassword(Long userId, String currentPassword, String newPassword) {
+        Account account = accountRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("La cuenta no existe"));
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, account.getPasswordHash())) {
+            throw new IllegalArgumentException("La contraseña actual no es correcta");
+        }
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 100) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres");
+        }
+        if (passwordEncoder.matches(newPassword, account.getPasswordHash())) {
+            throw new IllegalArgumentException("La nueva contraseña debe ser distinta de la actual");
+        }
+        account.setPasswordHash(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
     public Map<String, String> forgotPassword(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
             System.out.println("Password reset requested for: " + email);

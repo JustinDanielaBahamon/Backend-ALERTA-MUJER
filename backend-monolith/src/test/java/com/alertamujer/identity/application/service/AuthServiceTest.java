@@ -202,4 +202,17 @@ class AuthServiceTest {
         assertNotNull(result);
         assertEquals("If the email exists, a reset link will be sent", result.get("message"));
     }
+
+    @Test
+    void changePassword_exigeLaActualYGuardaLaNueva() {
+        when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
+
+        assertThrows(IllegalArgumentException.class, () -> authService.changePassword(1L, "Otra123", "NuevaClave2026"));
+        assertThrows(IllegalArgumentException.class, () -> authService.changePassword(1L, "Test123", "corta"));
+
+        authService.changePassword(1L, "Test123", "NuevaClave2026");
+
+        assertTrue(new BCryptPasswordEncoder().matches("NuevaClave2026", testAccount.getPasswordHash()));
+        verify(accountRepository).save(testAccount);
+    }
 }

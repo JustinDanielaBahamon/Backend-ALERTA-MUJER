@@ -1,5 +1,6 @@
 package com.alertamujer.identity.infrastructure.controller;
 
+import com.alertamujer.identity.application.service.AuthService;
 import com.alertamujer.identity.application.service.UserService;
 import com.alertamujer.identity.infrastructure.controller.dto.UserResponse;
 import com.alertamujer.identity.infrastructure.controller.mapper.UserMapper;
@@ -15,10 +16,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final AuthService authService;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, AuthService authService) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.authService = authService;
     }
 
     @GetMapping("/me")
@@ -32,4 +35,12 @@ public class UserController {
         Long userId = (Long) authentication.getPrincipal();
         return ResponseEntity.ok(userMapper.toResponse(userService.updateMe(userId, updates)));
     }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(Authentication authentication, @RequestBody ChangePasswordRequest request) {
+        authService.changePassword((Long) authentication.getPrincipal(), request.currentPassword(), request.newPassword());
+        return ResponseEntity.noContent().build();
+    }
+
+    public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 }
