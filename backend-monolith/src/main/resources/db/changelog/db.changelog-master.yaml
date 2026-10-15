@@ -90,3 +90,9 @@ databaseChangeLog:
   - include:
       file: changesets/v1.4.0/03-neiva-safe-zones.sql
       relativeToChangelogFile: true
+
+  # v1.5.0 - Usuario administrador para producción
+  - include:
+      file: changesets/v1.5.0/01-create-new-admin.yaml
+      relativeToChangelogFile: true
+      context: prod

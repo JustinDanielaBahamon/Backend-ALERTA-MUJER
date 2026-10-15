@@ -44,6 +44,7 @@
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/FcmServiceImpl.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/FcmService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/config/AlertWebSocketController.java
+/home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/alerts/application/service/AlertContactService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/domain/model/ModerationAction.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/admin/application/service/AdminService.java
 /home/maicol/Documentos/proyecto /Backend-ALERTA-MUJER/backend-monolith/src/main/java/com/alertamujer/zones/infrastructure/repository/ZoneReportRepository.java
