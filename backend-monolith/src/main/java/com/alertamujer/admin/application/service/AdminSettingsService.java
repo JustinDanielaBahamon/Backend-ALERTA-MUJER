@@ -29,12 +29,19 @@ public class AdminSettingsService {
     @Transactional(readOnly = true)
     public PublicSettings publicos() {
         SystemConfiguration c = buscar();
-        return new PublicSettings(c.getEmergencyPhoneNumber(), c.getAdminEmail(), c.getSosMaxDurationMinutes());
+        return new PublicSettings(c.getEmergencyPhoneNumber(), c.getAdminEmail(), c.getSosMaxDurationMinutes(),
+                c.getMaxEmergencyContacts(), c.getMinAppVersion());
     }
 
     @Transactional(readOnly = true)
     public int duracionMaximaAlertaMinutos() {
         return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
+    }
+
+    /** Máximo de contactos de emergencia por usuaria (5 si no hay configuración). */
+    @Transactional(readOnly = true)
+    public int maximoContactos() {
+        return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);
     }
 
     @Transactional
@@ -58,11 +65,22 @@ public class AdminSettingsService {
             if (!correo.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) throw new IllegalArgumentException("Correo de soporte no válido");
             c.setAdminEmail(correo);
         }
+        if (req.maxEmergencyContacts() != null) {
+            int maximo = req.maxEmergencyContacts();
+            if (maximo < 1 || maximo > 20) throw new IllegalArgumentException("El límite de contactos debe estar entre 1 y 20");
+            c.setMaxEmergencyContacts(maximo);
+        }
+        if (req.minAppVersion() != null) {
+            String version = req.minAppVersion().trim();
+            if (!version.isEmpty() && !version.matches("\\d+(\\.\\d+){0,2}")) {
+                throw new IllegalArgumentException("Versión no válida: usa el formato 1.2.0");
+            }
+            c.setMinAppVersion(version.isEmpty() ? null : version);
+        }
         c.setUpdatedByAdminId(adminUserId == null ? null : adminUserId.intValue());
         SystemConfiguration guardada = repository.save(c);
         // updated_at lo pone un trigger de la base; la entidad no lo ve hasta recargarla
-        return new SettingsView(guardada.getSosMaxDurationMinutes(), guardada.getEmergencyPhoneNumber(),
-                guardada.getAdminEmail(), LocalDateTime.now());
+        return vista(guardada, LocalDateTime.now());
     }
 
     private SystemConfiguration buscar() {
@@ -71,14 +89,21 @@ public class AdminSettingsService {
     }
 
     private static SettingsView vista(SystemConfiguration c) {
-        return new SettingsView(c.getSosMaxDurationMinutes(), c.getEmergencyPhoneNumber(), c.getAdminEmail(),
-                c.getUpdatedAt() != null ? c.getUpdatedAt() : c.getCreatedAt());
+        return vista(c, c.getUpdatedAt() != null ? c.getUpdatedAt() : c.getCreatedAt());
     }
 
-    public record SettingsRequest(Integer sosMaxDurationMinutes, String emergencyPhoneNumber, String supportEmail) {}
+    private static SettingsView vista(SystemConfiguration c, LocalDateTime actualizado) {
+        return new SettingsView(c.getSosMaxDurationMinutes(), c.getEmergencyPhoneNumber(), c.getAdminEmail(),
+                c.getMaxEmergencyContacts(), c.getMinAppVersion(), actualizado);
+    }
+
+    /** minAppVersion vacío ("") quita la versión mínima. */
+    public record SettingsRequest(Integer sosMaxDurationMinutes, String emergencyPhoneNumber, String supportEmail,
+                                  Integer maxEmergencyContacts, String minAppVersion) {}
 
     public record SettingsView(Integer sosMaxDurationMinutes, String emergencyPhoneNumber, String supportEmail,
-                               LocalDateTime updatedAt) {}
+                               Integer maxEmergencyContacts, String minAppVersion, LocalDateTime updatedAt) {}
 
-    public record PublicSettings(String emergencyPhoneNumber, String supportEmail, Integer sosMaxDurationMinutes) {}
+    public record PublicSettings(String emergencyPhoneNumber, String supportEmail, Integer sosMaxDurationMinutes,
+                                 Integer maxEmergencyContacts, String minAppVersion) {}
 }

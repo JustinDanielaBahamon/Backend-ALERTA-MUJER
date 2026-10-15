@@ -40,21 +40,31 @@ class AdminSettingsServiceTest {
         when(repository.save(any(SystemConfiguration.class))).thenAnswer(inv -> inv.getArgument(0));
 
         AdminSettingsService.SettingsView vista = service.actualizar(
-                new AdminSettingsService.SettingsRequest(120, null, " ayuda@alerta.test "), 9L);
+                new AdminSettingsService.SettingsRequest(120, null, " ayuda@alerta.test ", 8, "1.2.0"), 9L);
 
         assertEquals(120, vista.sosMaxDurationMinutes());
         assertEquals("123", vista.emergencyPhoneNumber());
         assertEquals("ayuda@alerta.test", vista.supportEmail());
+        assertEquals(8, vista.maxEmergencyContacts());
+        assertEquals("1.2.0", vista.minAppVersion());
         assertEquals(9, config.getUpdatedByAdminId());
+
+        // "" quita la versión mínima
+        service.actualizar(new AdminSettingsService.SettingsRequest(null, null, null, null, ""), 9L);
+        assertEquals(null, config.getMinAppVersion());
     }
 
     @Test
     void actualizar_rechazaValoresFueraDeRango() {
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(5, null, null), 9L));
+                new AdminSettingsService.SettingsRequest(5, null, null, null, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, "12a", null), 9L));
+                new AdminSettingsService.SettingsRequest(null, "12a", null, null, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, null, "sin-arroba"), 9L));
+                new AdminSettingsService.SettingsRequest(null, null, "sin-arroba", null, null), 9L));
+        assertThrows(IllegalArgumentException.class, () -> service.actualizar(
+                new AdminSettingsService.SettingsRequest(null, null, null, 0, null), 9L));
+        assertThrows(IllegalArgumentException.class, () -> service.actualizar(
+                new AdminSettingsService.SettingsRequest(null, null, null, null, "v1.2"), 9L));
     }
 }
