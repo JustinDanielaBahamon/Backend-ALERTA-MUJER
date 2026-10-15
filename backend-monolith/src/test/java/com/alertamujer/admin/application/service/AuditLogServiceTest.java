@@ -13,15 +13,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,19 +43,19 @@ class AuditLogServiceTest {
     @InjectMocks
     private AuditLogService service;
 
-    private AuditLog registro(Long id, Long cuenta) {
+    private final AuditLogService.AuditFilter sinFiltro = new AuditLogService.AuditFilter(null, null, null, null, null);
+
+    private AuditLog registro(Long id, Long cuenta, String descripcion) {
         AuditLog r = new AuditLog();
         r.setId(id);
         r.setAccountId(cuenta);
-        r.setAction("UPDATE");
-        r.setEntityType("ALERT");
+        r.setAction("LOGIN_SUCCESS");
+        r.setEntityType("SESSION");
+        r.setDescription(descripcion);
         return r;
     }
 
-    @Test
-    void listar_agregaElNombreDeQuienActuo() {
-        when(auditLogRepository.findByEntityType(eq("ALERT"), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(registro(2L, 39L), registro(1L, null))));
+    private void conAdmin() {
         Account cuenta = new Account();
         cuenta.setId(39L);
         cuenta.setUserId(7L);
@@ -63,13 +66,38 @@ class AuditLogServiceTest {
         admin.setLastName("Auditoria");
         admin.setEmail("admin@test.local");
         when(userRepository.findAllById(anyCollection())).thenReturn(List.of(admin));
+    }
 
-        List<AuditLogService.AuditLogView> vista = service.listar("alert", 9999);
+    @SuppressWarnings("unchecked")
+    @Test
+    void listar_paginaYAgregaElResponsable() {
+        when(auditLogRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenAnswer(inv -> new PageImpl<>(List.of(registro(2L, 39L, "Chrome"), registro(1L, null, null)),
+                        inv.getArgument(1), 245));
+        conAdmin();
 
-        assertEquals("Admin Auditoria", vista.get(0).actorName());
-        assertNull(vista.get(1).actorName()); // cambio del sistema
-        ArgumentCaptor<Pageable> pagina = ArgumentCaptor.forClass(Pageable.class);
-        verify(auditLogRepository).findByEntityType(eq("ALERT"), pagina.capture());
-        assertEquals(AuditLogService.LIMITE_MAXIMO, pagina.getValue().getPageSize());
+        AuditLogService.AuditPage pagina = service.listar(sinFiltro, 1, 9999);
+
+        assertEquals(245, pagina.total());
+        assertEquals(AuditLogService.TAMANO_MAXIMO, pagina.size());
+        assertEquals("Admin Auditoria", pagina.items().get(0).actorName());
+        assertNull(pagina.items().get(1).actorName());
+        ArgumentCaptor<Pageable> captor = ArgumentCaptor.forClass(Pageable.class);
+        verify(auditLogRepository).findAll(any(Specification.class), captor.capture());
+        assertEquals(1, captor.getValue().getPageNumber());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void exportar_generaCsvParaExcel() {
+        when(auditLogRepository.findAll(any(Specification.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(registro(1L, 39L, "=HYPERLINK()")), PageRequest.of(0, 10), 1));
+        conAdmin();
+
+        String csv = new String(service.exportar(sinFiltro), StandardCharsets.UTF_8);
+
+        assertTrue(csv.startsWith("﻿ID;Fecha;Responsable"));
+        assertTrue(csv.contains("\"Admin Auditoria\""));
+        assertTrue(csv.contains("\"'=HYPERLINK()\"")); // neutraliza fórmulas
     }
 }
