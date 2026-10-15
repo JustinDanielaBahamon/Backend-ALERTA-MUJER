@@ -82,3 +82,7 @@ databaseChangeLog:
   - include:
       file: changesets/v1.4.0/01-base-catalog.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.4.0/02-base-resources.sql
+      relativeToChangelogFile: true
