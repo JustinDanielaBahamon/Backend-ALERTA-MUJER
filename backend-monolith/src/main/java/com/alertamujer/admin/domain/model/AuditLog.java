@@ -32,6 +32,9 @@ public class AuditLog {
     @Column(name = "ip_address")
     private String ipAddress;
 
+    /** Desde dónde se hizo: "Panel web · Chrome · Linux", "App móvil · Android", "Tarea automática · …". */
+    private String source;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
