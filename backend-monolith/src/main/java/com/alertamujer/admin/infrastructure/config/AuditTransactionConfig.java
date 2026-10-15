@@ -1,0 +1,71 @@
+package com.alertamujer.admin.infrastructure.config;
+
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.EntityManagerHolder;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+/**
+ * Los triggers de auditoría (admin.log_row_change) guardan como actor la cuenta que indique
+ * app.current_account_id y la IP de app.client_ip. Este gestor de transacciones los fija al
+ * iniciar cada transacción con SET LOCAL (set_config(..., true)), así valen solo para esa
+ * transacción y no se filtran a otras peticiones que reutilicen la conexión del pool.
+ */
+@Configuration
+public class AuditTransactionConfig {
+
+    @Bean
+    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+        return new AuditingJpaTransactionManager(entityManagerFactory);
+    }
+
+    static class AuditingJpaTransactionManager extends JpaTransactionManager {
+
+        AuditingJpaTransactionManager(EntityManagerFactory emf) {
+            super(emf);
+        }
+
+        @Override
+        protected void doBegin(Object transaction, TransactionDefinition definition) {
+            super.doBegin(transaction, definition);
+            Long userId = usuarioActual();
+            String ip = ipCliente();
+            if (userId == null && ip == null) return;
+            EntityManagerHolder holder = (EntityManagerHolder)
+                    TransactionSynchronizationManager.getResource(obtainEntityManagerFactory());
+            if (holder == null) return;
+            holder.getEntityManager().createNativeQuery(
+                    "SELECT set_config('app.current_account_id', "
+                    + "COALESCE((SELECT CAST(id AS text) FROM identity.account WHERE user_id = :userId), ''), true), "
+                    + "set_config('app.client_ip', :ip, true)")
+                    .setParameter("userId", userId == null ? -1L : userId)
+                    .setParameter("ip", ip == null ? "" : ip)
+                    .getSingleResult();
+        }
+
+        /** El filtro JWT deja como principal el id de users (Long). */
+        private static Long usuarioActual() {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            return auth != null && auth.getPrincipal() instanceof Long id ? id : null;
+        }
+
+        /** IP del cliente; detrás del proxy de Render llega en X-Forwarded-For. */
+        static String ipCliente() {
+            if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attrs)) return null;
+            HttpServletRequest request = attrs.getRequest();
+            String reenviada = request.getHeader("X-Forwarded-For");
+            String ip = reenviada != null && !reenviada.isBlank() ? reenviada.split(",")[0].trim() : request.getRemoteAddr();
+            // Solo caracteres de una IPv4/IPv6; la columna admite 45
+            return ip != null && ip.matches("[0-9a-fA-F.:]{2,45}") ? ip : null;
+        }
+    }
+}
