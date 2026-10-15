@@ -120,6 +120,16 @@ public class EvidenceService {
         return new StoredEvidence(evidence, resource);
     }
 
+    /** Archivo de cualquier evidencia, sin verificar la dueña (solo para administración). */
+    public StoredEvidence getFileAsAdmin(Long id) {
+        Evidence evidence = evidenceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Evidence", id));
+        if (evidence.getStorageKey() == null) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
+        Resource resource = storage.load(evidence.getStorageKey());
+        if (!resource.exists()) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
+        return new StoredEvidence(evidence, resource);
+    }
+
     public record StoredEvidence(Evidence evidence, Resource resource) {}
 
     /** Registro sin archivo (compatibilidad con clientes que solo envían una URL). */
@@ -144,6 +154,15 @@ public class EvidenceService {
     @Transactional
     public void deleteEvidence(Long id, Long currentUserId) {
         Evidence evidence = getEvidenceById(id, currentUserId);
+        evidenceRepository.delete(evidence);
+        storage.delete(evidence.getStorageKey());
+    }
+
+    /** Borra cualquier evidencia y su archivo (solo para administración). */
+    @Transactional
+    public void deleteEvidenceAsAdmin(Long id) {
+        Evidence evidence = evidenceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Evidence", id));
         evidenceRepository.delete(evidence);
         storage.delete(evidence.getStorageKey());
     }

@@ -1,5 +1,6 @@
 package com.alertamujer.evidence.infrastructure.controller;
 
+import com.alertamujer.evidence.application.service.AdminEvidenceService;
 import com.alertamujer.evidence.application.service.EvidenceService;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.controller.dto.EvidenceView;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,15 +23,31 @@ import java.util.List;
 public class EvidenceController {
 
     private final EvidenceService evidenceService;
+    private final AdminEvidenceService adminEvidenceService;
 
-    public EvidenceController(EvidenceService evidenceService) {
+    public EvidenceController(EvidenceService evidenceService, AdminEvidenceService adminEvidenceService) {
         this.evidenceService = evidenceService;
+        this.adminEvidenceService = adminEvidenceService;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Evidence>> getAllEvidences() {
-        return ResponseEntity.ok(evidenceService.getAllEvidences());
+    public ResponseEntity<List<AdminEvidenceService.AdminEvidenceView>> getAllEvidences() {
+        return ResponseEntity.ok(adminEvidenceService.listar());
+    }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminEvidenceService.EvidenceStats> getStats() {
+        return ResponseEntity.ok(adminEvidenceService.estadisticas());
+    }
+
+    /** Revisión de la administración: pending, verified o rejected. */
+    @PatchMapping("/{id}/review")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdminEvidenceService.AdminEvidenceView> review(@PathVariable Long id,
+                                                                      @RequestBody java.util.Map<String, String> body) {
+        return ResponseEntity.ok(adminEvidenceService.cambiarRevision(id, body.get("reviewStatus")));
     }
 
     /** Evidencias de la usuaria autenticada (más recientes primero). */
@@ -55,8 +73,11 @@ public class EvidenceController {
     @GetMapping("/{id}/file")
     public ResponseEntity<Resource> getFile(@PathVariable Long id,
                                             @RequestParam(defaultValue = "false") boolean download,
-                                            @AuthenticationPrincipal Long currentUserId) {
-        EvidenceService.StoredEvidence stored = evidenceService.getFile(id, currentUserId);
+                                            @AuthenticationPrincipal Long currentUserId,
+                                            Authentication authentication) {
+        EvidenceService.StoredEvidence stored = esAdmin(authentication)
+                ? evidenceService.getFileAsAdmin(id)
+                : evidenceService.getFile(id, currentUserId);
         Evidence e = stored.evidence();
         boolean inline = !download && !"document".equals(e.getMediaType());
         ContentDisposition disposition = (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
@@ -81,8 +102,18 @@ public class EvidenceController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvidence(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        evidenceService.deleteEvidence(id, currentUserId);
+    public ResponseEntity<Void> deleteEvidence(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
+                                               Authentication authentication) {
+        if (esAdmin(authentication)) {
+            evidenceService.deleteEvidenceAsAdmin(id);
+        } else {
+            evidenceService.deleteEvidence(id, currentUserId);
+        }
         return ResponseEntity.noContent().build();
+    }
+
+    private static boolean esAdmin(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
     }
 }
