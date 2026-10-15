@@ -59,4 +59,20 @@ class AlertExpirationJobTest {
 
         assertEquals(0, job.expirarVencidas(AHORA));
     }
+
+    @Test
+    void revisar_registraElOrigenDeLaTarea() {
+        when(settingsService.duracionMaximaAlertaMinutos()).thenReturn(30);
+        when(alertRepository.findByStatus("active")).thenReturn(List.of());
+        String[] origen = new String[1];
+        when(alertRepository.saveAll(List.of())).thenAnswer(inv -> {
+            origen[0] = com.alertamujer.shared.web.AuditSource.actual();
+            return List.of();
+        });
+
+        job.revisar();
+
+        assertEquals("Tarea automática · Expiración de alertas", origen[0]);
+        assertNull(com.alertamujer.shared.web.AuditSource.actual());
+    }
 }

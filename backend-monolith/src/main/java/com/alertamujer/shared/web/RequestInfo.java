@@ -25,6 +25,23 @@ public final class RequestInfo {
         return describir(ua);
     }
 
+    /**
+     * Desde dónde llega la petición: "App móvil · Android" o "Panel web · Chrome · Linux".
+     * La app (React Native) usa okhttp en Android; cualquier navegador se toma como el panel web.
+     */
+    public static String origen() {
+        HttpServletRequest request = actual();
+        if (request == null) return null;
+        String ua = request.getHeader("User-Agent");
+        if (ua == null || ua.isBlank()) return "Cliente sin identificar";
+        if (ua.contains("okhttp") || ua.contains("Expo") || ua.contains("ReactNative")) {
+            return ua.contains("iPhone") || ua.contains("Darwin") ? "App móvil · iOS" : "App móvil · Android";
+        }
+        if (ua.startsWith("Mozilla/")) return "Panel web · " + describir(ua);
+        String corto = ua.split("[ /]")[0];
+        return "Cliente " + (corto.length() > 40 ? corto.substring(0, 40) : corto);
+    }
+
     static String describir(String ua) {
         if (ua == null || ua.isBlank()) return null;
         String navegador = ua.contains("Edg/") ? "Edge"

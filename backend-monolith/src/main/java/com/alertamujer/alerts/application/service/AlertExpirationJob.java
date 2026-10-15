@@ -3,11 +3,11 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.admin.application.service.AdminSettingsService;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.shared.web.AuditSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,12 +33,11 @@ public class AlertExpirationJob {
         this.settingsService = settingsService;
     }
 
-    // La transacción va aquí: una llamada interna no pasaría por el proxy de expirarVencidas
     @Scheduled(fixedDelayString = "${alerts.expiration.check-ms:60000}", initialDelay = 30000)
-    @Transactional
     public void revisar() {
         LocalDateTime ahora = LocalDateTime.now();
-        int expiradas = expirarVencidas(ahora);
+        // saveAll abre la transacción dentro de AuditSource.con, así la auditoría registra el origen
+        int expiradas = AuditSource.con("Tarea automática · Expiración de alertas", () -> expirarVencidas(ahora));
         ultimaRevision = ahora;
         expiradasUltimaRevision = expiradas;
         if (expiradas > 0) log.info("Alertas expiradas por superar la duración máxima: {}", expiradas);

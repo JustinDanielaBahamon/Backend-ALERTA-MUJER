@@ -1,5 +1,6 @@
 package com.alertamujer.admin.infrastructure.config;
 
+import com.alertamujer.shared.web.AuditSource;
 import com.alertamujer.shared.web.RequestInfo;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.context.annotation.Bean;
@@ -37,16 +38,19 @@ public class AuditTransactionConfig {
             super.doBegin(transaction, definition);
             Long userId = usuarioActual();
             String ip = RequestInfo.ip();
-            if (userId == null && ip == null) return;
+            String origen = AuditSource.actual() != null ? AuditSource.actual() : RequestInfo.origen();
+            if (userId == null && ip == null && origen == null) return;
             EntityManagerHolder holder = (EntityManagerHolder)
                     TransactionSynchronizationManager.getResource(obtainEntityManagerFactory());
             if (holder == null) return;
             holder.getEntityManager().createNativeQuery(
                     "SELECT set_config('app.current_account_id', "
                     + "COALESCE((SELECT CAST(id AS text) FROM identity.account WHERE user_id = :userId), ''), true), "
-                    + "set_config('app.client_ip', :ip, true)")
+                    + "set_config('app.client_ip', :ip, true), "
+                    + "set_config('app.source', :origen, true)")
                     .setParameter("userId", userId == null ? -1L : userId)
                     .setParameter("ip", ip == null ? "" : ip)
+                    .setParameter("origen", origen == null ? "" : origen.length() > 120 ? origen.substring(0, 120) : origen)
                     .getSingleResult();
         }
 

@@ -46,6 +46,7 @@ public class SecurityEventService {
             String texto = detalle == null ? dispositivo : dispositivo == null ? detalle : detalle + " · " + dispositivo;
             r.setDescription(texto == null ? null : texto.length() > 500 ? texto.substring(0, 500) : texto);
             r.setIpAddress(RequestInfo.ip());
+            r.setSource(RequestInfo.origen());
             auditLogRepository.save(r);
         } catch (RuntimeException e) {
             log.warn("No se pudo registrar el evento de seguridad {}: {}", accion, e.getMessage());
