@@ -1,8 +1,8 @@
 package com.alertamujer.admin.infrastructure.controller;
 
 import com.alertamujer.admin.application.service.AdminService;
+import com.alertamujer.admin.application.service.UserReportService;
 import com.alertamujer.admin.domain.model.AuditLog;
-import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.admin.infrastructure.controller.dto.AdminUserDto;
 import com.alertamujer.admin.infrastructure.controller.dto.UpdateUserRequest;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -19,9 +18,11 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserReportService userReportService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, UserReportService userReportService) {
         this.adminService = adminService;
+        this.userReportService = userReportService;
     }
 
     @GetMapping("/users")
@@ -77,20 +78,39 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createAuditLog(auditLog));
     }
 
+    // ── Reportes de usuarias (moderación) ──────────────────────────
     @GetMapping("/user-reports")
-    public ResponseEntity<List<UserReport>> getAllUserReports() {
-        return ResponseEntity.ok(adminService.getAllUserReports());
+    public ResponseEntity<List<UserReportService.UserReportView>> getAllUserReports() {
+        return ResponseEntity.ok(userReportService.listar(null));
     }
 
     @GetMapping("/user-reports/pending")
-    public ResponseEntity<List<UserReport>> getPendingUserReports() {
-        return ResponseEntity.ok(adminService.getPendingUserReports());
+    public ResponseEntity<List<UserReportService.UserReportView>> getPendingUserReports() {
+        return ResponseEntity.ok(userReportService.listar("pending"));
     }
 
+    @GetMapping("/user-reports/{id}")
+    public ResponseEntity<UserReportService.UserReportView> getUserReport(@PathVariable Long id) {
+        return ResponseEntity.ok(userReportService.obtener(id));
+    }
+
+    @PostMapping("/user-reports")
+    public ResponseEntity<UserReportService.UserReportView> createUserReport(
+            @RequestBody UserReportService.UserReportRequest request, @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(userReportService.crear(request, currentUserId));
+    }
+
+    /** Actualiza estado, gravedad, motivo, descripción o notas; la revisora sale de la sesión. */
     @PutMapping("/user-reports/{id}")
-    public ResponseEntity<UserReport> updateReportStatus(@PathVariable Long id, @RequestBody Map<String, Object> request) {
-        String status = (String) request.get("status");
-        Integer adminId = (Integer) request.get("adminId");
-        return ResponseEntity.ok(adminService.updateReportStatus(id, status, adminId));
+    public ResponseEntity<UserReportService.UserReportView> updateUserReport(
+            @PathVariable Long id, @RequestBody UserReportService.UserReportRequest request,
+            @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(userReportService.actualizar(id, request, currentUserId));
+    }
+
+    @DeleteMapping("/user-reports/{id}")
+    public ResponseEntity<Void> deleteUserReport(@PathVariable Long id) {
+        userReportService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }

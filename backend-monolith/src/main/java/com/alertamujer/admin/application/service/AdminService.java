@@ -1,7 +1,6 @@
 package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AuditLog;
-import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.admin.infrastructure.controller.dto.AdminUserDto;
 import com.alertamujer.admin.infrastructure.controller.dto.UpdateUserRequest;
 import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
@@ -132,23 +131,6 @@ public class AdminService {
 
     public AuditLog createAuditLog(AuditLog auditLog) {
         return auditLogRepository.save(auditLog);
-    }
-
-    // User Reports
-    public List<UserReport> getAllUserReports() {
-        return userReportRepository.findAll();
-    }
-
-    public List<UserReport> getPendingUserReports() {
-        return userReportRepository.findByStatus("pending");
-    }
-
-    public UserReport updateReportStatus(Long id, String status, Integer adminId) {
-        UserReport report = userReportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User report not found"));
-        report.setStatus(status);
-        report.setReviewedByAdminId(adminId);
-        return userReportRepository.save(report);
     }
 
     /**
