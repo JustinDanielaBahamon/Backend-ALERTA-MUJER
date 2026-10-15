@@ -45,6 +45,10 @@ public class Evidence {
     @Column(name = "storage_key", unique = true)
     private String storageKey;
 
+    /** Revisión de la administración: pending, verified o rejected. */
+    @Column(name = "review_status", nullable = false)
+    private String reviewStatus = "pending";
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }

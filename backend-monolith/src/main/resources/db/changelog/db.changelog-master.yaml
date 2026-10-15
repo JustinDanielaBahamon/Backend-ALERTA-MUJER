@@ -90,3 +90,8 @@ databaseChangeLog:
   - include:
       file: changesets/v1.4.0/03-neiva-safe-zones.sql
       relativeToChangelogFile: true
+
+  # v1.6.0 - Estado de revisión de evidencias (panel de administración)
+  - include:
+      file: changesets/v1.6.0/01-evidence-review-status.sql
+      relativeToChangelogFile: true

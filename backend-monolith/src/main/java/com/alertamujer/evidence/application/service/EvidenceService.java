@@ -127,6 +127,7 @@ public class EvidenceService {
         ownedAlert(evidence.getAlertId(), currentUserId);
         evidence.setId(null);
         evidence.setStorageKey(null);
+        evidence.setReviewStatus("pending"); // solo la administración la revisa
         return evidenceRepository.save(evidence);
     }
 
