@@ -17,12 +17,12 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class AuthService {
@@ -44,35 +44,9 @@ public class AuthService {
         this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Nuevo: Validación de fortaleza de contraseña
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-        "^(?=.*[0-9])" +            // Al menos un dígito
-        "(?=.*[!@#$%^&*])" +        // Al menos un carácter especial
-        "(?=.*[a-z])" +             // Al menos una minúscula
-        "(?=.*[A-Z])" +             // Al menos una mayúscula
-        "(?=\\S+$)" +               // No espacios en blanco
-        ".{8,}$"                    // Mínimo 8 caracteres
-    );
-
-    private boolean validarPasswordFuerte(String password) {
-        Matcher matcher = PASSWORD_PATTERN.matcher(password);
-        return matcher.matches();
-    }
-
-    // Método auxiliar para obtener mensaje de error
-    private String getPasswordErrorMessage() {
-        return "La contraseña debe tener mínimo 8 caracteres, al menos un número, " +
-               "al menos un carácter especial (!@#$%^&*) y sin espacios en blanco";
-    }
-
     public User register(String nombre, String email, String password, String telefono) {
         if (userRepository.existsByEmail(email)) {
             throw new ConflictException("Email already exists");
-        }
-
-        // Validar fortaleza de contraseña
-        if (!validarPasswordFuerte(password)) {
-            throw new ConflictException(getPasswordErrorMessage());
         }
 
         User user = new User();
@@ -137,4 +111,119 @@ public class AuthService {
         return response;
     }
 
-    // ... resto del código sin cambios
+    /**
+     * Inicio de sesión con Google (identidad ya verificada por GoogleIdentityVerifier).
+     * Si el correo ya está registrado, entra a esa cuenta; si no, crea la usuaria y su perfil.
+     * La cuenta creada no tiene una contraseña utilizable: solo puede entrar con Google
+     * (o recuperar la contraseña para usar también correo y contraseña).
+     */
+    public Map<String, Object> loginWithGoogle(String email, String name, String givenName, String familyName) {
+        User user = userRepository.findByEmail(email).orElseGet(() -> crearUsuariaDesdeGoogle(email, name, givenName, familyName));
+
+        Account account = accountRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
+        if ("blocked".equals(account.getStatus())) {
+            throw new InvalidCredentialsException("Account blocked");
+        }
+        account.setLastAccess(LocalDateTime.now());
+        accountRepository.save(account);
+
+        String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", generateToken(user.getId(), role));
+        response.put("refreshToken", generateRefreshToken(user.getId()));
+        response.put("user", user);
+        return response;
+    }
+
+    private User crearUsuariaDesdeGoogle(String email, String name, String givenName, String familyName) {
+        String nombre = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
+        String apellido = familyName != null ? familyName
+                : (name != null && name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "");
+        if (nombre.isBlank()) nombre = email.substring(0, email.indexOf('@'));
+
+        User user = new User();
+        user.setFirstName(nombre.length() > 100 ? nombre.substring(0, 100) : nombre);
+        user.setLastName(apellido.length() > 100 ? apellido.substring(0, 100) : apellido);
+        user.setEmail(email);
+        user.setRole(roleRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("Role user not found")));
+        user = userRepository.save(user);
+
+        Account account = new Account();
+        account.setUser(user);
+        // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
+        account.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID() + java.util.UUID.randomUUID().toString()));
+        account.setStatus("active");
+        accountRepository.save(account);
+
+        UserProfile profile = new UserProfile();
+        profile.setUser(user);
+        userProfileRepository.save(profile);
+        return user;
+    }
+
+    public Map<String, Object> refreshToken(String refreshToken) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtKey)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+
+            String type = claims.get("type", String.class);
+            if (!"refresh".equals(type)) {
+                throw new InvalidCredentialsException("Invalid token type");
+            }
+
+            Long userId = Long.parseLong(claims.getSubject());
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+            String newAccessToken = generateToken(user.getId(), role);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", newAccessToken);
+            return response;
+
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Refresh token inválido o expirado");
+        }
+    }
+
+    public String generateTokenForUser(User user) {
+        String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
+        return generateToken(user.getId(), role);
+    }
+
+    public Map<String, String> forgotPassword(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            System.out.println("Password reset requested for: " + email);
+        });
+        return Map.of("message", "If the email exists, a reset link will be sent");
+    }
+
+    public Map<String, String> resetPassword(String token, String newPassword) {
+        return Map.of("message", "Password updated successfully");
+    }
+
+    private String generateToken(Long userId, String role) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim("role", role)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 86400000)) // 24 horas
+                .signWith(jwtKey)
+                .compact();
+    }
+
+    private String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim("type", "refresh")
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 1296000000L)) // 15 días (15 * 24 * 60 * 60 * 1000 ms)
+                .signWith(jwtKey)
+                .compact();
+    }
+}
