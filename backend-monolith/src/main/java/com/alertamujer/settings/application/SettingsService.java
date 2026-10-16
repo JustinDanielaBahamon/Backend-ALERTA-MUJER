@@ -43,6 +43,12 @@ public class SettingsService implements SettingsApi {
         return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public String numeroEmergencia() {
+        return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getEmergencyPhoneNumber).orElse("123");
+    }
+
     /** Máximo de contactos de emergencia por usuaria (5 si no hay configuración). */
     @Override
     @Transactional(readOnly = true)
