@@ -6,6 +6,7 @@ import com.alertamujer.alerts.api.LocationPoint;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.notifications.domain.model.TrackingLink;
 import com.alertamujer.notifications.infrastructure.repository.TrackingLinkRepository;
+import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +37,14 @@ public class TrackingLinkService {
     private final TrackingLinkRepository repository;
     private final AlertsApi alertsApi;
     private final IdentityApi identityApi;
+    private final SettingsApi settingsApi;
 
-    public TrackingLinkService(TrackingLinkRepository repository, AlertsApi alertsApi, IdentityApi identityApi) {
+    public TrackingLinkService(TrackingLinkRepository repository, AlertsApi alertsApi, IdentityApi identityApi,
+                               SettingsApi settingsApi) {
         this.repository = repository;
         this.alertsApi = alertsApi;
         this.identityApi = identityApi;
+        this.settingsApi = settingsApi;
     }
 
     /** Crea un enlace para la alerta y devuelve el código (no se puede recuperar después). */
@@ -75,7 +79,8 @@ public class TrackingLinkService {
         if (recorrido.isEmpty() && alerta.latitude() != null && alerta.longitude() != null) {
             recorrido.add(new LocationPoint(alerta.latitude(), alerta.longitude(), null, alerta.startedAt()));
         }
-        return new TrackingView(nombre, alerta.status(), activa, alerta.startedAt(), fin, recorrido);
+        return new TrackingView(nombre, alerta.status(), activa, alerta.startedAt(), fin, recorrido,
+                settingsApi.numeroEmergencia());
     }
 
     static String hash(String codigo) {
@@ -92,7 +97,7 @@ public class TrackingLinkService {
 
     /** Solo el nombre de pila de la usuaria: el enlace puede reenviarse. */
     public record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,
-                               LocalDateTime endedAt, List<LocationPoint> route) {
+                               LocalDateTime endedAt, List<LocationPoint> route, String emergencyNumber) {
 
         public LocationPoint lastPoint() {
             return route.isEmpty() ? null : route.get(route.size() - 1);

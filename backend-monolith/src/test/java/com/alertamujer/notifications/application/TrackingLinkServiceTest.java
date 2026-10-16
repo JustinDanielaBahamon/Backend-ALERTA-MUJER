@@ -36,6 +36,9 @@ class TrackingLinkServiceTest {
     @Mock
     private IdentityApi identityApi;
 
+    @Mock
+    private com.alertamujer.settings.api.SettingsApi settingsApi;
+
     @InjectMocks
     private TrackingLinkService service;
 
@@ -71,10 +74,12 @@ class TrackingLinkServiceTest {
         when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("active", null)));
         when(identityApi.findUserByProfileId(10L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", "Gómez", "a@b.co", "300", 1L, null)));
         when(alertsApi.locationTrail(5L)).thenReturn(List.of());
+        when(settingsApi.numeroEmergencia()).thenReturn("123");
 
         TrackingLinkService.TrackingView vista = service.consultar(CODIGO, AHORA);
 
         assertEquals("Ana", vista.firstName());
+        assertEquals("123", vista.emergencyNumber());
         assertTrue(vista.active());
         assertEquals(new BigDecimal("2.93"), vista.lastPoint().latitude()); // sin recorrido aún: punto de activación
     }
