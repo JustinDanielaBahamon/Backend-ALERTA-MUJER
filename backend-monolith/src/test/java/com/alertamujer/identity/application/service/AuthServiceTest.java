@@ -43,7 +43,7 @@ class AuthServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
-    private com.alertamujer.admin.application.service.SecurityEventService securityEvents;
+    private org.springframework.context.ApplicationEventPublisher events;
 
     @Spy
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -230,8 +230,8 @@ class AuthServiceTest {
         assertThrows(Exception.class, () -> authService.login("ana@test.com", "mala"));
         authService.login("ana@test.com", "Test123");
 
-        verify(securityEvents).registrar(1L, "LOGIN_FAILED", "Contraseña incorrecta");
-        verify(securityEvents).registrar(1L, "LOGIN_SUCCESS", "Con correo y contraseña");
+        verify(events).publishEvent(new com.alertamujer.identity.api.AdminSessionEvent(1L, "LOGIN_FAILED", "Contraseña incorrecta"));
+        verify(events).publishEvent(new com.alertamujer.identity.api.AdminSessionEvent(1L, "LOGIN_SUCCESS", "Con correo y contraseña"));
     }
 
     @Test
@@ -241,6 +241,6 @@ class AuthServiceTest {
 
         authService.login("ana@test.com", "Test123");
 
-        verifyNoInteractions(securityEvents);
+        verifyNoInteractions(events);
     }
 }

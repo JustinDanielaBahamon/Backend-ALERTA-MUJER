@@ -2,9 +2,11 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
+import com.alertamujer.identity.api.AdminSessionEvent;
 import com.alertamujer.shared.web.RequestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class SecurityEventService {
 
     public static final String TIPO = "SESSION";
-    public static final String LOGIN_SUCCESS = "LOGIN_SUCCESS";
-    public static final String LOGIN_FAILED = "LOGIN_FAILED";
-    public static final String LOGOUT = "LOGOUT";
-    public static final String PASSWORD_CHANGED = "PASSWORD_CHANGED";
+    public static final String LOGIN_SUCCESS = AdminSessionEvent.LOGIN_SUCCESS;
+    public static final String LOGIN_FAILED = AdminSessionEvent.LOGIN_FAILED;
+    public static final String LOGOUT = AdminSessionEvent.LOGOUT;
+    public static final String PASSWORD_CHANGED = AdminSessionEvent.PASSWORD_CHANGED;
 
     private static final Logger log = LoggerFactory.getLogger(SecurityEventService.class);
 
@@ -29,6 +31,13 @@ public class SecurityEventService {
 
     public SecurityEventService(AuditLogRepository auditLogRepository) {
         this.auditLogRepository = auditLogRepository;
+    }
+
+    /** Registra los eventos de sesión que publica el módulo identity. */
+    @EventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void alEventoDeSesion(AdminSessionEvent evento) {
+        registrar(evento.accountId(), evento.action(), evento.detail());
     }
 
     /**
