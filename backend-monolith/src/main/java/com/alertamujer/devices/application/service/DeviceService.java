@@ -2,8 +2,7 @@ package com.alertamujer.devices.application.service;
 
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,11 @@ import java.util.stream.Collectors;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
-    private final AccountRepository accountRepository;
+    private final IdentityApi identityApi;
 
-    public DeviceService(DeviceRepository deviceRepository, AccountRepository accountRepository) {
+    public DeviceService(DeviceRepository deviceRepository, IdentityApi identityApi) {
         this.deviceRepository = deviceRepository;
-        this.accountRepository = accountRepository;
+        this.identityApi = identityApi;
     }
 
     public List<Device> getAllDevices() {
@@ -28,9 +27,8 @@ public class DeviceService {
     }
 
     public List<Device> getDevicesByCurrentUser(Long currentUserId) {
-        Account account = accountRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
-        return deviceRepository.findByAccountId(account.getId());
+        Long accountId = identityApi.requireAccountId(currentUserId);
+        return deviceRepository.findByAccountId(accountId);
     }
 
     public Device getDeviceById(Long id) {
@@ -46,9 +44,8 @@ public class DeviceService {
 
     @Transactional
     public Device createDevice(Device device, Long currentUserId) {
-        Account account = accountRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
-        device.setAccountId(account.getId());
+        Long accountId = identityApi.requireAccountId(currentUserId);
+        device.setAccountId(accountId);
         return deviceRepository.save(device);
     }
 
@@ -78,9 +75,8 @@ public class DeviceService {
     }
 
     private void validateOwnership(Device device, Long currentUserId) {
-        Account account = accountRepository.findByUserId(currentUserId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account for user", currentUserId));
-        if (!device.getAccountId().equals(account.getId())) {
+        Long accountId = identityApi.requireAccountId(currentUserId);
+        if (!device.getAccountId().equals(accountId)) {
             throw new AccessDeniedException("No puedes acceder a dispositivos de otro usuario");
         }
     }

@@ -2,10 +2,8 @@ package com.alertamujer.devices.application.service;
 
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,10 +28,7 @@ class AdminDeviceServiceTest {
     private DeviceRepository deviceRepository;
 
     @Mock
-    private AccountRepository accountRepository;
-
-    @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @InjectMocks
     private AdminDeviceService service;
@@ -51,17 +46,9 @@ class AdminDeviceServiceTest {
 
     @Test
     void listar_agregaLaDueñaSinExponerElToken() {
-        Account cuenta = new Account();
-        cuenta.setId(3L);
-        cuenta.setUserId(1L);
-        User u = new User();
-        u.setId(1L);
-        u.setFirstName("Ana");
-        u.setLastName("Gómez");
-        u.setEmail("ana@correo.com");
+        UserSummary u = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
         when(deviceRepository.findAll()).thenReturn(List.of(dispositivo()));
-        when(accountRepository.findAll()).thenReturn(List.of(cuenta));
-        when(userRepository.findAll()).thenReturn(List.of(u));
+        when(identityApi.usersByAccountId()).thenReturn(java.util.Map.of(3L, u));
 
         AdminDeviceService.AdminDeviceView vista = service.listar().get(0);
 
@@ -75,7 +62,7 @@ class AdminDeviceServiceTest {
         Device d = dispositivo();
         when(deviceRepository.findById(7L)).thenReturn(Optional.of(d));
         when(deviceRepository.save(any(Device.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(accountRepository.findById(3L)).thenReturn(Optional.empty());
+        when(identityApi.findUserByAccountId(3L)).thenReturn(Optional.empty());
 
         AdminDeviceService.AdminDeviceView vista = service.cambiarEstado(7L, "blocked");
 

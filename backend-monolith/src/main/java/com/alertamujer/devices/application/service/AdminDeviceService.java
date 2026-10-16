@@ -2,10 +2,8 @@ package com.alertamujer.devices.application.service;
 
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Dispositivos para el panel de administración: datos del celular más la usuaria dueña
@@ -29,34 +25,26 @@ public class AdminDeviceService {
     private static final Set<String> ESTADOS = Set.of("active", "inactive", "blocked", "lost");
 
     private final DeviceRepository deviceRepository;
-    private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
 
-    public AdminDeviceService(DeviceRepository deviceRepository, AccountRepository accountRepository,
-                              UserRepository userRepository) {
+    public AdminDeviceService(DeviceRepository deviceRepository, IdentityApi identityApi) {
         this.deviceRepository = deviceRepository;
-        this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
     }
 
     @Transactional(readOnly = true)
     public List<AdminDeviceView> listar() {
-        Map<Long, Long> usuarioPorCuenta = accountRepository.findAll().stream()
-                .collect(Collectors.toMap(Account::getId, Account::getUserId, (a, b) -> a));
-        Map<Long, User> usuarios = userRepository.findAll().stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        Map<Long, UserSummary> duenaPorCuenta = identityApi.usersByAccountId();
         return deviceRepository.findAll().stream()
                 .sorted(Comparator.comparing(Device::getLastAccess, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(d -> vista(d, usuarios.get(usuarioPorCuenta.get(d.getAccountId()))))
+                .map(d -> vista(d, duenaPorCuenta.get(d.getAccountId())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public AdminDeviceView obtener(Long id) {
         Device d = buscar(id);
-        User dueña = accountRepository.findById(d.getAccountId())
-                .flatMap(a -> userRepository.findById(a.getUserId()))
-                .orElse(null);
+        UserSummary dueña = identityApi.findUserByAccountId(d.getAccountId()).orElse(null);
         return vista(d, dueña);
     }
 
@@ -80,12 +68,10 @@ public class AdminDeviceService {
         return deviceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Device", id));
     }
 
-    private AdminDeviceView vista(Device d, User u) {
-        String nombre = u == null ? null
-                : ((u.getFirstName() == null ? "" : u.getFirstName()) + " "
-                   + (u.getLastName() == null ? "" : u.getLastName())).trim();
-        return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.getId() : null,
-                nombre, u != null ? u.getEmail() : null, u != null ? u.getTelephone() : null,
+    private AdminDeviceView vista(Device d, UserSummary u) {
+        String nombre = u == null ? null : u.fullName();
+        return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.id() : null,
+                nombre, u != null ? u.email() : null, u != null ? u.telephone() : null,
                 d.getDeviceUuid(), d.getBrand(), d.getModel(), d.getOsName(), d.getOsVersion(),
                 d.getAppVersion(), d.getGpsStatus(), d.getStatus(), d.getLastAccess(), d.getCreatedAt(),
                 d.getFcmToken() != null && !d.getFcmToken().isBlank());
