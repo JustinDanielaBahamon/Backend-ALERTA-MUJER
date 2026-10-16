@@ -1,10 +1,15 @@
 package com.alertamujer.shared.exception;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
@@ -13,6 +18,62 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    /**
+     * Errores propios de Spring MVC con su código HTTP (ruta inexistente 404, método no permitido 405,
+     * parámetro obligatorio ausente 400, tipo de contenido no soportado 415, ResponseStatusException...).
+     */
+    @ExceptionHandler({
+        org.springframework.web.servlet.resource.NoResourceFoundException.class,
+        org.springframework.web.HttpRequestMethodNotSupportedException.class,
+        org.springframework.web.HttpMediaTypeNotSupportedException.class,
+        org.springframework.web.bind.MissingServletRequestParameterException.class,
+        org.springframework.web.server.ResponseStatusException.class
+    })
+    public ResponseEntity<ErrorResponse> handleSpringErrorResponse(Exception ex) {
+        HttpStatusCode codigo = ((org.springframework.web.ErrorResponse) ex).getStatusCode();
+        HttpStatus estado = HttpStatus.resolve(codigo.value());
+        String mensaje = switch (codigo.value()) {
+            case 404 -> "El recurso solicitado no existe";
+            case 405 -> "Método HTTP no permitido para esta ruta";
+            case 415 -> "Tipo de contenido no soportado";
+            default -> codigo.is4xxClientError() ? "La solicitud no es válida" : "Ocurrió un error inesperado";
+        };
+        if (codigo.is5xxServerError()) log.error("Error en la solicitud", ex);
+        return ResponseEntity
+            .status(codigo)
+            .body(ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(codigo.value())
+                .error(estado != null ? estado.getReasonPhrase() : "Error")
+                .message(mensaje)
+                .build());
+    }
+
+    // /api/alerts/abc, ?page=x...: el valor no tiene el tipo esperado
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return badRequest("El valor de '" + ex.getName() + "' no es válido");
+    }
+
+    // JSON mal formado o con tipos que no corresponden
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException ex) {
+        return badRequest("El cuerpo de la solicitud no es válido");
+    }
+
+    private static ResponseEntity<ErrorResponse> badRequest(String mensaje) {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(mensaje)
+                .build());
+    }
 
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflict(ConflictException ex) {
@@ -129,20 +190,23 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+    // El detalle queda en el log del servidor; al cliente no se le muestran mensajes internos
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntime(RuntimeException ex) {
+        log.error("Error no controlado", ex);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("Internal Server Error")
-                .message(ex.getMessage())
+                .message("Ocurrió un error inesperado")
                 .build());
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
+        log.error("Error no controlado", ex);
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse.builder()
