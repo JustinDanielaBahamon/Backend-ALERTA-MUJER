@@ -246,4 +246,24 @@ class AuthServiceTest {
 
         verifyNoInteractions(events);
     }
+
+    @Test
+    void refreshToken_entregaUnTokenNuevo() {
+        String refresh = ReflectionTestUtils.invokeMethod(authService, "generateRefreshToken", 1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
+
+        assertNotNull(authService.refreshToken(refresh).get("token"));
+    }
+
+    @Test
+    void refreshToken_cuentaBloqueadaNoRenueva() {
+        String refresh = ReflectionTestUtils.invokeMethod(authService, "generateRefreshToken", 1L);
+        testAccount.setStatus("blocked");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
+
+        assertThrows(com.alertamujer.shared.exception.InvalidCredentialsException.class,
+                () -> authService.refreshToken(refresh));
+    }
 }

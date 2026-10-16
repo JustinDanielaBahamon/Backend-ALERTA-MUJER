@@ -185,6 +185,12 @@ public class AuthService {
             Long userId = Long.parseLong(claims.getSubject());
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            // Una cuenta bloqueada no puede seguir renovando su sesión
+            Account account = accountRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
+            if ("blocked".equals(account.getStatus())) {
+                throw new InvalidCredentialsException("Account blocked");
+            }
 
             String role = user.getRole() != null && user.getRole().getId() == 2L ? "admin" : "user";
             String newAccessToken = generateToken(user.getId(), role);
