@@ -1,8 +1,10 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
 import com.alertamujer.alerts.application.service.LocationLogService;
+import com.alertamujer.alerts.application.service.PhoneLocationRequestService;
 import com.alertamujer.alerts.domain.model.LocationLog;
 import com.alertamujer.alerts.infrastructure.controller.dto.LocationLogRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -10,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Ubicaciones que reporta la app móvil. Son datos muy sensibles: cada usuaria solo ve las suyas
@@ -20,9 +23,12 @@ import java.util.List;
 public class LocationLogController {
 
     private final LocationLogService locationLogService;
+    private final PhoneLocationRequestService phoneLocationRequestService;
 
-    public LocationLogController(LocationLogService locationLogService) {
+    public LocationLogController(LocationLogService locationLogService,
+                                 PhoneLocationRequestService phoneLocationRequestService) {
         this.locationLogService = locationLogService;
+        this.phoneLocationRequestService = phoneLocationRequestService;
     }
 
     @PostMapping
@@ -38,6 +44,18 @@ public class LocationLogController {
     }
 
     /** Última ubicación enviada por el celular de la usuaria (204 si nunca ha enviado). */
+    /** Pide a los celulares de la usuaria que envíen su ubicación actual (push silencioso). */
+    @PostMapping("/me/request")
+    public ResponseEntity<Map<String, Object>> requestFromPhone(@AuthenticationPrincipal Long currentUserId) {
+        try {
+            var r = phoneLocationRequestService.pedir(currentUserId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED)
+                    .body(Map.of("celulares", r.celulares(), "solicitadoEn", r.solicitadoEn().toString()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/me/latest")
     public ResponseEntity<LocationLog> getMyLatest(@AuthenticationPrincipal Long currentUserId) {
         return locationLogService.getLatestForUser(currentUserId)
