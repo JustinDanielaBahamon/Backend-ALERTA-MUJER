@@ -20,11 +20,12 @@ class ModularityTest {
     static final ApplicationModules MODULOS = ApplicationModules.of(AlertaMujerBackendApplication.class);
 
     /** Bajar este número en cada commit que separa un módulo. */
-    static final int MAXIMO_VIOLACIONES = 368;
+    static final int MAXIMO_VIOLACIONES = 363;
 
     @Test
     void noAumentanLasDependenciasEntreModulos() {
         List<String> violaciones = MODULOS.detectViolations().getMessages();
+        System.out.println("Violaciones de módulos: " + violaciones.size() + " (máximo " + MAXIMO_VIOLACIONES + ")");
         assertTrue(violaciones.size() <= MAXIMO_VIOLACIONES,
                 () -> "Hay " + violaciones.size() + " violaciones de módulos (máximo " + MAXIMO_VIOLACIONES
                         + "). Un módulo está usando por dentro a otro:\n" + String.join("\n", violaciones.subList(0, Math.min(5, violaciones.size()))));

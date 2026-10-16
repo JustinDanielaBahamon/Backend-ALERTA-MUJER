@@ -1,7 +1,6 @@
 package com.alertamujer.resources.application.service;
 
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.resources.domain.model.ResourceCall;
 import com.alertamujer.resources.infrastructure.repository.EmergencyResourceRepository;
 import com.alertamujer.resources.infrastructure.repository.ResourceCallRepository;
@@ -17,21 +16,19 @@ public class ResourceCallService {
 
     private final ResourceCallRepository resourceCallRepository;
     private final EmergencyResourceRepository emergencyResourceRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
 
     public ResourceCallService(ResourceCallRepository resourceCallRepository,
                                EmergencyResourceRepository emergencyResourceRepository,
-                               UserProfileRepository userProfileRepository) {
+                               IdentityApi identityApi) {
         this.resourceCallRepository = resourceCallRepository;
         this.emergencyResourceRepository = emergencyResourceRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
     }
 
     // El JWT trae users.id; las llamadas se guardan por user_profile.id.
     private Long profileIdOf(Long userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(UserProfile::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identityApi.requireProfileId(userId);
     }
 
     private ResourceCall owned(Long id, Long currentUserId) {
