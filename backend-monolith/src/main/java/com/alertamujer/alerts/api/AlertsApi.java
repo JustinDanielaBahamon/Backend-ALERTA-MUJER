@@ -28,5 +28,14 @@ public interface AlertsApi {
     /** Última revisión automática de alertas vencidas. */
     ExpirationStatus expirationStatus();
 
+    /** Envíos registrados para una alerta (correo y push a cada contacto). */
+    List<AlertRecipient> recipientsOf(Long alertId);
+
+    /** Guarda el resultado de un envío: "sent" o "failed" (con el motivo). */
+    void markDelivery(Long recipientId, String status, String errorMessage);
+
+    /** Recorrido de la alerta, del primer punto al último. */
+    List<LocationPoint> locationTrail(Long alertId);
+
     record ExpirationStatus(LocalDateTime lastCheck, int lastExpiredCount) {}
 }

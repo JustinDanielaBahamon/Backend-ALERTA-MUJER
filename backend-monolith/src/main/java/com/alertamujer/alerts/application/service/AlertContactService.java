@@ -1,11 +1,13 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertActivatedEvent;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.AlertContact;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.AlertContactRepository;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
 import com.alertamujer.identity.api.IdentityApi;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +38,16 @@ public class AlertContactService {
     private final AlertContactRepository alertContactRepository;
     private final EmergencyContactRepository emergencyContactRepository;
     private final IdentityApi identityApi;
+    private final ApplicationEventPublisher events;
 
     public AlertContactService(AlertContactRepository alertContactRepository,
                                EmergencyContactRepository emergencyContactRepository,
-                               IdentityApi identityApi) {
+                               IdentityApi identityApi,
+                               ApplicationEventPublisher events) {
         this.alertContactRepository = alertContactRepository;
         this.emergencyContactRepository = emergencyContactRepository;
         this.identityApi = identityApi;
+        this.events = events;
     }
 
     /** Crea un registro por cada contacto de la usuaria y cada canal disponible para ese contacto. */
@@ -59,6 +64,8 @@ public class AlertContactService {
             }
         }
         alertContactRepository.saveAll(registros);
+        // Los avisos salen después de confirmar la transacción (módulo de notificaciones)
+        events.publishEvent(new AlertActivatedEvent(alert.getId(), alert.getUserProfileId(), alert.getStartedAt()));
     }
 
     /** Contactos avisados en una alerta, con sus canales. Un envío abierto de una alerta terminada se informa como "expired". */

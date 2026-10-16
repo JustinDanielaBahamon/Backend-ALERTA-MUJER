@@ -35,6 +35,9 @@ class AlertContactServiceTest {
     @Mock
     private IdentityApi identityApi;
 
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher events;
+
     @InjectMocks
     private AlertContactService service;
 
@@ -64,7 +67,8 @@ class AlertContactServiceTest {
         when(identityApi.findUserByEmail(anyString())).thenReturn(Optional.empty());
         when(identityApi.findUserByEmail("app@correo.com")).thenReturn(Optional.of(new UserSummary(3L, "Eva", null, "app@correo.com", null, 1L, null)));
 
-        service.registrarDestinatarios(alerta("active"));
+        Alert activa = alerta("active");
+        service.registrarDestinatarios(activa);
 
         ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
         verify(alertContactRepository).saveAll(captor.capture());
@@ -75,6 +79,7 @@ class AlertContactServiceTest {
         assertEquals(1L, registros.get(1).getEmergencyContactId());
         assertEquals(2L, registros.get(2).getEmergencyContactId());
         assertEquals("pending", registros.get(2).getStatus());
+        verify(events).publishEvent(new com.alertamujer.alerts.api.AlertActivatedEvent(5L, 10L, activa.getStartedAt()));
     }
 
     @Test
