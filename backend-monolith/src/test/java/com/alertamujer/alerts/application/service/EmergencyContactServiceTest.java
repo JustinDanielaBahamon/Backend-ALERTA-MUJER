@@ -3,8 +3,7 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.admin.application.service.AdminSettingsService;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +28,7 @@ class EmergencyContactServiceTest {
     private EmergencyContactRepository emergencyContactRepository;
 
     @Mock
-    private UserProfileRepository userProfileRepository;
+    private IdentityApi identityApi;
 
     @Mock
     private AdminSettingsService settingsService;
@@ -39,9 +38,7 @@ class EmergencyContactServiceTest {
 
     @BeforeEach
     void setUp() {
-        UserProfile perfil = new UserProfile();
-        perfil.setId(10L);
-        when(userProfileRepository.findByUserId(1L)).thenReturn(Optional.of(perfil));
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(10L));
         when(settingsService.maximoContactos()).thenReturn(2);
     }
 

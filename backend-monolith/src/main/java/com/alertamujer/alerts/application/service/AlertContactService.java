@@ -5,7 +5,7 @@ import com.alertamujer.alerts.domain.model.AlertContact;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.AlertContactRepository;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,14 +35,14 @@ public class AlertContactService {
 
     private final AlertContactRepository alertContactRepository;
     private final EmergencyContactRepository emergencyContactRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
 
     public AlertContactService(AlertContactRepository alertContactRepository,
                                EmergencyContactRepository emergencyContactRepository,
-                               UserRepository userRepository) {
+                               IdentityApi identityApi) {
         this.alertContactRepository = alertContactRepository;
         this.emergencyContactRepository = emergencyContactRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
     }
 
     /** Crea un registro por cada contacto de la usuaria y cada canal disponible para ese contacto. */
@@ -53,7 +53,7 @@ public class AlertContactService {
             String correo = contacto.getEmail() == null ? "" : contacto.getEmail().trim();
             if (!correo.isEmpty()) {
                 registros.add(nuevo(alert.getId(), contacto.getId(), CANAL_CORREO, correo));
-                if (userRepository.findByEmail(correo).isPresent()) {
+                if (identityApi.findUserByEmail(correo).isPresent()) {
                     registros.add(nuevo(alert.getId(), contacto.getId(), CANAL_PUSH, "App Alerta Mujer"));
                 }
             }

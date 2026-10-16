@@ -5,8 +5,8 @@ import com.alertamujer.alerts.domain.model.AlertContact;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.AlertContactRepository;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -33,7 +33,7 @@ class AlertContactServiceTest {
     private EmergencyContactRepository emergencyContactRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @InjectMocks
     private AlertContactService service;
@@ -61,8 +61,8 @@ class AlertContactServiceTest {
                 contacto(1L, "Con app", "app@correo.com"),
                 contacto(2L, "Solo correo", "otra@correo.com"),
                 contacto(3L, "Sin correo", null)));
-        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-        when(userRepository.findByEmail("app@correo.com")).thenReturn(Optional.of(new User()));
+        when(identityApi.findUserByEmail(anyString())).thenReturn(Optional.empty());
+        when(identityApi.findUserByEmail("app@correo.com")).thenReturn(Optional.of(new UserSummary(3L, "Eva", null, "app@correo.com", null, 1L, null)));
 
         service.registrarDestinatarios(alerta("active"));
 

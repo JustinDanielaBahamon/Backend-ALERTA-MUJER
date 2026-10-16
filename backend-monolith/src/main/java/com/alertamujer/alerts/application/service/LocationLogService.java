@@ -5,8 +5,7 @@ import com.alertamujer.alerts.domain.model.LocationLog;
 import com.alertamujer.alerts.infrastructure.controller.dto.LocationLogRequest;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.alerts.infrastructure.repository.LocationLogRepository;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.data.domain.PageRequest;
@@ -23,22 +22,20 @@ public class LocationLogService {
     private static final int MAX_LIMIT = 500;
 
     private final LocationLogRepository locationLogRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
     private final AlertRepository alertRepository;
 
     public LocationLogService(LocationLogRepository locationLogRepository,
-                              UserProfileRepository userProfileRepository,
+                              IdentityApi identityApi,
                               AlertRepository alertRepository) {
         this.locationLogRepository = locationLogRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
         this.alertRepository = alertRepository;
     }
 
     // El JWT trae users.id; las ubicaciones se guardan por user_profile.id.
     private Long profileIdOf(Long userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(UserProfile::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identityApi.requireProfileId(userId);
     }
 
     public LocationLog saveLocation(LocationLogRequest request, Long currentUserId) {

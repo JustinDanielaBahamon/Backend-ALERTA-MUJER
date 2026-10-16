@@ -2,10 +2,8 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import com.alertamujer.config.FcmService;
@@ -20,26 +18,23 @@ import java.util.Optional;
 public class AlertService {
 
     private final AlertRepository alertRepository;
-    private final UserProfileRepository userProfileRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
     private final FcmService fcmService;
 
     @Autowired
     public AlertService(AlertRepository alertRepository,
-                       UserProfileRepository userProfileRepository,
-                       UserRepository userRepository,
+                       IdentityApi identityApi,
                        FcmService fcmService) {
         this.alertRepository = alertRepository;
-        this.userProfileRepository = userProfileRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
         this.fcmService = fcmService;
     }
 
     /** Alertas de la usuaria autenticada, de la más reciente a la más antigua. */
     public List<Alert> getMine(Long currentUserId) {
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
-        return alertRepository.findByUserProfileId(profile.getId()).stream()
+        return alertRepository.findByUserProfileId(profile).stream()
                 .sorted((a, b) -> b.getStartedAt().compareTo(a.getStartedAt()))
                 .toList();
     }
@@ -54,7 +49,7 @@ public class AlertService {
 
     public Optional<Alert> getAlertById(Long id, Long currentUserId) {
         // Obtener el userProfile del usuario autenticado
-        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+        Long currentUserProfile = identityApi.findProfileId(currentUserId)
                 .orElse(null);
 
         if (currentUserProfile == null) {
@@ -62,45 +57,39 @@ public class AlertService {
         }
 
         return alertRepository.findById(id)
-                .filter(alert -> alert.getUserProfileId().equals(currentUserProfile.getId()));
+                .filter(alert -> alert.getUserProfileId().equals(currentUserProfile));
     }
 
     public List<Alert> getAlertsByUserProfile(Long userProfileId, Long currentUserId) {
         // Obtener el userProfile del usuario autenticado
-        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+        Long currentUserProfile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
 
-        // Obtener información del usuario para verificar si es ADMIN
-        User currentUser = userRepository.findById(currentUserId)
+        // Solo la administración puede consultar alertas de otra usuaria
+        UserSummary currentUser = identityApi.findUser(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", currentUserId));
-
-        // Verificar rol de forma segura (evitar NPE)
-        boolean isAdmin = currentUser.getRole() != null &&
-                currentUser.getRole().getName() != null &&
-                currentUser.getRole().getName().equals("administrator");
+        boolean isAdmin = currentUser.admin();
 
         // Los clientes envían el id de usuaria (users.id); también se acepta el id de perfil propio.
         // Ambos ids no coinciden necesariamente (en producción son distintos).
-        if (userProfileId.equals(currentUserId) || userProfileId.equals(currentUserProfile.getId())) {
-            return alertRepository.findByUserProfileId(currentUserProfile.getId());
+        if (userProfileId.equals(currentUserId) || userProfileId.equals(currentUserProfile)) {
+            return alertRepository.findByUserProfileId(currentUserProfile);
         }
         // Solo el administrador puede ver alertas de otra usuaria: el id se interpreta como
         // users.id y, si no existe, como user_profile.id.
         if (!isAdmin) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
-        Long profileId = userProfileRepository.findByUserId(userProfileId)
-                .map(UserProfile::getId)
-                .orElse(userProfileId);
+        Long profileId = identityApi.findProfileId(userProfileId).orElse(userProfileId);
         return alertRepository.findByUserProfileId(profileId);
     }
 
     public Alert createAlert(Alert alert, Long currentUserId) {
         // El propietario se resuelve desde el JWT (users.id -> user_profile.id);
         // nunca se confía en el userProfileId que llega en el body (evita IDOR).
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
-        alert.setUserProfileId(profile.getId());
+        alert.setUserProfileId(profile);
         return alertRepository.save(alert);
     }
 
@@ -109,11 +98,11 @@ public class AlertService {
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
 
         // Obtener el userProfile del usuario autenticado
-        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+        Long currentUserProfile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
 
         // Verificar ownership: comparar user_profile.id con user_profile.id
-        if (!alert.getUserProfileId().equals(currentUserProfile.getId())) {
+        if (!alert.getUserProfileId().equals(currentUserProfile)) {
             throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
         }
 
@@ -141,11 +130,11 @@ public class AlertService {
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
 
         // Obtener el userProfile del usuario autenticado
-        UserProfile currentUserProfile = userProfileRepository.findByUserId(currentUserId)
+        Long currentUserProfile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
 
         // Verificar ownership: comparar user_profile.id con user_profile.id
-        if (!alert.getUserProfileId().equals(currentUserProfile.getId())) {
+        if (!alert.getUserProfileId().equals(currentUserProfile)) {
             throw new AccessDeniedException("No puedes eliminar alertas de otro usuario");
         }
 

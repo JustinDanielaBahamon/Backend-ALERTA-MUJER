@@ -2,10 +2,8 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,10 +28,8 @@ class AdminAlertServiceTest {
     private AlertRepository alertRepository;
 
     @Mock
-    private UserProfileRepository userProfileRepository;
+    private IdentityApi identityApi;
 
-    @Mock
-    private UserRepository userRepository;
 
     @InjectMocks
     private AdminAlertService service;
@@ -49,21 +45,13 @@ class AdminAlertServiceTest {
 
     @Test
     void listar_agregaLaUsuariaYOrdenaDeLaMasReciente() {
-        UserProfile perfil = new UserProfile();
-        perfil.setId(10L);
-        perfil.setUserId(1L);
-        User usuaria = new User();
-        usuaria.setId(1L);
-        usuaria.setFirstName("Ana");
-        usuaria.setLastName("Gómez");
-        usuaria.setEmail("ana@correo.com");
+        UserSummary usuaria = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
 
         LocalDateTime ahora = LocalDateTime.now();
         when(alertRepository.findAll()).thenReturn(List.of(
                 alerta(1L, 10L, ahora.minusHours(2)),
                 alerta(2L, 99L, ahora)));
-        when(userProfileRepository.findAll()).thenReturn(List.of(perfil));
-        when(userRepository.findAll()).thenReturn(List.of(usuaria));
+        when(identityApi.usersByProfileId()).thenReturn(java.util.Map.of(10L, usuaria));
 
         List<AdminAlertService.AdminAlertView> vistas = service.listar();
 

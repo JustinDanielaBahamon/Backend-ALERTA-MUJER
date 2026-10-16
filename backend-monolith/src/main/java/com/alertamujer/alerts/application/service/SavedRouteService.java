@@ -5,8 +5,7 @@ import com.alertamujer.alerts.domain.model.SavedRoute;
 import com.alertamujer.alerts.infrastructure.controller.dto.SavedRouteRequest;
 import com.alertamujer.alerts.infrastructure.controller.dto.SavedRouteUpdateRequest;
 import com.alertamujer.alerts.infrastructure.repository.SavedRouteRepository;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ConflictException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -23,18 +22,16 @@ public class SavedRouteService {
     public static final int MAX_STARRED = 2;
 
     private final SavedRouteRepository savedRouteRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
 
-    public SavedRouteService(SavedRouteRepository savedRouteRepository, UserProfileRepository userProfileRepository) {
+    public SavedRouteService(SavedRouteRepository savedRouteRepository, IdentityApi identityApi) {
         this.savedRouteRepository = savedRouteRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
     }
 
     // El JWT trae users.id; los recorridos se guardan por user_profile.id.
     private Long profileIdOf(Long userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(UserProfile::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identityApi.requireProfileId(userId);
     }
 
     private SavedRoute getOwned(Long id, Long currentUserId) {

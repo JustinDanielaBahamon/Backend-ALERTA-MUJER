@@ -3,8 +3,7 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.admin.application.service.AdminSettingsService;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,14 +15,14 @@ import java.util.Optional;
 public class EmergencyContactService {
 
     private final EmergencyContactRepository emergencyContactRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
     private final AdminSettingsService settingsService;
 
     public EmergencyContactService(EmergencyContactRepository emergencyContactRepository,
-                                   UserProfileRepository userProfileRepository,
+                                   IdentityApi identityApi,
                                    AdminSettingsService settingsService) {
         this.emergencyContactRepository = emergencyContactRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
         this.settingsService = settingsService;
     }
 
@@ -36,12 +35,12 @@ public class EmergencyContactService {
     }
 
     public Optional<EmergencyContact> getContactById(Long id, Long currentUserId) {
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElse(null);
         if (profile == null) return Optional.empty();
 
         return emergencyContactRepository.findById(id)
-                .filter(contact -> profile.getId().equals(contact.getUserProfileId()));
+                .filter(contact -> profile.equals(contact.getUserProfileId()));
     }
 
     /**
@@ -50,29 +49,28 @@ public class EmergencyContactService {
      * cualquiera (el id se interpreta como users.id y, si no existe, como user_profile.id).
      */
     public List<EmergencyContact> getContactsForUser(Long requestedId, Long currentUserId, boolean isAdmin) {
-        UserProfile own = userProfileRepository.findByUserId(currentUserId)
+        Long own = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
-        if (requestedId.equals(currentUserId) || requestedId.equals(own.getId())) {
-            return emergencyContactRepository.findByUserProfileId(own.getId());
+        if (requestedId.equals(currentUserId) || requestedId.equals(own)) {
+            return emergencyContactRepository.findByUserProfileId(own);
         }
         if (!isAdmin) {
             throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
         }
-        Long profileId = userProfileRepository.findByUserId(requestedId)
-                .map(UserProfile::getId)
+        Long profileId = identityApi.findProfileId(requestedId)
                 .orElse(requestedId);
         return emergencyContactRepository.findByUserProfileId(profileId);
     }
 
     public EmergencyContact createContact(EmergencyContact contact, Long currentUserId) {
         // Resolver userProfileId desde el JWT — nunca confiar en el body (evita IDOR)
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
         int maximo = settingsService.maximoContactos();
-        if (emergencyContactRepository.findByUserProfileId(profile.getId()).size() >= maximo) {
+        if (emergencyContactRepository.findByUserProfileId(profile).size() >= maximo) {
             throw new IllegalArgumentException("Puedes tener como máximo " + maximo + " contactos de emergencia");
         }
-        contact.setUserProfileId(profile.getId());
+        contact.setUserProfileId(profile);
         return emergencyContactRepository.save(contact);
     }
 
@@ -80,10 +78,10 @@ public class EmergencyContactService {
         EmergencyContact contact = emergencyContactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
 
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
 
-        if (!profile.getId().equals(contact.getUserProfileId())) {
+        if (!profile.equals(contact.getUserProfileId())) {
             throw new AccessDeniedException("No puedes modificar contactos de otro usuario");
         }
 
@@ -99,10 +97,10 @@ public class EmergencyContactService {
         EmergencyContact contact = emergencyContactRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
 
-        UserProfile profile = userProfileRepository.findByUserId(currentUserId)
+        Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
 
-        if (!profile.getId().equals(contact.getUserProfileId())) {
+        if (!profile.equals(contact.getUserProfileId())) {
             throw new AccessDeniedException("No puedes eliminar contactos de otro usuario");
         }
 

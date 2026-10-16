@@ -2,8 +2,7 @@ package com.alertamujer.alerts.application;
 
 import com.alertamujer.alerts.domain.model.FrequentLocation;
 import com.alertamujer.alerts.infrastructure.repository.FrequentLocationRepository;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,19 +14,17 @@ import java.util.List;
 public class FrequentLocationService {
 
     private final FrequentLocationRepository frequentLocationRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
 
     public FrequentLocationService(FrequentLocationRepository frequentLocationRepository,
-                                   UserProfileRepository userProfileRepository) {
+                                   IdentityApi identityApi) {
         this.frequentLocationRepository = frequentLocationRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
     }
 
     // El JWT trae users.id; las ubicaciones se guardan por user_profile.id.
     private Long profileIdOf(Long userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(UserProfile::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identityApi.requireProfileId(userId);
     }
 
     public List<FrequentLocation> getActiveByUserId(Long userId) {
