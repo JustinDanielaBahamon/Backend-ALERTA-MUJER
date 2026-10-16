@@ -2,7 +2,6 @@ package com.alertamujer.admin.infrastructure.controller;
 
 import com.alertamujer.admin.application.service.AdminService;
 import com.alertamujer.admin.application.service.UserReportService;
-import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.infrastructure.controller.dto.AdminUserDto;
 import com.alertamujer.admin.infrastructure.controller.dto.UpdateUserRequest;
 import org.springframework.http.ResponseEntity;
@@ -36,41 +35,6 @@ public class AdminController {
             @RequestBody UpdateUserRequest request,
             @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(adminService.updateUser(id, request, currentUserId));
-    }
-
-    @GetMapping("/alerts")
-    public ResponseEntity<List<?>> getAllAlerts() {
-        return ResponseEntity.ok(adminService.getAllAlerts());
-    }
-
-    @GetMapping("/contacts")
-    public ResponseEntity<List<?>> getAllEmergencyContacts() {
-        return ResponseEntity.ok(adminService.getAllEmergencyContacts());
-    }
-
-    @GetMapping("/evidences")
-    public ResponseEntity<List<?>> getAllEvidence() {
-        return ResponseEntity.ok(adminService.getAllEvidence());
-    }
-
-    @GetMapping("/devices")
-    public ResponseEntity<List<?>> getAllDevices() {
-        return ResponseEntity.ok(adminService.getAllDevices());
-    }
-
-    @GetMapping("/zones")
-    public ResponseEntity<List<?>> getAllZones() {
-        return ResponseEntity.ok(adminService.getAllZones());
-    }
-
-    @GetMapping("/audit-logs")
-    public ResponseEntity<List<AuditLog>> getAllAuditLogs() {
-        return ResponseEntity.ok(adminService.getAllAuditLogs());
-    }
-
-    @PostMapping("/audit-logs")
-    public ResponseEntity<AuditLog> createAuditLog(@RequestBody AuditLog auditLog) {
-        return ResponseEntity.ok(adminService.createAuditLog(auditLog));
     }
 
     // ── Reportes de usuarias (moderación) ──────────────────────────

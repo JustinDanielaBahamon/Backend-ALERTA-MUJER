@@ -42,7 +42,7 @@ class AdminServiceTest {
                 accountRepository,
                 userProfileRepository,
                 alertRepository,
-                null, null, null, null, null, null, null
+                null
         );
     }
 
