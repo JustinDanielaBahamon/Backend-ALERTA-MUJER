@@ -1,6 +1,7 @@
 package com.alertamujer.notifications.application;
 
 import com.alertamujer.alerts.api.AlertActivatedEvent;
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.alerts.api.AlertRecipient;
 import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.alerts.api.AlertsApi;
@@ -116,5 +117,26 @@ class AlertNotificationServiceTest {
                 "https://x/seguimiento/C", null, "123");
 
         assertTrue(m.html().contains("&lt;script&gt;"));
+    }
+
+    @Test
+    void alTerminarAvisaPorCorreoYPushSinTocarLosEnvios() {
+        when(alertsApi.recipientsOf(5L)).thenReturn(List.of(
+                new AlertRecipient(100L, 1L, "Mamá", "email", "mama@correo.com"),
+                new AlertRecipient(101L, 1L, "Mamá", "push", "app")));
+        when(settingsApi.numeroEmergencia()).thenReturn("123");
+        when(identityApi.findUserByEmail("mama@correo.com"))
+                .thenReturn(Optional.of(new UserSummary(7L, "Rosa", "Gómez", "mama@correo.com", null, 7L, null)));
+        when(devicesApi.pushTokensOfUser(7L)).thenReturn(List.of("token-mama"));
+
+        service.avisarFin(new AlertEndedEvent(5L, 10L, "resolved", LocalDateTime.of(2026, 10, 16, 15, 20)));
+
+        ArgumentCaptor<EmailSender.EmailMessage> correo = ArgumentCaptor.forClass(EmailSender.EmailMessage.class);
+        verify(emailSender).send(correo.capture());
+        assertTrue(correo.getValue().subject().contains("terminó"));
+        assertTrue(correo.getValue().text().contains("atendida"));
+        verify(fcmService).sendEmergencyAlert(eq(List.of("token-mama")), argThat(d -> "ALERTA_FINALIZADA".equals(d.get("tipo"))));
+        verify(alertsApi, never()).markDelivery(any(), any(), any());
+        verify(trackingLinkService, never()).crear(any());
     }
 }

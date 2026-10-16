@@ -1,6 +1,7 @@
 package com.alertamujer.notifications.application;
 
 import com.alertamujer.alerts.api.AlertActivatedEvent;
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.alerts.api.AlertRecipient;
 import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.alerts.api.AlertsApi;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  * Avisa a los contactos de emergencia cuando una usuaria activa una alerta (RF4.2): correo con el
  * enlace de seguimiento y push de alta prioridad a quienes tienen la app. Corre en segundo plano,
  * después de guardar la alerta, y deja el resultado de cada envío en la alerta (sent / failed).
+ * Cuando la alerta termina les avisa también, para que no sigan pendientes ni suene la alarma.
  */
 @Service
 public class AlertNotificationService {
@@ -85,6 +87,49 @@ public class AlertNotificationService {
                 enviarCorreo(envio, nombre, evento, alerta.orElse(null), seguimiento);
             } else if (AlertsChannels.PUSH.equals(envio.channel())) {
                 enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), nombre, evento, codigo);
+            }
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void alTerminarAlerta(AlertEndedEvent evento) {
+        try {
+            avisarFin(evento);
+        } catch (RuntimeException e) {
+            log.error("No se pudo avisar el fin de la alerta {}: {}", evento.alertId(), e.getMessage());
+        }
+    }
+
+    /** Aviso de cortesía: no cambia el estado de los envíos de la alerta y un fallo solo se registra en el log. */
+    void avisarFin(AlertEndedEvent evento) {
+        List<AlertRecipient> envios = alertsApi.recipientsOf(evento.alertId());
+        if (envios.isEmpty()) return;
+        String nombre = identityApi.findUserByProfileId(evento.userProfileId()).map(UserSummary::fullName).orElse(null);
+        Map<Long, String> correoPorContacto = envios.stream()
+                .filter(e -> AlertsChannels.EMAIL.equals(e.channel()))
+                .collect(Collectors.toMap(AlertRecipient::emergencyContactId, AlertRecipient::destination, (a, b) -> a));
+
+        for (AlertRecipient envio : envios) {
+            try {
+                if (AlertsChannels.EMAIL.equals(envio.channel())) {
+                    emailSender.send(AlertEmailTemplate.construirFin(envio.destination(), envio.contactName(), nombre,
+                            evento.status(), evento.endedAt(), settingsApi.numeroEmergencia()));
+                } else if (AlertsChannels.PUSH.equals(envio.channel())) {
+                    List<String> tokens = identityApi.findUserByEmail(correoPorContacto.get(envio.emergencyContactId()))
+                            .map(u -> devicesApi.pushTokensOfUser(u.id()))
+                            .orElse(List.of());
+                    if (!tokens.isEmpty()) {
+                        fcmService.sendEmergencyAlert(tokens, Map.of(
+                                "tipo", "ALERTA_FINALIZADA",
+                                "alertaId", String.valueOf(evento.alertId()),
+                                "nombre", nombre == null ? "" : nombre,
+                                "estado", evento.status()));
+                    }
+                }
+            } catch (EmailSender.EmailException e) {
+                log.warn("No se pudo enviar el aviso de fin de la alerta {} al envío {}: {}",
+                        evento.alertId(), envio.id(), e.getMessage());
             }
         }
     }

@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-/** Correo que recibe un contacto de emergencia cuando una usuaria activa una alerta. */
+/** Correos que recibe un contacto de emergencia cuando una usuaria activa una alerta y cuando esta termina. */
 final class AlertEmailTemplate {
 
     private static final ZoneId COLOMBIA = ZoneId.of("America/Bogota");
@@ -22,7 +22,7 @@ final class AlertEmailTemplate {
                                   String seguimientoUrl, String mapsUrl, String numeroEmergencia) {
         String quien = nombreUsuaria == null || nombreUsuaria.isBlank() ? "Una persona" : nombreUsuaria;
         String hora = inicio == null ? "hace un momento"
-                : "a las " + inicio.atZone(ZoneId.systemDefault()).withZoneSameInstant(COLOMBIA).format(HORA).replace("AM", "a. m.").replace("PM", "p. m.");
+                : "a las " + hora(inicio);
         String saludo = nombreContacto == null || nombreContacto.isBlank() ? "Hola" : "Hola, " + nombreContacto;
         String asunto = "🚨 " + quien + " activó una alerta de emergencia";
 
@@ -58,5 +58,44 @@ final class AlertEmailTemplate {
                 + "\nSi crees que está en peligro inmediato, llama al " + numeroEmergencia + ".\n"
                 + "El enlace deja de funcionar 2 horas después de que termine la alerta.";
         return new EmailMessage(para, asunto, html, texto);
+    }
+
+    /**
+     * Aviso de que la alerta terminó, para que el contacto no siga pendiente.
+     * @param estado resolved, cancelled o expired
+     */
+    static EmailMessage construirFin(String para, String nombreContacto, String nombreUsuaria, String estado,
+                                     LocalDateTime fin, String numeroEmergencia) {
+        String quien = nombreUsuaria == null || nombreUsuaria.isBlank() ? "una persona" : nombreUsuaria;
+        String hora = fin == null ? "hace un momento" : "a las " + hora(fin);
+        String saludo = nombreContacto == null || nombreContacto.isBlank() ? "Hola" : "Hola, " + nombreContacto;
+        String que = switch (estado == null ? "" : estado) {
+            case "resolved" -> "fue marcada como atendida";
+            case "cancelled" -> "fue cancelada";
+            default -> "terminó automáticamente al superar la duración máxima";
+        };
+        String asunto = "✅ La alerta de " + quien + " terminó";
+        String frase = "La alerta de emergencia de " + quien + " " + que + " " + hora + ".";
+
+        String html = """
+                <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#1f2937">
+                  <div style="background:#15803d;color:#fff;padding:18px 20px;border-radius:12px 12px 0 0">
+                    <h1 style="margin:0;font-size:20px">✅ Alerta terminada</h1>
+                  </div>
+                  <div style="border:1px solid #e5e7eb;border-top:0;padding:20px;border-radius:0 0 12px 12px">
+                    <p>%s:</p>
+                    <p>%s</p>
+                    <p style="background:#fef2f2;border-radius:8px;padding:12px">Si aún no sabes de ella o crees que
+                       sigue en peligro, comunícate con ella o llama al <strong>%s</strong>.</p>
+                  </div>
+                </div>
+                """.formatted(HtmlUtils.htmlEscape(saludo), HtmlUtils.htmlEscape(frase), HtmlUtils.htmlEscape(numeroEmergencia));
+        String texto = saludo + ":\n\n" + frase + "\n\nSi aún no sabes de ella o crees que sigue en peligro, "
+                + "comunícate con ella o llama al " + numeroEmergencia + ".";
+        return new EmailMessage(para, asunto, html, texto);
+    }
+
+    private static String hora(LocalDateTime t) {
+        return t.atZone(ZoneId.systemDefault()).withZoneSameInstant(COLOMBIA).format(HORA).replace("AM", "a. m.").replace("PM", "p. m.");
     }
 }
