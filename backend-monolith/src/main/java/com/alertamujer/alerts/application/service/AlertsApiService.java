@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -87,7 +88,7 @@ public class AlertsApiService implements AlertsApi {
     public List<AlertRecipient> recipientsOf(Long alertId) {
         var envios = alertContactRepository.findByAlertId(alertId);
         Map<Long, String> nombres = emergencyContactRepository.findAllById(
-                        envios.stream().map(e -> e.getEmergencyContactId()).collect(Collectors.toSet())).stream()
+                        envios.stream().map(e -> e.getEmergencyContactId()).filter(Objects::nonNull).collect(Collectors.toSet())).stream()
                 .collect(Collectors.toMap(EmergencyContact::getId, c -> c.getContactName() == null ? "" : c.getContactName(), (a, b) -> a));
         return envios.stream()
                 .map(e -> new AlertRecipient(e.getId(), e.getEmergencyContactId(), nombres.get(e.getEmergencyContactId()),

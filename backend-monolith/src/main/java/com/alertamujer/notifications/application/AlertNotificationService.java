@@ -115,7 +115,7 @@ public class AlertNotificationService {
                 if (AlertsChannels.EMAIL.equals(envio.channel())) {
                     emailSender.send(AlertEmailTemplate.construirFin(envio.destination(), envio.contactName(), nombre,
                             evento.status(), evento.endedAt(), settingsApi.numeroEmergencia()));
-                } else if (AlertsChannels.PUSH.equals(envio.channel())) {
+                } else if (AlertsChannels.PUSH.equals(envio.channel()) && envio.emergencyContactId() != null) {
                     List<String> tokens = identityApi.findUserByEmail(correoPorContacto.get(envio.emergencyContactId()))
                             .map(u -> devicesApi.pushTokensOfUser(u.id()))
                             .orElse(List.of());

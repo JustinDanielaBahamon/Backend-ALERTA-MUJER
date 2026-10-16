@@ -421,7 +421,7 @@ CREATE TABLE alert.alert (
 CREATE TABLE alert.alert_contact (
     id bigint NOT NULL,
     alert_id bigint NOT NULL,
-    emergency_contact_id bigint NOT NULL,
+    emergency_contact_id bigint,
     channel character varying(20) NOT NULL,
     destination character varying(150) NOT NULL,
     status character varying(20) DEFAULT 'pending'::character varying NOT NULL,
@@ -2144,7 +2144,7 @@ ALTER TABLE ONLY alert.alert_contact
 --
 
 ALTER TABLE ONLY alert.alert_contact
-    ADD CONSTRAINT fk_alert_contact_emergency_contact FOREIGN KEY (emergency_contact_id) REFERENCES alert.emergency_contact(id);
+    ADD CONSTRAINT fk_alert_contact_emergency_contact FOREIGN KEY (emergency_contact_id) REFERENCES alert.emergency_contact(id) ON DELETE SET NULL;
 
 
 --

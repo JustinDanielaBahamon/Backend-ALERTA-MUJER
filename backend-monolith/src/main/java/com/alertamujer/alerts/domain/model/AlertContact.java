@@ -23,7 +23,8 @@ public class AlertContact {
     @Column(name = "alert_id", nullable = false)
     private Long alertId;
 
-    @Column(name = "emergency_contact_id", nullable = false)
+    /** Null si la usuaria borró el contacto después de la alerta (el envío queda en el historial). */
+    @Column(name = "emergency_contact_id")
     private Long emergencyContactId;
 
     @Column(nullable = false)

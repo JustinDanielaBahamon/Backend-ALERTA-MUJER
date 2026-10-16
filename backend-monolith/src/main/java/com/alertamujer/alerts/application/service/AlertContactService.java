@@ -92,7 +92,7 @@ public class AlertContactService {
         canales.forEach((contactoId, lista) -> {
             EmergencyContact c = contactos.get(contactoId);
             resultado.add(new ContactoNotificado(contactoId,
-                    c != null ? c.getContactName() : "Contacto",
+                    c != null ? c.getContactName() : contactoId == null ? "Contacto eliminado" : "Contacto",
                     c != null ? c.getRelationship() : null,
                     lista));
         });
