@@ -3,7 +3,7 @@
 Generado el 2026-10-15 desde la base PostgreSQL con todas las migraciones Liquibase aplicadas (v1.0.0 a v1.6.0): 29 tablas, 35 relaciones.
 
 - Script de creación: [alerta_mujer_schema.sql](alerta_mujer_schema.sql)
-- Imágenes: `modelo_er_completo.svg` y una por esquema (`modelo_er_<esquema>.svg`).
+- Imágenes (SVG y PNG, se abren en cualquier visor y se pueden insertar en Word): `modelo_er_completo` y una por esquema (`modelo_er_<esquema>`).
 - En cada diagrama de esquema, las tablas de otros esquemas aparecen solo con su llave para mostrar la relación.
 
 Notación: `||--o{` uno a muchos, `||--o|` uno a uno, `|o--o{` relación opcional (la llave foránea admite nulos).
