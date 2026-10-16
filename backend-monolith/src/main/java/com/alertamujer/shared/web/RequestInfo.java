@@ -9,12 +9,15 @@ public final class RequestInfo {
 
     private RequestInfo() {}
 
-    /** IP del cliente; detrás del proxy de Render llega en X-Forwarded-For. Solo IPv4/IPv6 de hasta 45 caracteres. */
+    /**
+     * IP del cliente. Detrás del proxy de Render, Tomcat ya la resolvió desde X-Forwarded-For
+     * (server.forward-headers-strategy=native) tomando la que agregó el proxy, no la que el cliente
+     * pudiera inventar en la cabecera. Solo IPv4/IPv6 de hasta 45 caracteres.
+     */
     public static String ip() {
         HttpServletRequest request = actual();
         if (request == null) return null;
-        String reenviada = request.getHeader("X-Forwarded-For");
-        String ip = reenviada != null && !reenviada.isBlank() ? reenviada.split(",")[0].trim() : request.getRemoteAddr();
+        String ip = request.getRemoteAddr();
         return ip != null && ip.matches("[0-9a-fA-F.:]{2,45}") ? ip : null;
     }
 
