@@ -20,7 +20,7 @@ class ModularityTest {
     static final ApplicationModules MODULOS = ApplicationModules.of(AlertaMujerBackendApplication.class);
 
     /** Bajar este número en cada commit que separa un módulo. */
-    static final int MAXIMO_VIOLACIONES = 179;
+    static final int MAXIMO_VIOLACIONES = 120;
 
     @Test
     void noAumentanLasDependenciasEntreModulos() {

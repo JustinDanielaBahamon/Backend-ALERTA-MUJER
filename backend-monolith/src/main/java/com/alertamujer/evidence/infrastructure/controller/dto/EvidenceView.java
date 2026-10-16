@@ -1,6 +1,6 @@
 package com.alertamujer.evidence.infrastructure.controller.dto;
 
-import com.alertamujer.alerts.domain.model.Alert;
+import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.evidence.domain.model.Evidence;
 
 import java.math.BigDecimal;
@@ -17,18 +17,19 @@ public record EvidenceView(
         String sha256,
         boolean hasFile,
         LocalDateTime createdAt,
-        AlertSummary alert
+        AlertInfo alert
 ) {
-    public record AlertSummary(Long id, String alertType, String activationMethod, String status,
-                               LocalDateTime startedAt, BigDecimal latitude, BigDecimal longitude) {
-        static AlertSummary of(Alert a) {
-            return a == null ? null : new AlertSummary(a.getId(), a.getAlertType(), a.getActivationMethod(),
-                    a.getStatus(), a.getStartedAt(), a.getLatitude(), a.getLongitude());
+    /** Resumen de la alerta que se envía al cliente (mismos campos que antes). */
+    public record AlertInfo(Long id, String alertType, String activationMethod, String status,
+                            LocalDateTime startedAt, BigDecimal latitude, BigDecimal longitude) {
+        static AlertInfo of(AlertSummary a) {
+            return a == null ? null : new AlertInfo(a.id(), a.alertType(), a.activationMethod(),
+                    a.status(), a.startedAt(), a.latitude(), a.longitude());
         }
     }
 
-    public static EvidenceView of(Evidence e, Alert alert) {
+    public static EvidenceView of(Evidence e, AlertSummary alert) {
         return new EvidenceView(e.getId(), e.getAlertId(), e.getMediaType(), e.getFileName(), e.getContentType(),
-                e.getSizeBytes(), e.getSha256(), e.getStorageKey() != null, e.getCreatedAt(), AlertSummary.of(alert));
+                e.getSizeBytes(), e.getSha256(), e.getStorageKey() != null, e.getCreatedAt(), AlertInfo.of(alert));
     }
 }

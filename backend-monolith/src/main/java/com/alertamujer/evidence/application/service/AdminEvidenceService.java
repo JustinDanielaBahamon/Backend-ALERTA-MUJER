@@ -1,7 +1,7 @@
 package com.alertamujer.evidence.application.service;
 
-import com.alertamujer.alerts.domain.model.Alert;
-import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.alerts.api.AlertSummary;
+import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -16,8 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Evidencias para el panel de administración: el archivo, la usuaria dueña y la alerta a la que
@@ -29,27 +27,26 @@ public class AdminEvidenceService {
     private static final Set<String> REVISIONES = Set.of("pending", "verified", "rejected");
 
     private final EvidenceRepository evidenceRepository;
-    private final AlertRepository alertRepository;
+    private final AlertsApi alertsApi;
     private final IdentityApi identityApi;
 
-    public AdminEvidenceService(EvidenceRepository evidenceRepository, AlertRepository alertRepository,
+    public AdminEvidenceService(EvidenceRepository evidenceRepository, AlertsApi alertsApi,
                                 IdentityApi identityApi) {
         this.evidenceRepository = evidenceRepository;
-        this.alertRepository = alertRepository;
+        this.alertsApi = alertsApi;
         this.identityApi = identityApi;
     }
 
     @Transactional(readOnly = true)
     public List<AdminEvidenceView> listar() {
-        Map<Long, Alert> alertas = alertRepository.findAll().stream()
-                .collect(Collectors.toMap(Alert::getId, Function.identity()));
+        Map<Long, AlertSummary> alertas = alertsApi.alertsById();
         Map<Long, UserSummary> usuariaPorPerfil = identityApi.usersByProfileId();
 
         return evidenceRepository.findAll().stream()
                 .sorted(Comparator.comparing(Evidence::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(e -> {
-                    Alert a = alertas.get(e.getAlertId());
-                    UserSummary u = a == null ? null : usuariaPorPerfil.get(a.getUserProfileId());
+                    AlertSummary a = alertas.get(e.getAlertId());
+                    UserSummary u = a == null ? null : usuariaPorPerfil.get(a.userProfileId());
                     return vista(e, a, u);
                 })
                 .toList();
@@ -72,20 +69,20 @@ public class AdminEvidenceService {
         Evidence e = evidenceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Evidence", id));
         e.setReviewStatus(revision);
         evidenceRepository.save(e);
-        Alert a = alertRepository.findById(e.getAlertId()).orElse(null);
-        UserSummary u = a == null ? null : identityApi.findUserByProfileId(a.getUserProfileId()).orElse(null);
+        AlertSummary a = alertsApi.findAlert(e.getAlertId()).orElse(null);
+        UserSummary u = a == null ? null : identityApi.findUserByProfileId(a.userProfileId()).orElse(null);
         return vista(e, a, u);
     }
 
-    private AdminEvidenceView vista(Evidence e, Alert a, UserSummary u) {
+    private AdminEvidenceView vista(Evidence e, AlertSummary a, UserSummary u) {
         String nombre = u == null ? null : u.fullName();
         return new AdminEvidenceView(e.getId(), e.getAlertId(), e.getMediaType(), e.getFileName(),
                 e.getContentType(), e.getSizeBytes(), e.getSha256(), e.getStorageKey() != null,
                 e.getReviewStatus(), e.getCreatedAt(),
                 u != null ? u.id() : null, nombre, u != null ? u.email() : null,
-                a != null ? a.getStatus() : null, a != null ? a.getActivationMethod() : null,
-                a != null ? a.getMessage() : null, a != null ? a.getStartedAt() : null,
-                a != null ? a.getLatitude() : null, a != null ? a.getLongitude() : null);
+                a != null ? a.status() : null, a != null ? a.activationMethod() : null,
+                a != null ? a.message() : null, a != null ? a.startedAt() : null,
+                a != null ? a.latitude() : null, a != null ? a.longitude() : null);
     }
 
     /** hasFile indica si hay archivo descargable en /api/evidences/{id}/file. */

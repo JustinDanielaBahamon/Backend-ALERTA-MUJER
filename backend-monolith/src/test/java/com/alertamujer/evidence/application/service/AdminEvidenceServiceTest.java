@@ -1,7 +1,7 @@
 package com.alertamujer.evidence.application.service;
 
-import com.alertamujer.alerts.domain.model.Alert;
-import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.alerts.api.AlertSummary;
+import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -28,7 +28,7 @@ class AdminEvidenceServiceTest {
     private EvidenceRepository evidenceRepository;
 
     @Mock
-    private AlertRepository alertRepository;
+    private AlertsApi alertsApi;
 
     @Mock
     private IdentityApi identityApi;
@@ -50,13 +50,10 @@ class AdminEvidenceServiceTest {
 
     @Test
     void listar_agregaUsuariaYAlerta() {
-        Alert alerta = new Alert();
-        alerta.setId(5L);
-        alerta.setUserProfileId(10L);
-        alerta.setStatus("active");
+        AlertSummary alerta = new AlertSummary(5L, 10L, "main", "panic_button", "active", null, null, null, null);
         UserSummary u = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
         when(evidenceRepository.findAll()).thenReturn(List.of(evidencia(1L, "pending", 100)));
-        when(alertRepository.findAll()).thenReturn(List.of(alerta));
+        when(alertsApi.alertsById()).thenReturn(java.util.Map.of(5L, alerta));
         when(identityApi.usersByProfileId()).thenReturn(java.util.Map.of(10L, u));
 
         AdminEvidenceService.AdminEvidenceView vista = service.listar().get(0);
@@ -85,7 +82,7 @@ class AdminEvidenceServiceTest {
         Evidence e = evidencia(1L, "pending", 100);
         when(evidenceRepository.findById(1L)).thenReturn(Optional.of(e));
         when(evidenceRepository.save(any(Evidence.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(alertRepository.findById(5L)).thenReturn(Optional.empty());
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.empty());
 
         assertEquals("verified", service.cambiarRevision(1L, "verified").reviewStatus());
     }

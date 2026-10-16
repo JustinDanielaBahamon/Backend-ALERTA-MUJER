@@ -1,7 +1,7 @@
 package com.alertamujer.evidence.application.service;
 
-import com.alertamujer.alerts.domain.model.Alert;
-import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.alerts.api.AlertSummary;
+import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.controller.dto.EvidenceView;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,16 +27,16 @@ public class EvidenceService {
     private static final Set<String> DOCUMENT_TYPES = Set.of("application/pdf");
 
     private final EvidenceRepository evidenceRepository;
-    private final AlertRepository alertRepository;
+    private final AlertsApi alertsApi;
     private final IdentityApi identityApi;
     private final EvidenceStorage storage;
     private final long maxSizeBytes;
 
-    public EvidenceService(EvidenceRepository evidenceRepository, AlertRepository alertRepository,
+    public EvidenceService(EvidenceRepository evidenceRepository, AlertsApi alertsApi,
                            IdentityApi identityApi, EvidenceStorage storage,
                            @Value("${evidence.max-size-bytes}") long maxSizeBytes) {
         this.evidenceRepository = evidenceRepository;
-        this.alertRepository = alertRepository;
+        this.alertsApi = alertsApi;
         this.identityApi = identityApi;
         this.storage = storage;
         this.maxSizeBytes = maxSizeBytes;
@@ -48,10 +47,10 @@ public class EvidenceService {
         return identityApi.requireProfileId(userId);
     }
 
-    private Alert ownedAlert(Long alertId, Long currentUserId) {
-        Alert alert = alertRepository.findById(alertId)
+    private AlertSummary ownedAlert(Long alertId, Long currentUserId) {
+        AlertSummary alert = alertsApi.findAlert(alertId)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        if (!alert.getUserProfileId().equals(profileIdOf(currentUserId))) {
+        if (!alert.userProfileId().equals(profileIdOf(currentUserId))) {
             throw new AccessDeniedException("No puedes acceder a evidencias de alertas de otro usuario");
         }
         return alert;
@@ -72,9 +71,8 @@ public class EvidenceService {
     public List<EvidenceView> getMine(Long currentUserId) {
         Long profileId = profileIdOf(currentUserId);
         List<Evidence> evidencias = evidenceRepository.findByOwnerProfileId(profileId);
-        Map<Long, Alert> alertas = alertRepository.findAllById(
-                        evidencias.stream().map(Evidence::getAlertId).collect(Collectors.toSet()))
-                .stream().collect(Collectors.toMap(Alert::getId, Function.identity()));
+        Map<Long, AlertSummary> alertas = alertsApi.findAlerts(
+                evidencias.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));
         return evidencias.stream().map(e -> EvidenceView.of(e, alertas.get(e.getAlertId()))).toList();
     }
 
@@ -87,12 +85,12 @@ public class EvidenceService {
         }
         String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
         String mediaType = mediaTypeOf(contentType);
-        Alert alert = ownedAlert(alertId, currentUserId);
+        AlertSummary alert = ownedAlert(alertId, currentUserId);
 
         EvidenceStorage.StoredFile stored = storage.store(file);
         try {
             Evidence evidence = new Evidence();
-            evidence.setAlertId(alert.getId());
+            evidence.setAlertId(alert.id());
             evidence.setMediaType(mediaType);
             evidence.setContentType(contentType);
             evidence.setFileName(nombreSeguro(file.getOriginalFilename(), mediaType));
