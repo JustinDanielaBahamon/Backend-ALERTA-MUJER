@@ -2,135 +2,50 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.infrastructure.controller.dto.AdminUserDto;
 import com.alertamujer.admin.infrastructure.controller.dto.UpdateUserRequest;
-import com.alertamujer.admin.infrastructure.repository.UserReportRepository;
-import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.alerts.api.AlertsApi;
+import com.alertamujer.identity.api.IdentityAdminApi;
+import com.alertamujer.identity.api.UserAccountChanges;
+import com.alertamujer.identity.api.UserAccountView;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Map;
 
+/**
+ * Gestión de usuarias del panel. Compone dos módulos por sus APIs públicas: las cuentas
+ * (identity, que valida y guarda los cambios) y el número de alertas de cada una (alerts).
+ */
 @Service
 public class AdminService {
 
-    private final UserRepository userRepository;
-    private final AccountRepository accountRepository;
-    private final UserProfileRepository userProfileRepository;
-    private final AlertRepository alertRepository;
-    private final UserReportRepository userReportRepository;
+    private final IdentityAdminApi identityAdminApi;
+    private final AlertsApi alertsApi;
 
-    public AdminService(UserRepository userRepository, AccountRepository accountRepository,
-                        UserProfileRepository userProfileRepository, AlertRepository alertRepository,
-                        UserReportRepository userReportRepository) {
-        this.userRepository = userRepository;
-        this.accountRepository = accountRepository;
-        this.userProfileRepository = userProfileRepository;
-        this.alertRepository = alertRepository;
-        this.userReportRepository = userReportRepository;
+    public AdminService(IdentityAdminApi identityAdminApi, AlertsApi alertsApi) {
+        this.identityAdminApi = identityAdminApi;
+        this.alertsApi = alertsApi;
     }
 
-    // Users
     public List<AdminUserDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(this::mapToAdminUserDto)
-                .collect(Collectors.toList());
-    }
-
-    private AdminUserDto mapToAdminUserDto(User user) {
-        var account = accountRepository.findByUserId(user.getId()).orElse(null);
-        var userProfile = userProfileRepository.findByUserId(user.getId()).orElse(null);
-        
-        Long userProfileId = userProfile != null ? userProfile.getId() : null;
-        Long alertCount = userProfileId != null ? 
-                alertRepository.findByUserProfileId(userProfileId).size() : 0L;
-        
-        String roleName = null;
-        if (user.getRole() != null) {
-            // Force load the role name to avoid lazy initialization exception
-            roleName = user.getRole().getName();
-        }
-        
-        return new AdminUserDto(
-                user.getId(),
-                userProfileId,
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getTelephone(),
-                roleName,
-                account != null ? account.getStatus() : null,
-                user.getCreatedAt(),
-                account != null ? account.getLastAccess() : null,
-                alertCount
-        );
+        Map<Long, Long> alertasPorPerfil = alertsApi.alertCountByProfile();
+        return identityAdminApi.listUserAccounts().stream()
+                .map(v -> dto(v, alertasPorPerfil))
+                .toList();
     }
 
     /**
-     * Update user information.
-     * Validates account status values and prevents admins from blocking themselves.
-     *
-     * @param userId The ID of the user to update
-     * @param request The update request with optional fields
-     * @param currentUserId The ID of the admin performing the update
-     * @return Updated user DTO
+     * Actualiza la cuenta; identity valida el estado, impide bloquearse a sí misma y el correo repetido.
      */
     public AdminUserDto updateUser(Long userId, UpdateUserRequest request, Long currentUserId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-        
-        Account account = accountRepository.findByUserId(userId).orElse(null);
-        
-        // Validate and update account status
-        if (request.accountStatus() != null) {
-            validateAccountStatus(request.accountStatus());
-            
-            // Prevent admin from blocking themselves
-            if (userId.equals(currentUserId) && "blocked".equals(request.accountStatus())) {
-                throw new IllegalArgumentException("Cannot block your own account");
-            }
-            
-            if (account != null) {
-                account.setStatus(request.accountStatus());
-                accountRepository.save(account);
-            }
-        }
-        
-        // Update user fields
-        if (request.firstName() != null) {
-            user.setFirstName(request.firstName());
-        }
-        if (request.lastName() != null) {
-            user.setLastName(request.lastName());
-        }
-        if (request.telephone() != null) {
-            user.setTelephone(request.telephone());
-        }
-        if (request.email() != null) {
-            // Check if email is already taken by another user
-            Optional<User> existingUser = userRepository.findByEmail(request.email());
-            if (existingUser.isPresent() && !existingUser.get().getId().equals(userId)) {
-                throw new IllegalArgumentException("Email already in use");
-            }
-            user.setEmail(request.email());
-        }
-        
-        userRepository.save(user);
-        
-        return mapToAdminUserDto(user);
+        UserAccountView v = identityAdminApi.updateUserAccount(userId, new UserAccountChanges(
+                request.accountStatus(), request.firstName(), request.lastName(), request.telephone(),
+                request.email()), currentUserId);
+        return dto(v, alertsApi.alertCountByProfile());
     }
-    
-    private void validateAccountStatus(String status) {
-        Set<String> validStatuses = Set.of("active", "inactive", "blocked", "pending");
-        if (!validStatuses.contains(status)) {
-            throw new IllegalArgumentException(
-                    "Invalid account status. Must be one of: active, inactive, blocked, pending");
-        }
+
+    private static AdminUserDto dto(UserAccountView v, Map<Long, Long> alertasPorPerfil) {
+        long alertas = v.profileId() == null ? 0L : alertasPorPerfil.getOrDefault(v.profileId(), 0L);
+        return new AdminUserDto(v.userId(), v.profileId(), v.firstName(), v.lastName(), v.email(), v.telephone(),
+                v.roleName(), v.accountStatus(), v.createdAt(), v.lastAccess(), alertas);
     }
 }
