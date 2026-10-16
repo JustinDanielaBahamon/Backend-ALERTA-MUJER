@@ -39,7 +39,7 @@ class EmergencyContactServiceTest {
     @BeforeEach
     void setUp() {
         when(identityApi.findProfileId(1L)).thenReturn(Optional.of(10L));
-        when(settingsService.maximoContactos()).thenReturn(2);
+        org.mockito.Mockito.lenient().when(settingsService.maximoContactos()).thenReturn(2);
     }
 
     @Test
@@ -59,5 +59,25 @@ class EmergencyContactServiceTest {
 
         assertThrows(IllegalArgumentException.class, () -> service.createContact(new EmergencyContact(), 1L));
         verify(emergencyContactRepository, never()).save(any());
+    }
+
+    @Test
+    void updateContact_soloCambiaLosCamposEnviados() {
+        EmergencyContact existente = new EmergencyContact();
+        existente.setId(3L);
+        existente.setUserProfileId(10L);
+        existente.setContactName("Mamá");
+        existente.setTelephone("3001112233");
+        existente.setEmail("mama@correo.com");
+        when(emergencyContactRepository.findById(3L)).thenReturn(java.util.Optional.of(existente));
+        when(emergencyContactRepository.save(any(EmergencyContact.class))).thenAnswer(inv -> inv.getArgument(0));
+        EmergencyContact cambios = new EmergencyContact();
+        cambios.setContactName("Mamá Rosa");
+
+        EmergencyContact actualizado = service.updateContact(3L, cambios, 1L);
+
+        assertEquals("Mamá Rosa", actualizado.getContactName());
+        assertEquals("3001112233", actualizado.getTelephone());
+        assertEquals("mama@correo.com", actualizado.getEmail());
     }
 }

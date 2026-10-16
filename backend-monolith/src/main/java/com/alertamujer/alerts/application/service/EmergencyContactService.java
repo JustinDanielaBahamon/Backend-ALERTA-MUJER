@@ -85,10 +85,11 @@ public class EmergencyContactService {
             throw new AccessDeniedException("No puedes modificar contactos de otro usuario");
         }
 
-        contact.setContactName(contactDetails.getContactName());
-        contact.setTelephone(contactDetails.getTelephone());
-        contact.setEmail(contactDetails.getEmail());
-        contact.setRelationship(contactDetails.getRelationship());
+        // Solo se cambian los campos enviados: un PUT con datos parciales no debe borrar el resto
+        if (contactDetails.getContactName() != null) contact.setContactName(contactDetails.getContactName());
+        if (contactDetails.getTelephone() != null) contact.setTelephone(contactDetails.getTelephone());
+        if (contactDetails.getEmail() != null) contact.setEmail(contactDetails.getEmail().isBlank() ? null : contactDetails.getEmail().trim());
+        if (contactDetails.getRelationship() != null) contact.setRelationship(contactDetails.getRelationship());
 
         return emergencyContactRepository.save(contact);
     }
