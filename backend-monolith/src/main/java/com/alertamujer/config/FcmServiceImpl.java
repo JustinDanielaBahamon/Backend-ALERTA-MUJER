@@ -6,7 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
 
 @Service
 public class FcmServiceImpl implements FcmService {
@@ -18,6 +24,26 @@ public class FcmServiceImpl implements FcmService {
     public FcmServiceImpl(FirebaseConfig firebaseConfig, DevicesApi devicesApi) {
         this.firebaseConfig = firebaseConfig;
         this.devicesApi = devicesApi;
+    }
+
+    @Override
+    public List<String> sendEmergencyAlert(List<String> deviceTokens, Map<String, String> data) {
+        List<String> fallidos = new ArrayList<>();
+        for (String token : deviceTokens) {
+            try {
+                FirebaseMessaging.getInstance().send(Message.builder()
+                        .setToken(token)
+                        .putAllData(data)
+                        .setAndroidConfig(AndroidConfig.builder()
+                                .setPriority(AndroidConfig.Priority.HIGH)
+                                .setTtl(Duration.ofMinutes(5).toMillis())
+                                .build())
+                        .build());
+            } catch (Exception e) {
+                fallidos.add(token);
+            }
+        }
+        return fallidos;
     }
 
     @Override

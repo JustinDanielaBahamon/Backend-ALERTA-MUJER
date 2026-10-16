@@ -32,7 +32,20 @@ public class DevicesApiService implements DevicesApi {
         Optional<Long> cuenta = identityApi.findUserByProfileId(userProfileId)
                 .map(UserSummary::id)
                 .map(identityApi::requireAccountId);
-        return cuenta.map(deviceRepository::findByAccountId).orElse(List.of()).stream()
+        return cuenta.map(this::tokensDeCuenta).orElse(List.of());
+    }
+
+    @Override
+    public List<String> pushTokensOfUser(Long userId) {
+        try {
+            return tokensDeCuenta(identityApi.requireAccountId(userId));
+        } catch (com.alertamujer.shared.exception.ResourceNotFoundException e) {
+            return List.of();
+        }
+    }
+
+    private List<String> tokensDeCuenta(Long accountId) {
+        return deviceRepository.findByAccountId(accountId).stream()
                 .map(Device::getFcmToken)
                 .filter(token -> token != null && !token.isBlank())
                 .toList();

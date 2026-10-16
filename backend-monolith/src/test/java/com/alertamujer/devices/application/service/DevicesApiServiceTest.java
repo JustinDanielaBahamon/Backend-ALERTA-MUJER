@@ -50,4 +50,19 @@ class DevicesApiServiceTest {
 
         assertEquals(List.of(), api.pushTokensOfProfile(99L));
     }
+
+    @Test
+    void pushTokensOfUser_sinCuentaDevuelveVacio() {
+        when(identityApi.requireAccountId(5L)).thenThrow(new com.alertamujer.shared.exception.ResourceNotFoundException("Account for user", 5L));
+
+        assertEquals(List.of(), api.pushTokensOfUser(5L));
+    }
+
+    @Test
+    void pushTokensOfUser_usaLaCuentaDeLaPersona() {
+        when(identityApi.requireAccountId(7L)).thenReturn(39L);
+        when(deviceRepository.findByAccountId(39L)).thenReturn(List.of(dispositivo("tok-2")));
+
+        assertEquals(List.of("tok-2"), api.pushTokensOfUser(7L));
+    }
 }

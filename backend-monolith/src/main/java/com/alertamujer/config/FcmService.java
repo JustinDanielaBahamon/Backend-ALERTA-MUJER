@@ -1,8 +1,16 @@
 package com.alertamujer.config;
 
 import java.util.List;
+import java.util.Map;
 
 public interface FcmService {
+
+    /**
+     * Aviso de emergencia: mensaje solo de datos con prioridad alta de Android y vigencia de 5 minutos,
+     * para que la app lo reciba aunque esté cerrada y muestre la alarma a pantalla completa.
+     * Devuelve los tokens que fallaron (vacío si todos se entregaron a FCM).
+     */
+    List<String> sendEmergencyAlert(List<String> deviceTokens, Map<String, String> data);
 
     /**
      * Enviar notificación simple a un solo dispositivo
