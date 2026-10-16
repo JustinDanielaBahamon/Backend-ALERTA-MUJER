@@ -1,7 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.alerts.application.service.AlertExpirationJob;
-import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
+import com.alertamujer.alerts.api.AlertsApi;
 import com.google.firebase.FirebaseApp;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -17,14 +16,11 @@ import java.time.ZoneId;
 public class SystemStatusService {
 
     private final JdbcTemplate jdbcTemplate;
-    private final AlertRepository alertRepository;
-    private final AlertExpirationJob alertExpirationJob;
+    private final AlertsApi alertsApi;
 
-    public SystemStatusService(JdbcTemplate jdbcTemplate, AlertRepository alertRepository,
-                               AlertExpirationJob alertExpirationJob) {
+    public SystemStatusService(JdbcTemplate jdbcTemplate, AlertsApi alertsApi) {
         this.jdbcTemplate = jdbcTemplate;
-        this.alertRepository = alertRepository;
-        this.alertExpirationJob = alertExpirationJob;
+        this.alertsApi = alertsApi;
     }
 
     public SystemStatus estado() {
@@ -38,7 +34,8 @@ public class SystemStatusService {
         }
         long latenciaMs = Duration.ofNanos(System.nanoTime() - inicio).toMillis();
 
-        long activas = baseDatos ? alertRepository.findByStatus("active").size() : -1;
+        long activas = baseDatos ? alertsApi.countActiveAlerts() : -1;
+        AlertsApi.ExpirationStatus expiracion = alertsApi.expirationStatus();
         long arranqueMs = ManagementFactory.getRuntimeMXBean().getStartTime();
 
         return new SystemStatus(
@@ -46,8 +43,8 @@ public class SystemStatusService {
                 latenciaMs,
                 !FirebaseApp.getApps().isEmpty(),
                 activas,
-                alertExpirationJob.getUltimaRevision(),
-                alertExpirationJob.getExpiradasUltimaRevision(),
+                expiracion.lastCheck(),
+                expiracion.lastExpiredCount(),
                 LocalDateTime.ofInstant(Instant.ofEpochMilli(arranqueMs), ZoneId.systemDefault()),
                 Runtime.version().feature());
     }

@@ -2,8 +2,8 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.admin.infrastructure.repository.UserReportRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,8 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Reportes de usuarias para la moderación. La vista agrega nombre y correo de la usuaria
@@ -28,17 +26,16 @@ public class UserReportService {
     private static final Set<String> GRAVEDADES = Set.of("low", "medium", "high", "critical");
 
     private final UserReportRepository userReportRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
 
-    public UserReportService(UserReportRepository userReportRepository, UserRepository userRepository) {
+    public UserReportService(UserReportRepository userReportRepository, IdentityApi identityApi) {
         this.userReportRepository = userReportRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
     }
 
     @Transactional(readOnly = true)
     public List<UserReportView> listar(String estado) {
-        Map<Long, User> usuarios = userRepository.findAll().stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        Map<Long, UserSummary> usuarios = identityApi.usersById();
         List<UserReport> reportes = estado == null ? userReportRepository.findAll() : userReportRepository.findByStatus(estado);
         return reportes.stream()
                 .sorted(Comparator.comparing(UserReport::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
@@ -57,13 +54,13 @@ public class UserReportService {
         if (req.reportedUserEmail() == null || req.reportedUserEmail().isBlank()) {
             throw new IllegalArgumentException("Indica el correo de la usuaria reportada");
         }
-        User reportada = userRepository.findByEmail(req.reportedUserEmail().trim())
+        UserSummary reportada = identityApi.findUserByEmail(req.reportedUserEmail().trim())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una usuaria con ese correo"));
         if (req.reason() == null || req.reason().isBlank() || req.description() == null || req.description().isBlank()) {
             throw new IllegalArgumentException("El motivo y la descripción son obligatorios");
         }
         UserReport r = new UserReport();
-        r.setReportedUserId(reportada.getId());
+        r.setReportedUserId(reportada.id());
         r.setReporterUserId(adminUserId);
         r.setReason(req.reason().trim());
         r.setDescription(req.description().trim());
@@ -107,19 +104,17 @@ public class UserReportService {
     }
 
     private UserReportView vista(UserReport r) {
-        return vista(r, userRepository.findById(r.getReportedUserId()).orElse(null),
-                r.getReporterUserId() == null ? null : userRepository.findById(r.getReporterUserId()).orElse(null));
+        return vista(r, identityApi.findUser(r.getReportedUserId()).orElse(null),
+                identityApi.findUser(r.getReporterUserId()).orElse(null));
     }
 
-    private static String nombre(User u) {
-        if (u == null) return null;
-        return ((u.getFirstName() == null ? "" : u.getFirstName()) + " "
-                + (u.getLastName() == null ? "" : u.getLastName())).trim();
+    private static String nombre(UserSummary u) {
+        return u == null ? null : u.fullName();
     }
 
-    private UserReportView vista(UserReport r, User reportada, User reporta) {
+    private UserReportView vista(UserReport r, UserSummary reportada, UserSummary reporta) {
         return new UserReportView(r.getId(), r.getReportedUserId(), nombre(reportada),
-                reportada != null ? reportada.getEmail() : null, r.getReporterUserId(), nombre(reporta),
+                reportada != null ? reportada.email() : null, r.getReporterUserId(), nombre(reporta),
                 r.getReason(), r.getDescription(), r.getSeverity(), r.getStatus(), r.getResolutionNotes(),
                 r.getReviewedByAdminId(), r.getReviewedAt(), r.getCreatedAt(), r.getUpdatedAt());
     }

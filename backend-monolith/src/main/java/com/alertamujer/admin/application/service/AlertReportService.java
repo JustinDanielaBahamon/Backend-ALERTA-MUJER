@@ -2,12 +2,12 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AlertReport;
 import com.alertamujer.admin.infrastructure.repository.AlertReportRepository;
-import com.alertamujer.alerts.application.service.AdminAlertService;
 import com.alertamujer.alerts.api.AdminAlertView;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.alerts.api.AlertsApi;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
+import com.alertamujer.zones.api.ZonesApi;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
-import com.alertamujer.zones.infrastructure.repository.ZoneRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -32,23 +31,22 @@ public class AlertReportService {
     private static final Set<String> ESTADOS_ALERTA = Set.of("active", "resolved", "cancelled", "expired");
 
     private final AlertReportRepository alertReportRepository;
-    private final AdminAlertService adminAlertService;
-    private final UserRepository userRepository;
-    private final ZoneRepository zoneRepository;
+    private final AlertsApi alertsApi;
+    private final IdentityApi identityApi;
+    private final ZonesApi zonesApi;
 
-    public AlertReportService(AlertReportRepository alertReportRepository, AdminAlertService adminAlertService,
-                              UserRepository userRepository, ZoneRepository zoneRepository) {
+    public AlertReportService(AlertReportRepository alertReportRepository, AlertsApi alertsApi,
+                              IdentityApi identityApi, ZonesApi zonesApi) {
         this.alertReportRepository = alertReportRepository;
-        this.adminAlertService = adminAlertService;
-        this.userRepository = userRepository;
-        this.zoneRepository = zoneRepository;
+        this.alertsApi = alertsApi;
+        this.identityApi = identityApi;
+        this.zonesApi = zonesApi;
     }
 
     @Transactional(readOnly = true)
     public List<AlertReportView> listar() {
-        List<AdminAlertView> alertas = adminAlertService.listar();
-        Map<Long, User> usuarios = userRepository.findAll().stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        List<AdminAlertView> alertas = alertsApi.adminAlertViews();
+        Map<Long, UserSummary> usuarios = identityApi.usersById();
         return alertReportRepository.findAll().stream()
                 .sorted(Comparator.comparing(AlertReport::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(r -> vista(r, usuarios.get(r.getCreatedByUserId()), alertasDe(r, alertas).size()))
@@ -64,8 +62,8 @@ public class AlertReportService {
     public ReportStats estadisticas() {
         List<AlertReport> informes = alertReportRepository.findAll();
         long exportaciones = informes.stream().mapToLong(r -> r.getExportCount() == null ? 0 : r.getExportCount()).sum();
-        long zonasActivas = zoneRepository.findAll().stream().filter(z -> Boolean.TRUE.equals(z.getIsActive())).count();
-        return new ReportStats(informes.size(), adminAlertService.listar().size(), zonasActivas, exportaciones);
+        long zonasActivas = zonesApi.countActiveZones();
+        return new ReportStats(informes.size(), alertsApi.adminAlertViews().size(), zonasActivas, exportaciones);
     }
 
     @Transactional
@@ -93,7 +91,7 @@ public class AlertReportService {
     /** Alertas que cubre el informe: las elegidas o, si no hay, las que cumplen sus filtros. */
     @Transactional(readOnly = true)
     public List<AdminAlertView> alertasDe(Long id) {
-        return alertasDe(buscar(id), adminAlertService.listar());
+        return alertasDe(buscar(id), alertsApi.adminAlertViews());
     }
 
     /** Suma una exportación al contador del informe. */
@@ -154,14 +152,12 @@ public class AlertReportService {
     }
 
     private AlertReportView vista(AlertReport r) {
-        User creadora = r.getCreatedByUserId() == null ? null : userRepository.findById(r.getCreatedByUserId()).orElse(null);
-        return vista(r, creadora, alertasDe(r, adminAlertService.listar()).size());
+        UserSummary creadora = identityApi.findUser(r.getCreatedByUserId()).orElse(null);
+        return vista(r, creadora, alertasDe(r, alertsApi.adminAlertViews()).size());
     }
 
-    private AlertReportView vista(AlertReport r, User creadora, int cantidadAlertas) {
-        String nombre = creadora == null ? null
-                : ((creadora.getFirstName() == null ? "" : creadora.getFirstName()) + " "
-                   + (creadora.getLastName() == null ? "" : creadora.getLastName())).trim();
+    private AlertReportView vista(AlertReport r, UserSummary creadora, int cantidadAlertas) {
+        String nombre = creadora == null ? null : creadora.fullName();
         List<Long> ids = idsDe(r.getAlertIds()).stream().sorted().toList();
         return new AlertReportView(r.getId(), r.getName(), r.getCity(), r.getStatus(), r.getUserLabel(), r.getEvent(),
                 r.getDescription(), r.getFormat(), ids, r.getFromDate(), r.getToDate(), r.getAlertStatus(),

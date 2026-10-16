@@ -2,10 +2,10 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AlertReport;
 import com.alertamujer.admin.infrastructure.repository.AlertReportRepository;
-import com.alertamujer.alerts.application.service.AdminAlertService;
+import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.alerts.api.AdminAlertView;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
-import com.alertamujer.zones.infrastructure.repository.ZoneRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.zones.api.ZonesApi;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,13 +29,13 @@ class AlertReportServiceTest {
     private AlertReportRepository alertReportRepository;
 
     @Mock
-    private AdminAlertService adminAlertService;
+    private AlertsApi alertsApi;
 
     @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @Mock
-    private ZoneRepository zoneRepository;
+    private ZonesApi zonesApi;
 
     @InjectMocks
     private AlertReportService service;
@@ -73,8 +73,8 @@ class AlertReportServiceTest {
     @Test
     void crear_guardaLaCreadoraYLasAlertas() {
         when(alertReportRepository.save(any(AlertReport.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(adminAlertService.listar()).thenReturn(alertas);
-        when(userRepository.findById(9L)).thenReturn(Optional.empty());
+        when(alertsApi.adminAlertViews()).thenReturn(alertas);
+        when(identityApi.findUser(9L)).thenReturn(Optional.empty());
 
         AlertReportService.AlertReportView vista = service.crear(new AlertReportService.AlertReportRequest(
                 "Informe octubre", "Neiva", null, null, null, null, "EXCEL", List.of(2L, 1L), null, null, null), 9L);

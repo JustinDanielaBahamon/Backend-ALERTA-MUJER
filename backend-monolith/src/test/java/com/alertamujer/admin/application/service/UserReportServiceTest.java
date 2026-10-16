@@ -2,8 +2,8 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.admin.infrastructure.repository.UserReportRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,25 +26,21 @@ class UserReportServiceTest {
     private UserReportRepository userReportRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @InjectMocks
     private UserReportService service;
 
-    private User usuaria(Long id, String nombre, String correo) {
-        User u = new User();
-        u.setId(id);
-        u.setFirstName(nombre);
-        u.setEmail(correo);
-        return u;
+    private UserSummary usuaria(Long id, String nombre, String correo) {
+        return new UserSummary(id, nombre, null, correo, null, 1L, null);
     }
 
     @Test
     void crear_buscaLaUsuariaPorCorreoYQuedaPendiente() {
-        when(userRepository.findByEmail("ana@correo.com")).thenReturn(Optional.of(usuaria(2L, "Ana", "ana@correo.com")));
+        when(identityApi.findUserByEmail("ana@correo.com")).thenReturn(Optional.of(usuaria(2L, "Ana", "ana@correo.com")));
         when(userReportRepository.save(any(UserReport.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(usuaria(2L, "Ana", "ana@correo.com")));
-        when(userRepository.findById(9L)).thenReturn(Optional.of(usuaria(9L, "Admin", "admin@correo.com")));
+        when(identityApi.findUser(2L)).thenReturn(Optional.of(usuaria(2L, "Ana", "ana@correo.com")));
+        when(identityApi.findUser(9L)).thenReturn(Optional.of(usuaria(9L, "Admin", "admin@correo.com")));
 
         UserReportService.UserReportView vista = service.crear(
                 new UserReportService.UserReportRequest("ana@correo.com", "Acoso", "Mensajes ofensivos", "high", "resolved", null), 9L);
@@ -58,7 +54,7 @@ class UserReportServiceTest {
 
     @Test
     void crear_rechazaCorreosQueNoExisten() {
-        when(userRepository.findByEmail("nadie@correo.com")).thenReturn(Optional.empty());
+        when(identityApi.findUserByEmail("nadie@correo.com")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> service.crear(
                 new UserReportService.UserReportRequest("nadie@correo.com", "Spam", "x", "low", null, null), 9L));
@@ -71,7 +67,7 @@ class UserReportServiceTest {
         r.setReportedUserId(2L);
         when(userReportRepository.findById(1L)).thenReturn(Optional.of(r));
         when(userReportRepository.save(any(UserReport.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        when(identityApi.findUser(2L)).thenReturn(Optional.empty());
 
         UserReportService.UserReportView abierto = service.actualizar(1L,
                 new UserReportService.UserReportRequest(null, null, null, null, "in_review", null), 9L);

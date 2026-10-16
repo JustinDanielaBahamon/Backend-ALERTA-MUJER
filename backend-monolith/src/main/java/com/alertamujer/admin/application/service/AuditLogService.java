@@ -2,10 +2,8 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,9 +20,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /** Auditoría del panel: cambios registrados por los triggers y eventos de sesión de las cuentas admin. */
 @Service
@@ -35,14 +30,11 @@ public class AuditLogService {
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private final AuditLogRepository auditLogRepository;
-    private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
 
-    public AuditLogService(AuditLogRepository auditLogRepository, AccountRepository accountRepository,
-                           UserRepository userRepository) {
+    public AuditLogService(AuditLogRepository auditLogRepository, IdentityApi identityApi) {
         this.auditLogRepository = auditLogRepository;
-        this.accountRepository = accountRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
     }
 
     @Transactional(readOnly = true)
@@ -80,12 +72,9 @@ public class AuditLogService {
     /** Cuentas de administración, para filtrar por responsable. */
     @Transactional(readOnly = true)
     public List<AuditActor> responsables() {
-        Map<Long, User> admins = userRepository.findAll().stream()
-                .filter(u -> u.getRole() != null && Long.valueOf(2L).equals(u.getRole().getId()))
-                .collect(Collectors.toMap(User::getId, Function.identity()));
-        return accountRepository.findAll().stream()
-                .filter(a -> admins.containsKey(a.getUserId()))
-                .map(a -> new AuditActor(a.getId(), nombre(admins.get(a.getUserId())), admins.get(a.getUserId()).getEmail()))
+        return identityApi.usersByAccountId().entrySet().stream()
+                .filter(e -> e.getValue().admin())
+                .map(e -> new AuditActor(e.getKey(), e.getValue().fullName(), e.getValue().email()))
                 .sorted(Comparator.comparing(AuditActor::name, Comparator.nullsLast(String::compareToIgnoreCase)))
                 .toList();
     }
@@ -105,27 +94,18 @@ public class AuditLogService {
     }
 
     private List<AuditLogView> vistas(List<AuditLog> registros) {
-        List<Long> cuentasIds = registros.stream().map(AuditLog::getAccountId).filter(Objects::nonNull).distinct().toList();
-        Map<Long, Long> usuarioPorCuenta = accountRepository.findAllById(cuentasIds).stream()
-                .collect(Collectors.toMap(Account::getId, Account::getUserId, (a, b) -> a));
-        Map<Long, User> usuarios = userRepository.findAllById(usuarioPorCuenta.values()).stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        Map<Long, UserSummary> porCuenta = identityApi.usersByAccountId();
         return registros.stream().map(r -> {
-            User u = r.getAccountId() == null ? null : usuarios.get(usuarioPorCuenta.get(r.getAccountId()));
+            UserSummary u = r.getAccountId() == null ? null : porCuenta.get(r.getAccountId());
             return new AuditLogView(r.getId(), r.getAction(), r.getEntityType(), r.getEntityId(), r.getDescription(),
-                    r.getAccountId(), nombre(u), u == null ? null : u.getEmail(), rol(u), r.getSource(),
+                    r.getAccountId(), u == null ? null : u.fullName(), u == null ? null : u.email(), rol(u), r.getSource(),
                     r.getIpAddress(), r.getCreatedAt());
         }).toList();
     }
 
-    private static String nombre(User u) {
-        if (u == null) return null;
-        return ((u.getFirstName() == null ? "" : u.getFirstName()) + " " + (u.getLastName() == null ? "" : u.getLastName())).trim();
-    }
-
-    private static String rol(User u) {
-        if (u == null || u.getRole() == null) return null;
-        return Long.valueOf(2L).equals(u.getRole().getId()) ? "Administración" : "Usuaria";
+    private static String rol(UserSummary u) {
+        if (u == null || u.roleId() == null) return null;
+        return u.admin() ? "Administración" : "Usuaria";
     }
 
     private static String celda(String valor) {

@@ -2,10 +2,8 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
-import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.infrastructure.repository.AccountRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,10 +32,7 @@ class AuditLogServiceTest {
     private AuditLogRepository auditLogRepository;
 
     @Mock
-    private AccountRepository accountRepository;
-
-    @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @InjectMocks
     private AuditLogService service;
@@ -56,16 +50,8 @@ class AuditLogServiceTest {
     }
 
     private void conAdmin() {
-        Account cuenta = new Account();
-        cuenta.setId(39L);
-        cuenta.setUserId(7L);
-        when(accountRepository.findAllById(anyCollection())).thenReturn(List.of(cuenta));
-        User admin = new User();
-        admin.setId(7L);
-        admin.setFirstName("Admin");
-        admin.setLastName("Auditoria");
-        admin.setEmail("admin@test.local");
-        when(userRepository.findAllById(anyCollection())).thenReturn(List.of(admin));
+        when(identityApi.usersByAccountId()).thenReturn(java.util.Map.of(39L,
+                new UserSummary(7L, "Admin", "Auditoria", "admin@test.local", null, 2L, null)));
     }
 
     @SuppressWarnings("unchecked")
