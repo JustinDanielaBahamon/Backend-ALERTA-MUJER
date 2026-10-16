@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -53,7 +54,7 @@ class AdminAlertServiceTest {
                 alerta(2L, 99L, ahora)));
         when(identityApi.usersByProfileId()).thenReturn(java.util.Map.of(10L, usuaria));
 
-        List<AdminAlertService.AdminAlertView> vistas = service.listar();
+        List<AdminAlertView> vistas = service.listar();
 
         assertEquals(2L, vistas.get(0).id());
         assertNull(vistas.get(0).userName());

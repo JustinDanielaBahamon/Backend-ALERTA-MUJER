@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.alerts.application.service.AdminAlertService.AdminAlertView;
+import com.alertamujer.alerts.api.AdminAlertView;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;

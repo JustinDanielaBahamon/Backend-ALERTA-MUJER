@@ -3,7 +3,7 @@ package com.alertamujer.admin.application.service;
 import com.alertamujer.admin.domain.model.AlertReport;
 import com.alertamujer.admin.infrastructure.repository.AlertReportRepository;
 import com.alertamujer.alerts.application.service.AdminAlertService;
-import com.alertamujer.alerts.application.service.AdminAlertService.AdminAlertView;
+import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import com.alertamujer.zones.infrastructure.repository.ZoneRepository;
 import org.junit.jupiter.api.Test;

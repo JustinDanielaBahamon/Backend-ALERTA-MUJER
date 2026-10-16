@@ -2,7 +2,7 @@ package com.alertamujer.admin.infrastructure.controller;
 
 import com.alertamujer.admin.application.service.AlertReportExporter;
 import com.alertamujer.admin.application.service.AlertReportService;
-import com.alertamujer.alerts.application.service.AdminAlertService.AdminAlertView;
+import com.alertamujer.alerts.api.AdminAlertView;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

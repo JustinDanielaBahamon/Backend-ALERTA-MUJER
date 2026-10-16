@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
+import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.application.service.AdminAlertService;
 import com.alertamujer.alerts.application.service.AlertContactService;
 import com.alertamujer.alerts.application.service.AlertService;
@@ -41,7 +42,7 @@ public class AlertController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<AdminAlertService.AdminAlertView>> getAllAlerts() {
+    public ResponseEntity<List<AdminAlertView>> getAllAlerts() {
         return ResponseEntity.ok(adminAlertService.listar());
     }
 

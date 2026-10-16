@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -69,9 +70,4 @@ public class AdminAlertService {
     }
 
     /** Mismos campos que Alert (los clientes existentes siguen funcionando) más userId, userName y userEmail. */
-    public record AdminAlertView(Long id, Long userProfileId, Long userId, String userName, String userEmail,
-                                 Long deviceId, String alertType, String activationMethod, String status,
-                                 String message, BigDecimal latitude, BigDecimal longitude,
-                                 LocalDateTime startedAt, LocalDateTime endedAt, LocalDateTime cancelledAt,
-                                 LocalDateTime createdAt) {}
 }
