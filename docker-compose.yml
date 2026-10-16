@@ -37,6 +37,11 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
       - EVIDENCE_STORAGE_DIR=/data/evidence
+      # Correo a los contactos de una alerta (resend | brevo | log). La clave va en .env, nunca aquí.
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-log}
+      - EMAIL_API_KEY=${EMAIL_API_KEY:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+      - WEB_BASE_URL=${WEB_BASE_URL:-http://localhost:4200}
     depends_on:
       postgres:
         condition: service_healthy
