@@ -30,7 +30,7 @@ public class AlertReportExporter {
     private static final Map<String, String> ESTADOS = Map.of(
             "active", "Activa", "resolved", "Atendida", "cancelled", "Cancelada", "expired", "Expirada");
     private static final Map<String, String> METODOS = Map.of(
-            "panic_button", "Botón de pánico", "contact", "Desde contactos");
+            "panic_button", "Botón de pánico", "contact", "Desde contactos", "suspicious_movement", "Movimiento sospechoso");
     private static final String[] COLUMNAS = {
             "ID", "Inicio", "Fin", "Usuaria", "Correo", "Estado", "Activación", "Mensaje", "Latitud", "Longitud"};
 
