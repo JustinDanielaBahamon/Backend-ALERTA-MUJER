@@ -209,6 +209,11 @@ public class AuthService {
         return generateToken(user.getId(), role);
     }
 
+    /** Refresh token de 15 días para que la app renueve la sesión sin pedir la contraseña. */
+    public String generateRefreshTokenForUser(User user) {
+        return generateRefreshToken(user.getId());
+    }
+
     /** Cambia la contraseña de la cuenta en sesión; exige la actual para evitar cambios desde una sesión ajena. */
     public void changePassword(Long userId, String currentPassword, String newPassword) {
         Account account = accountRepository.findByUserId(userId)

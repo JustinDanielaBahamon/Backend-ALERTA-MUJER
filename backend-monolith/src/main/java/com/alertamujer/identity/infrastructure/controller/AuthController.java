@@ -43,6 +43,7 @@ public class AuthController {
         
         return ResponseEntity.ok(AuthResponse.builder()
             .token(token)
+            .refreshToken(authService.generateRefreshTokenForUser(user))
             .user(userMapper.toResponse(user))
             .build());
     }
