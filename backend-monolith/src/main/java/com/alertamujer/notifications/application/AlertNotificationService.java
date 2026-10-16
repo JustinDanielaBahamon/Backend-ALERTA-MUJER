@@ -77,15 +77,14 @@ public class AlertNotificationService {
                 .filter(e -> AlertsChannels.EMAIL.equals(e.channel()))
                 .collect(Collectors.toMap(AlertRecipient::emergencyContactId, AlertRecipient::destination, (a, b) -> a));
 
-        String seguimiento = null;
+        // Un enlace por alerta: lo usan el correo (página web) y el push (pantalla de la app)
+        String codigo = trackingLinkService.crear(evento.alertId());
+        String seguimiento = webBaseUrl + "/seguimiento/" + codigo;
         for (AlertRecipient envio : envios) {
             if (AlertsChannels.EMAIL.equals(envio.channel())) {
-                if (seguimiento == null) {
-                    seguimiento = webBaseUrl + "/seguimiento/" + trackingLinkService.crear(evento.alertId());
-                }
                 enviarCorreo(envio, nombre, evento, alerta.orElse(null), seguimiento);
             } else if (AlertsChannels.PUSH.equals(envio.channel())) {
-                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), nombre, evento);
+                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), nombre, evento, codigo);
             }
         }
     }
@@ -103,7 +102,8 @@ public class AlertNotificationService {
         }
     }
 
-    private void enviarPush(AlertRecipient envio, String correoContacto, String nombre, AlertActivatedEvent evento) {
+    private void enviarPush(AlertRecipient envio, String correoContacto, String nombre, AlertActivatedEvent evento,
+                            String codigo) {
         List<String> tokens = identityApi.findUserByEmail(correoContacto)
                 .map(u -> devicesApi.pushTokensOfUser(u.id()))
                 .orElse(List.of());
@@ -114,7 +114,8 @@ public class AlertNotificationService {
         List<String> fallidos = fcmService.sendEmergencyAlert(tokens, Map.of(
                 "tipo", "ALERTA_SOS",
                 "alertaId", String.valueOf(evento.alertId()),
-                "nombre", nombre == null ? "" : nombre));
+                "nombre", nombre == null ? "" : nombre,
+                "codigo", codigo));
         if (fallidos.size() == tokens.size()) {
             alertsApi.markDelivery(envio.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
         } else {

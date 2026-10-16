@@ -93,13 +93,15 @@ class AlertNotificationServiceTest {
 
         service.avisar(evento);
 
-        verify(fcmService).sendEmergencyAlert(List.of("tok-eva"), Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez"));
+        verify(fcmService).sendEmergencyAlert(List.of("tok-eva"),
+                Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez", "codigo", "C"));
         verify(alertsApi).markDelivery(101L, "sent", null);
     }
 
     @Test
     void pushSinDispositivosQuedaFallido() {
         when(alertsApi.recipientsOf(5L)).thenReturn(List.of(new AlertRecipient(101L, 1L, "Eva", "push", "App Alerta Mujer")));
+        when(trackingLinkService.crear(5L)).thenReturn("C");
         when(identityApi.findUserByEmail(null)).thenReturn(Optional.empty());
 
         service.avisar(evento);
