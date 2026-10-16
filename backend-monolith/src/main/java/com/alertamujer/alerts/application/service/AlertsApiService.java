@@ -116,6 +116,7 @@ public class AlertsApiService implements AlertsApi {
 
     static AlertSummary resumen(Alert a) {
         return new AlertSummary(a.getId(), a.getUserProfileId(), a.getAlertType(), a.getActivationMethod(),
-                a.getStatus(), a.getMessage(), a.getStartedAt(), a.getLatitude(), a.getLongitude());
+                a.getStatus(), a.getMessage(), a.getStartedAt(), a.getLatitude(), a.getLongitude(),
+                a.getEndedAt(), a.getCancelledAt());
     }
 }

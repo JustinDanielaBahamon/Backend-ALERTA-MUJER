@@ -35,6 +35,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/actuator/**", "/actuator/health", "/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/resources/**", "/api/zones/**").permitAll()
+                // Seguimiento público de una alerta: el código aleatorio del enlace es la credencial
+                .requestMatchers(HttpMethod.GET, "/api/public/tracking/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

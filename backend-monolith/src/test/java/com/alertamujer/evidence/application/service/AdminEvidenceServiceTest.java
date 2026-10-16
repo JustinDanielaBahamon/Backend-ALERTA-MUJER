@@ -50,7 +50,7 @@ class AdminEvidenceServiceTest {
 
     @Test
     void listar_agregaUsuariaYAlerta() {
-        AlertSummary alerta = new AlertSummary(5L, 10L, "main", "panic_button", "active", null, null, null, null);
+        AlertSummary alerta = new AlertSummary(5L, 10L, "main", "panic_button", "active", null, null, null, null, null, null);
         UserSummary u = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
         when(evidenceRepository.findAll()).thenReturn(List.of(evidencia(1L, "pending", 100)));
         when(alertsApi.alertsById()).thenReturn(java.util.Map.of(5L, alerta));
