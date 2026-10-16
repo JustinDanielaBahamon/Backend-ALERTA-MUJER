@@ -15,12 +15,10 @@ import com.alertamujer.shared.exception.InvalidCredentialsException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,15 +36,14 @@ public class AuthService {
     private final SecretKey jwtKey;
 
     public AuthService(UserRepository userRepository, AccountRepository accountRepository, UserProfileRepository userProfileRepository,
-                       RoleRepository roleRepository, ApplicationEventPublisher events) {
+                       RoleRepository roleRepository, ApplicationEventPublisher events,
+                       com.alertamujer.identity.infrastructure.config.JwtKeyProvider jwtKeyProvider) {
         this.events = events;
         this.userRepository = userRepository;
         this.accountRepository = accountRepository;
         this.userProfileRepository = userProfileRepository;
         this.roleRepository = roleRepository;
-        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7");
-
-        this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.jwtKey = jwtKeyProvider.key();
     }
 
     public User register(String nombre, String email, String password, String telefono) {

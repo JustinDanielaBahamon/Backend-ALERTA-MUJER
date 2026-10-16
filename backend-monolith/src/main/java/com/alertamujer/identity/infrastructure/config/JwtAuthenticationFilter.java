@@ -2,7 +2,6 @@ package com.alertamujer.identity.infrastructure.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,10 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final SecretKey jwtKey;
 
-    public JwtAuthenticationFilter() {
-        String secret = System.getenv().getOrDefault("JWT_SECRET", "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7");
-
-        this.jwtKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    public JwtAuthenticationFilter(JwtKeyProvider jwtKeyProvider) {
+        this.jwtKey = jwtKeyProvider.key();
     }
 
     @Override

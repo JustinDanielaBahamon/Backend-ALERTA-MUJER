@@ -45,6 +45,9 @@ class AuthServiceTest {
     @Mock
     private org.springframework.context.ApplicationEventPublisher events;
 
+    @Mock
+    private com.alertamujer.identity.infrastructure.config.JwtKeyProvider jwtKeyProvider;
+
     @Spy
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -60,7 +63,7 @@ class AuthServiceTest {
         // Set JWT secret for testing
         ReflectionTestUtils.setField(authService, "jwtKey", 
             io.jsonwebtoken.security.Keys.hmacShaKeyFor(
-                "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7".getBytes()
+                "clave-solo-para-pruebas-unitarias-de-auth-0123456789".getBytes()
             ));
 
         userRole = new Role();

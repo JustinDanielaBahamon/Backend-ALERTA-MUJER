@@ -32,7 +32,7 @@ services:
       # Liquibase (migraciones/DDL) sigue usando el usuario dueño de la base
       - LIQUIBASE_USER=${POSTGRES_USER:-alerta_mujer}
       - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
-      - JWT_SECRET=${JWT_SECRET:-alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
