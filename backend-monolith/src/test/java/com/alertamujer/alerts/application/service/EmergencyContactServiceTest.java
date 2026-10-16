@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
-import com.alertamujer.admin.application.service.AdminSettingsService;
+import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -31,7 +31,7 @@ class EmergencyContactServiceTest {
     private IdentityApi identityApi;
 
     @Mock
-    private AdminSettingsService settingsService;
+    private SettingsApi settingsService;
 
     @InjectMocks
     private EmergencyContactService service;

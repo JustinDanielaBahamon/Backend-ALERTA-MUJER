@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
-import com.alertamujer.admin.application.service.AdminSettingsService;
+import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.shared.web.AuditSource;
@@ -22,13 +22,13 @@ public class AlertExpirationJob {
     private static final Logger log = LoggerFactory.getLogger(AlertExpirationJob.class);
 
     private final AlertRepository alertRepository;
-    private final AdminSettingsService settingsService;
+    private final SettingsApi settingsService;
 
     // Última ejecución, para el estado del sistema en el panel
     private volatile LocalDateTime ultimaRevision;
     private volatile int expiradasUltimaRevision;
 
-    public AlertExpirationJob(AlertRepository alertRepository, AdminSettingsService settingsService) {
+    public AlertExpirationJob(AlertRepository alertRepository, SettingsApi settingsService) {
         this.alertRepository = alertRepository;
         this.settingsService = settingsService;
     }

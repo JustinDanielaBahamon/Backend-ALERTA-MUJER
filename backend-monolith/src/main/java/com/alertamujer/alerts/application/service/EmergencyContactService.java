@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
-import com.alertamujer.admin.application.service.AdminSettingsService;
+import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.alerts.infrastructure.repository.EmergencyContactRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -16,11 +16,11 @@ public class EmergencyContactService {
 
     private final EmergencyContactRepository emergencyContactRepository;
     private final IdentityApi identityApi;
-    private final AdminSettingsService settingsService;
+    private final SettingsApi settingsService;
 
     public EmergencyContactService(EmergencyContactRepository emergencyContactRepository,
                                    IdentityApi identityApi,
-                                   AdminSettingsService settingsService) {
+                                   SettingsApi settingsService) {
         this.emergencyContactRepository = emergencyContactRepository;
         this.identityApi = identityApi;
         this.settingsService = settingsService;

@@ -1,22 +1,26 @@
-package com.alertamujer.admin.application.service;
+package com.alertamujer.settings.application;
 
-import com.alertamujer.admin.domain.model.SystemConfiguration;
-import com.alertamujer.admin.infrastructure.repository.SystemConfigurationRepository;
+import com.alertamujer.settings.api.SettingsApi;
+import com.alertamujer.settings.domain.model.SystemConfiguration;
+import com.alertamujer.settings.infrastructure.repository.SystemConfigurationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-/** Parámetros globales de la app (fila única de admin.system_configuration). */
+/**
+ * Módulo de configuración del sistema: parámetros globales de la app (fila única de
+ * admin.system_configuration). Lo editan las administradoras y lo leen los demás módulos por SettingsApi.
+ */
 @Service
-public class AdminSettingsService {
+public class SettingsService implements SettingsApi {
 
     static final int DURACION_MINIMA = 30;
     static final int DURACION_MAXIMA = 1440;
 
     private final SystemConfigurationRepository repository;
 
-    public AdminSettingsService(SystemConfigurationRepository repository) {
+    public SettingsService(SystemConfigurationRepository repository) {
         this.repository = repository;
     }
 
@@ -33,12 +37,14 @@ public class AdminSettingsService {
                 c.getMaxEmergencyContacts(), c.getMinAppVersion());
     }
 
+    @Override
     @Transactional(readOnly = true)
     public int duracionMaximaAlertaMinutos() {
         return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
     }
 
     /** Máximo de contactos de emergencia por usuaria (5 si no hay configuración). */
+    @Override
     @Transactional(readOnly = true)
     public int maximoContactos() {
         return repository.findBySingletonKey("SYSTEM").map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);

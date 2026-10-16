@@ -1,7 +1,7 @@
-package com.alertamujer.admin.application.service;
+package com.alertamujer.settings.application;
 
-import com.alertamujer.admin.domain.model.SystemConfiguration;
-import com.alertamujer.admin.infrastructure.repository.SystemConfigurationRepository;
+import com.alertamujer.settings.domain.model.SystemConfiguration;
+import com.alertamujer.settings.infrastructure.repository.SystemConfigurationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,13 +17,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AdminSettingsServiceTest {
+class SettingsServiceTest {
 
     @Mock
     private SystemConfigurationRepository repository;
 
     @InjectMocks
-    private AdminSettingsService service;
+    private SettingsService service;
 
     private final SystemConfiguration config = new SystemConfiguration();
 
@@ -39,8 +39,8 @@ class AdminSettingsServiceTest {
     void actualizar_cambiaSoloLoEnviado() {
         when(repository.save(any(SystemConfiguration.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        AdminSettingsService.SettingsView vista = service.actualizar(
-                new AdminSettingsService.SettingsRequest(120, null, " ayuda@alerta.test ", 8, "1.2.0"), 9L);
+        SettingsService.SettingsView vista = service.actualizar(
+                new SettingsService.SettingsRequest(120, null, " ayuda@alerta.test ", 8, "1.2.0"), 9L);
 
         assertEquals(120, vista.sosMaxDurationMinutes());
         assertEquals("123", vista.emergencyPhoneNumber());
@@ -50,21 +50,21 @@ class AdminSettingsServiceTest {
         assertEquals(9, config.getUpdatedByAdminId());
 
         // "" quita la versión mínima
-        service.actualizar(new AdminSettingsService.SettingsRequest(null, null, null, null, ""), 9L);
+        service.actualizar(new SettingsService.SettingsRequest(null, null, null, null, ""), 9L);
         assertEquals(null, config.getMinAppVersion());
     }
 
     @Test
     void actualizar_rechazaValoresFueraDeRango() {
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(5, null, null, null, null), 9L));
+                new SettingsService.SettingsRequest(5, null, null, null, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, "12a", null, null, null), 9L));
+                new SettingsService.SettingsRequest(null, "12a", null, null, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, null, "sin-arroba", null, null), 9L));
+                new SettingsService.SettingsRequest(null, null, "sin-arroba", null, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, null, null, 0, null), 9L));
+                new SettingsService.SettingsRequest(null, null, null, 0, null), 9L));
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(
-                new AdminSettingsService.SettingsRequest(null, null, null, null, "v1.2"), 9L));
+                new SettingsService.SettingsRequest(null, null, null, null, "v1.2"), 9L));
     }
 }

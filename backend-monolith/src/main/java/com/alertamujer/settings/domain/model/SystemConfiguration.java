@@ -1,4 +1,4 @@
-package com.alertamujer.admin.domain.model;
+package com.alertamujer.settings.domain.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

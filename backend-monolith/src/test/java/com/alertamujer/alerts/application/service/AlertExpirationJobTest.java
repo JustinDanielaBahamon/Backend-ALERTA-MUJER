@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
-import com.alertamujer.admin.application.service.AdminSettingsService;
+import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ class AlertExpirationJobTest {
     private AlertRepository alertRepository;
 
     @Mock
-    private AdminSettingsService settingsService;
+    private SettingsApi settingsService;
 
     @InjectMocks
     private AlertExpirationJob job;
