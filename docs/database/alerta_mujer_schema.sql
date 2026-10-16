@@ -407,7 +407,7 @@ CREATE TABLE alert.alert (
     cancelled_at timestamp without time zone,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now(),
-    CONSTRAINT chk_alert_activation_method CHECK (((activation_method)::text = ANY ((ARRAY['panic_button'::character varying, 'gesture'::character varying, 'voice'::character varying, 'timer'::character varying, 'manual'::character varying, 'widget'::character varying, 'suspicious_movement'::character varying])::text[]))),
+    CONSTRAINT chk_alert_activation_method CHECK (((activation_method)::text = ANY ((ARRAY['panic_button'::character varying, 'gesture'::character varying, 'voice'::character varying, 'timer'::character varying, 'manual'::character varying, 'widget'::character varying, 'suspicious_movement'::character varying, 'contact'::character varying])::text[]))),
     CONSTRAINT chk_alert_coordinates CHECK ((((latitude IS NULL) OR ((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric))) AND ((longitude IS NULL) OR ((longitude >= ('-180'::integer)::numeric) AND (longitude <= (180)::numeric))))),
     CONSTRAINT chk_alert_status CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'resolved'::character varying, 'cancelled'::character varying, 'expired'::character varying])::text[]))),
     CONSTRAINT chk_alert_type CHECK (((alert_type)::text = ANY ((ARRAY['main'::character varying, 'medical'::character varying, 'police'::character varying, 'fire'::character varying, 'custom'::character varying])::text[])))
