@@ -40,7 +40,7 @@ Debe responder `{"status":"UP"}`.
 ## 4. Apuntar las apps a la URL
 
 - **Móvil**: en `Frontend-movil/eas.json`, perfil `preview`, cambia `EXPO_PUBLIC_API_URL` por la URL de Render y genera el APK con `eas build -p android --profile preview`.
-- **Web**: cambia `apiUrl` en `src/environments/environment.prod.ts`. Cuando la web tenga su dominio (Vercel), pon ese dominio en `CORS_ORIGIN` en lugar de `*`.
+- **Web**: cambia `apiUrl` en `src/environments/environment.prod.ts`. `CORS_ORIGIN` ya permite `https://alerta-mujer*.vercel.app`; si la web usa otro dominio, agrégalo ahí separado por coma.
 
 ## 5. Crear la primera cuenta de administrador
 

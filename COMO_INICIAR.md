@@ -265,7 +265,7 @@ curl http://localhost:8080/api/resources
 | `POSTGRES_DB` | `alerta_mujer` | Nombre base de datos |
 | `JWT_SECRET` | (larga cadena) | Secreto para tokens JWT |
 | `JWT_EXPIRES_IN` | `24h` | Expiración del token |
-| `CORS_ORIGIN` | `*` | Orígenes permitidos CORS |
+| `CORS_ORIGIN` | `http://localhost:*,http://127.0.0.1:*` | Orígenes del panel web permitidos por CORS (separados por coma) |
 
 ---
 

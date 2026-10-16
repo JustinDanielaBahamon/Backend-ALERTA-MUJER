@@ -1,5 +1,6 @@
 package com.alertamujer.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -9,6 +10,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Value("${cors.allowed-origins}")
+    private String[] origenesPermitidos;
 
     @Override
     public void configureMessageBroker(org.springframework.messaging.simp.config.MessageBrokerRegistry config) {
@@ -22,7 +26,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Register the WS endpoint with SockJS fallback and CORS
         registry.addEndpoint("/ws/alerts")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns(java.util.Arrays.stream(origenesPermitidos).map(String::trim).toArray(String[]::new))
                 .withSockJS();
     }
 }

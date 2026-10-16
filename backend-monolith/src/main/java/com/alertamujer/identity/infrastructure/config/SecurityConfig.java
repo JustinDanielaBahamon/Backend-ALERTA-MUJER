@@ -1,5 +1,6 @@
 package com.alertamujer.identity.infrastructure.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -21,9 +23,16 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final List<String> origenesPermitidos;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    /**
+     * @param origenes orígenes del panel web que pueden llamar a la API (CORS_ORIGIN, separados
+     *                 por coma; admite comodines). La app móvil no envía Origin y no se ve afectada.
+     */
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          @Value("${cors.allowed-origins}") String[] origenes) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.origenesPermitidos = Arrays.stream(origenes).map(String::trim).filter(o -> !o.isEmpty()).toList();
     }
 
     @Bean
@@ -33,7 +42,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/actuator/**", "/actuator/health", "/health").permitAll()
+                .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/actuator/health", "/actuator/info", "/health").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/resources/**", "/api/zones/**").permitAll()
                 // Seguimiento público de una alerta: el código aleatorio del enlace es la credencial
                 .requestMatchers(HttpMethod.GET, "/api/public/tracking/**").permitAll()
@@ -47,7 +56,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(origenesPermitidos);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

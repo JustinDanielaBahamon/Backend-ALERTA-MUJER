@@ -369,9 +369,9 @@ Después de la revisión académica:
 | `POSTGRES_USER` | Usuario de PostgreSQL | `alerta_mujer` |
 | `POSTGRES_PASSWORD` | Contraseña de PostgreSQL | `alerta_mujer_2026` |
 | `POSTGRES_DB` | Nombre de la base de datos | `alerta_mujer` |
-| `JWT_SECRET` | Secreto para firmar JWT | `alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7` |
+| `JWT_SECRET` | Secreto para firmar JWT (obligatorio, aleatorio, 32+ caracteres) | `openssl rand -base64 48` |
 | `JWT_EXPIRES_IN` | Expiración del token (ms) | `86400000` (24 horas) |
-| `CORS_ORIGIN` | Orígenes permitidos para CORS | `*` |
+| `CORS_ORIGIN` | Orígenes del panel web permitidos por CORS (separados por coma) | `https://alerta-mujer*.vercel.app` |
 
 ## 13. Integrantes
 

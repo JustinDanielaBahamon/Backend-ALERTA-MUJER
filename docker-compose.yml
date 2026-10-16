@@ -34,7 +34,7 @@ services:
       - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-86400000}
-      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
       - EVIDENCE_STORAGE_DIR=/data/evidence
       # Correo a los contactos de una alerta (resend | brevo | log). La clave va en .env, nunca aquí.

@@ -47,8 +47,9 @@ services:
         value: prod
       - key: JWT_SECRET
         generateValue: true
+      # Dominio del panel web (Vercel); agrega aquí el dominio propio cuando exista
       - key: CORS_ORIGIN
-        value: "*"
+        value: "https://alerta-mujer*.vercel.app"
       # Archivo de cuenta de servicio de Firebase: se sube como Secret File en el dashboard
       - key: FIREBASE_CONFIG_PATH
         value: /etc/secrets/firebase-service-account.json
