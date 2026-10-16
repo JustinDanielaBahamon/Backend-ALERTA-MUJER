@@ -62,6 +62,21 @@ public class DeviceController {
         return ResponseEntity.ok(deviceService.updateDevice(id, device, currentUserId));
     }
 
+    /**
+     * Registra el token push (FCM) del dispositivo de la usuaria. Responde 204 para no devolver el
+     * token; solo la dueña del dispositivo puede cambiarlo.
+     */
+    @PutMapping("/{id}/push-token")
+    public ResponseEntity<Void> updatePushToken(@PathVariable Long id, @RequestBody java.util.Map<String, String> body,
+                                                @AuthenticationPrincipal Long currentUserId) {
+        String token = body == null ? null : body.get("token");
+        if (token == null || token.isBlank() || token.length() > 255) {
+            throw new IllegalArgumentException("Token push no válido");
+        }
+        deviceService.updateFcmToken(id, token.trim(), currentUserId);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDevice(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
                                              Authentication authentication) {
