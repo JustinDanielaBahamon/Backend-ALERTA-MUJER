@@ -6,8 +6,7 @@ import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.controller.dto.EvidenceView;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
 import com.alertamujer.evidence.infrastructure.storage.EvidenceStorage;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
+import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,25 +29,23 @@ public class EvidenceService {
 
     private final EvidenceRepository evidenceRepository;
     private final AlertRepository alertRepository;
-    private final UserProfileRepository userProfileRepository;
+    private final IdentityApi identityApi;
     private final EvidenceStorage storage;
     private final long maxSizeBytes;
 
     public EvidenceService(EvidenceRepository evidenceRepository, AlertRepository alertRepository,
-                           UserProfileRepository userProfileRepository, EvidenceStorage storage,
+                           IdentityApi identityApi, EvidenceStorage storage,
                            @Value("${evidence.max-size-bytes}") long maxSizeBytes) {
         this.evidenceRepository = evidenceRepository;
         this.alertRepository = alertRepository;
-        this.userProfileRepository = userProfileRepository;
+        this.identityApi = identityApi;
         this.storage = storage;
         this.maxSizeBytes = maxSizeBytes;
     }
 
     // El JWT trae users.id; las alertas pertenecen a user_profile.id.
     private Long profileIdOf(Long userId) {
-        return userProfileRepository.findByUserId(userId)
-                .map(UserProfile::getId)
-                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identityApi.requireProfileId(userId);
     }
 
     private Alert ownedAlert(Long alertId, Long currentUserId) {

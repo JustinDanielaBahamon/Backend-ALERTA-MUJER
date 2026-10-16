@@ -4,10 +4,8 @@ import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,10 +31,7 @@ class AdminEvidenceServiceTest {
     private AlertRepository alertRepository;
 
     @Mock
-    private UserProfileRepository userProfileRepository;
-
-    @Mock
-    private UserRepository userRepository;
+    private IdentityApi identityApi;
 
     @InjectMocks
     private AdminEvidenceService service;
@@ -59,18 +54,10 @@ class AdminEvidenceServiceTest {
         alerta.setId(5L);
         alerta.setUserProfileId(10L);
         alerta.setStatus("active");
-        UserProfile perfil = new UserProfile();
-        perfil.setId(10L);
-        perfil.setUserId(1L);
-        User u = new User();
-        u.setId(1L);
-        u.setFirstName("Ana");
-        u.setLastName("Gómez");
-        u.setEmail("ana@correo.com");
+        UserSummary u = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
         when(evidenceRepository.findAll()).thenReturn(List.of(evidencia(1L, "pending", 100)));
         when(alertRepository.findAll()).thenReturn(List.of(alerta));
-        when(userProfileRepository.findAll()).thenReturn(List.of(perfil));
-        when(userRepository.findAll()).thenReturn(List.of(u));
+        when(identityApi.usersByProfileId()).thenReturn(java.util.Map.of(10L, u));
 
         AdminEvidenceService.AdminEvidenceView vista = service.listar().get(0);
 

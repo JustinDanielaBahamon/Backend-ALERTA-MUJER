@@ -4,10 +4,8 @@ import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.evidence.domain.model.Evidence;
 import com.alertamujer.evidence.infrastructure.repository.EvidenceRepository;
-import com.alertamujer.identity.domain.model.User;
-import com.alertamujer.identity.domain.model.UserProfile;
-import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
-import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,31 +30,26 @@ public class AdminEvidenceService {
 
     private final EvidenceRepository evidenceRepository;
     private final AlertRepository alertRepository;
-    private final UserProfileRepository userProfileRepository;
-    private final UserRepository userRepository;
+    private final IdentityApi identityApi;
 
     public AdminEvidenceService(EvidenceRepository evidenceRepository, AlertRepository alertRepository,
-                                UserProfileRepository userProfileRepository, UserRepository userRepository) {
+                                IdentityApi identityApi) {
         this.evidenceRepository = evidenceRepository;
         this.alertRepository = alertRepository;
-        this.userProfileRepository = userProfileRepository;
-        this.userRepository = userRepository;
+        this.identityApi = identityApi;
     }
 
     @Transactional(readOnly = true)
     public List<AdminEvidenceView> listar() {
         Map<Long, Alert> alertas = alertRepository.findAll().stream()
                 .collect(Collectors.toMap(Alert::getId, Function.identity()));
-        Map<Long, Long> usuarioPorPerfil = userProfileRepository.findAll().stream()
-                .collect(Collectors.toMap(UserProfile::getId, UserProfile::getUserId, (a, b) -> a));
-        Map<Long, User> usuarios = userRepository.findAll().stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+        Map<Long, UserSummary> usuariaPorPerfil = identityApi.usersByProfileId();
 
         return evidenceRepository.findAll().stream()
                 .sorted(Comparator.comparing(Evidence::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(e -> {
                     Alert a = alertas.get(e.getAlertId());
-                    User u = a == null ? null : usuarios.get(usuarioPorPerfil.get(a.getUserProfileId()));
+                    UserSummary u = a == null ? null : usuariaPorPerfil.get(a.getUserProfileId());
                     return vista(e, a, u);
                 })
                 .toList();
@@ -80,19 +73,16 @@ public class AdminEvidenceService {
         e.setReviewStatus(revision);
         evidenceRepository.save(e);
         Alert a = alertRepository.findById(e.getAlertId()).orElse(null);
-        User u = a == null ? null : userProfileRepository.findById(a.getUserProfileId())
-                .flatMap(p -> userRepository.findById(p.getUserId())).orElse(null);
+        UserSummary u = a == null ? null : identityApi.findUserByProfileId(a.getUserProfileId()).orElse(null);
         return vista(e, a, u);
     }
 
-    private AdminEvidenceView vista(Evidence e, Alert a, User u) {
-        String nombre = u == null ? null
-                : ((u.getFirstName() == null ? "" : u.getFirstName()) + " "
-                   + (u.getLastName() == null ? "" : u.getLastName())).trim();
+    private AdminEvidenceView vista(Evidence e, Alert a, UserSummary u) {
+        String nombre = u == null ? null : u.fullName();
         return new AdminEvidenceView(e.getId(), e.getAlertId(), e.getMediaType(), e.getFileName(),
                 e.getContentType(), e.getSizeBytes(), e.getSha256(), e.getStorageKey() != null,
                 e.getReviewStatus(), e.getCreatedAt(),
-                u != null ? u.getId() : null, nombre, u != null ? u.getEmail() : null,
+                u != null ? u.id() : null, nombre, u != null ? u.email() : null,
                 a != null ? a.getStatus() : null, a != null ? a.getActivationMethod() : null,
                 a != null ? a.getMessage() : null, a != null ? a.getStartedAt() : null,
                 a != null ? a.getLatitude() : null, a != null ? a.getLongitude() : null);
