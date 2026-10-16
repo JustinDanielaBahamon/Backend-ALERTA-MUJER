@@ -1,6 +1,7 @@
 package com.alertamujer.identity.infrastructure.controller;
 
 import com.alertamujer.identity.application.service.AuthService;
+import com.alertamujer.identity.application.service.PasswordRecoveryService;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.infrastructure.controller.dto.AuthResponse;
 import com.alertamujer.identity.infrastructure.controller.dto.ForgotPasswordRequest;
@@ -8,8 +9,10 @@ import com.alertamujer.identity.infrastructure.controller.dto.GoogleLoginRequest
 import com.alertamujer.identity.infrastructure.controller.dto.LoginRequest;
 import com.alertamujer.identity.infrastructure.controller.dto.RegisterRequest;
 import com.alertamujer.identity.infrastructure.controller.dto.ResetPasswordRequest;
+import com.alertamujer.identity.infrastructure.controller.dto.VerifyResetCodeRequest;
 import com.alertamujer.identity.infrastructure.controller.mapper.UserMapper;
 import com.alertamujer.identity.infrastructure.security.GoogleIdentityVerifier;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +26,14 @@ public class AuthController {
     private final AuthService authService;
     private final UserMapper userMapper;
     private final GoogleIdentityVerifier googleIdentityVerifier;
+    private final PasswordRecoveryService passwordRecoveryService;
 
-    public AuthController(AuthService authService, UserMapper userMapper, GoogleIdentityVerifier googleIdentityVerifier) {
+    public AuthController(AuthService authService, UserMapper userMapper, GoogleIdentityVerifier googleIdentityVerifier,
+                          PasswordRecoveryService passwordRecoveryService) {
         this.authService = authService;
         this.userMapper = userMapper;
         this.googleIdentityVerifier = googleIdentityVerifier;
+        this.passwordRecoveryService = passwordRecoveryService;
     }
 
     @PostMapping("/register")
@@ -86,15 +92,23 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request.getEmail());
-        return ResponseEntity.ok("Si el email existe, se enviará un enlace de recuperación");
+    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request,
+                                                              HttpServletRequest http) {
+        passwordRecoveryService.solicitar(request.getEmail(), http.getRemoteAddr());
+        // Misma respuesta exista o no la cuenta
+        return ResponseEntity.ok(Map.of("message", "Si el correo está registrado, te enviamos un código de 6 dígitos"));
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<Void> verifyResetCode(@Valid @RequestBody VerifyResetCodeRequest request) {
+        passwordRecoveryService.verificar(request.email(), request.code());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        authService.resetPassword(request.getToken(), request.getNewPassword());
-        return ResponseEntity.ok("Contraseña actualizada correctamente");
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordRecoveryService.restablecer(request.getEmail(), request.getCode(), request.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
     }
     
     @PostMapping("/refresh")

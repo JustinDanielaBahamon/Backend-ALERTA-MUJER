@@ -197,19 +197,6 @@ class AuthServiceTest {
     }
 
     @Test
-    void testForgotPassword() {
-        // Arrange
-        when(userRepository.findByEmail("ana@test.com")).thenReturn(Optional.of(testUser));
-
-        // Act
-        Map<String, String> result = authService.forgotPassword("ana@test.com");
-
-        // Assert
-        assertNotNull(result);
-        assertEquals("If the email exists, a reset link will be sent", result.get("message"));
-    }
-
-    @Test
     void changePassword_exigeLaActualYGuardaLaNueva() {
         when(accountRepository.findByUserId(1L)).thenReturn(Optional.of(testAccount));
 

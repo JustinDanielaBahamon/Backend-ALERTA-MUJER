@@ -30,7 +30,7 @@ public class RateLimitFilter implements Filter {
     private static final int MAX_ENTRADAS = 10_000;
     private static final Set<String> RUTAS = Set.of(
             "/api/auth/login", "/api/auth/google", "/api/auth/register",
-            "/api/auth/forgot-password", "/api/auth/reset-password");
+            "/api/auth/forgot-password", "/api/auth/verify-reset-code", "/api/auth/reset-password");
 
     private final Map<String, RequestCounter> requestCounts = new ConcurrentHashMap<>();
 

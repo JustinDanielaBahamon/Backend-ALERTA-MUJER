@@ -247,17 +247,6 @@ public class AuthService {
         return user != null && user.getRole() != null && Long.valueOf(2L).equals(user.getRole().getId());
     }
 
-    public Map<String, String> forgotPassword(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            System.out.println("Password reset requested for: " + email);
-        });
-        return Map.of("message", "If the email exists, a reset link will be sent");
-    }
-
-    public Map<String, String> resetPassword(String token, String newPassword) {
-        return Map.of("message", "Password updated successfully");
-    }
-
     private String generateToken(Long userId, String role) {
         return Jwts.builder()
                 .subject(userId.toString())
