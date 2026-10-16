@@ -10,6 +10,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +31,8 @@ import java.util.List;
  */
 @Component
 public class GoogleIdentityVerifier {
+
+    private static final Logger log = LoggerFactory.getLogger(GoogleIdentityVerifier.class);
 
     public record GoogleIdentity(String email, String name, String givenName, String familyName) {}
 
@@ -57,6 +61,7 @@ public class GoogleIdentityVerifier {
         if (GOOGLE_ISSUERS.contains(issuer)) {
             return verifyGoogle(idToken);
         }
+        log.warn("Token de Google rechazado: emisor desconocido {}", issuer);
         throw new InvalidCredentialsException("Token de Google no válido");
     }
 
@@ -71,6 +76,8 @@ public class GoogleIdentityVerifier {
         } catch (InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
+            // Solo el motivo, nunca el token
+            log.warn("Token de Firebase rechazado: {}", e.getMessage());
             throw new InvalidCredentialsException("Token de Google no válido o vencido");
         }
     }
@@ -78,7 +85,10 @@ public class GoogleIdentityVerifier {
     private GoogleIdentity verifyGoogle(String idToken) {
         try {
             GoogleIdToken token = googleVerifier.verify(idToken);
-            if (token == null) throw new InvalidCredentialsException("Token de Google no válido o vencido");
+            if (token == null) {
+                log.warn("Token de Google rechazado: firma, audiencia o vencimiento no válidos");
+                throw new InvalidCredentialsException("Token de Google no válido o vencido");
+            }
             GoogleIdToken.Payload p = token.getPayload();
             if (p.getEmail() == null || !Boolean.TRUE.equals(p.getEmailVerified())) {
                 throw new InvalidCredentialsException("La cuenta de Google no tiene un correo verificado");
@@ -88,6 +98,7 @@ public class GoogleIdentityVerifier {
         } catch (InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
+            log.warn("Token de Google rechazado: {}", e.getMessage());
             throw new InvalidCredentialsException("Token de Google no válido o vencido");
         }
     }
