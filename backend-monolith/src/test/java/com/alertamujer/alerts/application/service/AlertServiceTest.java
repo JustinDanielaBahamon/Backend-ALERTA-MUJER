@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.config.FcmService;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +35,9 @@ class AlertServiceTest {
 
     @Mock
     private FcmService fcmService;
+
+    @Mock
+    private ApplicationEventPublisher events;
 
     @InjectMocks
     private AlertService alertService;
@@ -119,7 +124,25 @@ class AlertServiceTest {
         assertNotNull(result);
         assertEquals("resolved", result.getStatus());
         assertEquals("Todo resuelto", result.getMessage());
+        assertNotNull(result.getEndedAt());
         verify(alertRepository, times(1)).save(any(Alert.class));
+        // Avisa a los contactos que terminó y ya no manda push a los propios dispositivos de la usuaria
+        verify(events).publishEvent(any(AlertEndedEvent.class));
+        verifyNoInteractions(fcmService);
+    }
+
+    @Test
+    void testUpdateAlert_SinCambioDeEstadoNoPublicaFin() {
+        Alert updateData = new Alert();
+        updateData.setMessage("Sigo en camino");
+
+        when(alertRepository.findById(1L)).thenReturn(Optional.of(testAlert));
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(testUserProfile));
+        when(alertRepository.save(any(Alert.class))).thenReturn(testAlert);
+
+        alertService.updateAlert(1L, updateData, 1L);
+
+        verify(events, never()).publishEvent(any(Object.class));
     }
 
     @Test

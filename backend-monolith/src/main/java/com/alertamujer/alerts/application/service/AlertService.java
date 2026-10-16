@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -8,9 +9,11 @@ import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import com.alertamujer.config.FcmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,14 +23,17 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final IdentityApi identityApi;
     private final FcmService fcmService;
+    private final ApplicationEventPublisher events;
 
     @Autowired
     public AlertService(AlertRepository alertRepository,
                        IdentityApi identityApi,
-                       FcmService fcmService) {
+                       FcmService fcmService,
+                       ApplicationEventPublisher events) {
         this.alertRepository = alertRepository;
         this.identityApi = identityApi;
         this.fcmService = fcmService;
+        this.events = events;
     }
 
     /** Alertas de la usuaria autenticada, de la más reciente a la más antigua. */
@@ -106,6 +112,7 @@ public class AlertService {
             throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
         }
 
+        String estadoAnterior = alert.getStatus();
         if (alertDetails.getAlertType() != null) alert.setAlertType(alertDetails.getAlertType());
         if (alertDetails.getActivationMethod() != null) alert.setActivationMethod(alertDetails.getActivationMethod());
         if (alertDetails.getStatus() != null) alert.setStatus(alertDetails.getStatus());
@@ -113,13 +120,12 @@ public class AlertService {
         if (alertDetails.getEndedAt() != null) alert.setEndedAt(alertDetails.getEndedAt());
         if (alertDetails.getCancelledAt() != null) alert.setCancelledAt(alertDetails.getCancelledAt());
 
-        // Cuando una alerta se actualiza a 'resolved' o 'cancelled', enviar notificaciones
-        if (alertDetails.getStatus() != null) {
-            String newStatus = alertDetails.getStatus();
-            if (newStatus.equals("resolved") || newStatus.equals("cancelled")) {
-                // Notificar cuando se resuelve o cancela una alerta
-                fcmService.notifyAlertTriggered(alert.getId(), alert.getUserProfileId());
-            }
+        // Al terminar una alerta activa se avisa a los contactos que la recibieron (módulo notifications)
+        if ("active".equals(estadoAnterior) && AlertEndedEvent.esFinal(alert.getStatus())) {
+            LocalDateTime ahora = LocalDateTime.now();
+            if ("resolved".equals(alert.getStatus()) && alert.getEndedAt() == null) alert.setEndedAt(ahora);
+            if ("cancelled".equals(alert.getStatus()) && alert.getCancelledAt() == null) alert.setCancelledAt(ahora);
+            events.publishEvent(new AlertEndedEvent(alert.getId(), alert.getUserProfileId(), alert.getStatus(), ahora));
         }
 
         return alertRepository.save(alert);

@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +27,9 @@ class AlertExpirationJobTest {
 
     @Mock
     private SettingsApi settingsService;
+
+    @Mock
+    private ApplicationEventPublisher events;
 
     @InjectMocks
     private AlertExpirationJob job;
@@ -48,6 +53,7 @@ class AlertExpirationJobTest {
 
         assertEquals("expired", vieja.getStatus());
         assertEquals(AHORA, vieja.getEndedAt());
+        verify(events).publishEvent(org.mockito.ArgumentMatchers.any(AlertEndedEvent.class));
         assertEquals("active", reciente.getStatus());
         assertNull(reciente.getEndedAt());
         verify(alertRepository).saveAll(List.of(vieja));

@@ -1,6 +1,7 @@
 package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.api.AdminAlertView;
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +35,8 @@ class AdminAlertServiceTest {
     @Mock
     private IdentityApi identityApi;
 
+    @Mock
+    private ApplicationEventPublisher events;
 
     @InjectMocks
     private AdminAlertService service;
@@ -74,6 +80,18 @@ class AdminAlertServiceTest {
 
         assertEquals("resolved", resultado.getStatus());
         assertNotNull(resultado.getEndedAt());
+    }
+
+    @Test
+    void cambiarEstado_alTerminarUnaAlertaActivaAvisaALosContactos() {
+        Alert alert = alerta(5L, 10L, LocalDateTime.now());
+        alert.setStatus("active");
+        when(alertRepository.findById(5L)).thenReturn(Optional.of(alert));
+        when(alertRepository.save(any(Alert.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        service.cambiarEstado(5L, "cancelled");
+
+        verify(events).publishEvent(any(AlertEndedEvent.class));
     }
 
     @Test

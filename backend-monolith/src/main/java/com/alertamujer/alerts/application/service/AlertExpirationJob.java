@@ -1,11 +1,13 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertEndedEvent;
 import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.shared.web.AuditSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,14 +25,17 @@ public class AlertExpirationJob {
 
     private final AlertRepository alertRepository;
     private final SettingsApi settingsService;
+    private final ApplicationEventPublisher events;
 
     // Última ejecución, para el estado del sistema en el panel
     private volatile LocalDateTime ultimaRevision;
     private volatile int expiradasUltimaRevision;
 
-    public AlertExpirationJob(AlertRepository alertRepository, SettingsApi settingsService) {
+    public AlertExpirationJob(AlertRepository alertRepository, SettingsApi settingsService,
+                              ApplicationEventPublisher events) {
         this.alertRepository = alertRepository;
         this.settingsService = settingsService;
+        this.events = events;
     }
 
     @Scheduled(fixedDelayString = "${alerts.expiration.check-ms:60000}", initialDelay = 30000)
@@ -63,6 +68,7 @@ public class AlertExpirationJob {
             a.setEndedAt(ahora);
         });
         alertRepository.saveAll(vencidas);
+        vencidas.forEach(a -> events.publishEvent(new AlertEndedEvent(a.getId(), a.getUserProfileId(), "expired", ahora)));
         return vencidas.size();
     }
 }
