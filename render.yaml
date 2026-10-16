@@ -50,6 +50,17 @@ services:
       # Dominio del panel web (Vercel); agrega aquí el dominio propio cuando exista
       - key: CORS_ORIGIN
         value: "https://alerta-mujer*.vercel.app"
+      # Correos a los contactos de emergencia (Resend o Brevo). La clave se escribe a mano en el
+      # dashboard; EMAIL_FROM debe ser de un dominio verificado en el proveedor.
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      # Panel web donde los contactos abren el enlace de seguimiento
+      - key: WEB_BASE_URL
+        value: https://alerta-mujer.vercel.app
       # Archivo de cuenta de servicio de Firebase: se sube como Secret File en el dashboard
       - key: FIREBASE_CONFIG_PATH
         value: /etc/secrets/firebase-service-account.json

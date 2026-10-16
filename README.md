@@ -372,6 +372,11 @@ Después de la revisión académica:
 | `JWT_SECRET` | Secreto para firmar JWT (obligatorio, aleatorio, 32+ caracteres) | `openssl rand -base64 48` |
 | `JWT_EXPIRES_IN` | Expiración del token (ms) | `86400000` (24 horas) |
 | `CORS_ORIGIN` | Orígenes del panel web permitidos por CORS (separados por coma) | `https://alerta-mujer*.vercel.app` |
+| `EMAIL_PROVIDER` | Proveedor de correo para avisar a los contactos: `log`, `resend` o `brevo` | `log` (no envía) |
+| `EMAIL_API_KEY` | Clave del proveedor de correo | (vacía) |
+| `EMAIL_FROM` | Remitente, de un dominio verificado en el proveedor | (vacío) |
+| `WEB_BASE_URL` | Panel web al que apunta el enlace de seguimiento del correo | `http://localhost:4200` |
+| `FORWARD_HEADERS_STRATEGY` | Cómo se obtiene la IP real detrás del proxy | `native` |
 
 ## 13. Integrantes
 

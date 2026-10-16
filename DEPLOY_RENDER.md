@@ -73,4 +73,8 @@ UPDATE identity.users SET role_id = 2 WHERE email = 'tu-correo@ejemplo.com';
 | `APP_DB_PASSWORD` | Generada por Render |
 | `POSTGRES_PASSWORD` = `${APP_DB_PASSWORD}` | Spring la resuelve con la anterior |
 | `JWT_SECRET` | Generada por Render |
+| `CORS_ORIGIN` | `https://alerta-mujer*.vercel.app` (agrega otros dominios separados por coma) |
+| `EMAIL_PROVIDER` = `resend` | Proveedor de los correos a los contactos |
+| `EMAIL_API_KEY`, `EMAIL_FROM` | Se escriben a mano en el dashboard (clave del proveedor y remitente del dominio verificado) |
+| `WEB_BASE_URL` | URL del panel web en Vercel, para el enlace de seguimiento |
 | `PORT` | La pone Render; el backend la lee (`server.port=${PORT:8080}`) |

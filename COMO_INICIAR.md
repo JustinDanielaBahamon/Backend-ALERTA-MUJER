@@ -266,6 +266,10 @@ curl http://localhost:8080/api/resources
 | `JWT_SECRET` | (larga cadena) | Secreto para tokens JWT |
 | `JWT_EXPIRES_IN` | `24h` | Expiración del token |
 | `CORS_ORIGIN` | `http://localhost:*,http://127.0.0.1:*` | Orígenes del panel web permitidos por CORS (separados por coma) |
+| `EMAIL_PROVIDER` | `log` | Correo a los contactos: `log` (solo escribe en el log), `resend` o `brevo` |
+| `EMAIL_API_KEY` | (vacía) | Clave del proveedor de correo |
+| `EMAIL_FROM` | (vacío) | Remitente de un dominio verificado |
+| `WEB_BASE_URL` | `http://localhost:4200` | Panel web del enlace de seguimiento |
 
 ---
 
