@@ -1,5 +1,6 @@
 package com.alertamujer.admin.application.service;
 
+import com.alertamujer.shared.web.HoraColombia;
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.infrastructure.repository.AuditLogRepository;
 import com.alertamujer.identity.api.IdentityApi;
@@ -55,7 +56,7 @@ public class AuditLogService {
         for (AuditLogView v : vistas(registros)) {
             sb.append(String.join(";", List.of(
                     String.valueOf(v.id()),
-                    v.createdAt() == null ? "" : FECHA.format(v.createdAt()),
+                    v.createdAt() == null ? "" : FECHA.format(HoraColombia.de(v.createdAt())),
                     celda(v.actorName() == null ? "Sin responsable" : v.actorName()),
                     celda(v.actorRole()),
                     celda(v.actorEmail()),

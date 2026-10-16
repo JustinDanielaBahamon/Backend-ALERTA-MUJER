@@ -27,7 +27,10 @@ class AlertReportExporterTest {
         String csv = new String(exporter.csv(informe, alertas), StandardCharsets.UTF_8);
 
         assertTrue(csv.startsWith("﻿ID;Inicio;"));
-        assertTrue(csv.contains("7;15/10/2026 08:30;;Ana;ana@correo.com;Activa;Botón de pánico;\"Ayuda; ya\";2.9273;-75.2819"));
+        // La hora sale en hora de Colombia, sin importar la zona del servidor
+        String inicio = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+                .format(com.alertamujer.shared.web.HoraColombia.de(LocalDateTime.of(2026, 10, 15, 8, 30)));
+        assertTrue(csv.contains("7;" + inicio + ";;Ana;ana@correo.com;Activa;Botón de pánico;\"Ayuda; ya\";2.9273;-75.2819"));
     }
 
     @Test

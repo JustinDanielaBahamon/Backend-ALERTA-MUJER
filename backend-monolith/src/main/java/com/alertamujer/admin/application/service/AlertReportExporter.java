@@ -1,5 +1,6 @@
 package com.alertamujer.admin.application.service;
 
+import com.alertamujer.shared.web.HoraColombia;
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
@@ -62,15 +63,15 @@ public class AlertReportExporter {
 
         doc.add(new Paragraph("ALERTA MUJER — " + informe.name(), titulo));
         doc.add(new Paragraph(" "));
-        dato(doc, "Generado", FECHA.format(LocalDateTime.now()), negrita, normal);
+        dato(doc, "Generado", FECHA.format(HoraColombia.de(LocalDateTime.now())), negrita, normal);
         dato(doc, "Creado por", informe.createdByName(), negrita, normal);
         dato(doc, "Ciudad", informe.city(), negrita, normal);
         dato(doc, "Usuaria", informe.userLabel(), negrita, normal);
         dato(doc, "Acontecimiento", informe.event(), negrita, normal);
         dato(doc, "Descripción", informe.description(), negrita, normal);
         if (informe.fromDate() != null || informe.toDate() != null) {
-            dato(doc, "Periodo", (informe.fromDate() == null ? "…" : FECHA.format(informe.fromDate())) + " a "
-                    + (informe.toDate() == null ? "…" : FECHA.format(informe.toDate())), negrita, normal);
+            dato(doc, "Periodo", (informe.fromDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.fromDate()))) + " a "
+                    + (informe.toDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.toDate()))), negrita, normal);
         }
         dato(doc, "Total de alertas", String.valueOf(alertas.size()), negrita, normal);
         doc.add(new Paragraph(" "));
@@ -114,8 +115,8 @@ public class AlertReportExporter {
     private static String[] fila(AdminAlertView a) {
         return new String[]{
                 String.valueOf(a.id()),
-                a.startedAt() == null ? "" : FECHA.format(a.startedAt()),
-                a.endedAt() != null ? FECHA.format(a.endedAt()) : a.cancelledAt() != null ? FECHA.format(a.cancelledAt()) : "",
+                a.startedAt() == null ? "" : FECHA.format(HoraColombia.de(a.startedAt())),
+                a.endedAt() != null ? FECHA.format(HoraColombia.de(a.endedAt())) : a.cancelledAt() != null ? FECHA.format(HoraColombia.de(a.cancelledAt())) : "",
                 a.userName() == null ? "" : a.userName(),
                 a.userEmail() == null ? "" : a.userEmail(),
                 ESTADOS.getOrDefault(a.status(), a.status() == null ? "" : a.status()),
