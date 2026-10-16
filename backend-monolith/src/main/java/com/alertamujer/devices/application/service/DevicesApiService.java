@@ -1,0 +1,45 @@
+package com.alertamujer.devices.application.service;
+
+import com.alertamujer.devices.api.DevicesApi;
+import com.alertamujer.devices.domain.model.Device;
+import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@Transactional(readOnly = true)
+public class DevicesApiService implements DevicesApi {
+
+    private final DeviceRepository deviceRepository;
+    private final IdentityApi identityApi;
+
+    public DevicesApiService(DeviceRepository deviceRepository, IdentityApi identityApi) {
+        this.deviceRepository = deviceRepository;
+        this.identityApi = identityApi;
+    }
+
+    /**
+     * Los dispositivos se guardan por account.id, no por user_profile.id: se traduce
+     * perfil -> usuaria -> cuenta (antes se buscaba con el id de perfil como si fuera el de cuenta).
+     */
+    @Override
+    public List<String> pushTokensOfProfile(Long userProfileId) {
+        Optional<Long> cuenta = identityApi.findUserByProfileId(userProfileId)
+                .map(UserSummary::id)
+                .map(identityApi::requireAccountId);
+        return cuenta.map(deviceRepository::findByAccountId).orElse(List.of()).stream()
+                .map(Device::getFcmToken)
+                .filter(token -> token != null && !token.isBlank())
+                .toList();
+    }
+
+    @Override
+    public long countDevices() {
+        return deviceRepository.count();
+    }
+}

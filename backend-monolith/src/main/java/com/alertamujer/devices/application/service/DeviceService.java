@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DeviceService {
@@ -89,16 +88,5 @@ public class DeviceService {
         Device device = getDeviceById(id, currentUserId);
         device.setFcmToken(fcmToken);
         return deviceRepository.save(device);
-    }
-
-    /**
-     * Obtener todos los tokens FCM activos de los dispositivos de un usuario
-     */
-    public List<String> getFcmTokensByUser(Long userProfileId) {
-        List<Device> devices = deviceRepository.findByAccountId(userProfileId);
-        return devices.stream()
-                .map(Device::getFcmToken)
-                .filter(token -> token != null && !token.isEmpty())
-                .collect(Collectors.toList());
     }
 }

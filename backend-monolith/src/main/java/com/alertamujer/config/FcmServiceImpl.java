@@ -1,6 +1,6 @@
 package com.alertamujer.config;
 
-import com.alertamujer.devices.application.service.DeviceService;
+import com.alertamujer.devices.api.DevicesApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,12 +12,12 @@ import java.util.List;
 public class FcmServiceImpl implements FcmService {
 
     private final FirebaseConfig firebaseConfig;
-    private final DeviceService deviceService;
+    private final DevicesApi devicesApi;
 
     @Autowired
-    public FcmServiceImpl(FirebaseConfig firebaseConfig, DeviceService deviceService) {
+    public FcmServiceImpl(FirebaseConfig firebaseConfig, DevicesApi devicesApi) {
         this.firebaseConfig = firebaseConfig;
-        this.deviceService = deviceService;
+        this.devicesApi = devicesApi;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class FcmServiceImpl implements FcmService {
 
     @Override
     public List<String> getFcmTokensByUser(Long userProfileId) {
-        return deviceService.getFcmTokensByUser(userProfileId);
+        return devicesApi.pushTokensOfProfile(userProfileId);
     }
 
     @Override
