@@ -28,6 +28,9 @@ public interface AlertsApi {
     /** Última revisión automática de alertas vencidas. */
     ExpirationStatus expirationStatus();
 
+    /** Alertas en las que se avisó a este correo como contacto de emergencia. */
+    List<Long> alertsNotifiedTo(String email);
+
     /** Envíos registrados para una alerta (correo y push a cada contacto). */
     List<AlertRecipient> recipientsOf(Long alertId);
 

@@ -85,6 +85,12 @@ public class AlertsApiService implements AlertsApi {
     }
 
     @Override
+    public List<Long> alertsNotifiedTo(String email) {
+        if (email == null || email.isBlank()) return List.of();
+        return alertContactRepository.findAlertIdsNotifiedTo(email.trim());
+    }
+
+    @Override
     public List<AlertRecipient> recipientsOf(Long alertId) {
         var envios = alertContactRepository.findByAlertId(alertId);
         Map<Long, String> nombres = emergencyContactRepository.findAllById(
