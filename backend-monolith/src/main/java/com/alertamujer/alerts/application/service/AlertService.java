@@ -24,16 +24,19 @@ public class AlertService {
     private final IdentityApi identityApi;
     private final FcmService fcmService;
     private final ApplicationEventPublisher events;
+    private final AlertContactService alertContactService;
 
     @Autowired
     public AlertService(AlertRepository alertRepository,
                        IdentityApi identityApi,
                        FcmService fcmService,
-                       ApplicationEventPublisher events) {
+                       ApplicationEventPublisher events,
+                       AlertContactService alertContactService) {
         this.alertRepository = alertRepository;
         this.identityApi = identityApi;
         this.fcmService = fcmService;
         this.events = events;
+        this.alertContactService = alertContactService;
     }
 
     /** Alertas de la usuaria autenticada, de la más reciente a la más antigua. */
@@ -90,13 +93,24 @@ public class AlertService {
         return alertRepository.findByUserProfileId(profileId);
     }
 
+    /**
+     * Activa una alerta y registra a quién se avisa (todos los contactos o solo los de contactIds).
+     * Solo puede haber una alerta en curso por usuaria: si ya hay una activa se devuelve esa, sin
+     * crear otra ni volver a avisar a los contactos.
+     */
+    @Transactional
     public Alert createAlert(Alert alert, Long currentUserId) {
         // El propietario se resuelve desde el JWT (users.id -> user_profile.id);
         // nunca se confía en el userProfileId que llega en el body (evita IDOR).
         Long profile = identityApi.findProfileId(currentUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", currentUserId));
+        Optional<Alert> enCurso = alertRepository.findFirstByUserProfileIdAndStatusOrderByStartedAtDesc(profile, "active");
+        if (enCurso.isPresent()) return enCurso.get();
+
         alert.setUserProfileId(profile);
-        return alertRepository.save(alert);
+        Alert creada = alertRepository.save(alert);
+        alertContactService.registrarDestinatarios(creada, alert.getContactIds());
+        return creada;
     }
 
     public Alert updateAlert(Long id, Alert alertDetails, Long currentUserId) {

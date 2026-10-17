@@ -74,9 +74,7 @@ public class AlertController {
 
     @PostMapping
     public ResponseEntity<Alert> createAlert(@RequestBody Alert alert, @AuthenticationPrincipal Long currentUserId) {
-        Alert creada = alertService.createAlert(alert, currentUserId);
-        alertContactService.registrarDestinatarios(creada, alert.getContactIds());
-        return ResponseEntity.ok(creada);
+        return ResponseEntity.ok(alertService.createAlert(alert, currentUserId));
     }
 
     /** Contactos avisados en una alerta y el estado de cada canal (solo la dueña de la alerta). */

@@ -39,6 +39,9 @@ class AlertServiceTest {
     @Mock
     private ApplicationEventPublisher events;
 
+    @Mock
+    private AlertContactService alertContactService;
+
     @InjectMocks
     private AlertService alertService;
 
@@ -88,6 +91,37 @@ class AlertServiceTest {
         assertEquals(10L, result.getUserProfileId());
         verify(identityApi, times(1)).findProfileId(1L);
         verify(alertRepository, times(1)).save(any(Alert.class));
+        verify(alertContactService).registrarDestinatarios(result, null);
+    }
+
+    @Test
+    void testCreateAlert_WithAlertInProgress_ReturnsItWithoutNotifyingAgain() {
+        Alert newAlert = new Alert();
+        newAlert.setDeviceId(1L);
+
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(testUserProfile));
+        when(alertRepository.findFirstByUserProfileIdAndStatusOrderByStartedAtDesc(testUserProfile, "active"))
+                .thenReturn(Optional.of(testAlert));
+
+        Alert result = alertService.createAlert(newAlert, 1L);
+
+        assertSame(testAlert, result);
+        verify(alertRepository, never()).save(any(Alert.class));
+        verifyNoInteractions(alertContactService);
+    }
+
+    @Test
+    void testCreateAlert_PassesChosenContactsToRecipients() {
+        Alert newAlert = new Alert();
+        newAlert.setDeviceId(1L);
+        newAlert.setContactIds(List.of(7L));
+
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(testUserProfile));
+        when(alertRepository.save(any(Alert.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Alert result = alertService.createAlert(newAlert, 1L);
+
+        verify(alertContactService).registrarDestinatarios(result, List.of(7L));
     }
 
     @Test
