@@ -75,6 +75,19 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
+    @ExceptionHandler(DuplicateFieldsException.class)
+    public ResponseEntity<ValidationErrorResponse> handleDuplicateFields(DuplicateFieldsException ex) {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ValidationErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message(ex.getMessage())
+                .fieldErrors(ex.getFieldErrors())
+                .build());
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflict(ConflictException ex) {
         return ResponseEntity

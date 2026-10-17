@@ -26,4 +26,13 @@ public class RegisterRequest {
     
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
     private String telefono;
+
+    @Size(max = 30, message = "El tipo de documento no puede exceder 30 caracteres")
+    private String tipoDocumento;
+
+    @Size(max = 30, message = "El número de documento no puede exceder 30 caracteres")
+    private String numeroDocumento;
+
+    /** DD/MM/AAAA, como lo escriben los formularios. */
+    private String fechaNacimiento;
 }

@@ -10,7 +10,7 @@ import com.alertamujer.identity.infrastructure.repository.AccountRepository;
 import com.alertamujer.identity.infrastructure.repository.RoleRepository;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
-import com.alertamujer.shared.exception.ConflictException;
+import com.alertamujer.shared.exception.DuplicateFieldsException;
 import com.alertamujer.shared.exception.InvalidCredentialsException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import io.jsonwebtoken.Claims;
@@ -19,9 +19,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
@@ -47,15 +52,40 @@ public class AuthService {
     }
 
     public User register(String nombre, String email, String password, String telefono) {
+        return register(nombre, email, password, telefono, null, null, null);
+    }
+
+    /**
+     * Crea la cuenta. Si el correo, el teléfono o el documento ya los usa otra cuenta, responde
+     * con todos los campos repetidos a la vez (para mostrar cada aviso debajo de su campo).
+     */
+    public User register(String nombre, String email, String password, String telefono,
+                         String tipoDocumento, String numeroDocumento, String fechaNacimiento) {
+        String telefonoLimpio = limpiarTelefono(telefono);
+        String documento = vacioANull(numeroDocumento);
+
+        Map<String, String> repetidos = new LinkedHashMap<>();
         if (userRepository.existsByEmail(email)) {
-            throw new ConflictException("Email already exists");
+            repetidos.put("email", "Este correo ya está registrado");
+        }
+        if (telefonoLimpio != null && userRepository.existsByTelephone(telefonoLimpio)) {
+            repetidos.put("telefono", "Este número de teléfono ya está registrado");
+        }
+        if (documento != null && userRepository.existsByDocumentNumber(documento)) {
+            repetidos.put("numeroDocumento", "Este número de documento ya está registrado");
+        }
+        if (!repetidos.isEmpty()) {
+            throw new DuplicateFieldsException(repetidos);
         }
 
         User user = new User();
         user.setFirstName(nombre.split(" ")[0]);
         user.setLastName(nombre.split(" ").length > 1 ? nombre.split(" ")[1] : "");
         user.setEmail(email);
-        user.setTelephone(telefono);
+        user.setTelephone(telefonoLimpio);
+        user.setDocumentType(vacioANull(tipoDocumento));
+        user.setDocumentNumber(documento);
+        user.setBirthdate(fecha(fechaNacimiento));
         
         Role userRole = roleRepository.findById(1L).orElseGet(() -> {
             Role role = new Role();
@@ -82,6 +112,24 @@ public class AuthService {
         }
 
         return user;
+    }
+
+    // "300 123-4567" y "3001234567" son el mismo número: se guarda sin espacios ni separadores
+    private static String limpiarTelefono(String telefono) {
+        return vacioANull(telefono == null ? null : telefono.replaceAll("[\\s().-]", ""));
+    }
+
+    private static String vacioANull(String valor) {
+        return valor == null || valor.isBlank() ? null : valor.trim();
+    }
+
+    private static LocalDate fecha(String ddMmAaaa) {
+        if (ddMmAaaa == null || ddMmAaaa.isBlank()) return null;
+        try {
+            return LocalDate.parse(ddMmAaaa.trim(), DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     public Map<String, Object> login(String email, String password) {

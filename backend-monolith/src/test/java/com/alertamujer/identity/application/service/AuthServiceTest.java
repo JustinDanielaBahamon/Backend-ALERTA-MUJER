@@ -9,6 +9,7 @@ import com.alertamujer.identity.infrastructure.repository.RoleRepository;
 import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import com.alertamujer.shared.exception.DuplicateFieldsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,6 +22,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -120,11 +122,44 @@ class AuthServiceTest {
         when(userRepository.existsByEmail("ana@test.com")).thenReturn(true);
 
         // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        DuplicateFieldsException exception = assertThrows(DuplicateFieldsException.class, () ->
             authService.register("Ana García", "ana@test.com", "Test123", "3001234567")
         );
-        assertEquals("Email already exists", exception.getMessage());
+        assertEquals(Map.of("email", "Este correo ya está registrado"), exception.getFieldErrors());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testRegister_ReportsEveryRepeatedField() {
+        when(userRepository.existsByEmail("ana@test.com")).thenReturn(true);
+        when(userRepository.existsByTelephone("3001234567")).thenReturn(true);
+        when(userRepository.existsByDocumentNumber("1075123456")).thenReturn(true);
+
+        DuplicateFieldsException exception = assertThrows(DuplicateFieldsException.class, () ->
+            authService.register("Ana García", "ana@test.com", "Test1234", "300 123-4567",
+                    "C.C", "1075123456", "01/02/2000"));
+
+        assertEquals(Set.of("email", "telefono", "numeroDocumento"), exception.getFieldErrors().keySet());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testRegister_StoresDocumentBirthdateAndCleanPhone() {
+        when(roleRepository.findById(1L)).thenReturn(Optional.of(userRole));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(1L);
+            return user;
+        });
+        when(accountRepository.save(any(Account.class))).thenReturn(testAccount);
+
+        User result = authService.register("Ana García", "ana@test.com", "Test1234", "300 123-4567",
+                "C.C", " 1075123456 ", "01/02/2000");
+
+        assertEquals("3001234567", result.getTelephone());
+        assertEquals("C.C", result.getDocumentType());
+        assertEquals("1075123456", result.getDocumentNumber());
+        assertEquals(java.time.LocalDate.of(2000, 2, 1), result.getBirthdate());
     }
 
     @Test

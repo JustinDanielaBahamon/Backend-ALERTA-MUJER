@@ -42,7 +42,10 @@ public class AuthController {
             request.getNombre(),
             request.getEmail(),
             request.getPassword(),
-            request.getTelefono()
+            request.getTelefono(),
+            request.getTipoDocumento(),
+            request.getNumeroDocumento(),
+            request.getFechaNacimiento()
         );
         
         String token = authService.generateTokenForUser(user);
