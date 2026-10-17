@@ -810,6 +810,7 @@ CREATE TABLE identity.device (
     last_access timestamp without time zone,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now(),
+    device_name character varying(100),
     CONSTRAINT chk_device_gps_status CHECK (((gps_status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying, 'unknown'::character varying, 'denied'::character varying])::text[]))),
     CONSTRAINT chk_device_status CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying, 'blocked'::character varying, 'lost'::character varying])::text[])))
 );
