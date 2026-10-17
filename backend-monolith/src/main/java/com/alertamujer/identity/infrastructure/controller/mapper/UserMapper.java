@@ -14,6 +14,7 @@ public interface UserMapper {
     @Mapping(target = "roleId", expression = "java(user.getRole() != null ? user.getRole().getId() : null)")
     @Mapping(target = "roleName", expression = "java(getRoleName(user))")
     @Mapping(target = "birthdate", expression = "java(user.getBirthdate() != null ? user.getBirthdate().toString() : null)")
+    @Mapping(target = "profilePhoto", ignore = true) // vive en user_profile: la agrega el controlador
     UserResponse toResponse(User user);
     
     default String getRoleName(User user) {

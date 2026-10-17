@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -79,5 +80,33 @@ class EmergencyContactServiceTest {
         assertEquals("Mamá Rosa", actualizado.getContactName());
         assertEquals("3001112233", actualizado.getTelephone());
         assertEquals("mama@correo.com", actualizado.getEmail());
+    }
+
+    @Test
+    void updateContact_guardaYQuitaLaFoto() {
+        EmergencyContact existente = new EmergencyContact();
+        existente.setId(3L);
+        existente.setUserProfileId(10L);
+        when(emergencyContactRepository.findById(3L)).thenReturn(java.util.Optional.of(existente));
+        when(emergencyContactRepository.save(any(EmergencyContact.class))).thenAnswer(inv -> inv.getArgument(0));
+        EmergencyContact conFoto = new EmergencyContact();
+        conFoto.setPhoto("data:image/jpeg;base64,/9j/4AAQ");
+
+        assertEquals("data:image/jpeg;base64,/9j/4AAQ", service.updateContact(3L, conFoto, 1L).getPhoto());
+        assertEquals("data:image/jpeg;base64,/9j/4AAQ", service.updateContact(3L, new EmergencyContact(), 1L).getPhoto());
+
+        EmergencyContact sinFoto = new EmergencyContact();
+        sinFoto.setPhoto("");
+        assertNull(service.updateContact(3L, sinFoto, 1L).getPhoto());
+    }
+
+    @Test
+    void createContact_rechazaUnaFotoQueNoEsImagen() {
+        when(emergencyContactRepository.findByUserProfileId(10L)).thenReturn(List.of());
+        EmergencyContact contacto = new EmergencyContact();
+        contacto.setPhoto("<script>");
+
+        assertThrows(IllegalArgumentException.class, () -> service.createContact(contacto, 1L));
+        verify(emergencyContactRepository, never()).save(any());
     }
 }

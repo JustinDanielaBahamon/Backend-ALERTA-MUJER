@@ -23,6 +23,8 @@ public class UserResponse {
     private String documentNumber;
     private String documentType;
     private String birthdate;
+    /** Foto de perfil (data URI) o null. */
+    private String profilePhoto;
     private LocalDateTime createdAt;
     
     public String getFullName() {

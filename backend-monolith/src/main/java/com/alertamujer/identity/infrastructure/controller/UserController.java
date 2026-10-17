@@ -27,13 +27,13 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
-        return ResponseEntity.ok(userMapper.toResponse(userService.getMe(userId)));
+        return ResponseEntity.ok(conFoto(userMapper.toResponse(userService.getMe(userId)), userId));
     }
 
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateMe(Authentication authentication, @RequestBody Map<String, Object> updates) {
         Long userId = (Long) authentication.getPrincipal();
-        return ResponseEntity.ok(userMapper.toResponse(userService.updateMe(userId, updates)));
+        return ResponseEntity.ok(conFoto(userMapper.toResponse(userService.updateMe(userId, updates)), userId));
     }
 
     @PutMapping("/me/password")
@@ -43,4 +43,9 @@ public class UserController {
     }
 
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
+
+    private UserResponse conFoto(UserResponse respuesta, Long userId) {
+        respuesta.setProfilePhoto(userService.getProfilePhoto(userId));
+        return respuesta;
+    }
 }

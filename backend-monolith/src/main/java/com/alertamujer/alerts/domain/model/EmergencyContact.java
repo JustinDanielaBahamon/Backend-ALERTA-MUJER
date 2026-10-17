@@ -29,6 +29,10 @@ public class EmergencyContact {
     private String email;
     private String relationship;
 
+    /** Foto del contacto como data URI de imagen pequeña (ver FotoDataUri). */
+    @Column(columnDefinition = "text")
+    private String photo;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

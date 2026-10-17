@@ -1,7 +1,10 @@
 package com.alertamujer.identity.application.service;
 
 import com.alertamujer.identity.domain.model.User;
+import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.identity.infrastructure.repository.UserProfileRepository;
 import com.alertamujer.identity.infrastructure.repository.UserRepository;
+import com.alertamujer.shared.web.FotoDataUri;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -10,9 +13,16 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserProfileRepository userProfileRepository) {
         this.userRepository = userRepository;
+        this.userProfileRepository = userProfileRepository;
+    }
+
+    /** Foto de perfil de la usuaria (data URI) o null. */
+    public String getProfilePhoto(Long userId) {
+        return userProfileRepository.findByUserId(userId).map(UserProfile::getProfilePhotoUrl).orElse(null);
     }
 
     public User getMe(Long userId) {
@@ -46,6 +56,16 @@ public class UserService {
             } catch (Exception ignored) {
                 // Formato inválido: se ignora el valor de birthdate
             }
+        }
+
+        // Foto de perfil: "" o null la quitan
+        if (updates.containsKey("profilePhoto")) {
+            Object foto = updates.get("profilePhoto");
+            String valida = FotoDataUri.validar(foto == null ? null : String.valueOf(foto));
+            userProfileRepository.findByUserId(userId).ifPresent(perfil -> {
+                perfil.setProfilePhotoUrl(valida);
+                userProfileRepository.save(perfil);
+            });
         }
 
         return userRepository.save(user);

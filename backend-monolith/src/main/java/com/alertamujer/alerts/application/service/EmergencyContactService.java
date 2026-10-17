@@ -6,6 +6,7 @@ import com.alertamujer.alerts.infrastructure.repository.EmergencyContactReposito
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
+import com.alertamujer.shared.web.FotoDataUri;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -71,6 +72,7 @@ public class EmergencyContactService {
             throw new IllegalArgumentException("Puedes tener como máximo " + maximo + " contactos de emergencia");
         }
         contact.setUserProfileId(profile);
+        contact.setPhoto(FotoDataUri.validar(contact.getPhoto()));
         return emergencyContactRepository.save(contact);
     }
 
@@ -90,6 +92,8 @@ public class EmergencyContactService {
         if (contactDetails.getTelephone() != null) contact.setTelephone(contactDetails.getTelephone());
         if (contactDetails.getEmail() != null) contact.setEmail(contactDetails.getEmail().isBlank() ? null : contactDetails.getEmail().trim());
         if (contactDetails.getRelationship() != null) contact.setRelationship(contactDetails.getRelationship());
+        // "" quita la foto; null la deja como estaba
+        if (contactDetails.getPhoto() != null) contact.setPhoto(FotoDataUri.validar(contactDetails.getPhoto()));
 
         return emergencyContactRepository.save(contact);
     }
