@@ -101,6 +101,32 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Evidencias (video y audio) en almacenamiento S3: Backblaze B2 en producción, MinIO en local -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.56.0</version>
+            <!-- Sus clientes HTTP Apache chocan con el httpclient5 que fija Spring Boot 3.2 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache5-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>netty-nio-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>url-connection-client</artifactId>
+            <version>2.56.0</version>
+        </dependency>
         <!-- Monolito modular: anotaciones para declarar la API pública de cada módulo -->
         <dependency>
             <groupId>org.springframework.modulith</groupId>
