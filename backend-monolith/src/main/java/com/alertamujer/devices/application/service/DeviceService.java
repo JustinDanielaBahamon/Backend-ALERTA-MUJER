@@ -8,6 +8,7 @@ import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,6 +46,7 @@ public class DeviceService {
     public Device createDevice(Device device, Long currentUserId) {
         Long accountId = identityApi.requireAccountId(currentUserId);
         device.setAccountId(accountId);
+        device.setLastAccess(LocalDateTime.now());
         return deviceRepository.save(device);
     }
 
@@ -65,6 +67,29 @@ public class DeviceService {
             existing.setFcmToken(device.getFcmToken());
         }
         return deviceRepository.save(existing);
+    }
+
+    /**
+     * La app lo llama al abrirse: actualiza los datos del celular que vengan (marca, modelo, nombre,
+     * versiones, GPS) sin borrar los que no envía, y marca la última conexión.
+     */
+    @Transactional
+    public Device registrarUso(Long id, Device datos, Long currentUserId) {
+        Device existing = getDeviceById(id, currentUserId);
+        if (datos.getBrand() != null) existing.setBrand(recortar(datos.getBrand(), 50));
+        if (datos.getModel() != null) existing.setModel(recortar(datos.getModel(), 100));
+        if (datos.getDeviceName() != null) existing.setDeviceName(recortar(datos.getDeviceName(), 100));
+        if (datos.getOsName() != null) existing.setOsName(recortar(datos.getOsName(), 30));
+        if (datos.getOsVersion() != null) existing.setOsVersion(recortar(datos.getOsVersion(), 30));
+        if (datos.getAppVersion() != null) existing.setAppVersion(recortar(datos.getAppVersion(), 30));
+        if (datos.getGpsStatus() != null) existing.setGpsStatus(datos.getGpsStatus());
+        existing.setLastAccess(LocalDateTime.now());
+        return deviceRepository.save(existing);
+    }
+
+    private static String recortar(String valor, int max) {
+        String v = valor.trim();
+        return v.length() > max ? v.substring(0, max) : v;
     }
 
     @Transactional

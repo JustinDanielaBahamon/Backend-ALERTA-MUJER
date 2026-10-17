@@ -29,6 +29,10 @@ public class Device {
     private String brand;
     private String model;
 
+    /** Nombre del celular en Android ("Galaxy de Ana"); lo envía la app. */
+    @Column(name = "device_name", length = 100)
+    private String deviceName;
+
     @Column(name = "os_name", nullable = false)
     private String osName;
 

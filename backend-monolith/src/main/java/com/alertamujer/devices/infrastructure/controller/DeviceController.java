@@ -62,6 +62,13 @@ public class DeviceController {
         return ResponseEntity.ok(deviceService.updateDevice(id, device, currentUserId));
     }
 
+    /** La app informa los datos actuales del celular y su última conexión (solo la dueña). */
+    @PutMapping("/{id}/info")
+    public ResponseEntity<Device> registrarUso(@PathVariable Long id, @RequestBody Device datos,
+                                               @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(deviceService.registrarUso(id, datos, currentUserId));
+    }
+
     /**
      * Registra el token push (FCM) del dispositivo de la usuaria. Responde 204 para no devolver el
      * token; solo la dueña del dispositivo puede cambiarlo.
