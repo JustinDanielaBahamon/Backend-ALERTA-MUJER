@@ -2,6 +2,7 @@ package com.alertamujer.notifications.application;
 
 import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.alerts.api.AlertsApi;
+import com.alertamujer.evidence.api.EvidenceApi;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.notifications.domain.model.TrackingLink;
@@ -39,6 +40,9 @@ class TrackingLinkServiceTest {
     @Mock
     private com.alertamujer.settings.api.SettingsApi settingsApi;
 
+    @Mock
+    private EvidenceApi evidenceApi;
+
     @InjectMocks
     private TrackingLinkService service;
 
@@ -75,10 +79,14 @@ class TrackingLinkServiceTest {
         when(identityApi.findUserByProfileId(10L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", "Gómez", "a@b.co", "300", 1L, null)));
         when(alertsApi.locationTrail(5L)).thenReturn(List.of());
         when(settingsApi.numeroEmergencia()).thenReturn("123");
+        when(evidenceApi.evidenciasDeAlerta(5L)).thenReturn(List.of(
+                new EvidenceApi.EvidenceSummary(8L, "video", "video/mp4", 4_000_000L, AHORA.minusMinutes(50))));
 
         TrackingLinkService.TrackingView vista = service.consultar(CODIGO, AHORA);
 
         assertEquals("Ana", vista.firstName());
+        assertEquals(1, vista.evidence().size());
+        assertEquals("video", vista.evidence().get(0).mediaType());
         assertEquals("123", vista.emergencyNumber());
         assertTrue(vista.active());
         assertEquals(new BigDecimal("2.93"), vista.lastPoint().latitude()); // sin recorrido aún: punto de activación
@@ -97,5 +105,31 @@ class TrackingLinkServiceTest {
         conEnlace(AHORA);
         assertThrows(ResourceNotFoundException.class, () -> service.consultar(CODIGO, AHORA));
         assertThrows(ResourceNotFoundException.class, () -> service.consultar("corto", AHORA));
+    }
+
+    @Test
+    void evidencia_seEntregaMientrasElEnlaceSigaVigente() {
+        conEnlace(null);
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("active", null)));
+        var archivo = new EvidenceApi.EvidenceFile("audio/mp4", "audio.m4a", null, Optional.empty());
+        when(evidenceApi.archivo(5L, 8L)).thenReturn(Optional.of(archivo));
+
+        assertEquals(archivo, service.evidencia(CODIGO, 8L, AHORA));
+    }
+
+    @Test
+    void evidencia_noSeEntregaConEnlaceVencidoNiDeOtraAlerta() {
+        conEnlace(null);
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("resolved", AHORA.minusHours(3))));
+        assertThrows(ResourceNotFoundException.class, () -> service.evidencia(CODIGO, 8L, AHORA));
+        verify(evidenceApi, org.mockito.Mockito.never()).archivo(org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyLong());
+    }
+
+    @Test
+    void evidencia_deOtraAlertaNoExiste() {
+        conEnlace(null);
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("active", null)));
+        when(evidenceApi.archivo(5L, 99L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> service.evidencia(CODIGO, 99L, AHORA));
     }
 }
