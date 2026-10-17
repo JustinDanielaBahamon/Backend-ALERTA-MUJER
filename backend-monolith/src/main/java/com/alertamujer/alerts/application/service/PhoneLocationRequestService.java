@@ -2,6 +2,7 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.config.FcmService;
 import com.alertamujer.devices.api.DevicesApi;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -27,6 +28,7 @@ public class PhoneLocationRequestService {
     private final Clock clock;
     private final Map<Long, Instant> ultimoPedido = new ConcurrentHashMap<>();
 
+    @Autowired
     public PhoneLocationRequestService(DevicesApi devicesApi, FcmService fcmService) {
         this(devicesApi, fcmService, Clock.systemUTC());
     }
