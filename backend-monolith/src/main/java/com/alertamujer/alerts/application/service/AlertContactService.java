@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Destinatarios de una alerta: qué contactos se deben avisar, por qué canal y en qué estado
@@ -50,11 +52,24 @@ public class AlertContactService {
         this.events = events;
     }
 
-    /** Crea un registro por cada contacto de la usuaria y cada canal disponible para ese contacto. */
+    /**
+     * Crea un registro por cada contacto avisado y cada canal disponible para ese contacto. Sin
+     * contactIds se avisa a todos los contactos de la usuaria; con contactIds, solo a esos (deben
+     * ser suyos: un id ajeno o borrado cancela la alerta en vez de avisar a otras personas).
+     */
     @Transactional
-    public void registrarDestinatarios(Alert alert) {
+    public void registrarDestinatarios(Alert alert, List<Long> contactIds) {
+        List<EmergencyContact> contactos = emergencyContactRepository.findByUserProfileId(alert.getUserProfileId());
+        if (contactIds != null && !contactIds.isEmpty()) {
+            Set<Long> elegidos = contactIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+            contactos = contactos.stream().filter(c -> elegidos.contains(c.getId())).toList();
+            if (contactos.size() != elegidos.size()) {
+                throw new IllegalArgumentException("Alguno de los contactos elegidos no existe");
+            }
+        }
+
         List<AlertContact> registros = new ArrayList<>();
-        for (EmergencyContact contacto : emergencyContactRepository.findByUserProfileId(alert.getUserProfileId())) {
+        for (EmergencyContact contacto : contactos) {
             String correo = contacto.getEmail() == null ? "" : contacto.getEmail().trim();
             if (!correo.isEmpty()) {
                 registros.add(nuevo(alert.getId(), contacto.getId(), CANAL_CORREO, correo));

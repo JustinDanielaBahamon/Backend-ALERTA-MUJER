@@ -19,7 +19,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +71,7 @@ class AlertContactServiceTest {
         when(identityApi.findUserByEmail("app@correo.com")).thenReturn(Optional.of(new UserSummary(3L, "Eva", null, "app@correo.com", null, 1L, null)));
 
         Alert activa = alerta("active");
-        service.registrarDestinatarios(activa);
+        service.registrarDestinatarios(activa, null);
 
         ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
         verify(alertContactRepository).saveAll(captor.capture());
@@ -80,6 +83,35 @@ class AlertContactServiceTest {
         assertEquals(2L, registros.get(2).getEmergencyContactId());
         assertEquals("pending", registros.get(2).getStatus());
         verify(events).publishEvent(new com.alertamujer.alerts.api.AlertActivatedEvent(5L, 10L, activa.getStartedAt()));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void registrarDestinatarios_alertaIndividualSoloAvisaAlContactoElegido() {
+        when(emergencyContactRepository.findByUserProfileId(10L)).thenReturn(List.of(
+                contacto(1L, "Mamá", "mama@correo.com"),
+                contacto(2L, "Amiga", "amiga@correo.com")));
+        when(identityApi.findUserByEmail(anyString())).thenReturn(Optional.empty());
+
+        service.registrarDestinatarios(alerta("active"), List.of(2L));
+
+        ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
+        verify(alertContactRepository).saveAll(captor.capture());
+        List<AlertContact> registros = captor.getValue();
+        assertEquals(1, registros.size());
+        assertEquals(2L, registros.get(0).getEmergencyContactId());
+        assertEquals("amiga@correo.com", registros.get(0).getDestination());
+    }
+
+    @Test
+    void registrarDestinatarios_contactoAjenoNoAvisaANadie() {
+        when(emergencyContactRepository.findByUserProfileId(10L)).thenReturn(List.of(
+                contacto(1L, "Mamá", "mama@correo.com")));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.registrarDestinatarios(alerta("active"), List.of(99L)));
+        verify(alertContactRepository, never()).saveAll(any());
+        verify(events, never()).publishEvent(any());
     }
 
     @Test

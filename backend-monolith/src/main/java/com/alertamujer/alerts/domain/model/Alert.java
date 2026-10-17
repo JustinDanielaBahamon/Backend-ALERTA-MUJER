@@ -1,8 +1,10 @@
 package com.alertamujer.alerts.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -56,4 +58,12 @@ public class Alert {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    /**
+     * Solo al crear: contactos a los que se avisa (alerta individual desde el módulo de contactos).
+     * Vacío o ausente = todos los contactos. No se guarda en la tabla alert: queda en alert_contact.
+     */
+    @Transient
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Long> contactIds;
 }

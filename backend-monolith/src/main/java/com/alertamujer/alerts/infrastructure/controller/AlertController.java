@@ -75,7 +75,7 @@ public class AlertController {
     @PostMapping
     public ResponseEntity<Alert> createAlert(@RequestBody Alert alert, @AuthenticationPrincipal Long currentUserId) {
         Alert creada = alertService.createAlert(alert, currentUserId);
-        alertContactService.registrarDestinatarios(creada);
+        alertContactService.registrarDestinatarios(creada, alert.getContactIds());
         return ResponseEntity.ok(creada);
     }
 
