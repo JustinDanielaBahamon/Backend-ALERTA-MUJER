@@ -1,6 +1,7 @@
 package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.api.AdminAlertView;
+import com.alertamujer.alerts.api.AlertMessageView;
 import com.alertamujer.alerts.api.AlertRecipient;
 import com.alertamujer.alerts.api.LocationPoint;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
@@ -33,16 +34,19 @@ public class AlertsApiService implements AlertsApi {
     private final EmergencyContactRepository emergencyContactRepository;
     private final LocationLogRepository locationLogRepository;
 
+    private final AlertMessageService alertMessageService;
+
     public AlertsApiService(AlertRepository alertRepository, AdminAlertService adminAlertService,
                             AlertExpirationJob alertExpirationJob, AlertContactRepository alertContactRepository,
                             EmergencyContactRepository emergencyContactRepository,
-                            LocationLogRepository locationLogRepository) {
+                            LocationLogRepository locationLogRepository, AlertMessageService alertMessageService) {
         this.alertRepository = alertRepository;
         this.adminAlertService = adminAlertService;
         this.alertExpirationJob = alertExpirationJob;
         this.alertContactRepository = alertContactRepository;
         this.emergencyContactRepository = emergencyContactRepository;
         this.locationLogRepository = locationLogRepository;
+        this.alertMessageService = alertMessageService;
     }
 
     @Override
@@ -112,6 +116,16 @@ public class AlertsApiService implements AlertsApi {
             e.setErrorMessage(errorMessage == null ? null : errorMessage.length() > 500 ? errorMessage.substring(0, 500) : errorMessage);
             alertContactRepository.save(e);
         });
+    }
+
+    @Override
+    public List<AlertMessageView> messagesOf(Long alertId, Long afterId) {
+        return alertMessageService.mensajes(alertId, afterId);
+    }
+
+    @Override
+    public AlertMessageView addContactMessage(Long alertId, String senderName, String body) {
+        return alertMessageService.enviarDeContacto(alertId, senderName, body);
     }
 
     @Override

@@ -132,4 +132,26 @@ class TrackingLinkServiceTest {
         when(evidenceApi.archivo(5L, 99L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> service.evidencia(CODIGO, 99L, AHORA));
     }
+
+    @Test
+    void chat_elContactoEscribeYNoPuedeInundarlo() {
+        conEnlace(null);
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("active", null)));
+        var mensaje = new com.alertamujer.alerts.api.AlertMessageView(1L, "contact", "Ana", "Voy en camino", AHORA);
+        when(alertsApi.addContactMessage(5L, "Ana", "Voy en camino")).thenReturn(mensaje);
+
+        assertEquals(mensaje, service.enviarMensaje(CODIGO, "Ana", "Voy en camino", AHORA));
+        // Otro mensaje un segundo después: muy seguido
+        assertThrows(IllegalArgumentException.class,
+                () -> service.enviarMensaje(CODIGO, "Ana", "Voy en camino", AHORA.plusSeconds(1)));
+    }
+
+    @Test
+    void chat_conEnlaceVencidoNoSeLeeNiSeEscribe() {
+        conEnlace(null);
+        when(alertsApi.findAlert(5L)).thenReturn(Optional.of(alerta("resolved", AHORA.minusHours(3))));
+
+        assertThrows(ResourceNotFoundException.class, () -> service.mensajes(CODIGO, 0L, AHORA));
+        assertThrows(ResourceNotFoundException.class, () -> service.enviarMensaje(CODIGO, "Ana", "hola", AHORA));
+    }
 }

@@ -37,6 +37,12 @@ public interface AlertsApi {
     /** Guarda el resultado de un envío: "sent" o "failed" (con el motivo). */
     void markDelivery(Long recipientId, String status, String errorMessage);
 
+    /** Chat de la alerta: mensajes posteriores a afterId (null = todos). */
+    List<AlertMessageView> messagesOf(Long alertId, Long afterId);
+
+    /** Mensaje de un contacto (desde el seguimiento). IllegalArgumentException si la alerta terminó. */
+    AlertMessageView addContactMessage(Long alertId, String senderName, String body);
+
     /** Recorrido de la alerta, del primer punto al último. */
     List<LocationPoint> locationTrail(Long alertId);
 
