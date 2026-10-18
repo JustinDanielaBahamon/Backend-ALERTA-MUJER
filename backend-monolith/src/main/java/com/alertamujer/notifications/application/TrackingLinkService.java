@@ -1,6 +1,7 @@
 package com.alertamujer.notifications.application;
 
 import com.alertamujer.alerts.api.AlertSummary;
+import com.alertamujer.alerts.api.AlertMessageView;
 import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.evidence.api.EvidenceApi;
 import com.alertamujer.alerts.api.LocationPoint;
@@ -19,7 +20,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Base64;
 import java.util.HexFormat;
 import java.util.List;
@@ -94,6 +99,39 @@ public class TrackingLinkService {
         AlertSummary alerta = alertaVigente(codigo, ahora);
         return evidenceApi.archivo(alerta.id(), evidenciaId)
                 .orElseThrow(() -> new ResourceNotFoundException("La evidencia no existe"));
+    }
+
+    /** Chat de la alerta para el contacto: mensajes posteriores a afterId. */
+    @Transactional(readOnly = true)
+    public List<AlertMessageView> mensajes(String codigo, Long afterId, LocalDateTime ahora) {
+        return alertsApi.messagesOf(alertaVigente(codigo, ahora).id(), afterId);
+    }
+
+    /**
+     * Mensaje del contacto en el chat de la alerta. Como mucho uno cada 2 s y 30 cada 10 minutos por
+     * enlace, para que nadie pueda llenar el chat.
+     */
+    @Transactional
+    public AlertMessageView enviarMensaje(String codigo, String nombre, String texto, LocalDateTime ahora) {
+        AlertSummary alerta = alertaVigente(codigo, ahora);
+        limitarEnvios(hash(codigo), ahora);
+        return alertsApi.addContactMessage(alerta.id(), nombre, texto);
+    }
+
+    private final Map<String, Deque<LocalDateTime>> enviosPorEnlace = new ConcurrentHashMap<>();
+
+    private void limitarEnvios(String clave, LocalDateTime ahora) {
+        Deque<LocalDateTime> envios = enviosPorEnlace.computeIfAbsent(clave, k -> new ArrayDeque<>());
+        synchronized (envios) {
+            while (!envios.isEmpty() && envios.peekFirst().isBefore(ahora.minusMinutes(10))) envios.pollFirst();
+            if (!envios.isEmpty() && envios.peekLast().isAfter(ahora.minusSeconds(2))) {
+                throw new IllegalArgumentException("Espera un momento antes de enviar otro mensaje");
+            }
+            if (envios.size() >= 30) {
+                throw new IllegalArgumentException("Enviaste muchos mensajes seguidos. Espera unos minutos");
+            }
+            envios.addLast(ahora);
+        }
     }
 
     private AlertSummary alertaVigente(String codigo, LocalDateTime ahora) {
