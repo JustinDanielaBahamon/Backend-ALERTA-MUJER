@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 
@@ -37,6 +38,11 @@ public class FcmServiceImpl implements FcmService {
                         .setAndroidConfig(AndroidConfig.builder()
                                 .setPriority(AndroidConfig.Priority.HIGH)
                                 .setTtl(Duration.ofMinutes(5).toMillis())
+                                .build())
+                        // Navegadores (panel web): entregar ya, y no más de 5 minutos tarde
+                        .setWebpushConfig(WebpushConfig.builder()
+                                .putHeader("Urgency", "high")
+                                .putHeader("TTL", "300")
                                 .build())
                         .build());
             } catch (Exception e) {
