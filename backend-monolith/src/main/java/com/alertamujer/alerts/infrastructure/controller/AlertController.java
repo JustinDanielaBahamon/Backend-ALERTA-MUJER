@@ -1,6 +1,8 @@
 package com.alertamujer.alerts.infrastructure.controller;
 
 import com.alertamujer.alerts.api.AdminAlertView;
+import com.alertamujer.alerts.api.AlertMessageView;
+import com.alertamujer.alerts.application.service.AlertMessageService;
 import com.alertamujer.alerts.application.service.AdminAlertService;
 import com.alertamujer.alerts.application.service.AlertContactService;
 import com.alertamujer.alerts.application.service.AlertService;
@@ -23,13 +25,15 @@ public class AlertController {
     private final LocationLogService locationLogService;
     private final AlertContactService alertContactService;
     private final AdminAlertService adminAlertService;
+    private final AlertMessageService alertMessageService;
 
     public AlertController(AlertService alertService, LocationLogService locationLogService,
-                           AlertContactService alertContactService, AdminAlertService adminAlertService) {
+                           AlertContactService alertContactService, AdminAlertService adminAlertService, AlertMessageService alertMessageService) {
         this.alertService = alertService;
         this.locationLogService = locationLogService;
         this.alertContactService = alertContactService;
         this.adminAlertService = adminAlertService;
+        this.alertMessageService = alertMessageService;
     }
 
     /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
@@ -85,6 +89,22 @@ public class AlertController {
                 .map(alert -> ResponseEntity.ok(alertContactService.contactosDeAlerta(alert)))
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    /** Chat de la alerta (solo la dueña). after: id del último mensaje que ya tiene (0 = todos). */
+    @GetMapping("/{id}/messages")
+    public ResponseEntity<List<AlertMessageView>> getMessages(@PathVariable Long id,
+                                                              @RequestParam(defaultValue = "0") Long after,
+                                                              @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(alertMessageService.mensajesDeLaDuena(id, currentUserId, after));
+    }
+
+    @PostMapping("/{id}/messages")
+    public ResponseEntity<AlertMessageView> sendMessage(@PathVariable Long id, @RequestBody MensajeRequest request,
+                                                        @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(alertMessageService.enviarDeLaDuena(id, currentUserId, request.body()));
+    }
+
+    public record MensajeRequest(String body) {}
 
     @PutMapping("/{id}")
     public ResponseEntity<Alert> updateAlert(@PathVariable Long id, @RequestBody Alert alert, @AuthenticationPrincipal Long currentUserId) {

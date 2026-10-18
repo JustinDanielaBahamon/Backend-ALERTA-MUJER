@@ -135,3 +135,7 @@ databaseChangeLog:
   - include:
       file: changesets/v1.6.0/11-photos.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.6.0/12-alert-message.sql
+      relativeToChangelogFile: true
