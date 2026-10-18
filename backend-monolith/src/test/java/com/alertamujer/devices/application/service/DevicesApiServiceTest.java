@@ -65,4 +65,17 @@ class DevicesApiServiceTest {
 
         assertEquals(List.of("tok-2"), api.pushTokensOfUser(7L));
     }
+
+    @Test
+    void phonePushTokensOfUser_dejaFueraLosNavegadores() {
+        when(identityApi.requireAccountId(7L)).thenReturn(39L);
+        var celular = dispositivo("tok-celular");
+        celular.setOsName("android");
+        var navegador = dispositivo("tok-navegador");
+        navegador.setOsName("web");
+        when(deviceRepository.findByAccountId(39L)).thenReturn(List.of(celular, navegador));
+
+        assertEquals(List.of("tok-celular", "tok-navegador"), api.pushTokensOfUser(7L));
+        assertEquals(List.of("tok-celular"), api.phonePushTokensOfUser(7L));
+    }
 }
