@@ -24,7 +24,7 @@ class PhoneLocationRequestServiceTest {
 
     @Test
     void mandaUnPushSilencioso() {
-        when(devicesApi.pushTokensOfUser(1L)).thenReturn(List.of("t1"));
+        when(devicesApi.phonePushTokensOfUser(1L)).thenReturn(List.of("t1"));
         when(fcmService.sendEmergencyAlert(anyList(), anyMap())).thenReturn(List.of());
 
         assertEquals(1, service.pedir(1L).celulares());
@@ -33,14 +33,14 @@ class PhoneLocationRequestServiceTest {
 
     @Test
     void sinCelularConNotificacionesAvisa() {
-        when(devicesApi.pushTokensOfUser(1L)).thenReturn(List.of());
+        when(devicesApi.phonePushTokensOfUser(1L)).thenReturn(List.of());
         assertThrows(IllegalStateException.class, () -> service.pedir(1L));
         verifyNoInteractions(fcmService);
     }
 
     @Test
     void noRepiteElPedidoEnPocosSegundos() {
-        when(devicesApi.pushTokensOfUser(1L)).thenReturn(List.of("t1"));
+        when(devicesApi.phonePushTokensOfUser(1L)).thenReturn(List.of("t1"));
         when(fcmService.sendEmergencyAlert(anyList(), anyMap())).thenReturn(List.of());
         service.pedir(1L);
         assertThrows(IllegalStateException.class, () -> service.pedir(1L));

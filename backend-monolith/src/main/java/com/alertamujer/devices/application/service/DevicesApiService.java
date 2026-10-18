@@ -44,6 +44,22 @@ public class DevicesApiService implements DevicesApi {
         }
     }
 
+    @Override
+    public List<String> phonePushTokensOfUser(Long userId) {
+        try {
+            return deviceRepository.findByAccountId(identityApi.requireAccountId(userId)).stream()
+                    .filter(d -> !OS_WEB.equalsIgnoreCase(d.getOsName()))
+                    .map(Device::getFcmToken)
+                    .filter(token -> token != null && !token.isBlank())
+                    .toList();
+        } catch (com.alertamujer.shared.exception.ResourceNotFoundException e) {
+            return List.of();
+        }
+    }
+
+    /** osName con el que se registra el panel web (recibe notificaciones del navegador). */
+    public static final String OS_WEB = "web";
+
     private List<String> tokensDeCuenta(Long accountId) {
         return deviceRepository.findByAccountId(accountId).stream()
                 .map(Device::getFcmToken)

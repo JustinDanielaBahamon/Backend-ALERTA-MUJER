@@ -46,7 +46,8 @@ public class PhoneLocationRequestService {
         if (anterior != null && anterior.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(ahora)) {
             throw new IllegalStateException("Ya se pidió la ubicación hace un momento. Espera unos segundos.");
         }
-        List<String> tokens = devicesApi.pushTokensOfUser(userId);
+        // Solo celulares: un navegador no tiene GPS ni puede responder
+        List<String> tokens = devicesApi.phonePushTokensOfUser(userId);
         if (tokens.isEmpty()) {
             throw new IllegalStateException("Tu celular no tiene la app con notificaciones activas. Abre AlertaMujer en el celular e inicia sesión.");
         }

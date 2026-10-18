@@ -11,6 +11,9 @@ public interface DevicesApi {
     /** Tokens FCM de los dispositivos de una persona (users.id); vacío si no tiene cuenta o dispositivos. */
     List<String> pushTokensOfUser(Long userId);
 
+    /** Tokens push solo de celulares (sin navegadores web): para pedir la ubicación por GPS. */
+    List<String> phonePushTokensOfUser(Long userId);
+
     /** Número de dispositivos registrados (estadísticas del panel). */
     long countDevices();
 }
