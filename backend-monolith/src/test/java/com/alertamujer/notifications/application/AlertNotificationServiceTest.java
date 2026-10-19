@@ -114,9 +114,18 @@ class AlertNotificationServiceTest {
     @Test
     void elNombreDelContactoSeEscapaEnElHtml() {
         EmailSender.EmailMessage m = AlertEmailTemplate.construir("a@b.co", "<script>x</script>", "Ana", null,
-                "https://x/seguimiento/C", null, "123");
+                "https://x/seguimiento/C", null, "123", "https://web/email/logo.png");
 
         assertTrue(m.html().contains("&lt;script&gt;"));
+    }
+
+    @Test
+    void elCorreoLlevaElLogoDeLaAppYElEnlaceDeSeguimiento() {
+        EmailSender.EmailMessage m = AlertEmailTemplate.construir("a@b.co", "Mamá", "Ana", null,
+                "https://x/seguimiento/C", null, "123", EmailLayout.logoUrl("https://web.app/"));
+
+        assertTrue(m.html().contains("src=\"https://web.app/email/logo.png\""));
+        assertTrue(m.html().contains("href=\"https://x/seguimiento/C\""));
     }
 
     @Test

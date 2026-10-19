@@ -114,7 +114,7 @@ public class AlertNotificationService {
             try {
                 if (AlertsChannels.EMAIL.equals(envio.channel())) {
                     emailSender.send(AlertEmailTemplate.construirFin(envio.destination(), envio.contactName(), nombre,
-                            evento.status(), evento.endedAt(), settingsApi.numeroEmergencia()));
+                            evento.status(), evento.endedAt(), settingsApi.numeroEmergencia(), EmailLayout.logoUrl(webBaseUrl)));
                 } else if (AlertsChannels.PUSH.equals(envio.channel()) && envio.emergencyContactId() != null) {
                     List<String> tokens = identityApi.findUserByEmail(correoPorContacto.get(envio.emergencyContactId()))
                             .map(u -> devicesApi.pushTokensOfUser(u.id()))
@@ -140,7 +140,7 @@ public class AlertNotificationService {
                 ? TrackingLinkService.googleMaps(alerta.latitude(), alerta.longitude()) : null;
         try {
             emailSender.send(AlertEmailTemplate.construir(envio.destination(), envio.contactName(), nombre,
-                    evento.startedAt(), seguimiento, maps, settingsApi.numeroEmergencia()));
+                    evento.startedAt(), seguimiento, maps, settingsApi.numeroEmergencia(), EmailLayout.logoUrl(webBaseUrl)));
             alertsApi.markDelivery(envio.id(), "sent", null);
         } catch (EmailSender.EmailException e) {
             alertsApi.markDelivery(envio.id(), "failed", e.getMessage());
