@@ -34,7 +34,9 @@ public class LocationLogController {
     @PostMapping
     public ResponseEntity<LocationLog> saveLocation(@RequestBody LocationLogRequest request,
                                                     @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(locationLogService.saveLocation(request, currentUserId));
+        LocationLog guardada = locationLogService.saveLocation(request, currentUserId);
+        // 202: llegó bien pero no se guarda (es de un celular que no es el principal)
+        return guardada == null ? ResponseEntity.accepted().build() : ResponseEntity.ok(guardada);
     }
 
     @GetMapping("/me")

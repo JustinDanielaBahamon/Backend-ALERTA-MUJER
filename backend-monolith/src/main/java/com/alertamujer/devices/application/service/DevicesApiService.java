@@ -68,6 +68,25 @@ public class DevicesApiService implements DevicesApi {
     }
 
     @Override
+    public boolean isMostRecentPhone(Long userId, Long deviceId) {
+        if (deviceId == null) return true;
+        List<Device> celulares;
+        try {
+            celulares = deviceRepository.findByAccountId(identityApi.requireAccountId(userId)).stream()
+                    .filter(d -> !OS_WEB.equalsIgnoreCase(d.getOsName()))
+                    .toList();
+        } catch (com.alertamujer.shared.exception.ResourceNotFoundException e) {
+            return true;
+        }
+        if (celulares.stream().noneMatch(d -> d.getId().equals(deviceId))) return true;
+        return celulares.stream()
+                .max(java.util.Comparator.comparing(Device::getLastAccess,
+                        java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
+                .map(d -> d.getId().equals(deviceId))
+                .orElse(true);
+    }
+
+    @Override
     public long countDevices() {
         return deviceRepository.count();
     }

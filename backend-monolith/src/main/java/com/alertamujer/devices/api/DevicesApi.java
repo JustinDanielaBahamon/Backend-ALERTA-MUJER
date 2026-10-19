@@ -14,6 +14,12 @@ public interface DevicesApi {
     /** Tokens push solo de celulares (sin navegadores web): para pedir la ubicación por GPS. */
     List<String> phonePushTokensOfUser(Long userId);
 
+    /**
+     * true si el dispositivo es el celular que la usuaria usó más recientemente (o si no se conoce):
+     * con varios celulares, la ubicación del día a día se toma solo de ese.
+     */
+    boolean isMostRecentPhone(Long userId, Long deviceId);
+
     /** Número de dispositivos registrados (estadísticas del panel). */
     long countDevices();
 }

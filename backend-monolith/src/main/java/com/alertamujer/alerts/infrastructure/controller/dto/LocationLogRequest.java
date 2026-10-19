@@ -14,5 +14,7 @@ public class LocationLogRequest {
     private BigDecimal longitude;
     private BigDecimal accuracy;
     private Long alertId;
+    /** Celular que envía la ubicación (opcional; las versiones anteriores de la app no lo envían). */
+    private Long deviceId;
     private LocalDateTime recordedAt;
 }

@@ -6,6 +6,8 @@ import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +19,7 @@ class DeviceServiceTest {
     private final DeviceRepository repository = mock(DeviceRepository.class);
     private final IdentityApi identityApi = mock(IdentityApi.class);
     private final DeviceService service = new DeviceService(repository, identityApi);
+    private final DevicesApiService api = new DevicesApiService(repository, identityApi);
 
     private Device celular() {
         Device d = new Device();
@@ -81,5 +84,30 @@ class DeviceServiceTest {
         assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("{\"ubicacion\":\"<script>\"}"));
         assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("[true]"));
         assertEquals("{}", DeviceService.validarPermisos("{}"));
+    }
+
+    private Device otro(long id, String os, String token, LocalDateTime acceso) {
+        Device d = new Device();
+        d.setId(id);
+        d.setAccountId(7L);
+        d.setOsName(os);
+        d.setFcmToken(token);
+        d.setLastAccess(acceso);
+        return d;
+    }
+
+    @Test
+    void laUbicacionDelDiaADiaSoloSeTomaDelCelularMasReciente() {
+        when(identityApi.requireAccountId(1L)).thenReturn(7L);
+        LocalDateTime ahora = LocalDateTime.now();
+        when(repository.findByAccountId(7L)).thenReturn(List.of(
+                otro(3L, "android", null, ahora.minusDays(2)),
+                otro(5L, "android", null, ahora),
+                otro(6L, "web", null, ahora.plusMinutes(5))));
+
+        assertTrue(api.isMostRecentPhone(1L, 5L));
+        assertFalse(api.isMostRecentPhone(1L, 3L));
+        assertTrue(api.isMostRecentPhone(1L, null)); // versiones anteriores de la app
+        assertTrue(api.isMostRecentPhone(1L, 99L));
     }
 }
