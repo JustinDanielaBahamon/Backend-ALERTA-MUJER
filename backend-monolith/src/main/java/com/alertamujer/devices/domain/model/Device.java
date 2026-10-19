@@ -59,4 +59,14 @@ public class Device {
      */
     @Column(name = "fcm_token", length = 2000)
     private String fcmToken;
+
+    /**
+     * Permisos del celular que informa la app, como JSON de sí/no
+     * (p. ej. {"ubicacion":true,"notificaciones":false,"agitar":true}).
+     */
+    @Column(length = 400)
+    private String permissions;
+
+    @Column(name = "permissions_updated_at")
+    private LocalDateTime permissionsUpdatedAt;
 }
