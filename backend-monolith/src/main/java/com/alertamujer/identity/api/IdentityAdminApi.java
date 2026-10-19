@@ -12,4 +12,10 @@ public interface IdentityAdminApi {
      * administradora se bloquee a sí misma (actingUserId) y que el correo quede repetido.
      */
     UserAccountView updateUserAccount(Long userId, UserAccountChanges changes, Long actingUserId);
+
+    /**
+     * "Elimina" la cuenta sin romper el historial: borra los datos personales (nombre, correo,
+     * teléfono, documento, foto), cierra sus sesiones y la deja inactiva sin poder entrar.
+     */
+    void anonymizeAccount(Long userId);
 }
