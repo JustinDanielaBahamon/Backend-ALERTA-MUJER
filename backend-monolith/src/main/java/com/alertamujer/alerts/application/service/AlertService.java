@@ -145,6 +145,9 @@ public class AlertService {
         return alertRepository.save(alert);
     }
 
+    /** Cuántas alertas puede conservar cada usuaria (pruebas para una denuncia sin llenar la nube). */
+    public static final int MAX_ALERTAS_CONSERVADAS = 5;
+
     /** La dueña marca (o desmarca) la alerta para conservar sus evidencias más allá de 60 días. */
     @Transactional
     public Alert conservarEvidencias(Long id, boolean conservar, Long currentUserId) {
@@ -154,6 +157,11 @@ public class AlertService {
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
         if (!alert.getUserProfileId().equals(perfil)) {
             throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
+        }
+        if (conservar && !alert.isKeepEvidence()
+                && alertRepository.countByUserProfileIdAndKeepEvidenceTrue(perfil) >= MAX_ALERTAS_CONSERVADAS) {
+            throw new IllegalArgumentException("Puedes conservar hasta " + MAX_ALERTAS_CONSERVADAS
+                    + " alertas. Deja de conservar otra para guardar esta.");
         }
         alert.setKeepEvidence(conservar);
         return alertRepository.save(alert);

@@ -317,4 +317,43 @@ class AlertServiceTest {
         // Assert
         assertFalse(result.isPresent());
     }
+
+    private Alert alertaPropia(long id, boolean conservada) {
+        Alert a = new Alert();
+        a.setId(id);
+        a.setUserProfileId(70L);
+        a.setKeepEvidence(conservada);
+        return a;
+    }
+
+    @Test
+    void conservaLasEvidenciasDeHasta5Alertas() {
+        Alert alerta = alertaPropia(9L, false);
+        when(alertRepository.findById(9L)).thenReturn(Optional.of(alerta));
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(70L));
+        when(alertRepository.countByUserProfileIdAndKeepEvidenceTrue(70L)).thenReturn(4L);
+        when(alertRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        assertTrue(alertService.conservarEvidencias(9L, true, 1L).isKeepEvidence());
+    }
+
+    @Test
+    void conLas5OcupadasPideDejarDeConservarOtra() {
+        when(alertRepository.findById(9L)).thenReturn(Optional.of(alertaPropia(9L, false)));
+        when(identityApi.findProfileId(1L)).thenReturn(Optional.of(70L));
+        when(alertRepository.countByUserProfileIdAndKeepEvidenceTrue(70L)).thenReturn(5L);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> alertService.conservarEvidencias(9L, true, 1L));
+        assertTrue(e.getMessage().contains("hasta 5"));
+        verify(alertRepository, never()).save(any());
+    }
+
+    @Test
+    void otraUsuariaNoPuedeConservarEvidencias() {
+        when(alertRepository.findById(9L)).thenReturn(Optional.of(alertaPropia(9L, false)));
+        when(identityApi.findProfileId(2L)).thenReturn(Optional.of(71L));
+
+        assertThrows(AccessDeniedException.class, () -> alertService.conservarEvidencias(9L, true, 2L));
+    }
 }

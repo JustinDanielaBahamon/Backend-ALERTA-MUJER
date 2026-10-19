@@ -12,4 +12,7 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     List<Alert> findByUserProfileId(Long userProfileId);
     List<Alert> findByStatus(String status);
     Optional<Alert> findFirstByUserProfileIdAndStatusOrderByStartedAtDesc(Long userProfileId, String status);
+
+    /** Alertas de la usuaria marcadas para conservar sus evidencias. */
+    long countByUserProfileIdAndKeepEvidenceTrue(Long userProfileId);
 }
