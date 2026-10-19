@@ -39,6 +39,10 @@ public class UserReport {
     @Column(name = "resolution_notes")
     private String resolutionNotes;
 
+    /** Captura que respalda un bloqueo, como data URI de imagen (ver FotoDataUri). */
+    @Column(columnDefinition = "text")
+    private String evidence;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

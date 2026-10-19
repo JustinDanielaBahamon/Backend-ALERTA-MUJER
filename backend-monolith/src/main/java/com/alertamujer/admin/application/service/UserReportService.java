@@ -116,7 +116,8 @@ public class UserReportService {
         return new UserReportView(r.getId(), r.getReportedUserId(), nombre(reportada),
                 reportada != null ? reportada.email() : null, r.getReporterUserId(), nombre(reporta),
                 r.getReason(), r.getDescription(), r.getSeverity(), r.getStatus(), r.getResolutionNotes(),
-                r.getReviewedByAdminId(), r.getReviewedAt(), r.getCreatedAt(), r.getUpdatedAt());
+                r.getReviewedByAdminId(), r.getReviewedAt(), r.getCreatedAt(), r.getUpdatedAt(),
+                r.getEvidence() != null);
     }
 
     public record UserReportRequest(String reportedUserEmail, String reason, String description,
@@ -125,5 +126,12 @@ public class UserReportService {
     public record UserReportView(Long id, Long reportedUserId, String reportedUserName, String reportedUserEmail,
                                  Long reporterUserId, String reporterName, String reason, String description,
                                  String severity, String status, String resolutionNotes, Integer reviewedByAdminId,
-                                 LocalDateTime reviewedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {}
+                                 LocalDateTime reviewedAt, LocalDateTime createdAt, LocalDateTime updatedAt,
+                                 boolean hasEvidence) {}
+
+    /** Captura adjunta al caso (solo al pedir un caso; null si no tiene). */
+    @Transactional(readOnly = true)
+    public String evidencia(Long id) {
+        return buscar(id).getEvidence();
+    }
 }

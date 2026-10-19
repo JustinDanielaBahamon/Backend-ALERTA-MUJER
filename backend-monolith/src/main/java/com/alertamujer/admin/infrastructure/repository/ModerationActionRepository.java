@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ModerationActionRepository extends JpaRepository<ModerationAction, Long> {
     List<ModerationAction> findByUserReportId(Long userReportId);
+
+    List<ModerationAction> findByUserReportIdIn(java.util.Collection<Long> userReportIds);
 }

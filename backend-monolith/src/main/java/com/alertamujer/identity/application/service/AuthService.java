@@ -236,7 +236,7 @@ public class AuthService {
             // Una cuenta bloqueada no puede seguir renovando su sesión
             Account account = accountRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials"));
-            if ("blocked".equals(account.getStatus())) {
+            if ("blocked".equals(account.getStatus()) || "inactive".equals(account.getStatus())) {
                 throw new InvalidCredentialsException("Account blocked");
             }
 

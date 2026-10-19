@@ -32,6 +32,9 @@ class UserAccountAdminServiceTest {
     @Mock
     private UserProfileRepository userProfileRepository;
 
+    @Mock
+    private com.alertamujer.identity.infrastructure.repository.DeviceSessionRepository deviceSessionRepository;
+
     @InjectMocks
     private UserAccountAdminService service;
 
@@ -170,5 +173,36 @@ class UserAccountAdminServiceTest {
         });
 
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void anonimizarBorraLosDatosPersonalesYCierraLasSesiones() {
+        com.alertamujer.identity.domain.model.User user = new com.alertamujer.identity.domain.model.User();
+        user.setId(5L);
+        user.setFirstName("Ana");
+        user.setLastName("Pérez");
+        user.setEmail("ana@correo.com");
+        user.setTelephone("3001234567");
+        user.setDocumentNumber("123");
+        com.alertamujer.identity.domain.model.Account cuenta = new com.alertamujer.identity.domain.model.Account();
+        cuenta.setId(9L);
+        cuenta.setUserId(5L);
+        cuenta.setStatus("blocked");
+        cuenta.setPasswordHash("hash-viejo");
+        com.alertamujer.identity.domain.model.DeviceSession sesion = new com.alertamujer.identity.domain.model.DeviceSession();
+        sesion.setStatus("active");
+        when(userRepository.findById(5L)).thenReturn(java.util.Optional.of(user));
+        when(userProfileRepository.findByUserId(5L)).thenReturn(java.util.Optional.empty());
+        when(accountRepository.findByUserId(5L)).thenReturn(java.util.Optional.of(cuenta));
+        when(deviceSessionRepository.findByAccountIdAndStatus(9L, "active")).thenReturn(java.util.List.of(sesion));
+
+        service.anonymizeAccount(5L);
+
+        assertEquals("eliminada-5@alertamujer.invalid", user.getEmail());
+        assertNull(user.getTelephone());
+        assertNull(user.getDocumentNumber());
+        assertEquals("inactive", cuenta.getStatus());
+        assertNotEquals("hash-viejo", cuenta.getPasswordHash());
+        assertEquals("revoked", sesion.getStatus());
     }
 }
