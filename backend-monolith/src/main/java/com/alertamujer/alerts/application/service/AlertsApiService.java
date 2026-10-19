@@ -140,4 +140,13 @@ public class AlertsApiService implements AlertsApi {
                 a.getStatus(), a.getMessage(), a.getStartedAt(), a.getLatitude(), a.getLongitude(),
                 a.getEndedAt(), a.getCancelledAt());
     }
+
+    @Override
+    public java.util.Set<Long> alertsKeepingEvidence(Collection<Long> alertIds) {
+        if (alertIds.isEmpty()) return java.util.Set.of();
+        return alertRepository.findAllById(alertIds).stream()
+                .filter(Alert::isKeepEvidence)
+                .map(Alert::getId)
+                .collect(java.util.stream.Collectors.toSet());
+    }
 }

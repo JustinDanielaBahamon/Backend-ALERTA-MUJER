@@ -59,6 +59,10 @@ public class Alert {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    /** true = sus evidencias no se borran a los 60 días (lo marca la usuaria). */
+    @Column(name = "keep_evidence", nullable = false)
+    private boolean keepEvidence = false;
+
     /**
      * Solo al crear: contactos a los que se avisa (alerta individual desde el módulo de contactos).
      * Vacío o ausente = todos los contactos. No se guarda en la tabla alert: queda en alert_contact.

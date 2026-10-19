@@ -46,5 +46,8 @@ public interface AlertsApi {
     /** Recorrido de la alerta, del primer punto al último. */
     List<LocationPoint> locationTrail(Long alertId);
 
+    /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
+    java.util.Set<Long> alertsKeepingEvidence(Collection<Long> alertIds);
+
     record ExpirationStatus(LocalDateTime lastCheck, int lastExpiredCount) {}
 }
