@@ -1,11 +1,15 @@
 package com.alertamujer.devices.application.service;
 
+import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,7 +20,9 @@ class DeviceServiceTest {
 
     private final DeviceRepository repository = mock(DeviceRepository.class);
     private final IdentityApi identityApi = mock(IdentityApi.class);
-    private final DeviceService service = new DeviceService(repository, identityApi);
+    private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
+    private final DeviceService service = new DeviceService(repository, identityApi, events);
+    private final DevicesApiService api = new DevicesApiService(repository, identityApi);
 
     private Device celular() {
         Device d = new Device();
@@ -81,5 +87,50 @@ class DeviceServiceTest {
         assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("{\"ubicacion\":\"<script>\"}"));
         assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("[true]"));
         assertEquals("{}", DeviceService.validarPermisos("{}"));
+    }
+
+    private Device otro(long id, String os, String token, LocalDateTime acceso) {
+        Device d = new Device();
+        d.setId(id);
+        d.setAccountId(7L);
+        d.setOsName(os);
+        d.setFcmToken(token);
+        d.setLastAccess(acceso);
+        return d;
+    }
+
+    @Test
+    void alEntrarDesdeOtroCelularAvisaALosDemasCelulares() {
+        when(identityApi.requireAccountId(1L)).thenReturn(7L);
+        when(repository.save(any())).thenAnswer(inv -> {
+            Device d = inv.getArgument(0);
+            d.setId(9L);
+            return d;
+        });
+        Device nuevo = new Device();
+        nuevo.setOsName("android");
+        nuevo.setBrand("Samsung");
+        nuevo.setModel("A54");
+        when(repository.findByAccountId(7L)).thenReturn(List.of(
+                otro(3L, "android", "token-viejo", null), otro(4L, "web", "token-web", null), nuevo));
+
+        service.createDevice(nuevo, 1L);
+
+        verify(events).publishEvent(new NewPhoneSignedInEvent("Samsung A54", List.of("token-viejo")));
+    }
+
+    @Test
+    void laUbicacionDelDiaADiaSoloSeTomaDelCelularMasReciente() {
+        when(identityApi.requireAccountId(1L)).thenReturn(7L);
+        LocalDateTime ahora = LocalDateTime.now();
+        when(repository.findByAccountId(7L)).thenReturn(List.of(
+                otro(3L, "android", null, ahora.minusDays(2)),
+                otro(5L, "android", null, ahora),
+                otro(6L, "web", null, ahora.plusMinutes(5))));
+
+        assertTrue(api.isMostRecentPhone(1L, 5L));
+        assertFalse(api.isMostRecentPhone(1L, 3L));
+        assertTrue(api.isMostRecentPhone(1L, null)); // versiones anteriores de la app
+        assertTrue(api.isMostRecentPhone(1L, 99L));
     }
 }

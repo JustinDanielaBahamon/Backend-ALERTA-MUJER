@@ -5,6 +5,7 @@ import com.alertamujer.alerts.domain.model.LocationLog;
 import com.alertamujer.alerts.infrastructure.controller.dto.LocationLogRequest;
 import com.alertamujer.alerts.infrastructure.repository.AlertRepository;
 import com.alertamujer.alerts.infrastructure.repository.LocationLogRepository;
+import com.alertamujer.devices.api.DevicesApi;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -24,13 +25,16 @@ public class LocationLogService {
     private final LocationLogRepository locationLogRepository;
     private final IdentityApi identityApi;
     private final AlertRepository alertRepository;
+    private final DevicesApi devicesApi;
 
     public LocationLogService(LocationLogRepository locationLogRepository,
                               IdentityApi identityApi,
-                              AlertRepository alertRepository) {
+                              AlertRepository alertRepository,
+                              DevicesApi devicesApi) {
         this.locationLogRepository = locationLogRepository;
         this.identityApi = identityApi;
         this.alertRepository = alertRepository;
+        this.devicesApi = devicesApi;
     }
 
     // El JWT trae users.id; las ubicaciones se guardan por user_profile.id.
@@ -38,6 +42,10 @@ public class LocationLogService {
         return identityApi.requireProfileId(userId);
     }
 
+    /**
+     * Guarda la ubicación. Con varios celulares, la del día a día solo se guarda si viene del que la
+     * usuaria usó más recientemente (null si se descarta); la de una alerta se guarda siempre.
+     */
     public LocationLog saveLocation(LocationLogRequest request, Long currentUserId) {
         if (request.getLatitude() == null || request.getLongitude() == null
                 || request.getLatitude().abs().compareTo(BigDecimal.valueOf(90)) > 0
@@ -57,6 +65,10 @@ public class LocationLogService {
             alertRepository.findById(request.getAlertId())
                     .filter(a -> profileId.equals(a.getUserProfileId()))
                     .ifPresent(a -> log.setAlertId(a.getId()));
+        }
+
+        if (log.getAlertId() == null && !devicesApi.isMostRecentPhone(currentUserId, request.getDeviceId())) {
+            return null;
         }
 
         // Puntos en cola offline: se respeta su hora si es de las últimas 24 h y no del futuro
