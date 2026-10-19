@@ -146,6 +146,25 @@ public class EvidenceService {
         return evidenceRepository.save(existing);
     }
 
+    /** Cambia el nombre que ve la usuaria (el archivo guardado y su huella no cambian). */
+    @Transactional
+    public EvidenceView renombrar(Long id, String nombre, Long currentUserId) {
+        Evidence evidence = getEvidenceById(id, currentUserId);
+        String limpio = nombre == null ? "" : nombre.replaceAll("[\\\\/\\r\\n\"<>]", " ").trim().replaceAll("\\s+", " ");
+        if (limpio.isEmpty()) throw new IllegalArgumentException("Escribe un nombre para la evidencia");
+        if (limpio.length() > 80) throw new IllegalArgumentException("El nombre puede tener máximo 80 caracteres");
+        String extension = extension(evidence.getFileName());
+        if (!extension.isEmpty() && !limpio.toLowerCase().endsWith(extension.toLowerCase())) limpio += extension;
+        evidence.setFileName(limpio);
+        return EvidenceView.of(evidenceRepository.save(evidence), ownedAlert(evidence.getAlertId(), currentUserId));
+    }
+
+    private static String extension(String nombre) {
+        if (nombre == null) return "";
+        int punto = nombre.lastIndexOf('.');
+        return punto > 0 && nombre.length() - punto <= 6 ? nombre.substring(punto) : "";
+    }
+
     @Transactional
     public void deleteEvidence(Long id, Long currentUserId) {
         Evidence evidence = getEvidenceById(id, currentUserId);

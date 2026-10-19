@@ -96,6 +96,13 @@ public class EvidenceController {
         return ResponseEntity.ok(evidenceService.createEvidence(evidence, currentUserId));
     }
 
+    /** La dueña le pone un nombre más corto a su evidencia. */
+    @PatchMapping("/{id}/name")
+    public ResponseEntity<EvidenceView> rename(@PathVariable Long id, @RequestBody java.util.Map<String, String> body,
+                                               @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(evidenceService.renombrar(id, body == null ? null : body.get("name"), currentUserId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Evidence> updateEvidence(@PathVariable Long id, @RequestBody Evidence evidence, @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(evidenceService.updateEvidence(id, evidence, currentUserId));
