@@ -83,8 +83,24 @@ public class DeviceService {
         if (datos.getOsVersion() != null) existing.setOsVersion(recortar(datos.getOsVersion(), 30));
         if (datos.getAppVersion() != null) existing.setAppVersion(recortar(datos.getAppVersion(), 30));
         if (datos.getGpsStatus() != null) existing.setGpsStatus(datos.getGpsStatus());
+        if (datos.getPermissions() != null) {
+            existing.setPermissions(validarPermisos(datos.getPermissions()));
+            existing.setPermissionsUpdatedAt(LocalDateTime.now());
+        }
         existing.setLastAccess(LocalDateTime.now());
         return deviceRepository.save(existing);
+    }
+
+    // Solo un objeto plano de nombres cortos con true/false: lo muestra la web, no se guarda otra cosa
+    private static final java.util.regex.Pattern PERMISOS =
+            java.util.regex.Pattern.compile("^\\{(\"[a-zA-Z]{1,30}\":(true|false)(,\"[a-zA-Z]{1,30}\":(true|false))*)?}$");
+
+    static String validarPermisos(String permisos) {
+        String valor = permisos.replaceAll("\\s", "");
+        if (valor.length() > 400 || !PERMISOS.matcher(valor).matches()) {
+            throw new IllegalArgumentException("Permisos del celular no válidos");
+        }
+        return valor;
     }
 
     private static String recortar(String valor, int max) {

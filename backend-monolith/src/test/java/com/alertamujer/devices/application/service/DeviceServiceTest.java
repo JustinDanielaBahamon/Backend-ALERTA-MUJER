@@ -60,4 +60,26 @@ class DeviceServiceTest {
         assertThrows(AccessDeniedException.class, () -> service.registrarUso(3L, new Device(), 2L));
         verify(repository, never()).save(any());
     }
+
+    @Test
+    void guardaLosPermisosQueInformaLaApp() {
+        Device existente = celular();
+        when(identityApi.requireAccountId(1L)).thenReturn(7L);
+        when(repository.findById(3L)).thenReturn(Optional.of(existente));
+        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Device datos = new Device();
+        datos.setPermissions("{\"ubicacion\": true, \"agitar\": false}");
+        Device guardado = service.registrarUso(3L, datos, 1L);
+
+        assertEquals("{\"ubicacion\":true,\"agitar\":false}", guardado.getPermissions());
+        assertNotNull(guardado.getPermissionsUpdatedAt());
+    }
+
+    @Test
+    void rechazaPermisosQueNoSonSiONo() {
+        assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("{\"ubicacion\":\"<script>\"}"));
+        assertThrows(IllegalArgumentException.class, () -> DeviceService.validarPermisos("[true]"));
+        assertEquals("{}", DeviceService.validarPermisos("{}"));
+    }
 }
