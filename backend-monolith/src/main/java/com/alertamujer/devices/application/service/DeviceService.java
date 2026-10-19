@@ -1,10 +1,12 @@
 package com.alertamujer.devices.application.service;
 
+import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +18,12 @@ public class DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final IdentityApi identityApi;
+    private final ApplicationEventPublisher events;
 
-    public DeviceService(DeviceRepository deviceRepository, IdentityApi identityApi) {
+    public DeviceService(DeviceRepository deviceRepository, IdentityApi identityApi, ApplicationEventPublisher events) {
         this.deviceRepository = deviceRepository;
         this.identityApi = identityApi;
+        this.events = events;
     }
 
     public List<Device> getAllDevices() {
@@ -47,7 +51,31 @@ public class DeviceService {
         Long accountId = identityApi.requireAccountId(currentUserId);
         device.setAccountId(accountId);
         device.setLastAccess(LocalDateTime.now());
-        return deviceRepository.save(device);
+        Device guardado = deviceRepository.save(device);
+        avisarNuevoCelular(guardado);
+        return guardado;
+    }
+
+    /**
+     * Se entró a la cuenta desde otro celular: se avisa a los demás celulares de la usuaria por si
+     * no fue ella (lo envía el módulo de notificaciones).
+     */
+    private void avisarNuevoCelular(Device nuevo) {
+        if (DevicesApiService.OS_WEB.equalsIgnoreCase(nuevo.getOsName())) return;
+        List<String> tokens = deviceRepository.findByAccountId(nuevo.getAccountId()).stream()
+                .filter(d -> !d.getId().equals(nuevo.getId()))
+                .filter(d -> !DevicesApiService.OS_WEB.equalsIgnoreCase(d.getOsName()))
+                .map(Device::getFcmToken)
+                .filter(t -> t != null && !t.isBlank())
+                .toList();
+        if (tokens.isEmpty()) return;
+        events.publishEvent(new NewPhoneSignedInEvent(nombreCelular(nuevo), tokens));
+    }
+
+    static String nombreCelular(Device d) {
+        if (d.getDeviceName() != null && !d.getDeviceName().isBlank()) return d.getDeviceName();
+        String marcaModelo = ((d.getBrand() == null ? "" : d.getBrand()) + " " + (d.getModel() == null ? "" : d.getModel())).trim();
+        return marcaModelo.isEmpty() ? "otro celular" : marcaModelo;
     }
 
     @Transactional

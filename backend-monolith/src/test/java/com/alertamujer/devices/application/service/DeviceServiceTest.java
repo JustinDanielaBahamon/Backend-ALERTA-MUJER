@@ -1,10 +1,12 @@
 package com.alertamujer.devices.application.service;
 
+import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.devices.infrastructure.repository.DeviceRepository;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,7 +20,8 @@ class DeviceServiceTest {
 
     private final DeviceRepository repository = mock(DeviceRepository.class);
     private final IdentityApi identityApi = mock(IdentityApi.class);
-    private final DeviceService service = new DeviceService(repository, identityApi);
+    private final ApplicationEventPublisher events = mock(ApplicationEventPublisher.class);
+    private final DeviceService service = new DeviceService(repository, identityApi, events);
     private final DevicesApiService api = new DevicesApiService(repository, identityApi);
 
     private Device celular() {
@@ -94,6 +97,26 @@ class DeviceServiceTest {
         d.setFcmToken(token);
         d.setLastAccess(acceso);
         return d;
+    }
+
+    @Test
+    void alEntrarDesdeOtroCelularAvisaALosDemasCelulares() {
+        when(identityApi.requireAccountId(1L)).thenReturn(7L);
+        when(repository.save(any())).thenAnswer(inv -> {
+            Device d = inv.getArgument(0);
+            d.setId(9L);
+            return d;
+        });
+        Device nuevo = new Device();
+        nuevo.setOsName("android");
+        nuevo.setBrand("Samsung");
+        nuevo.setModel("A54");
+        when(repository.findByAccountId(7L)).thenReturn(List.of(
+                otro(3L, "android", "token-viejo", null), otro(4L, "web", "token-web", null), nuevo));
+
+        service.createDevice(nuevo, 1L);
+
+        verify(events).publishEvent(new NewPhoneSignedInEvent("Samsung A54", List.of("token-viejo")));
     }
 
     @Test
