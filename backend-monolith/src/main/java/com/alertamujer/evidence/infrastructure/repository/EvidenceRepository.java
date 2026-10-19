@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,4 +18,7 @@ public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
     List<Evidence> findByOwnerProfileId(@Param("userProfileId") Long userProfileId);
 
     List<Evidence> findByAlertIdOrderByCreatedAtAsc(Long alertId);
+
+    /** Evidencias guardadas antes de la fecha (candidatas a borrarse por antigüedad). */
+    List<Evidence> findByCreatedAtBefore(LocalDateTime antes);
 }

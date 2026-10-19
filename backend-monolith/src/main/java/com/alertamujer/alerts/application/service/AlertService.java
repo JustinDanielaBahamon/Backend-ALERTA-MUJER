@@ -145,6 +145,20 @@ public class AlertService {
         return alertRepository.save(alert);
     }
 
+    /** La dueña marca (o desmarca) la alerta para conservar sus evidencias más allá de 60 días. */
+    @Transactional
+    public Alert conservarEvidencias(Long id, boolean conservar, Long currentUserId) {
+        Alert alert = alertRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Alert", id));
+        Long perfil = identityApi.findProfileId(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile for current user", currentUserId));
+        if (!alert.getUserProfileId().equals(perfil)) {
+            throw new AccessDeniedException("No puedes modificar alertas de otro usuario");
+        }
+        alert.setKeepEvidence(conservar);
+        return alertRepository.save(alert);
+    }
+
     public void deleteAlert(Long id, Long currentUserId) {
         Alert alert = alertRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alert", id));

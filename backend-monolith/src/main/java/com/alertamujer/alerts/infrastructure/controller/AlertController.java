@@ -106,6 +106,14 @@ public class AlertController {
 
     public record MensajeRequest(String body) {}
 
+    /** Conservar las evidencias de la alerta (no se borran a los 60 días). Body: {"keep": true}. */
+    @PatchMapping("/{id}/keep-evidence")
+    public ResponseEntity<Alert> keepEvidence(@PathVariable Long id, @RequestBody java.util.Map<String, Boolean> body,
+                                              @AuthenticationPrincipal Long currentUserId) {
+        boolean conservar = body != null && Boolean.TRUE.equals(body.get("keep"));
+        return ResponseEntity.ok(alertService.conservarEvidencias(id, conservar, currentUserId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Alert> updateAlert(@PathVariable Long id, @RequestBody Alert alert, @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(alertService.updateAlert(id, alert, currentUserId));
