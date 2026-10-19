@@ -74,7 +74,8 @@ public class AdminDeviceService {
                 nombre, u != null ? u.email() : null, u != null ? u.telephone() : null,
                 d.getDeviceUuid(), d.getBrand(), d.getModel(), d.getOsName(), d.getOsVersion(),
                 d.getAppVersion(), d.getGpsStatus(), d.getStatus(), d.getLastAccess(), d.getCreatedAt(),
-                d.getFcmToken() != null && !d.getFcmToken().isBlank());
+                d.getFcmToken() != null && !d.getFcmToken().isBlank(),
+                d.getDeviceName(), d.getPermissions(), d.getPermissionsUpdatedAt());
     }
 
     /** Dispositivo con su dueña. No expone el token FCM, solo si existe. */
@@ -82,5 +83,7 @@ public class AdminDeviceService {
                                   String ownerPhone, String deviceUuid, String brand, String model,
                                   String osName, String osVersion, String appVersion, String gpsStatus,
                                   String status, LocalDateTime lastAccess, LocalDateTime createdAt,
-                                  boolean pushTokenRegistered) {}
+                                  boolean pushTokenRegistered, String deviceName,
+                                  /** JSON de permisos que informa la app ({"ubicacion":true,...}). */
+                                  String permissions, LocalDateTime permissionsUpdatedAt) {}
 }
