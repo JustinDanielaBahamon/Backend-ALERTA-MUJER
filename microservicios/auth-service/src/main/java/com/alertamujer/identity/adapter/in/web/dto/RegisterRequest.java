@@ -35,4 +35,7 @@ public class RegisterRequest {
 
     /** DD/MM/AAAA, como lo escriben los formularios. */
     private String fechaNacimiento;
+
+    /** Casilla "Acepto los términos y la política de privacidad". */
+    private Boolean aceptaTerminos;
 }

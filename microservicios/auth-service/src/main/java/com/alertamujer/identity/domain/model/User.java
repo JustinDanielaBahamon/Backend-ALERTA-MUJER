@@ -25,6 +25,12 @@ public class User {
     private String documentType;
     private LocalDate birthdate;
     private LocalDateTime createdAt = LocalDateTime.now();
+    /** Cuándo aceptó los términos y la política de privacidad, y qué versión (null en cuentas antiguas). */
+    private LocalDateTime termsAcceptedAt;
+    private String termsVersion;
+
+    /** Versión vigente de los términos y la política de privacidad. Cambiarla al publicar otra. */
+    public static final String TERMINOS_VIGENTES = "2026-10";
 
     public static final long ROL_USUARIA = 1L;
     public static final long ROL_ADMIN = 2L;
@@ -81,6 +87,12 @@ public class User {
         } catch (DateTimeParseException e) {
             return null;
         }
+    }
+
+    /** Deja constancia de que aceptó los términos vigentes. */
+    public void aceptarTerminos(LocalDateTime cuando) {
+        termsAcceptedAt = cuando;
+        termsVersion = TERMINOS_VIGENTES;
     }
 
     public boolean esAdmin() {
@@ -153,4 +165,8 @@ public class User {
     public void setBirthdate(LocalDate birthdate) { this.birthdate = birthdate; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getTermsAcceptedAt() { return termsAcceptedAt; }
+    public void setTermsAcceptedAt(LocalDateTime termsAcceptedAt) { this.termsAcceptedAt = termsAcceptedAt; }
+    public String getTermsVersion() { return termsVersion; }
+    public void setTermsVersion(String termsVersion) { this.termsVersion = termsVersion; }
 }

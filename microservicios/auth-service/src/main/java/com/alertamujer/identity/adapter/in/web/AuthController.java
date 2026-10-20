@@ -38,7 +38,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest r) {
         return ResponseEntity.ok(AuthResponse.of(registro.registrar(new DatosRegistro(r.getNombre(), r.getEmail(),
-                r.getPassword(), r.getTelefono(), r.getTipoDocumento(), r.getNumeroDocumento(), r.getFechaNacimiento()))));
+                r.getPassword(), r.getTelefono(), r.getTipoDocumento(), r.getNumeroDocumento(), r.getFechaNacimiento(),
+                r.getAceptaTerminos()))));
     }
 
     @PostMapping("/login")
