@@ -4,6 +4,7 @@ import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.devices.api.DevicesApi;
 import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.AccountDeletedEvent;
 import com.alertamujer.identity.api.PasswordRecoveryRequestedEvent;
 import com.alertamujer.settings.api.SettingsApi;
 import com.alertamujer.shared.rpc.ContratosExpuestos;
@@ -32,7 +33,8 @@ public class AlertMicroservicioConfig {
 
     @Bean
     EventosAceptados eventosAceptados() {
-        return new EventosAceptados(List.of(PasswordRecoveryRequestedEvent.class, NewPhoneSignedInEvent.class));
+        return new EventosAceptados(List.of(PasswordRecoveryRequestedEvent.class, NewPhoneSignedInEvent.class,
+                AccountDeletedEvent.class));
     }
 
     @Bean

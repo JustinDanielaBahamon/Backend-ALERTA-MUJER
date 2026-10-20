@@ -51,4 +51,25 @@ class LimpiezaEvidenciasServiceTest {
         assertEquals(0, service.limpiar(LocalDateTime.now()));
         verifyNoInteractions(almacenamiento, alertas);
     }
+
+    @Test
+    void cuentaEliminada_borraTodasSusEvidenciasAunqueLasConservara() {
+        Evidence a = evidencia(1, 10);
+        Evidence b = evidencia(2, 20);
+        when(alertas.idsDeLaUsuaria(7L)).thenReturn(List.of(10L, 20L));
+        when(repositorio.deLasAlertas(List.of(10L, 20L))).thenReturn(List.of(a, b));
+
+        assertEquals(2, service.borrarDeUsuaria(7L));
+
+        verify(repositorio).eliminarTodas(List.of(a, b));
+        verify(almacenamiento).eliminar("clave-1");
+        verify(almacenamiento).eliminar("clave-2");
+        verify(alertas, never()).conservanEvidencias(any());
+    }
+
+    @Test
+    void cuentaEliminadaSinPerfilNoHaceNada() {
+        assertEquals(0, service.borrarDeUsuaria(null));
+        verifyNoInteractions(repositorio, almacenamiento, alertas);
+    }
 }

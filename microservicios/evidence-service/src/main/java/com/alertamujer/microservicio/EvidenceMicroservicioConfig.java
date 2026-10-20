@@ -1,11 +1,15 @@
 package com.alertamujer.microservicio;
 
 import com.alertamujer.alerts.api.AlertsApi;
+import com.alertamujer.identity.api.AccountDeletedEvent;
 import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.shared.rpc.EventosRecibidosController.EventosAceptados;
 import com.alertamujer.shared.rpc.RpcClientFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 /**
  * Cómo se conecta Evidence Service con los otros microservicios: usa AlertsApi de Alert Service
@@ -14,6 +18,12 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class EvidenceMicroservicioConfig {
+
+    /** Auth Service avisa cuando se elimina una cuenta, para borrar sus grabaciones. */
+    @Bean
+    EventosAceptados eventosAceptados() {
+        return new EventosAceptados(List.of(AccountDeletedEvent.class));
+    }
 
     @Bean
     AlertsApi alertsApi(RpcClientFactory clientes, @Value("${services.alert.url}") String url) {

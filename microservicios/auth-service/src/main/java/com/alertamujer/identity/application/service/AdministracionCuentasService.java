@@ -3,6 +3,7 @@ package com.alertamujer.identity.application.service;
 import com.alertamujer.identity.application.port.in.AdministrarCuentasUseCase;
 import com.alertamujer.identity.application.port.out.CifradoPort;
 import com.alertamujer.identity.application.port.out.CuentaRepositorio;
+import com.alertamujer.identity.application.port.out.EventosIdentidadPort;
 import com.alertamujer.identity.application.port.out.PerfilRepositorio;
 import com.alertamujer.identity.application.port.out.SesionRepositorio;
 import com.alertamujer.identity.application.port.out.UsuariaRepositorio;
@@ -29,14 +30,16 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
     private final PerfilRepositorio perfiles;
     private final SesionRepositorio sesiones;
     private final CifradoPort cifrado;
+    private final EventosIdentidadPort eventos;
 
     public AdministracionCuentasService(UsuariaRepositorio usuarias, CuentaRepositorio cuentas, PerfilRepositorio perfiles,
-                                        SesionRepositorio sesiones, CifradoPort cifrado) {
+                                        SesionRepositorio sesiones, CifradoPort cifrado, EventosIdentidadPort eventos) {
         this.usuarias = usuarias;
         this.cuentas = cuentas;
         this.perfiles = perfiles;
         this.sesiones = sesiones;
         this.cifrado = cifrado;
+        this.eventos = eventos;
     }
 
     @Override
@@ -85,7 +88,8 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
         User usuaria = existente(userId);
         usuaria.anonimizar();
         usuarias.guardar(usuaria);
-        perfiles.deUsuaria(userId).ifPresent(p -> {
+        Optional<UserProfile> perfil = perfiles.deUsuaria(userId);
+        perfil.ifPresent(p -> {
             p.setProfilePhotoUrl(null);
             perfiles.guardar(p);
         });
@@ -98,6 +102,8 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
                 sesiones.guardar(s);
             });
         });
+        // Contactos, ubicaciones, recorridos y grabaciones viven en Alert y Evidence: se avisa para que los borren
+        eventos.cuentaEliminada(userId, perfil.map(UserProfile::getId).orElse(null));
     }
 
     private User existente(Long userId) {

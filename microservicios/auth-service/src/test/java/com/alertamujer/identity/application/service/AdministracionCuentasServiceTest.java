@@ -30,6 +30,7 @@ class AdministracionCuentasServiceTest {
     @Mock private PerfilRepositorio perfiles;
     @Mock private SesionRepositorio sesiones;
     @Mock private CifradoPort cifrado;
+    @Mock private EventosIdentidadPort eventos;
 
     @InjectMocks private AdministracionCuentasService service;
 
@@ -84,6 +85,7 @@ class AdministracionCuentasServiceTest {
     @Test
     void anonimizarBorraLosDatosPersonalesYCierraLasSesiones() {
         UserProfile perfil = UserProfile.de(1L);
+        perfil.setId(10L);
         perfil.setProfilePhotoUrl("data:image/jpeg;base64,/9j/4AAQ");
         when(perfiles.deUsuaria(1L)).thenReturn(Optional.of(perfil));
         DeviceSession sesion = new DeviceSession();
@@ -98,6 +100,8 @@ class AdministracionCuentasServiceTest {
         assertEquals("inutilizable", cuenta.getPasswordHash());
         assertEquals("revoked", sesion.getStatus());
         verify(sesiones).guardar(sesion);
+        // Alert y Evidence borran contactos, ubicaciones y grabaciones del perfil
+        verify(eventos).cuentaEliminada(1L, 10L);
     }
 
     @Test
