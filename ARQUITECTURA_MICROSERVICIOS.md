@@ -68,6 +68,28 @@ alerts/
     └── out/eventos/         eventos de Spring hacia notificaciones
 ```
 
+`identity` (el núcleo de Auth Service) también:
+
+```
+identity/
+├── domain/model/            User, Account, UserProfile, RecoveryRequest, DeviceSession: reglas de
+│                            registro, estados de la cuenta, política de contraseñas, código de
+│                            recuperación (15 minutos, 5 intentos, solo el hash)
+├── application/
+│   ├── port/in/             RegistrarUsuaria, IniciarSesion, MiCuenta, RecuperarContrasena,
+│   │                        AdministrarCuentas, ConsultarIdentidad
+│   ├── port/out/            repositorios, CifradoPort (BCrypt), TokensPort (JWT),
+│   │                        VerificadorGooglePort, EventosIdentidadPort
+│   └── service/             implementación de los casos de uso
+└── adapter/
+    ├── in/web/              AuthController, UserController y límite de intentos por IP
+    ├── in/modulo/           IdentityApi e IdentityAdminApi
+    ├── out/persistence/     entidades JPA + repositorios + conversión
+    ├── out/seguridad/       BCrypt y JWT
+    ├── out/google/          verificación del token de Google o Firebase
+    └── out/eventos/         auditoría de sesiones y correo de recuperación
+```
+
 El dominio no depende de la tecnología. Cambiar la base de datos o el almacenamiento significa
 cambiar un adaptador; la lógica de negocio no se toca.
 
@@ -136,7 +158,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Pruebas
 
-- **200 tests** en los microservicios (`mvn test` en `microservicios/`).
+- **219 tests** en los microservicios (`mvn test` en `microservicios/`).
   - Incluyen pruebas del dominio sin Spring ni base de datos, y de los casos de uso con puertos
     simulados.
 - Local: `docker compose --profile micro up` levanta los 3 servicios con PostgreSQL y SeaweedFS
@@ -146,7 +168,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Trabajo futuro
 
-- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence` y `alerts`.
+- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence`, `alerts` e `identity`.
 - Separar la base de datos por servicio (los esquemas ya están separados).
 - Broker de mensajería (RabbitMQ o Kafka) para los eventos entre servicios, y reintentos.
 - SMS o RCS como canal de notificación (requiere un proveedor de pago).
