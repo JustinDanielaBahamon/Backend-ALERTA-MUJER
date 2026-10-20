@@ -1,64 +1,115 @@
 package com.alertamujer.alerts.domain.model;
 
-import jakarta.persistence.*;
+import com.alertamujer.shared.exception.ConflictException;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import java.util.Objects;
 
 /**
  * Recorrido guardado por la usuaria (máximo 4 por usuaria, máximo 2 estrella).
  * Compartido entre la app móvil y la web.
  */
-@Entity
-@Table(name = "saved_route", schema = "alert")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SavedRoute {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
+
     private Long id;
-
-    @Column(name = "user_profile_id", nullable = false)
     private Long userProfileId;
-
-    @Column(name = "name", nullable = false)
     private String name;
-
-    @Column(name = "start_label")
     private String startLabel;
-
-    @Column(name = "end_label")
     private String endLabel;
-
     private String city;
     private String department;
     private String country;
-
-    @Column(name = "distance_km", precision = 8, scale = 2)
     private BigDecimal distanceKm;
-
-    @Column(name = "estimated_minutes")
     private Integer estimatedMinutes;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "points", nullable = false, columnDefinition = "jsonb")
     private List<RoutePoint> points = new ArrayList<>();
-
-    @Column(name = "is_starred", nullable = false)
     private Boolean isStarred = false;
-
-    @Column(name = "is_manual", nullable = false)
     private Boolean isManual = true;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
+
+    // Reglas compartidas con web y móvil (también las garantiza un trigger en la base)
+    public static final int MAX_ROUTES = 4;
+    public static final int MAX_STARRED = 2;
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    /** Nombre y al menos un punto de inicio y uno de fin, con coordenadas válidas. */
+    public static void validar(String nombre, List<RoutePoint> puntos) {
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El recorrido necesita un nombre");
+        }
+        if (puntos == null || puntos.size() < 2) {
+            throw new IllegalArgumentException("El recorrido necesita al menos un punto de inicio y uno de fin");
+        }
+        for (RoutePoint p : puntos) {
+            if (p == null || p.latitude() == null || p.longitude() == null
+                    || Math.abs(p.latitude()) > 90 || Math.abs(p.longitude()) > 180) {
+                throw new IllegalArgumentException("Coordenadas inválidas en el recorrido");
+            }
+        }
+    }
+
+    /** recorridos y estrellas = los que ya tiene la usuaria. */
+    public static void verificarCupo(long recorridos) {
+        if (recorridos >= MAX_ROUTES) {
+            throw new ConflictException("Solo puedes tener " + MAX_ROUTES + " recorridos guardados. Elimina uno para crear otro.");
+        }
+    }
+
+    /** Igual que en el móvil: un recorrido nuevo es estrella mientras haya cupo. */
+    public void estrellaInicial(long estrellas) {
+        isStarred = estrellas < MAX_STARRED;
+    }
+
+    public boolean esDe(Long perfil) {
+        return perfil != null && Objects.equals(userProfileId, perfil);
+    }
+
+    public void renombrar(String nombre) {
+        if (nombre != null && !nombre.isBlank()) name = nombre.trim();
+    }
+
+    public void marcarEstrella(Boolean estrella, long estrellas) {
+        if (estrella == null || estrella.equals(isStarred)) return;
+        if (estrella && estrellas >= MAX_STARRED) {
+            throw new ConflictException("Solo puedes tener " + MAX_STARRED + " recorridos estrella. Quita la estrella a otro para marcar este.");
+        }
+        isStarred = estrella;
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getUserProfileId() { return userProfileId; }
+    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getStartLabel() { return startLabel; }
+    public void setStartLabel(String startLabel) { this.startLabel = startLabel; }
+    public String getEndLabel() { return endLabel; }
+    public void setEndLabel(String endLabel) { this.endLabel = endLabel; }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
+    public BigDecimal getDistanceKm() { return distanceKm; }
+    public void setDistanceKm(BigDecimal distanceKm) { this.distanceKm = distanceKm; }
+    public Integer getEstimatedMinutes() { return estimatedMinutes; }
+    public void setEstimatedMinutes(Integer estimatedMinutes) { this.estimatedMinutes = estimatedMinutes; }
+    public List<RoutePoint> getPoints() { return points; }
+    public void setPoints(List<RoutePoint> points) { this.points = points; }
+    public Boolean getIsStarred() { return isStarred; }
+    public void setIsStarred(Boolean isStarred) { this.isStarred = isStarred; }
+    public Boolean getIsManual() { return isManual; }
+    public void setIsManual(Boolean isManual) { this.isManual = isManual; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

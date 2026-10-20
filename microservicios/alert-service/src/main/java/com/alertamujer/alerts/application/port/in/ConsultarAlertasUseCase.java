@@ -1,0 +1,29 @@
+package com.alertamujer.alerts.application.port.in;
+
+import com.alertamujer.alerts.domain.model.Alert;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+/** Consultas de alertas que piden los otros módulos y microservicios. */
+public interface ConsultarAlertasUseCase {
+
+    Optional<Alert> buscar(Long id);
+
+    List<Alert> buscarVarias(Collection<Long> ids);
+
+    List<Alert> todas();
+
+    /** Número de alertas por user_profile.id. */
+    Map<Long, Long> conteoPorPerfil();
+
+    long cuantasActivas();
+
+    List<Long> idsDelPerfil(Long perfil);
+
+    /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
+    Set<Long> conservanEvidencias(Collection<Long> ids);
+}

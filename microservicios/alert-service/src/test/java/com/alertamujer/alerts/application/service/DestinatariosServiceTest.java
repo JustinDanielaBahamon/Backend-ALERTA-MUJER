@@ -1,0 +1,165 @@
+package com.alertamujer.alerts.application.service;
+
+import com.alertamujer.alerts.api.AlertRecipient;
+import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase.ContactoNotificado;
+import com.alertamujer.alerts.application.port.out.ContactoRepositorio;
+import com.alertamujer.alerts.application.port.out.DestinatarioRepositorio;
+import com.alertamujer.alerts.application.port.out.EventosAlertaPort;
+import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.domain.model.Alert;
+import com.alertamujer.alerts.domain.model.AlertContact;
+import com.alertamujer.alerts.domain.model.EmergencyContact;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class DestinatariosServiceTest {
+
+    @Mock private DestinatarioRepositorio repositorio;
+    @Mock private ContactoRepositorio contactos;
+    @Mock private IdentidadPort identidad;
+    @Mock private EventosAlertaPort eventos;
+
+    @InjectMocks private DestinatariosService service;
+
+    private static Alert alerta(String estado) {
+        Alert a = new Alert();
+        a.setId(5L);
+        a.setUserProfileId(10L);
+        a.setStatus(estado);
+        return a;
+    }
+
+    private static EmergencyContact contacto(Long id, String nombre, String correo) {
+        EmergencyContact c = new EmergencyContact();
+        c.setId(id);
+        c.setContactName(nombre);
+        c.setEmail(correo);
+        return c;
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void registrar_creaCorreoYPushSegunElContacto() {
+        when(contactos.deLaUsuaria(10L)).thenReturn(List.of(
+                contacto(1L, "Con app", "app@correo.com"),
+                contacto(2L, "Solo correo", "otra@correo.com"),
+                contacto(3L, "Sin correo", null)));
+        when(identidad.tieneCuenta(anyString())).thenReturn(false);
+        when(identidad.tieneCuenta("app@correo.com")).thenReturn(true);
+        Alert activa = alerta("active");
+
+        service.registrar(activa, null);
+
+        ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
+        verify(repositorio).guardarTodos(captor.capture());
+        List<AlertContact> registros = captor.getValue();
+        assertEquals(3, registros.size());
+        assertEquals("email", registros.get(0).getChannel());
+        assertEquals("push", registros.get(1).getChannel());
+        assertEquals(1L, registros.get(1).getEmergencyContactId());
+        assertEquals(2L, registros.get(2).getEmergencyContactId());
+        assertEquals("pending", registros.get(2).getStatus());
+        verify(eventos).alertaActivada(activa);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void registrar_alertaIndividualSoloAvisaAlContactoElegido() {
+        when(contactos.deLaUsuaria(10L)).thenReturn(List.of(
+                contacto(1L, "Eva", "eva@correo.com"), contacto(2L, "Sara", "sara@correo.com")));
+
+        service.registrar(alerta("active"), List.of(2L));
+
+        ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
+        verify(repositorio).guardarTodos(captor.capture());
+        assertEquals(1, captor.getValue().size());
+        assertEquals(2L, captor.getValue().get(0).getEmergencyContactId());
+    }
+
+    @Test
+    void registrar_unContactoAjenoNoAvisaANadie() {
+        when(contactos.deLaUsuaria(10L)).thenReturn(List.of(contacto(1L, "Eva", "eva@correo.com")));
+
+        assertThrows(IllegalArgumentException.class, () -> service.registrar(alerta("active"), List.of(99L)));
+        verifyNoInteractions(repositorio, eventos);
+    }
+
+    @Test
+    void contactosDe_unEnvioAbiertoDeUnaAlertaTerminadaQuedaVencido() {
+        EmergencyContact eva = contacto(1L, "Eva", "eva@correo.com");
+        eva.setRelationship("Hermana");
+        when(contactos.deLaUsuaria(10L)).thenReturn(List.of(eva));
+        AlertContact correo = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
+        AlertContact borrado = AlertContact.nuevo(5L, null, "email", "vieja@correo.com");
+        borrado.setStatus("failed");
+        when(repositorio.deLaAlerta(5L)).thenReturn(List.of(correo, borrado));
+
+        List<ContactoNotificado> resultado = service.contactosDe(alerta("cancelled"));
+
+        assertEquals(2, resultado.size());
+        assertEquals("Eva", resultado.get(0).name());
+        assertEquals("Hermana", resultado.get(0).relationship());
+        assertEquals("expired", resultado.get(0).channels().get(0).status());
+        assertEquals("Contacto eliminado", resultado.get(1).name());
+        assertEquals("failed", resultado.get(1).channels().get(0).status());
+    }
+
+    @Test
+    void destinatarios_incluyenElNombreDelContacto() {
+        AlertContact envio = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
+        envio.setId(40L);
+        when(repositorio.deLaAlerta(5L)).thenReturn(List.of(envio));
+        when(contactos.buscarVarios(Set.of(1L))).thenReturn(List.of(contacto(1L, "Eva", "eva@correo.com")));
+
+        assertEquals(List.of(new AlertRecipient(40L, 1L, "Eva", "email", "eva@correo.com")), service.destinatarios(5L));
+    }
+
+    @Test
+    void registrarEntrega_guardaElResultado() {
+        AlertContact envio = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
+        when(repositorio.buscar(40L)).thenReturn(Optional.of(envio));
+
+        service.registrarEntrega(40L, "sent", null);
+
+        assertEquals("sent", envio.getStatus());
+        assertEquals(1, envio.getAttempts());
+        verify(repositorio).guardar(envio);
+    }
+
+    @Test
+    void alertasAvisadasA_sinCorreoNoConsulta() {
+        assertEquals(List.of(), service.alertasAvisadasA(" "));
+        verify(repositorio, never()).alertasAvisadasA(any());
+
+        when(repositorio.alertasAvisadasA("eva@correo.com")).thenReturn(List.of(5L));
+        assertEquals(List.of(5L), service.alertasAvisadasA(" eva@correo.com "));
+    }
+
+    @Test
+    void contactosDe_unaAlertaActivaMuestraElEstadoReal() {
+        when(contactos.deLaUsuaria(10L)).thenReturn(List.of());
+        AlertContact envio = AlertContact.nuevo(5L, 1L, "push", "App");
+        envio.setSentAt(LocalDateTime.now());
+        when(repositorio.deLaAlerta(5L)).thenReturn(List.of(envio));
+
+        List<ContactoNotificado> resultado = service.contactosDe(alerta("active"));
+
+        assertEquals("Contacto", resultado.get(0).name());
+        assertEquals("pending", resultado.get(0).channels().get(0).status());
+    }
+}

@@ -1,39 +1,63 @@
 package com.alertamujer.alerts.domain.model;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * LocationLog entity following database schema: Location tracking.
- * References user_profile_id and alert_id as foreign keys.
+ * Punto GPS de una usuaria: del día a día o del recorrido de una alerta.
  */
-@Entity
-@Table(name = "location_log", schema = "alert")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class LocationLog {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
+
     private Long id;
-
-    @Column(name = "user_profile_id", nullable = false)
     private Long userProfileId;
-
-    @Column(name = "alert_id")
+    /** Null en las ubicaciones del día a día. */
     private Long alertId;
-
-    @Column(nullable = false, precision = 9, scale = 6)
     private BigDecimal latitude;
-
-    @Column(nullable = false, precision = 9, scale = 6)
     private BigDecimal longitude;
-
     private BigDecimal accuracy;
-
-    @Column(name = "recorded_at", nullable = false)
     private LocalDateTime recordedAt = LocalDateTime.now();
+
+    private static final BigDecimal MAX_LATITUD = BigDecimal.valueOf(90);
+    private static final BigDecimal MAX_LONGITUD = BigDecimal.valueOf(180);
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    public static LocationLog nuevo(Long perfil, BigDecimal latitud, BigDecimal longitud, BigDecimal precision) {
+        if (latitud == null || longitud == null
+                || latitud.abs().compareTo(MAX_LATITUD) > 0 || longitud.abs().compareTo(MAX_LONGITUD) > 0) {
+            throw new IllegalArgumentException("Coordenadas inválidas");
+        }
+        LocationLog l = new LocationLog();
+        l.userProfileId = perfil;
+        l.latitude = latitud;
+        l.longitude = longitud;
+        l.accuracy = precision;
+        return l;
+    }
+
+    public boolean esDeAlerta() {
+        return alertId != null;
+    }
+
+    /** Puntos en cola sin conexión: se respeta su hora si es de las últimas 24 h y no del futuro. */
+    public void registrarHora(LocalDateTime enviada, LocalDateTime ahora) {
+        recordedAt = enviada != null && enviada.isAfter(ahora.minusHours(24)) && !enviada.isAfter(ahora) ? enviada : ahora;
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getUserProfileId() { return userProfileId; }
+    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
+    public Long getAlertId() { return alertId; }
+    public void setAlertId(Long alertId) { this.alertId = alertId; }
+    public BigDecimal getLatitude() { return latitude; }
+    public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
+    public BigDecimal getLongitude() { return longitude; }
+    public void setLongitude(BigDecimal longitude) { this.longitude = longitude; }
+    public BigDecimal getAccuracy() { return accuracy; }
+    public void setAccuracy(BigDecimal accuracy) { this.accuracy = accuracy; }
+    public LocalDateTime getRecordedAt() { return recordedAt; }
+    public void setRecordedAt(LocalDateTime recordedAt) { this.recordedAt = recordedAt; }
 }

@@ -1,35 +1,70 @@
 package com.alertamujer.alerts.domain.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.time.LocalDateTime;
 
-/** Mensaje del chat de una alerta (de quien la activó o de uno de sus contactos). */
-@Entity
-@Table(name = "alert_message", schema = "alert")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+/**
+ * Mensaje del chat de una alerta (de quien la activó o de uno de sus contactos).
+ */
 public class AlertMessage {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
+
     private Long id;
-
-    @Column(name = "alert_id", nullable = false)
     private Long alertId;
-
     /** "owner" (quien activó la alerta) o "contact". */
-    @Column(name = "sender_type", nullable = false)
     private String senderType;
-
-    @Column(name = "sender_name", nullable = false)
     private String senderName;
-
-    @Column(nullable = false)
     private String body;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public static final String DE_LA_DUENA = "owner";
+    public static final String DE_CONTACTO = "contact";
+    public static final int MAXIMO_LARGO = 500;
+    public static final int MAXIMO_NOMBRE = 60;
+    public static final int MAXIMO_POR_ALERTA = 500;
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    /**
+     * Valida y crea un mensaje: solo mientras la alerta está activa, con texto y dentro de los
+     * límites. enviados = mensajes que ya tiene la alerta.
+     */
+    public static AlertMessage escribir(Alert alerta, String tipo, String nombre, String texto, long enviados) {
+        if (!alerta.estaActiva()) {
+            throw new IllegalArgumentException("La alerta ya terminó: no se pueden enviar más mensajes");
+        }
+        String cuerpo = texto == null ? "" : texto.trim();
+        if (cuerpo.isEmpty()) throw new IllegalArgumentException("El mensaje está vacío");
+        if (cuerpo.length() > MAXIMO_LARGO) {
+            throw new IllegalArgumentException("El mensaje puede tener como máximo " + MAXIMO_LARGO + " caracteres");
+        }
+        if (enviados >= MAXIMO_POR_ALERTA) {
+            throw new IllegalArgumentException("Se alcanzó el máximo de mensajes de esta alerta");
+        }
+        AlertMessage m = new AlertMessage();
+        m.alertId = alerta.getId();
+        m.senderType = tipo;
+        m.senderName = nombreLimpio(nombre, DE_LA_DUENA.equals(tipo) ? "Ella" : "Contacto");
+        m.body = cuerpo;
+        return m;
+    }
+
+    private static String nombreLimpio(String nombre, String porDefecto) {
+        String n = nombre == null ? "" : nombre.trim();
+        if (n.isEmpty()) return porDefecto;
+        return n.length() > MAXIMO_NOMBRE ? n.substring(0, MAXIMO_NOMBRE) : n;
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getAlertId() { return alertId; }
+    public void setAlertId(Long alertId) { this.alertId = alertId; }
+    public String getSenderType() { return senderType; }
+    public void setSenderType(String senderType) { this.senderType = senderType; }
+    public String getSenderName() { return senderName; }
+    public void setSenderName(String senderName) { this.senderName = senderName; }
+    public String getBody() { return body; }
+    public void setBody(String body) { this.body = body; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
