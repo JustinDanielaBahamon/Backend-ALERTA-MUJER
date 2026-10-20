@@ -78,6 +78,101 @@ services:
       timeout: 5s
       retries: 20
 
+  # ── Microservicios (docker compose --profile micro up) ─────────────
+  auth-service:
+    profiles: [micro]
+    build:
+      context: ./microservicios
+      dockerfile: auth-service/Dockerfile
+    container_name: alerta-mujer-auth
+    ports:
+      - "8081:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - LIQUIBASE_USER=${POSTGRES_USER:-alerta_mujer}
+      - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
+  alert-service:
+    profiles: [micro]
+    build:
+      context: ./microservicios
+      dockerfile: alert-service/Dockerfile
+    container_name: alerta-mujer-alert
+    ports:
+      - "8082:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-log}
+      - EMAIL_API_KEY=${EMAIL_API_KEY:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+      - WEB_BASE_URL=${WEB_BASE_URL:-http://localhost:4200}
+    depends_on:
+      - auth-service
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
+  evidence-service:
+    profiles: [micro]
+    build:
+      context: ./microservicios
+      dockerfile: evidence-service/Dockerfile
+    container_name: alerta-mujer-evidence
+    ports:
+      - "8083:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - EVIDENCE_STORAGE=${EVIDENCE_STORAGE:-s3}
+      - EVIDENCE_S3_ENDPOINT=${EVIDENCE_S3_ENDPOINT:-http://s3:8333}
+      - EVIDENCE_S3_PUBLIC_ENDPOINT=${EVIDENCE_S3_PUBLIC_ENDPOINT:-http://localhost:8333}
+      - EVIDENCE_S3_REGION=${EVIDENCE_S3_REGION:-us-east-1}
+      - EVIDENCE_S3_BUCKET=${EVIDENCE_S3_BUCKET:-alerta-mujer-evidencias}
+      - EVIDENCE_S3_ACCESS_KEY=${EVIDENCE_S3_ACCESS_KEY:-alerta_s3_local}
+      - EVIDENCE_S3_SECRET_KEY=${EVIDENCE_S3_SECRET_KEY:-alerta_s3_local_secret}
+      - EVIDENCE_S3_CREATE_BUCKET=true
+    depends_on:
+      s3:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
 volumes:
   postgres_data:
   evidence_data:
