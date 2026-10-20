@@ -68,6 +68,26 @@ alerts/
     └── out/eventos/         eventos de Spring hacia notificaciones
 ```
 
+`notifications` (avisos de Alert Service):
+
+```
+notifications/
+├── domain/model/            TrackingLink (código de 256 bits, solo el hash, vigencia de 2 h tras
+│                            terminar) y LimiteMensajesContacto (1 mensaje cada 2 s, 30 cada 10 min)
+├── application/
+│   ├── port/in/             AvisarContactos, AvisarNuevoCelular, EnviarCodigoRecuperacion,
+│   │                        SeguimientoPublico, AlertasRecibidas
+│   ├── port/out/            EnlaceRepositorio, CorreosPort, PushPort, AlertasPort, IdentidadPort,
+│   │                        DispositivosPort, AjustesPort, EvidenciasPort
+│   └── service/             implementación de los casos de uso
+└── adapter/
+    ├── in/eventos/          escucha los eventos (en otro hilo, después de guardar)
+    ├── in/web/              seguimiento público y alertas recibidas
+    ├── out/email/           plantillas de la marca + Brevo, Resend o solo registro
+    ├── out/persistence/     enlaces de seguimiento
+    └── out/alerts, identity, devices, settings, evidence, push
+```
+
 `identity` (el núcleo de Auth Service) también:
 
 ```
@@ -158,7 +178,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Pruebas
 
-- **219 tests** en los microservicios (`mvn test` en `microservicios/`).
+- **229 tests** en los microservicios (`mvn test` en `microservicios/`).
   - Incluyen pruebas del dominio sin Spring ni base de datos, y de los casos de uso con puertos
     simulados.
 - Local: `docker compose --profile micro up` levanta los 3 servicios con PostgreSQL y SeaweedFS
@@ -168,7 +188,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Trabajo futuro
 
-- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence`, `alerts` e `identity`.
+- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence`, `alerts`, `identity` y `notifications`.
 - Separar la base de datos por servicio (los esquemas ya están separados).
 - Broker de mensajería (RabbitMQ o Kafka) para los eventos entre servicios, y reintentos.
 - SMS o RCS como canal de notificación (requiere un proveedor de pago).
