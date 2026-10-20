@@ -63,8 +63,12 @@ public class UbicacionesService implements UbicacionesUseCase {
     @Override
     public List<LocationLog> deLaAlerta(Long alertId, Long userId, boolean admin) {
         Alert alerta = alertas.buscar(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        if (!admin && !alerta.esDe(identidad.perfilRequerido(userId))) {
-            throw new AccessDeniedException("No puedes ver ubicaciones de alertas de otra usuaria");
+        boolean propia = alerta.esDe(identidad.perfilRequerido(userId));
+        // La administración solo ve el recorrido de alertas activas o atendidas (auditoría S2):
+        // las canceladas o vencidas pudieron ser una falsa alarma y no se revisan
+        boolean administracionPuede = admin && (alerta.estaActiva() || "resolved".equals(alerta.getStatus()));
+        if (!propia && !administracionPuede) {
+            throw new AccessDeniedException("No puedes ver ubicaciones de esta alerta");
         }
         return repositorio.deLaAlerta(alertId);
     }

@@ -4,8 +4,6 @@ import com.alertamujer.alerts.adapter.in.web.dto.EmergencyContactRequest;
 import com.alertamujer.alerts.adapter.in.web.dto.EmergencyContactResponse;
 import com.alertamujer.alerts.application.port.in.ContactosEmergenciaUseCase;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +20,6 @@ public class EmergencyContactController {
         this.contactos = contactos;
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EmergencyContactResponse>> getAllContacts() {
-        return ResponseEntity.ok(contactos.todos().stream().map(EmergencyContactResponse::of).toList());
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<EmergencyContactResponse> getContactById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
         return contactos.uno(id, currentUserId)
@@ -37,9 +29,8 @@ public class EmergencyContactController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EmergencyContactResponse>> getContactsByUser(@PathVariable Long userId,
-                                                                           @AuthenticationPrincipal Long currentUserId,
-                                                                           Authentication authentication) {
-        return ResponseEntity.ok(contactos.deUsuaria(userId, currentUserId, Autorizacion.esAdmin(authentication)).stream()
+                                                                           @AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(contactos.deUsuaria(userId, currentUserId).stream()
                 .map(EmergencyContactResponse::of).toList());
     }
 

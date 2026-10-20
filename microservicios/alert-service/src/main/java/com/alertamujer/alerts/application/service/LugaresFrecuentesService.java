@@ -26,11 +26,6 @@ public class LugaresFrecuentesService implements LugaresFrecuentesUseCase {
     }
 
     @Override
-    public List<FrequentLocation> todos() {
-        return repositorio.todos();
-    }
-
-    @Override
     public List<FrequentLocation> activosDe(Long userId) {
         return repositorio.activosDeLaUsuaria(identidad.perfilRequerido(userId));
     }

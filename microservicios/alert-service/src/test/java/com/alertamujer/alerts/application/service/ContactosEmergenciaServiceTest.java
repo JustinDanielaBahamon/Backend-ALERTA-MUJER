@@ -81,13 +81,10 @@ class ContactosEmergenciaServiceTest {
     }
 
     @Test
-    void deUsuaria_otraUsuariaSoloLaVeLaAdministracion() {
-        when(identidad.perfilDe(5L)).thenReturn(Optional.empty());
-        when(repositorio.deLaUsuaria(5L)).thenReturn(List.of());
-
-        assertThrows(AccessDeniedException.class, () -> service.deUsuaria(5L, 1L, false));
-        // Sin usuaria con ese id, se interpreta como user_profile.id
-        assertEquals(List.of(), service.deUsuaria(5L, 1L, true));
+    void deUsuaria_losDeOtraUsuariaNoLosVeNadie() {
+        // Ni siquiera la administración: son datos de terceros (auditoría S2)
+        assertThrows(AccessDeniedException.class, () -> service.deUsuaria(5L, 1L));
+        verify(repositorio, never()).deLaUsuaria(5L);
     }
 
     @Test

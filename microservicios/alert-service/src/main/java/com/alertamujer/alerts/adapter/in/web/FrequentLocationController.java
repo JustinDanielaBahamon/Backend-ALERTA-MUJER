@@ -21,15 +21,9 @@ public class FrequentLocationController {
         this.lugares = lugares;
     }
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<FrequentLocationResponse>> getAll() {
-        return ResponseEntity.ok(lugares.todos().stream().map(FrequentLocationResponse::of).toList());
-    }
-
-    // userId = users.id (lo que envían web y móvil). Solo la dueña o la administración.
+    // userId = users.id (lo que envían web y móvil). Solo la dueña (auditoría S2).
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
+    @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<List<FrequentLocationResponse>> getByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(lugares.activosDe(userId).stream().map(FrequentLocationResponse::of).toList());
     }
