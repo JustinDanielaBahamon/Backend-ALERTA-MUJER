@@ -8,9 +8,6 @@ import java.util.List;
 /** Lugares frecuentes de la usuaria. */
 public interface LugaresFrecuentesUseCase {
 
-    /** Todos (solo administración). */
-    List<FrequentLocation> todos();
-
     List<FrequentLocation> activosDe(Long userId);
 
     FrequentLocation uno(Long id, Long userId);

@@ -9,17 +9,11 @@ import java.util.Optional;
 /** Contactos de emergencia de la usuaria. */
 public interface ContactosEmergenciaUseCase {
 
-    /** Todos (solo administración). */
-    List<EmergencyContact> todos();
-
     /** Vacío si no existe o es de otra usuaria. */
     Optional<EmergencyContact> uno(Long id, Long userId);
 
-    /**
-     * Contactos de una usuaria. Los clientes envían el id de usuaria (users.id); también se acepta
-     * el id de perfil propio. La administración puede ver los de cualquiera.
-     */
-    List<EmergencyContact> deUsuaria(Long idPedido, Long userId, boolean admin);
+    /** Solo los propios: idPedido puede ser el users.id o el user_profile.id de la usuaria (S2: la administración no los ve). */
+    List<EmergencyContact> deUsuaria(Long idPedido, Long userId);
 
     EmergencyContact crear(DatosContacto datos, Long userId);
 

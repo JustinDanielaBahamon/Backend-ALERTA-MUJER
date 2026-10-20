@@ -90,6 +90,22 @@ class UbicacionesServiceTest {
     }
 
     @Test
+    void laAdministracionNoVeElRecorridoDeAlertasCanceladasOVencidas() {
+        when(alertas.buscar(5L)).thenReturn(Optional.of(alerta));
+        when(identidad.perfilRequerido(2L)).thenReturn(20L);
+        when(repositorio.deLaAlerta(5L)).thenReturn(List.of());
+
+        alerta.setStatus("resolved");
+        assertEquals(List.of(), service.deLaAlerta(5L, 2L, true));
+        alerta.setStatus("cancelled");
+        assertThrows(AccessDeniedException.class, () -> service.deLaAlerta(5L, 2L, true));
+        alerta.setStatus("expired");
+        assertThrows(AccessDeniedException.class, () -> service.deLaAlerta(5L, 2L, true));
+        // La dueña sí la ve
+        assertEquals(List.of(), service.deLaAlerta(5L, 1L, false));
+    }
+
+    @Test
     void recientesLimitaElNumeroDePuntos() {
         service.recientes(1L, 10_000);
         service.recientes(1L, 0);

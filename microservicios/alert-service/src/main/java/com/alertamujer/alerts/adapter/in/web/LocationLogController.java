@@ -65,9 +65,9 @@ public class LocationLogController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
-    // userId = users.id. Solo la dueña o la administración.
+    // userId = users.id. Solo la dueña: la administración solo ve el recorrido de alertas (auditoría S2).
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
+    @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<List<LocationLogResponse>> getByUser(@PathVariable Long userId,
                                                                @RequestParam(defaultValue = "50") int limit) {
         return ResponseEntity.ok(ubicaciones.recientes(userId, limit).stream().map(LocationLogResponse::of).toList());

@@ -29,11 +29,6 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     }
 
     @Override
-    public List<EmergencyContact> todos() {
-        return repositorio.todos();
-    }
-
-    @Override
     public Optional<EmergencyContact> uno(Long id, Long userId) {
         Long perfil = identidad.perfilDe(userId).orElse(null);
         if (perfil == null) return Optional.empty();
@@ -41,16 +36,13 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     }
 
     @Override
-    public List<EmergencyContact> deUsuaria(Long idPedido, Long userId, boolean admin) {
+    public List<EmergencyContact> deUsuaria(Long idPedido, Long userId) {
         Long propio = perfilDe(userId);
         if (idPedido.equals(userId) || idPedido.equals(propio)) {
             return repositorio.deLaUsuaria(propio);
         }
-        if (!admin) {
-            throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
-        }
-        // Para la administración el id se interpreta como users.id y, si no existe, como user_profile.id
-        return repositorio.deLaUsuaria(identidad.perfilDe(idPedido).orElse(idPedido));
+        // Los contactos son datos de terceros: ni la administración los consulta (auditoría S2)
+        throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
     }
 
     @Override
