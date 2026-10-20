@@ -44,6 +44,30 @@ evidence/
     └── out/alerts, out/identity   clientes de los otros microservicios
 ```
 
+`alerts` (el núcleo de Alert Service) sigue el mismo patrón:
+
+```
+alerts/
+├── domain/model/            Alert, AlertContact, AlertMessage, EmergencyContact, LocationLog,
+│                            SavedRoute, FrequentLocation: modelos puros con sus reglas (una alerta
+│                            activa por usuaria, máximo 5 conservadas, 4 recorridos y 2 estrella...)
+├── application/
+│   ├── port/in/             GestionarAlertas, AdministrarAlertas, ChatAlerta, DestinatariosAlerta,
+│   │                        ExpirarAlertas, ContactosEmergencia, Ubicaciones, PedirUbicacion,
+│   │                        LimpiarUbicaciones, Recorridos, LugaresFrecuentes, ConsultarAlertas
+│   ├── port/out/            repositorios, IdentidadPort, CelularesPort, AjustesPort, PushPort,
+│   │                        EventosAlertaPort
+│   └── service/             implementación de los casos de uso
+└── adapter/
+    ├── in/web/              controladores REST con DTOs (el JSON no cambió)
+    ├── in/scheduler/        expiración de alertas y limpieza de ubicaciones
+    ├── in/modulo/           AlertsApi para notificaciones, Auth y Evidence
+    ├── out/persistence/     entidades JPA + repositorios + conversión
+    ├── out/identity, out/devices, out/settings   Auth Service por HTTP
+    ├── out/push/            Firebase
+    └── out/eventos/         eventos de Spring hacia notificaciones
+```
+
 El dominio no depende de la tecnología. Cambiar la base de datos o el almacenamiento significa
 cambiar un adaptador; la lógica de negocio no se toca.
 
@@ -112,7 +136,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Pruebas
 
-- **167 tests** en los microservicios (`mvn test` en `microservicios/`).
+- **200 tests** en los microservicios (`mvn test` en `microservicios/`).
   - Incluyen pruebas del dominio sin Spring ni base de datos, y de los casos de uso con puertos
     simulados.
 - Local: `docker compose --profile micro up` levanta los 3 servicios con PostgreSQL y SeaweedFS
@@ -122,7 +146,7 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Trabajo futuro
 
-- Llevar la arquitectura hexagonal estricta a `alerts` e `identity`, como en `evidence`.
+- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence` y `alerts`.
 - Separar la base de datos por servicio (los esquemas ya están separados).
 - Broker de mensajería (RabbitMQ o Kafka) para los eventos entre servicios, y reintentos.
 - SMS o RCS como canal de notificación (requiere un proveedor de pago).
