@@ -55,6 +55,9 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
     @Override
     @Transactional
     public Sesion registrar(DatosRegistro d) {
+        if (Boolean.FALSE.equals(d.aceptaTerminos())) {
+            throw new IllegalArgumentException("Debes aceptar los términos y la política de privacidad");
+        }
         String telefono = User.limpiarTelefono(d.telefono());
         String documento = User.vacioANull(d.numeroDocumento());
         Map<String, String> repetidos = new LinkedHashMap<>();
@@ -68,8 +71,11 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
         if (!repetidos.isEmpty()) throw new DuplicateFieldsException(repetidos);
 
         usuarias.asegurarRolUsuaria();
-        User usuaria = usuarias.guardar(User.nueva(d.nombre(), d.email(), d.telefono(), d.tipoDocumento(),
-                d.numeroDocumento(), User.fechaDeFormulario(d.fechaNacimiento())));
+        User nueva = User.nueva(d.nombre(), d.email(), d.telefono(), d.tipoDocumento(),
+                d.numeroDocumento(), User.fechaDeFormulario(d.fechaNacimiento()));
+        // Solo queda constancia si la casilla llegó marcada (las apps anteriores no la envían)
+        if (Boolean.TRUE.equals(d.aceptaTerminos())) nueva.aceptarTerminos(LocalDateTime.now());
+        User usuaria = usuarias.guardar(nueva);
         cuentas.guardar(Account.nueva(usuaria.getId(), cifrado.cifrar(d.password())));
         // Sin perfil no puede crear alertas, contactos ni ubicaciones
         if (!perfiles.existeDeUsuaria(usuaria.getId())) perfiles.guardar(UserProfile.de(usuaria.getId()));
@@ -141,7 +147,10 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
 
     private User crearDesdeGoogle(IdentidadGoogle id) {
         usuarias.asegurarRolUsuaria();
-        User usuaria = usuarias.guardar(User.desdeGoogle(id.email(), id.name(), id.givenName(), id.familyName()));
+        User nueva = User.desdeGoogle(id.email(), id.name(), id.givenName(), id.familyName());
+        // La pantalla de inicio avisa que continuar con Google es aceptar los términos
+        nueva.aceptarTerminos(LocalDateTime.now());
+        User usuaria = usuarias.guardar(nueva);
         // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
         cuentas.guardar(Account.nueva(usuaria.getId(), cifrado.cifrar(UUID.randomUUID() + UUID.randomUUID().toString())));
         perfiles.guardar(UserProfile.de(usuaria.getId()));

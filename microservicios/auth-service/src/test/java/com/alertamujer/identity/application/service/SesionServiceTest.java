@@ -53,7 +53,12 @@ class SesionServiceTest {
     }
 
     private static DatosRegistro registro() {
-        return new DatosRegistro("Ana Gómez", "ana@correo.com", "Secreta123", "300 123-4567", "CC", "123", "05/05/1995");
+        return registro(true);
+    }
+
+    private static DatosRegistro registro(Boolean aceptaTerminos) {
+        return new DatosRegistro("Ana Gómez", "ana@correo.com", "Secreta123", "300 123-4567", "CC", "123", "05/05/1995",
+                aceptaTerminos);
     }
 
     @Test
@@ -77,6 +82,29 @@ class SesionServiceTest {
         assertEquals(1L, c.getValue().getUserId());
         verify(perfiles).guardar(any(UserProfile.class));
         verify(usuarias).asegurarRolUsuaria();
+        assertNotNull(s.usuaria().getTermsAcceptedAt());
+        assertEquals(User.TERMINOS_VIGENTES, s.usuaria().getTermsVersion());
+    }
+
+    @Test
+    void registrar_rechazaSiNoAceptaLosTerminos() {
+        assertThrows(IllegalArgumentException.class, () -> service.registrar(registro(false)));
+        verify(usuarias, never()).guardar(any());
+    }
+
+    @Test
+    void registrar_sinLaCasilla_noInventaLaConstancia() {
+        when(usuarias.guardar(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(1L);
+            return u;
+        });
+        when(cifrado.cifrar("Secreta123")).thenReturn("hash");
+
+        Sesion s = service.registrar(registro(null));
+
+        assertNull(s.usuaria().getTermsAcceptedAt());
+        assertNull(s.usuaria().getTermsVersion());
     }
 
     @Test
@@ -154,6 +182,7 @@ class SesionServiceTest {
         Sesion s = service.conGoogle("token");
 
         assertEquals("Eva", s.usuaria().getFirstName());
+        assertEquals(User.TERMINOS_VIGENTES, s.usuaria().getTermsVersion());
         verify(perfiles).guardar(any(UserProfile.class));
         verify(cuentas, times(2)).guardar(any(Account.class));
     }

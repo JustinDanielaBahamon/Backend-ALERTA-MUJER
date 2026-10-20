@@ -27,6 +27,9 @@ public class UserResponse {
     /** Foto de perfil (data URI) o null. */
     private String profilePhoto;
     private LocalDateTime createdAt;
+    /** Constancia de aceptación de términos (null en cuentas anteriores al registro de esto). */
+    private LocalDateTime termsAcceptedAt;
+    private String termsVersion;
     
     /** Persona con su foto (vive en user_profile; null si no se pide o no tiene). */
     public static UserResponse of(User u, String foto) {
@@ -43,6 +46,8 @@ public class UserResponse {
                 .birthdate(u.getBirthdate() == null ? null : u.getBirthdate().toString())
                 .profilePhoto(foto)
                 .createdAt(u.getCreatedAt())
+                .termsAcceptedAt(u.getTermsAcceptedAt())
+                .termsVersion(u.getTermsVersion())
                 .build();
     }
 

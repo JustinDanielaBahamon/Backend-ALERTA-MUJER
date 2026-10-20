@@ -80,6 +80,8 @@ class UsuariaPersistenceAdapter implements UsuariaRepositorio {
         d.setDocumentType(f.getDocumentType());
         d.setBirthdate(f.getBirthdate());
         d.setCreatedAt(f.getCreatedAt());
+        d.setTermsAcceptedAt(f.getTermsAcceptedAt());
+        d.setTermsVersion(f.getTermsVersion());
         return d;
     }
 
@@ -94,6 +96,8 @@ class UsuariaPersistenceAdapter implements UsuariaRepositorio {
         f.setDocumentType(d.getDocumentType());
         f.setBirthdate(d.getBirthdate());
         f.setCreatedAt(d.getCreatedAt());
+        f.setTermsAcceptedAt(d.getTermsAcceptedAt());
+        f.setTermsVersion(d.getTermsVersion());
         return f;
     }
 }
