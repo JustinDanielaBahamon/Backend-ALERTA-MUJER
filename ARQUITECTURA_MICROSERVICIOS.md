@@ -25,7 +25,23 @@ microservicios/
 └── evidence-service/
 ```
 
-### Arquitectura hexagonal (ejemplo: Evidence Service)
+### Arquitectura hexagonal
+
+Los **9 módulos** de negocio siguen el mismo patrón:
+
+| Servicio | Módulo | Dominio (reglas sin Spring ni JPA) |
+|---|---|---|
+| Auth | `identity` | registro, estados de la cuenta, contraseñas, código de recuperación |
+| Auth | `devices` | celular principal, permisos de la app, token push, estados |
+| Auth | `settings` | duración de la alerta, número de emergencia, límite de contactos, versión mínima |
+| Auth | `admin` | moderación, eliminación con dos administradoras, informes, auditoría |
+| Alert | `alerts` | una alerta activa por usuaria, estados, chat, contactos, ubicaciones, recorridos |
+| Alert | `notifications` | enlace de seguimiento (vigencia y hash), límite del chat del contacto |
+| Alert | `zones` | zonas del mapa y reportes de las usuarias |
+| Alert | `resources` | recursos de ayuda y registro de llamadas |
+| Evidence | `evidence` | tipos de archivo, nombres seguros, revisión |
+
+Estructura de cada módulo (ejemplo: Evidence Service):
 
 ```
 evidence/
@@ -178,9 +194,13 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Pruebas
 
-- **229 tests** en los microservicios (`mvn test` en `microservicios/`).
+- **258 tests** en los microservicios (`mvn test` en `microservicios/`).
   - Incluyen pruebas del dominio sin Spring ni base de datos, y de los casos de uso con puertos
     simulados.
+  - `NombresDeBeansTest` falla si dos adaptadores de módulos distintos tienen el mismo nombre de clase
+    (Spring no arrancaría).
+- Al pasar cada módulo a hexagonal se comparó la API antes y después con pruebas de humo en Docker
+  (201 pasos en total): mismos códigos HTTP, mismas claves y mismo orden en el JSON.
 - Local: `docker compose --profile micro up` levanta los 3 servicios con PostgreSQL y SeaweedFS
   (S3), en los puertos 8081 (Auth), 8082 (Alert) y 8083 (Evidence).
 - Probado de punta a punta en la nube: registro y login en Auth; contactos y alertas en Alert
@@ -188,7 +208,6 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 ## Trabajo futuro
 
-- Llevar la arquitectura hexagonal estricta al resto de módulos, como en `evidence`, `alerts`, `identity` y `notifications`.
 - Separar la base de datos por servicio (los esquemas ya están separados).
 - Broker de mensajería (RabbitMQ o Kafka) para los eventos entre servicios, y reintentos.
 - SMS o RCS como canal de notificación (requiere un proveedor de pago).
