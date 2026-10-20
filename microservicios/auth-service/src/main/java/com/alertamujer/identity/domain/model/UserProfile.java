@@ -1,45 +1,43 @@
 package com.alertamujer.identity.domain.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 /**
- * UserProfile entity following database schema: Biometrics and preferences.
- * Personal data (name, contact info) are in User table.
+ * Perfil de la usuaria: a él pertenecen sus alertas, contactos y ubicaciones; guarda la foto.
  */
-@Entity
-@Table(name = "user_profile", schema = "identity")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserProfile {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
+
     private Long id;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false, unique = true, foreignKey = @ForeignKey(name = "fk_user_profile_user"))
-    @ToString.Exclude
-    private User user;
-
-    @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
     private Long userId;
-
-    @Column(name = "profile_photo_url")
+    /** Foto de perfil como data URI (ver FotoDataUri) o null. */
     private String profilePhotoUrl;
-
-    @Column(name = "tutorial_completed", nullable = false)
     private Boolean tutorialCompleted = false;
-
-    @Column(name = "tutorial_seen_at")
     private LocalDateTime tutorialSeenAt;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    public static UserProfile de(Long userId) {
+        UserProfile p = new UserProfile();
+        p.userId = userId;
+        return p;
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+    public String getProfilePhotoUrl() { return profilePhotoUrl; }
+    public void setProfilePhotoUrl(String profilePhotoUrl) { this.profilePhotoUrl = profilePhotoUrl; }
+    public Boolean getTutorialCompleted() { return tutorialCompleted; }
+    public void setTutorialCompleted(Boolean tutorialCompleted) { this.tutorialCompleted = tutorialCompleted; }
+    public LocalDateTime getTutorialSeenAt() { return tutorialSeenAt; }
+    public void setTutorialSeenAt(LocalDateTime tutorialSeenAt) { this.tutorialSeenAt = tutorialSeenAt; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
