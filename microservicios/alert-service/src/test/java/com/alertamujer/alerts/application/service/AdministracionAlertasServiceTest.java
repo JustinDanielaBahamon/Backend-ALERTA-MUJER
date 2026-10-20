@@ -1,5 +1,12 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.application.port.in.AdministrarAlertasUseCase.DetalleAdmin;
+import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase;
+import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase.CanalEnvio;
+import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase.ContactoNotificado;
+import com.alertamujer.alerts.application.port.out.UbicacionRepositorio;
+import com.alertamujer.alerts.domain.model.LocationLog;
+
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.application.port.out.AlertaRepositorio;
 import com.alertamujer.alerts.application.port.out.EventosAlertaPort;
@@ -28,6 +35,8 @@ class AdministracionAlertasServiceTest {
     @Mock private AlertaRepositorio repositorio;
     @Mock private IdentidadPort identidad;
     @Mock private EventosAlertaPort eventos;
+    @Mock private UbicacionRepositorio ubicaciones;
+    @Mock private DestinatariosAlertaUseCase destinatarios;
 
     @InjectMocks private AdministracionAlertasService service;
 
@@ -76,5 +85,50 @@ class AdministracionAlertasServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> service.cambiarEstado(9L, "resolved"));
         verify(repositorio, never()).guardar(any());
         verifyNoInteractions(eventos);
+    }
+
+    private static LocationLog punto(int minuto, double lat) {
+        LocationLog l = new LocationLog();
+        l.setLatitude(java.math.BigDecimal.valueOf(lat));
+        l.setLongitude(java.math.BigDecimal.valueOf(-75.28));
+        l.setRecordedAt(LocalDateTime.of(2026, 10, 20, 10, minuto));
+        return l;
+    }
+
+    @Test
+    void detalle_daLaUltimaUbicacionYLosEnviosSinNombreNiCorreo() {
+        Alert alerta = new Alert();
+        alerta.setId(5L);
+        alerta.setStatus("active");
+        when(repositorio.buscar(5L)).thenReturn(Optional.of(alerta));
+        when(ubicaciones.deLaAlerta(5L)).thenReturn(List.of(punto(1, 2.91), punto(7, 2.93), punto(3, 2.92)));
+        when(destinatarios.contactosDe(alerta)).thenReturn(List.of(new ContactoNotificado(9L, "Eva Ruiz", "Madre",
+                List.of(new CanalEnvio("email", "eva@correo.com", "sent", LocalDateTime.of(2026, 10, 20, 10, 0), null)))));
+
+        DetalleAdmin d = service.detalle(5L);
+
+        assertTrue(d.ubicacionVisible());
+        assertEquals(3, d.puntos());
+        assertEquals(LocalDateTime.of(2026, 10, 20, 10, 7), d.ultimaUbicacion().recordedAt());
+        assertEquals(1, d.envios().get(0).contacto());
+        assertEquals("Madre", d.envios().get(0).relationship());
+        assertEquals("sent", d.envios().get(0).channels().get(0).status());
+        assertFalse(d.toString().contains("eva@correo.com"));
+        assertFalse(d.toString().contains("Eva Ruiz"));
+    }
+
+    @Test
+    void detalle_deUnaAlertaCanceladaNoMuestraUbicaciones() {
+        Alert alerta = new Alert();
+        alerta.setId(6L);
+        alerta.setStatus("cancelled");
+        when(repositorio.buscar(6L)).thenReturn(Optional.of(alerta));
+        when(destinatarios.contactosDe(alerta)).thenReturn(List.of());
+
+        DetalleAdmin d = service.detalle(6L);
+
+        assertFalse(d.ubicacionVisible());
+        assertNull(d.ultimaUbicacion());
+        verify(ubicaciones, never()).deLaAlerta(any());
     }
 }

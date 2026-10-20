@@ -57,6 +57,13 @@ public class AlertController {
         return ResponseEntity.ok(administracion.listar());
     }
 
+    /** Detalle del panel: última ubicación y estado de envío a cada contacto (sin sus datos). */
+    @GetMapping("/{id}/admin-detail")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<AdministrarAlertasUseCase.DetalleAdmin> getAdminDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(administracion.detalle(id));
+    }
+
     /** Cambia el estado de una alerta de cualquier usuaria, por ejemplo a "resolved" (atendida). */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
