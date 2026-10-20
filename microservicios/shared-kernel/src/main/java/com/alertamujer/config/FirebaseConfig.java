@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Lo usan Auth (inicio de sesión con Google) y Alert (push); Evidence lo apaga con firebase.enabled=false. */
 @Configuration
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "firebase.enabled", havingValue = "true", matchIfMissing = true)
 public class FirebaseConfig {
 
     @Value("${firebase.config.path:classpath:firebase-service-account.json}")
