@@ -1,11 +1,12 @@
-package com.alertamujer.evidence.infrastructure.storage;
+package com.alertamujer.evidence.adapter.out.storage;
+
+import com.alertamujer.evidence.application.port.out.AlmacenamientoEvidencias;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +27,7 @@ import java.util.UUID;
  */
 @Component
 @ConditionalOnProperty(name = "evidence.storage", havingValue = "disk", matchIfMissing = true)
-public class DiskEvidenceStorage implements EvidenceStorage {
+public class DiskEvidenceStorage implements AlmacenamientoEvidencias {
 
     private final Path root;
 
@@ -36,16 +37,16 @@ public class DiskEvidenceStorage implements EvidenceStorage {
     }
 
     @Override
-    public StoredFile store(MultipartFile file) {
+    public ArchivoGuardado guardar(ArchivoEntrante file) {
         String key = UUID.randomUUID().toString();
         Path destino = resolve(key);
-        try (InputStream in = file.getInputStream();
+        try (InputStream in = file.contenido().get();
              DigestInputStream digest = new DigestInputStream(in, MessageDigest.getInstance("SHA-256"))) {
             long size = Files.copy(digest, destino, StandardCopyOption.REPLACE_EXISTING);
             String sha256 = HexFormat.of().formatHex(digest.getMessageDigest().digest());
-            return new StoredFile(key, sha256, size);
+            return new ArchivoGuardado(key, sha256, size);
         } catch (IOException e) {
-            delete(key);
+            eliminar(key);
             throw new UncheckedIOException("No se pudo guardar la evidencia", e);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
@@ -53,12 +54,12 @@ public class DiskEvidenceStorage implements EvidenceStorage {
     }
 
     @Override
-    public Resource load(String key) {
+    public Resource cargar(String key) {
         return new FileSystemResource(resolve(key));
     }
 
     @Override
-    public void delete(String key) {
+    public void eliminar(String key) {
         if (key == null) return;
         try {
             Files.deleteIfExists(resolve(key));

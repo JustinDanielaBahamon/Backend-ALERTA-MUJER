@@ -1,4 +1,6 @@
-package com.alertamujer.evidence.infrastructure.storage;
+package com.alertamujer.evidence.adapter.out.storage;
+
+import com.alertamujer.evidence.application.port.out.AlmacenamientoEvidencias;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
@@ -44,7 +45,7 @@ import java.util.UUID;
  */
 @Component
 @ConditionalOnProperty(name = "evidence.storage", havingValue = "s3")
-public class S3EvidenceStorage implements EvidenceStorage {
+public class S3EvidenceStorage implements AlmacenamientoEvidencias {
 
     private static final Logger log = LoggerFactory.getLogger(S3EvidenceStorage.class);
     private static final String PREFIJO = "evidencias/";
@@ -89,22 +90,16 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     @Override
-    public StoredFile store(MultipartFile file) {
+    public ArchivoGuardado guardar(ArchivoEntrante file) {
         String key = UUID.randomUUID().toString();
         try {
             String sha256 = huella(file);
             // El SDK puede leer el contenido más de una vez (firma, reintentos): se le da una forma
             // de abrirlo de nuevo, que la subida multipart permite (queda en memoria o en disco)
-            ContentStreamProvider contenido = () -> {
-                try {
-                    return file.getInputStream();
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            };
-            s3.putObject(b -> b.bucket(bucket).key(PREFIJO + key).contentType(file.getContentType()),
-                    RequestBody.fromContentProvider(contenido, file.getSize(), file.getContentType()));
-            return new StoredFile(key, sha256, file.getSize());
+            ContentStreamProvider contenido = () -> file.contenido().get();
+            s3.putObject(b -> b.bucket(bucket).key(PREFIJO + key).contentType(file.contentType()),
+                    RequestBody.fromContentProvider(contenido, file.tamano(), file.contentType()));
+            return new ArchivoGuardado(key, sha256, file.tamano());
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalStateException("No se pudo leer la evidencia", e);
         } catch (S3Exception e) {
@@ -113,8 +108,8 @@ public class S3EvidenceStorage implements EvidenceStorage {
         }
     }
 
-    private static String huella(MultipartFile file) throws IOException {
-        try (InputStream in = file.getInputStream();
+    private static String huella(ArchivoEntrante file) throws IOException {
+        try (InputStream in = file.contenido().get();
              DigestInputStream digest = new DigestInputStream(in, MessageDigest.getInstance("SHA-256"))) {
             digest.transferTo(OutputStream.nullOutputStream());
             return HexFormat.of().formatHex(digest.getMessageDigest().digest());
@@ -124,12 +119,12 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     @Override
-    public Resource load(String key) {
+    public Resource cargar(String key) {
         return new ObjetoS3(validar(key));
     }
 
     @Override
-    public void delete(String key) {
+    public void eliminar(String key) {
         if (key == null) return;
         try {
             s3.deleteObject(b -> b.bucket(bucket).key(PREFIJO + validar(key)));

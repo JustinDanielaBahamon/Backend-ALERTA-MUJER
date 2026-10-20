@@ -1,4 +1,4 @@
-package com.alertamujer.evidence.infrastructure.storage;
+package com.alertamujer.evidence.adapter.out.storage;
 
 import org.junit.jupiter.api.Test;
 
