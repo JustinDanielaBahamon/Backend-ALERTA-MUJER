@@ -1,38 +1,53 @@
 package com.alertamujer.admin.domain.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 /**
- * Acción de moderación tomada por un admin sobre un reporte de usuario.
+ * Acción de una administradora sobre un caso de moderación (block, unblock).
  */
-@Entity
-@Table(name = "moderation_action", schema = "admin")
-@Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ModerationAction {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
+
     private Long id;
-
-    @Column(name = "user_report_id", nullable = false)
     private Long userReportId;
-
-    @Column(name = "admin_perfil_id", nullable = false)
+    /** users.id de la administradora. */
     private Integer adminPerfilId;
-
-    @Column(name = "action_type", nullable = false)
     private String actionType;
-
-    @Column(name = "notes")
     private String notes;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(name = "updated_at", insertable = false, updatable = false)
     private LocalDateTime updatedAt;
+
+    public static final String BLOQUEO = "block";
+    public static final String DESBLOQUEO = "unblock";
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    public static ModerationAction de(Long casoId, Long adminId, String tipo, String nota) {
+        ModerationAction a = new ModerationAction();
+        a.userReportId = casoId;
+        a.adminPerfilId = adminId.intValue();
+        a.actionType = tipo;
+        a.notes = nota;
+        return a;
+    }
+
+    public boolean esBloqueo() {
+        return BLOQUEO.equals(actionType);
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getUserReportId() { return userReportId; }
+    public void setUserReportId(Long userReportId) { this.userReportId = userReportId; }
+    public Integer getAdminPerfilId() { return adminPerfilId; }
+    public void setAdminPerfilId(Integer adminPerfilId) { this.adminPerfilId = adminPerfilId; }
+    public String getActionType() { return actionType; }
+    public void setActionType(String actionType) { this.actionType = actionType; }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
