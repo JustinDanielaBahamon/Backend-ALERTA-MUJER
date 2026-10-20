@@ -73,6 +73,217 @@ services:
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
 
+  # ── alerta-mujer-auth (microservicio) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-auth
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./auth-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - key: APP_DB_PASSWORD
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: APP_DB_PASSWORD
+      - key: JWT_SECRET
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: JWT_SECRET
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      # Solo Auth aplica las migraciones de la base compartida
+      - key: LIQUIBASE_USER
+        fromDatabase:
+          name: alerta-mujer-db
+          property: user
+      - key: LIQUIBASE_PASSWORD
+        fromDatabase:
+          name: alerta-mujer-db
+          property: password
+      - key: LIQUIBASE_CONTEXTS
+        value: prod
+      - key: FIREBASE_CONFIG_PATH
+        value: /etc/secrets/firebase-service-account.json
+  # ── alerta-mujer-alert (microservicio) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-alert
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./alert-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - key: APP_DB_PASSWORD
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: APP_DB_PASSWORD
+      - key: JWT_SECRET
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: JWT_SECRET
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      - key: EMAIL_PROVIDER
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EMAIL_PROVIDER
+      - key: EMAIL_API_KEY
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EMAIL_API_KEY
+      - key: EMAIL_FROM
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EMAIL_FROM
+      - key: WEB_BASE_URL
+        value: https://alerta-mujer.vercel.app
+      - key: FIREBASE_CONFIG_PATH
+        value: /etc/secrets/firebase-service-account.json
+  # ── alerta-mujer-evidence (microservicio) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-evidence
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./evidence-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - key: APP_DB_PASSWORD
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: APP_DB_PASSWORD
+      - key: JWT_SECRET
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: JWT_SECRET
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      - key: EVIDENCE_STORAGE
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_STORAGE
+      - key: EVIDENCE_S3_ENDPOINT
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_S3_ENDPOINT
+      - key: EVIDENCE_S3_REGION
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_S3_REGION
+      - key: EVIDENCE_S3_BUCKET
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_S3_BUCKET
+      - key: EVIDENCE_S3_ACCESS_KEY
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_S3_ACCESS_KEY
+      - key: EVIDENCE_S3_SECRET_KEY
+        fromService:
+          name: alerta-mujer-backend
+          type: web
+          envVarKey: EVIDENCE_S3_SECRET_KEY
+      - key: EVIDENCE_STORAGE_DIR
+        value: /tmp/evidence
+
+envVarGroups:
+  # Comunes a los 3 microservicios
+  - name: alerta-mujer-microservicios
+    envVars:
+      # Clave de las llamadas /internal/** entre servicios (Render la genera)
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: "https://alerta-mujer*.vercel.app"
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
+      - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+        value: never
+
 databases:
   - name: alerta-mujer-db
     plan: free

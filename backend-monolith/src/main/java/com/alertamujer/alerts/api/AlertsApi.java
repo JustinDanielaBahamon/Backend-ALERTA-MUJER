@@ -46,6 +46,9 @@ public interface AlertsApi {
     /** Recorrido de la alerta, del primer punto al último. */
     List<LocationPoint> locationTrail(Long alertId);
 
+    /** Ids de las alertas de una usuaria (user_profile.id). */
+    List<Long> alertIdsOfProfile(Long userProfileId);
+
     /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
     java.util.Set<Long> alertsKeepingEvidence(Collection<Long> alertIds);
 

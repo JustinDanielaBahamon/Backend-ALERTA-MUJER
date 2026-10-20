@@ -149,4 +149,9 @@ public class AlertsApiService implements AlertsApi {
                 .map(Alert::getId)
                 .collect(java.util.stream.Collectors.toSet());
     }
+
+    @Override
+    public List<Long> alertIdsOfProfile(Long userProfileId) {
+        return alertRepository.findByUserProfileId(userProfileId).stream().map(Alert::getId).toList();
+    }
 }
