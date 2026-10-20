@@ -43,4 +43,10 @@ public class AuthMicroservicioConfig {
                                        @Value("${internal.api-key:}") String clave, ObjectMapper json) {
         return new EventosRemotos(url, clave, json);
     }
+
+    @Bean
+    EventosRemotos eventosHaciaEvidencias(@Value("${services.evidence.url}") String url,
+                                          @Value("${internal.api-key:}") String clave, ObjectMapper json) {
+        return new EventosRemotos(url, clave, json);
+    }
 }

@@ -8,4 +8,7 @@ public interface EventosIdentidadPort {
 
     /** El correo con el código lo envía Alert Service (notificaciones). */
     void codigoRecuperacion(String correo, String nombre, String codigo, int minutosValidez);
+
+    /** Se eliminó una cuenta: los demás servicios borran sus datos personales. */
+    void cuentaEliminada(Long userId, Long userProfileId);
 }

@@ -1,6 +1,7 @@
 package com.alertamujer.identity.application.service;
 
 import com.alertamujer.identity.api.AdminSessionEvent;
+import com.alertamujer.identity.application.port.in.AdministrarCuentasUseCase;
 import com.alertamujer.identity.application.port.out.*;
 import com.alertamujer.identity.domain.model.Account;
 import com.alertamujer.identity.domain.model.CambiosUsuaria;
@@ -27,6 +28,7 @@ class MiCuentaServiceTest {
     @Mock private CuentaRepositorio cuentas;
     @Mock private CifradoPort cifrado;
     @Mock private EventosIdentidadPort eventos;
+    @Mock private AdministrarCuentasUseCase administracion;
 
     @InjectMocks private MiCuentaService service;
 
@@ -93,5 +95,27 @@ class MiCuentaServiceTest {
         service.cambiarContrasena(1L, "Actual123", "Nueva1234");
 
         verify(eventos).sesionAdmin(4L, AdminSessionEvent.PASSWORD_CHANGED, null);
+    }
+
+    @Test
+    void eliminarMiCuenta_conLaPalabraDeConfirmacion_usaElMismoBorradoDeLaAdministracion() {
+        service.eliminarMiCuenta(1L, " eliminar ");
+
+        verify(administracion).anonimizar(1L);
+    }
+
+    @Test
+    void eliminarMiCuenta_sinConfirmacionNoBorraNada() {
+        assertThrows(IllegalArgumentException.class, () -> service.eliminarMiCuenta(1L, "si"));
+        assertThrows(IllegalArgumentException.class, () -> service.eliminarMiCuenta(1L, null));
+        verifyNoInteractions(administracion);
+    }
+
+    @Test
+    void eliminarMiCuenta_unaAdministradoraNoPuedeHacerloSola() {
+        ana.setRoleId(User.ROL_ADMIN);
+
+        assertThrows(IllegalArgumentException.class, () -> service.eliminarMiCuenta(1L, "ELIMINAR"));
+        verifyNoInteractions(administracion);
     }
 }

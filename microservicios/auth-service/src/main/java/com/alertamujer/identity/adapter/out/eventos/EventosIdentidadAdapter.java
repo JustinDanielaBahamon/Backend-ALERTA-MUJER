@@ -1,5 +1,6 @@
 package com.alertamujer.identity.adapter.out.eventos;
 
+import com.alertamujer.identity.api.AccountDeletedEvent;
 import com.alertamujer.identity.api.AdminSessionEvent;
 import com.alertamujer.identity.api.PasswordRecoveryRequestedEvent;
 import com.alertamujer.identity.application.port.out.EventosIdentidadPort;
@@ -27,5 +28,10 @@ class EventosIdentidadAdapter implements EventosIdentidadPort {
     @Override
     public void codigoRecuperacion(String correo, String nombre, String codigo, int minutosValidez) {
         publisher.publishEvent(new PasswordRecoveryRequestedEvent(correo, nombre, codigo, minutosValidez));
+    }
+
+    @Override
+    public void cuentaEliminada(Long userId, Long userProfileId) {
+        publisher.publishEvent(new AccountDeletedEvent(userId, userProfileId));
     }
 }

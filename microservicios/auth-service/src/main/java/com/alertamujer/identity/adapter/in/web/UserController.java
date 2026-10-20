@@ -42,6 +42,15 @@ public class UserController {
 
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 
+    /** La usuaria elimina su cuenta: hay que enviar {"confirmation": "ELIMINAR"}. */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(Authentication authentication, @RequestBody DeleteAccountRequest request) {
+        miCuenta.eliminarMiCuenta((Long) authentication.getPrincipal(), request.confirmation());
+        return ResponseEntity.noContent().build();
+    }
+
+    public record DeleteAccountRequest(String confirmation) {}
+
     private static UserResponse respuesta(UsuariaConFoto u) {
         return UserResponse.of(u.usuaria(), u.foto());
     }

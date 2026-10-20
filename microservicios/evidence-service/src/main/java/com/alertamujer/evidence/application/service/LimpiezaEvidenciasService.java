@@ -46,20 +46,34 @@ public class LimpiezaEvidenciasService implements LimpiarEvidenciasUseCase {
                 viejas.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));
         List<Evidence> aBorrar = viejas.stream().filter(e -> !conservadas.contains(e.getAlertId())).toList();
         if (aBorrar.isEmpty()) return 0;
-        AuditSource.con("Tarea automática · Limpieza de evidencias", () -> {
-            repositorio.eliminarTodas(aBorrar);
+        borrar(aBorrar, "Tarea automática · Limpieza de evidencias");
+        log.info("Evidencias de más de {} días eliminadas: {}", dias, aBorrar.size());
+        return aBorrar.size();
+    }
+
+    @Override
+    public int borrarDeUsuaria(Long userProfileId) {
+        if (userProfileId == null) return 0;
+        List<Evidence> suyas = repositorio.deLasAlertas(alertas.idsDeLaUsuaria(userProfileId));
+        if (suyas.isEmpty()) return 0;
+        borrar(suyas, "Cuenta eliminada · Borrado de evidencias");
+        log.info("Cuenta eliminada: {} evidencias del perfil {} borradas", suyas.size(), userProfileId);
+        return suyas.size();
+    }
+
+    private void borrar(List<Evidence> evidencias, String origen) {
+        AuditSource.con(origen, () -> {
+            repositorio.eliminarTodas(evidencias);
             return null;
         });
         // El archivo se borra después del registro: si falla queda un archivo huérfano, nunca un
         // registro que apunte a un archivo que ya no existe
-        aBorrar.forEach(e -> {
+        evidencias.forEach(e -> {
             try {
                 almacenamiento.eliminar(e.getStorageKey());
             } catch (RuntimeException ex) {
                 log.warn("No se pudo borrar el archivo de la evidencia {}: {}", e.getId(), ex.getMessage());
             }
         });
-        log.info("Evidencias de más de {} días eliminadas: {}", dias, aBorrar.size());
-        return aBorrar.size();
     }
 }
