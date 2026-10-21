@@ -174,21 +174,14 @@ services:
         value: https://alerta-mujer-alert.onrender.com
       - key: SERVICES_EVIDENCE_URL
         value: https://alerta-mujer-evidence.onrender.com
+      # Correos (avisos a contactos y códigos de recuperación) por la API de Resend, desde el
+      # dominio verificado alertamujer.me. La clave se escribe a mano en el dashboard de este servicio.
       - key: EMAIL_PROVIDER
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EMAIL_PROVIDER
+        value: resend
       - key: EMAIL_API_KEY
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EMAIL_API_KEY
+        sync: false
       - key: EMAIL_FROM
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EMAIL_FROM
+        value: "AlertaMujer <alertas@alertamujer.me>"
       - key: WEB_BASE_URL
         value: https://alerta-mujer.vercel.app
       - key: FIREBASE_CONFIG_PATH
