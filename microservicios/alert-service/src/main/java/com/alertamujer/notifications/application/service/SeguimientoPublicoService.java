@@ -10,6 +10,7 @@ import com.alertamujer.notifications.application.port.out.AlertasPort;
 import com.alertamujer.notifications.application.port.out.EnlaceRepositorio;
 import com.alertamujer.notifications.application.port.out.EvidenciasPort;
 import com.alertamujer.notifications.application.port.out.IdentidadPort;
+import com.alertamujer.notifications.application.port.out.VistasRepositorio;
 import com.alertamujer.notifications.domain.model.LimiteMensajesContacto;
 import com.alertamujer.notifications.domain.model.TrackingLink;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -29,15 +30,17 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
     private final IdentidadPort identidad;
     private final AjustesPort ajustes;
     private final EvidenciasPort evidencias;
+    private final VistasRepositorio vistas;
     private final LimiteMensajesContacto limite = new LimiteMensajesContacto();
 
     public SeguimientoPublicoService(EnlaceRepositorio enlaces, AlertasPort alertas, IdentidadPort identidad,
-                                     AjustesPort ajustes, EvidenciasPort evidencias) {
+                                     AjustesPort ajustes, EvidenciasPort evidencias, VistasRepositorio vistas) {
         this.enlaces = enlaces;
         this.alertas = alertas;
         this.identidad = identidad;
         this.ajustes = ajustes;
         this.evidencias = evidencias;
+        this.vistas = vistas;
     }
 
     @Override
@@ -51,7 +54,20 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
     @Override
     @Transactional(readOnly = true)
     public TrackingView consultar(String codigo, LocalDateTime ahora) {
+        return vista(alertaVigente(codigo, ahora));
+    }
+
+    @Override
+    @Transactional
+    public TrackingView consultar(String codigo, String visitante, LocalDateTime ahora) {
         AlertSummary alerta = alertaVigente(codigo, ahora);
+        if (visitante != null && visitante.matches("[A-Za-z0-9_-]{8,64}")) {
+            vistas.registrar(alerta.id(), visitante, ahora);
+        }
+        return vista(alerta);
+    }
+
+    private TrackingView vista(AlertSummary alerta) {
         String nombre = identidad.nombreDePilaDelPerfil(alerta.userProfileId()).orElse("");
         List<LocationPoint> recorrido = new ArrayList<>(alertas.recorrido(alerta.id()));
         if (recorrido.isEmpty() && alerta.latitude() != null && alerta.longitude() != null) {

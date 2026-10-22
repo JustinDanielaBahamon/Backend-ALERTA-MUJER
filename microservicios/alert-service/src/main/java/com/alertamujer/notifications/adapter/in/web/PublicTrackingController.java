@@ -30,11 +30,13 @@ public class PublicTrackingController {
         this.seguimiento = seguimiento;
     }
 
+    /** v: identificador anónimo del navegador o la app que mira (para contar las vistas). */
     @GetMapping("/api/public/tracking/{codigo}")
-    public ResponseEntity<TrackingView> consultar(@PathVariable String codigo) {
+    public ResponseEntity<TrackingView> consultar(@PathVariable String codigo,
+                                                  @RequestParam(name = "v", required = false) String visitante) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(seguimiento.consultar(codigo, LocalDateTime.now()));
+                .body(seguimiento.consultar(codigo, visitante, LocalDateTime.now()));
     }
 
     /** Chat de la alerta para el contacto. after: id del último mensaje que ya tiene (0 = todos). */

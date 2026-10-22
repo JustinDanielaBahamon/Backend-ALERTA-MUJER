@@ -18,6 +18,12 @@ public interface SeguimientoPublicoUseCase {
 
     TrackingView consultar(String codigo, LocalDateTime ahora);
 
+    /**
+     * Como consultar, y además deja constancia de que ese visitante (identificador anónimo del
+     * navegador o la app) abrió el seguimiento: la usuaria ve cuántos la están viendo.
+     */
+    TrackingView consultar(String codigo, String visitante, LocalDateTime ahora);
+
     /** Archivo de una grabación de la alerta del enlace. */
     EvidenceFile evidencia(String codigo, Long evidenciaId, LocalDateTime ahora);
 
