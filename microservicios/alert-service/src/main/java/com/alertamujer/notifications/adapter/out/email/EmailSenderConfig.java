@@ -13,10 +13,10 @@ public class EmailSenderConfig {
     private static final Logger log = LoggerFactory.getLogger(EmailSenderConfig.class);
 
     @Bean
-    public EmailSender emailSender(@Value("${notifications.email.provider:log}") String proveedor,
+    public EmailSender emailSender(@Value("${notifications.email.provider:log}") String provider,
                                    @Value("${notifications.email.api-key:}") String apiKey,
                                    @Value("${notifications.email.from:}") String from) {
-        String p = proveedor == null ? "log" : proveedor.trim().toLowerCase();
+        String p = provider == null ? "log" : provider.trim().toLowerCase();
         if (!p.equals("log") && (apiKey == null || apiKey.isBlank() || from == null || from.isBlank())) {
             log.warn("EMAIL_PROVIDER={} sin EMAIL_API_KEY o EMAIL_FROM: los correos no se enviarán", p);
             return new LogEmailSender();

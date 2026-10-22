@@ -6,12 +6,12 @@ import com.alertamujer.alerts.api.AlertRecipient;
 import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.alerts.api.LocationPoint;
-import com.alertamujer.alerts.application.port.in.AdministrarAlertasUseCase;
-import com.alertamujer.alerts.application.port.in.ChatAlertaUseCase;
-import com.alertamujer.alerts.application.port.in.ConsultarAlertasUseCase;
-import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase;
-import com.alertamujer.alerts.application.port.in.ExpirarAlertasUseCase;
-import com.alertamujer.alerts.application.port.in.UbicacionesUseCase;
+import com.alertamujer.alerts.application.port.in.ManageAlertsUseCase;
+import com.alertamujer.alerts.application.port.in.AlertChatUseCase;
+import com.alertamujer.alerts.application.port.in.QueryAlertsUseCase;
+import com.alertamujer.alerts.application.port.in.AlertRecipientsUseCase;
+import com.alertamujer.alerts.application.port.in.ExpireAlertsUseCase;
+import com.alertamujer.alerts.application.port.in.LocationsUseCase;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.AlertMessage;
 import org.springframework.stereotype.Component;
@@ -32,22 +32,22 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 class AlertsApiAdapter implements AlertsApi {
 
-    private final ConsultarAlertasUseCase queries;
-    private final AdministrarAlertasUseCase administration;
-    private final ExpirarAlertasUseCase expiration;
-    private final DestinatariosAlertaUseCase destinatarios;
-    private final ChatAlertaUseCase chat;
-    private final UbicacionesUseCase ubicaciones;
+    private final QueryAlertsUseCase queries;
+    private final ManageAlertsUseCase administration;
+    private final ExpireAlertsUseCase expiration;
+    private final AlertRecipientsUseCase recipients;
+    private final AlertChatUseCase chat;
+    private final LocationsUseCase locations;
 
-    AlertsApiAdapter(ConsultarAlertasUseCase queries, AdministrarAlertasUseCase administration,
-                     ExpirarAlertasUseCase expiration, DestinatariosAlertaUseCase destinatarios,
-                     ChatAlertaUseCase chat, UbicacionesUseCase ubicaciones) {
+    AlertsApiAdapter(QueryAlertsUseCase queries, ManageAlertsUseCase administration,
+                     ExpireAlertsUseCase expiration, AlertRecipientsUseCase recipients,
+                     AlertChatUseCase chat, LocationsUseCase locations) {
         this.queries = queries;
         this.administration = administration;
         this.expiration = expiration;
-        this.destinatarios = destinatarios;
+        this.recipients = recipients;
         this.chat = chat;
-        this.ubicaciones = ubicaciones;
+        this.locations = locations;
     }
 
     @Override
@@ -77,51 +77,51 @@ class AlertsApiAdapter implements AlertsApi {
 
     @Override
     public long countActiveAlerts() {
-        return queries.cuantasActivas();
+        return queries.activeCount();
     }
 
     @Override
     public ExpirationStatus expirationStatus() {
-        return new ExpirationStatus(expiration.ultimaRevision(), expiration.expiradasUltimaRevision());
+        return new ExpirationStatus(expiration.lastRun(), expiration.expiredLastRun());
     }
 
     @Override
     public List<Long> alertsNotifiedTo(String email) {
-        return destinatarios.alertasAvisadasA(email);
+        return recipients.alertsNotifiedTo(email);
     }
 
     @Override
     public List<AlertRecipient> recipientsOf(Long alertId) {
-        return destinatarios.destinatarios(alertId);
+        return recipients.recipients(alertId);
     }
 
     @Override
     @Transactional
     public void markDelivery(Long recipientId, String status, String errorMessage) {
-        destinatarios.registrarEntrega(recipientId, status, errorMessage);
+        recipients.recordDelivery(recipientId, status, errorMessage);
     }
 
     @Override
     public List<AlertMessageView> messagesOf(Long alertId, Long afterId) {
-        return chat.mensajes(alertId, afterId).stream().map(AlertsApiAdapter::view).toList();
+        return chat.messages(alertId, afterId).stream().map(AlertsApiAdapter::view).toList();
     }
 
     @Override
     @Transactional
     public AlertMessageView addContactMessage(Long alertId, String senderName, String body) {
-        return view(chat.enviarDeContacto(alertId, senderName, body));
+        return view(chat.sendFromContact(alertId, senderName, body));
     }
 
     @Override
     public List<LocationPoint> locationTrail(Long alertId) {
-        return ubicaciones.trayecto(alertId).stream()
+        return locations.trip(alertId).stream()
                 .map(l -> new LocationPoint(l.getLatitude(), l.getLongitude(), l.getAccuracy(), l.getRecordedAt()))
                 .toList();
     }
 
     @Override
     public List<Long> alertIdsOfProfile(Long userProfileId) {
-        return queries.idsDelPerfil(userProfileId);
+        return queries.profileIds(userProfileId);
     }
 
     @Override

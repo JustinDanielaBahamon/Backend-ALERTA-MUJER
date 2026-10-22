@@ -15,11 +15,11 @@ public class AlertMessage {
     private String body;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public static final String DE_LA_DUENA = "owner";
-    public static final String DE_CONTACTO = "contact";
-    public static final int MAXIMO_LARGO = 500;
+    public static final String FROM_OWNER = "owner";
+    public static final String FROM_CONTACT = "contact";
+    public static final int MAX_LENGTH = 500;
     public static final int MAX_NAME = 60;
-    public static final int MAXIMO_POR_ALERTA = 500;
+    public static final int MAX_PER_ALERT = 500;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
@@ -27,29 +27,29 @@ public class AlertMessage {
      * Valida y crea un mensaje: solo mientras la alerta está activa, con texto y dentro de los
      * límites. enviados = mensajes que ya tiene la alerta.
      */
-    public static AlertMessage escribir(Alert alert, String type, String name, String text, long enviados) {
-        if (!alert.estaActiva()) {
+    public static AlertMessage write(Alert alert, String type, String name, String text, long sentOnes) {
+        if (!alert.isActive()) {
             throw new IllegalArgumentException("La alerta ya terminó: no se pueden enviar más mensajes");
         }
         String body = text == null ? "" : text.trim();
         if (body.isEmpty()) throw new IllegalArgumentException("El mensaje está vacío");
-        if (body.length() > MAXIMO_LARGO) {
-            throw new IllegalArgumentException("El mensaje puede tener como máximo " + MAXIMO_LARGO + " caracteres");
+        if (body.length() > MAX_LENGTH) {
+            throw new IllegalArgumentException("El mensaje puede tener como máximo " + MAX_LENGTH + " caracteres");
         }
-        if (enviados >= MAXIMO_POR_ALERTA) {
+        if (sentOnes >= MAX_PER_ALERT) {
             throw new IllegalArgumentException("Se alcanzó el máximo de mensajes de esta alerta");
         }
         AlertMessage m = new AlertMessage();
         m.alertId = alert.getId();
         m.senderType = type;
-        m.senderName = nombreLimpio(name, DE_LA_DUENA.equals(type) ? "Ella" : "Contacto");
+        m.senderName = cleanName(name, FROM_OWNER.equals(type) ? "Ella" : "Contacto");
         m.body = body;
         return m;
     }
 
-    private static String nombreLimpio(String name, String porDefecto) {
+    private static String cleanName(String name, String byDefault) {
         String n = name == null ? "" : name.trim();
-        if (n.isEmpty()) return porDefecto;
+        if (n.isEmpty()) return byDefault;
         return n.length() > MAX_NAME ? n.substring(0, MAX_NAME) : n;
     }
 

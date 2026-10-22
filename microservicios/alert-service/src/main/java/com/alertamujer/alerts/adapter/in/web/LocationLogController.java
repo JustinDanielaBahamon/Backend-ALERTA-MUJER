@@ -2,8 +2,8 @@ package com.alertamujer.alerts.adapter.in.web;
 
 import com.alertamujer.alerts.adapter.in.web.dto.LocationLogRequest;
 import com.alertamujer.alerts.adapter.in.web.dto.LocationLogResponse;
-import com.alertamujer.alerts.application.port.in.PedirUbicacionUseCase;
-import com.alertamujer.alerts.application.port.in.UbicacionesUseCase;
+import com.alertamujer.alerts.application.port.in.RequestLocationUseCase;
+import com.alertamujer.alerts.application.port.in.LocationsUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,19 +22,19 @@ import java.util.Map;
 @RequestMapping("/api/location-logs")
 public class LocationLogController {
 
-    private final UbicacionesUseCase ubicaciones;
-    private final PedirUbicacionUseCase pedirUbicacion;
+    private final LocationsUseCase locations;
+    private final RequestLocationUseCase requestLocation;
 
-    public LocationLogController(UbicacionesUseCase ubicaciones, PedirUbicacionUseCase pedirUbicacion) {
-        this.ubicaciones = ubicaciones;
-        this.pedirUbicacion = pedirUbicacion;
+    public LocationLogController(LocationsUseCase locations, RequestLocationUseCase requestLocation) {
+        this.locations = locations;
+        this.requestLocation = requestLocation;
     }
 
     @PostMapping
     public ResponseEntity<LocationLogResponse> saveLocation(@RequestBody LocationLogRequest request,
                                                             @AuthenticationPrincipal Long currentUserId) {
         // 202: llegó bien pero no se guarda (es de un celular que no es el principal)
-        return ubicaciones.save(request.aNueva(), currentUserId)
+        return locations.save(request.toNew(), currentUserId)
                 .map(l -> ResponseEntity.ok(LocationLogResponse.of(l)))
                 .orElse(ResponseEntity.accepted().build());
     }
@@ -42,16 +42,16 @@ public class LocationLogController {
     @GetMapping("/me")
     public ResponseEntity<List<LocationLogResponse>> getMine(@AuthenticationPrincipal Long currentUserId,
                                                              @RequestParam(defaultValue = "50") int limit) {
-        return ResponseEntity.ok(ubicaciones.recientes(currentUserId, limit).stream().map(LocationLogResponse::of).toList());
+        return ResponseEntity.ok(locations.recent(currentUserId, limit).stream().map(LocationLogResponse::of).toList());
     }
 
     /** Pide a los celulares de la usuaria que envíen su ubicación actual (push silencioso). */
     @PostMapping("/me/request")
     public ResponseEntity<Map<String, Object>> requestFromPhone(@AuthenticationPrincipal Long currentUserId) {
         try {
-            var r = pedirUbicacion.perform(currentUserId);
+            var r = requestLocation.perform(currentUserId);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body(Map.of("celulares", r.phones(), "solicitadoEn", r.solicitadoEn().toString()));
+                    .body(Map.of("celulares", r.phones(), "solicitadoEn", r.requestedAt().toString()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         }
@@ -60,7 +60,7 @@ public class LocationLogController {
     /** Última ubicación enviada por el celular de la usuaria (204 si nunca ha enviado). */
     @GetMapping("/me/latest")
     public ResponseEntity<LocationLogResponse> getMyLatest(@AuthenticationPrincipal Long currentUserId) {
-        return ubicaciones.ultima(currentUserId)
+        return locations.latest(currentUserId)
                 .map(l -> ResponseEntity.ok(LocationLogResponse.of(l)))
                 .orElse(ResponseEntity.noContent().build());
     }
@@ -70,14 +70,14 @@ public class LocationLogController {
     @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<List<LocationLogResponse>> getByUser(@PathVariable Long userId,
                                                                @RequestParam(defaultValue = "50") int limit) {
-        return ResponseEntity.ok(ubicaciones.recientes(userId, limit).stream().map(LocationLogResponse::of).toList());
+        return ResponseEntity.ok(locations.recent(userId, limit).stream().map(LocationLogResponse::of).toList());
     }
 
     @GetMapping("/alert/{alertId}")
     public ResponseEntity<List<LocationLogResponse>> getByAlert(@PathVariable Long alertId,
                                                                 @AuthenticationPrincipal Long currentUserId,
                                                                 Authentication authentication) {
-        return ResponseEntity.ok(ubicaciones.ofAlert(alertId, currentUserId, Autorizacion.esAdmin(authentication)).stream()
+        return ResponseEntity.ok(locations.ofAlert(alertId, currentUserId, Authorization.esAdmin(authentication)).stream()
                 .map(LocationLogResponse::of).toList());
     }
 }

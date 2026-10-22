@@ -58,7 +58,7 @@ class EvidenceServiceTest {
 
     @Test
     void anotherUserCannotViewOrRename() {
-        assertThrows(AccessDeniedException.class, () -> service.una(4L, 2L));
+        assertThrows(AccessDeniedException.class, () -> service.one(4L, 2L));
         assertThrows(AccessDeniedException.class, () -> service.rename(4L, "x", 2L));
         verify(repository, never()).save(any());
     }

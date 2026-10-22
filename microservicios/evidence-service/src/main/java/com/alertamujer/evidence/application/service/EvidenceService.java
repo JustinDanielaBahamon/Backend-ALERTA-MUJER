@@ -89,7 +89,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
     }
 
     @Override
-    public Evidence una(Long id, Long userId) {
+    public Evidence one(Long id, Long userId) {
         Evidence e = existing(id);
         ownAlert(e.getAlertId(), userId);
         return e;
@@ -97,7 +97,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
 
     @Override
     public EvidenceWithContent file(Long id, Long userId, boolean admin) {
-        Evidence e = admin ? existing(id) : una(id, userId);
+        Evidence e = admin ? existing(id) : one(id, userId);
         if (!e.hasFile()) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
         Resource content = storage.load(e.getStorageKey());
         if (!content.exists()) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
@@ -109,7 +109,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
     @Override
     @Transactional
     public EvidenceWithAlert rename(Long id, String name, Long userId) {
-        Evidence e = una(id, userId);
+        Evidence e = one(id, userId);
         e.rename(name);
         return new EvidenceWithAlert(repository.save(e), ownAlert(e.getAlertId(), userId));
     }
@@ -117,7 +117,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
     @Override
     @Transactional
     public void delete(Long id, Long userId, boolean admin) {
-        Evidence e = admin ? existing(id) : una(id, userId);
+        Evidence e = admin ? existing(id) : one(id, userId);
         repository.delete(e);
         storage.delete(e.getStorageKey());
     }
@@ -134,7 +134,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
 
     @Override
     public Evidence updateWithoutFile(Long id, String mediaType, String fileUrl, Long userId) {
-        Evidence e = una(id, userId);
+        Evidence e = one(id, userId);
         if (e.hasFile()) throw new IllegalArgumentException("Una evidencia con archivo no se puede modificar");
         e.setMediaType(mediaType);
         e.setFileUrl(fileUrl);

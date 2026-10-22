@@ -1,0 +1,46 @@
+package com.alertamujer.notifications.application.port.in;
+
+import com.alertamujer.alerts.api.AlertMessageView;
+import com.alertamujer.alerts.api.LocationPoint;
+import com.alertamujer.evidence.api.EvidenceApi.EvidenceFile;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Seguimiento público de una alerta con el enlace del correo (sin iniciar sesión). Si el enlace no
+ * existe, se revocó o venció, responde ResourceNotFoundException.
+ */
+public interface PublicTrackingUseCase {
+
+    /** Crea un enlace para la alerta y devuelve el código (no se puede recuperar después). */
+    String createLink(Long alertId);
+
+    TrackingView query(String code, LocalDateTime now);
+
+    /**
+     * Como consultar, y además deja constancia de que ese visitante (identificador anónimo del
+     * navegador o la app) abrió el seguimiento: la usuaria ve cuántos la están viendo.
+     */
+    TrackingView query(String code, String visitor, LocalDateTime now);
+
+    /** Archivo de una grabación de la alerta del enlace. */
+    EvidenceFile evidence(String code, Long evidenceId, LocalDateTime now);
+
+    List<AlertMessageView> messages(String code, Long afterId, LocalDateTime now);
+
+    /** Mensaje del contacto; con límite por enlace para que nadie llene el chat. */
+    AlertMessageView sendMessage(String code, String name, String text, LocalDateTime now);
+
+    /** Solo el nombre de pila de la usuaria: el enlace puede reenviarse. */
+    record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,
+                        LocalDateTime endedAt, List<LocationPoint> route, String emergencyNumber,
+                        List<PublicEvidence> evidence) {
+        public LocationPoint lastPoint() {
+            return route.isEmpty() ? null : route.get(route.size() - 1);
+        }
+    }
+
+    /** Evidencia que ve el contacto: se abre con /api/public/tracking/{codigo}/evidence/{id}. */
+    record PublicEvidence(Long id, String mediaType, String contentType, LocalDateTime createdAt) {}
+}

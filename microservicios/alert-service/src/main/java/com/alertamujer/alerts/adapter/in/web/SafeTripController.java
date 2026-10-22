@@ -1,7 +1,7 @@
 package com.alertamujer.alerts.adapter.in.web;
 
-import com.alertamujer.alerts.application.port.in.TrayectosUseCase;
-import com.alertamujer.alerts.application.port.in.TrayectosUseCase.NuevoTrayecto;
+import com.alertamujer.alerts.application.port.in.TripsUseCase;
+import com.alertamujer.alerts.application.port.in.TripsUseCase.NewTrip;
 import com.alertamujer.alerts.domain.model.SafeTrip;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,39 +15,39 @@ import java.time.LocalDateTime;
 @RequestMapping("/api/safe-trips")
 public class SafeTripController {
 
-    private final TrayectosUseCase trayectos;
+    private final TripsUseCase trips;
 
-    public SafeTripController(TrayectosUseCase trayectos) {
-        this.trayectos = trayectos;
+    public SafeTripController(TripsUseCase trips) {
+        this.trips = trips;
     }
 
     @PostMapping
     public ResponseEntity<SafeTripView> start(@RequestBody StartRequest r, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(SafeTripView.of(trayectos.iniciar(
-                new NuevoTrayecto(r.destination(), r.minutes(), r.deviceId(), r.latitude(), r.longitude()), userId)));
+        return ResponseEntity.ok(SafeTripView.of(trips.start(
+                new NewTrip(r.destination(), r.minutes(), r.deviceId(), r.latitude(), r.longitude()), userId)));
     }
 
     /** El trayecto en curso, o 204 si no hay. */
     @GetMapping("/active")
     public ResponseEntity<SafeTripView> active(@AuthenticationPrincipal Long userId) {
-        return trayectos.activo(userId).map(t -> ResponseEntity.ok(SafeTripView.of(t)))
+        return trips.active(userId).map(t -> ResponseEntity.ok(SafeTripView.of(t)))
                 .orElse(ResponseEntity.noContent().build());
     }
 
     @PostMapping("/{id}/arrived")
     public ResponseEntity<SafeTripView> arrived(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(SafeTripView.of(trayectos.llegue(id, userId)));
+        return ResponseEntity.ok(SafeTripView.of(trips.arrived(id, userId)));
     }
 
     @PostMapping("/{id}/extend")
     public ResponseEntity<SafeTripView> extend(@PathVariable Long id, @RequestBody ExtendRequest r,
                                                @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(SafeTripView.of(trayectos.extender(id, r.minutes(), userId)));
+        return ResponseEntity.ok(SafeTripView.of(trips.extender(id, r.minutes(), userId)));
     }
 
     @PostMapping("/{id}/cancel")
     public ResponseEntity<SafeTripView> cancel(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(SafeTripView.of(trayectos.cancelar(id, userId)));
+        return ResponseEntity.ok(SafeTripView.of(trips.cancel(id, userId)));
     }
 
     public record StartRequest(String destination, int minutes, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}

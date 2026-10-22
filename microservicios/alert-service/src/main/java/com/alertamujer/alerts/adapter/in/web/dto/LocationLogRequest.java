@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.adapter.in.web.dto;
 
-import com.alertamujer.alerts.application.port.in.NuevaUbicacion;
+import com.alertamujer.alerts.application.port.in.NewLocation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public record LocationLogRequest(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, Long alertId,
                                  Long deviceId, LocalDateTime recordedAt) {
 
-    public NuevaUbicacion aNueva() {
-        return new NuevaUbicacion(latitude, longitude, accuracy, alertId, deviceId, recordedAt);
+    public NewLocation toNew() {
+        return new NewLocation(latitude, longitude, accuracy, alertId, deviceId, recordedAt);
     }
 }

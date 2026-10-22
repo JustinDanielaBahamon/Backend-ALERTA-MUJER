@@ -5,12 +5,12 @@ import com.alertamujer.alerts.adapter.in.web.dto.AlertResponse;
 import com.alertamujer.alerts.adapter.in.web.dto.LocationLogResponse;
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.api.AlertMessageView;
-import com.alertamujer.alerts.application.port.in.AdministrarAlertasUseCase;
-import com.alertamujer.alerts.application.port.in.ChatAlertaUseCase;
-import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase;
-import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase.ContactoNotificado;
-import com.alertamujer.alerts.application.port.in.GestionarAlertasUseCase;
-import com.alertamujer.alerts.application.port.in.UbicacionesUseCase;
+import com.alertamujer.alerts.application.port.in.ManageAlertsUseCase;
+import com.alertamujer.alerts.application.port.in.AlertChatUseCase;
+import com.alertamujer.alerts.application.port.in.AlertRecipientsUseCase;
+import com.alertamujer.alerts.application.port.in.AlertRecipientsUseCase.NotifiedContact;
+import com.alertamujer.alerts.application.port.in.ManageOwnAlertsUseCase;
+import com.alertamujer.alerts.application.port.in.LocationsUseCase;
 import com.alertamujer.alerts.domain.model.AlertMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,20 +26,20 @@ import java.util.Map;
 @RequestMapping("/api/alerts")
 public class AlertController {
 
-    private final GestionarAlertasUseCase alerts;
-    private final AdministrarAlertasUseCase administration;
-    private final DestinatariosAlertaUseCase destinatarios;
-    private final ChatAlertaUseCase chat;
-    private final UbicacionesUseCase ubicaciones;
+    private final ManageOwnAlertsUseCase alerts;
+    private final ManageAlertsUseCase administration;
+    private final AlertRecipientsUseCase recipients;
+    private final AlertChatUseCase chat;
+    private final LocationsUseCase locations;
 
-    public AlertController(GestionarAlertasUseCase alerts, AdministrarAlertasUseCase administration,
-                           DestinatariosAlertaUseCase destinatarios, ChatAlertaUseCase chat,
-                           UbicacionesUseCase ubicaciones) {
+    public AlertController(ManageOwnAlertsUseCase alerts, ManageAlertsUseCase administration,
+                           AlertRecipientsUseCase recipients, AlertChatUseCase chat,
+                           LocationsUseCase locations) {
         this.alerts = alerts;
         this.administration = administration;
-        this.destinatarios = destinatarios;
+        this.recipients = recipients;
         this.chat = chat;
-        this.ubicaciones = ubicaciones;
+        this.locations = locations;
     }
 
     /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
@@ -47,7 +47,7 @@ public class AlertController {
     public ResponseEntity<List<LocationLogResponse>> getAlertLocations(@PathVariable Long id,
                                                                        @AuthenticationPrincipal Long currentUserId,
                                                                        Authentication authentication) {
-        return ResponseEntity.ok(ubicaciones.ofAlert(id, currentUserId, Autorizacion.esAdmin(authentication)).stream()
+        return ResponseEntity.ok(locations.ofAlert(id, currentUserId, Authorization.esAdmin(authentication)).stream()
                 .map(LocationLogResponse::of).toList());
     }
 
@@ -60,7 +60,7 @@ public class AlertController {
     /** Detalle del panel: última ubicación y estado de envío a cada contacto (sin sus datos). */
     @GetMapping("/{id}/admin-detail")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdministrarAlertasUseCase.DetalleAdmin> getAdminDetail(@PathVariable Long id) {
+    public ResponseEntity<ManageAlertsUseCase.AdminDetail> getAdminDetail(@PathVariable Long id) {
         return ResponseEntity.ok(administration.detail(id));
     }
 
@@ -78,7 +78,7 @@ public class AlertController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AlertResponse> getAlertById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return alerts.una(id, currentUserId)
+        return alerts.one(id, currentUserId)
                 .map(a -> ResponseEntity.ok(AlertResponse.of(a)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -91,15 +91,15 @@ public class AlertController {
 
     @PostMapping
     public ResponseEntity<AlertResponse> createAlert(@RequestBody AlertRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(AlertResponse.of(alerts.activar(request.aNueva(), currentUserId)));
+        return ResponseEntity.ok(AlertResponse.of(alerts.activate(request.toNew(), currentUserId)));
     }
 
     /** Contactos avisados en una alerta y el estado de cada canal (solo la dueña de la alerta). */
     @GetMapping("/{id}/contacts")
-    public ResponseEntity<List<ContactoNotificado>> getAlertContacts(@PathVariable Long id,
+    public ResponseEntity<List<NotifiedContact>> getAlertContacts(@PathVariable Long id,
                                                                      @AuthenticationPrincipal Long currentUserId) {
-        return alerts.una(id, currentUserId)
-                .map(a -> ResponseEntity.ok(destinatarios.contactosDe(a)))
+        return alerts.one(id, currentUserId)
+                .map(a -> ResponseEntity.ok(recipients.contactsOf(a)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -108,23 +108,23 @@ public class AlertController {
     public ResponseEntity<List<AlertMessageView>> getMessages(@PathVariable Long id,
                                                               @RequestParam(defaultValue = "0") Long after,
                                                               @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(chat.mensajesDeLaDuena(id, currentUserId, after).stream().map(AlertController::view).toList());
+        return ResponseEntity.ok(chat.ownerMessages(id, currentUserId, after).stream().map(AlertController::view).toList());
     }
 
     @PostMapping("/{id}/messages")
-    public ResponseEntity<AlertMessageView> sendMessage(@PathVariable Long id, @RequestBody MensajeRequest request,
+    public ResponseEntity<AlertMessageView> sendMessage(@PathVariable Long id, @RequestBody MessageRequest request,
                                                         @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(view(chat.enviarDeLaDuena(id, currentUserId, request.body())));
+        return ResponseEntity.ok(view(chat.sendFromOwner(id, currentUserId, request.body())));
     }
 
-    public record MensajeRequest(String body) {}
+    public record MessageRequest(String body) {}
 
     /** Conservar las evidencias de la alerta (no se borran a los 60 días). Body: {"keep": true}. */
     @PatchMapping("/{id}/keep-evidence")
     public ResponseEntity<AlertResponse> keepEvidence(@PathVariable Long id, @RequestBody Map<String, Boolean> body,
                                                       @AuthenticationPrincipal Long currentUserId) {
-        boolean conservar = body != null && Boolean.TRUE.equals(body.get("keep"));
-        return ResponseEntity.ok(AlertResponse.of(alerts.conservarEvidencias(id, conservar, currentUserId)));
+        boolean keep = body != null && Boolean.TRUE.equals(body.get("keep"));
+        return ResponseEntity.ok(AlertResponse.of(alerts.keepEvidence(id, keep, currentUserId)));
     }
 
     @PutMapping("/{id}")

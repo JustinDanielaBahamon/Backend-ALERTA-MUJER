@@ -1,7 +1,7 @@
 package com.alertamujer.notifications.adapter.in.web;
 
-import com.alertamujer.notifications.application.port.in.AlertasRecibidasUseCase;
-import com.alertamujer.notifications.application.port.in.AlertasRecibidasUseCase.ReceivedAlert;
+import com.alertamujer.notifications.application.port.in.ReceivedAlertsUseCase;
+import com.alertamujer.notifications.application.port.in.ReceivedAlertsUseCase.ReceivedAlert;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,23 +20,23 @@ import java.util.Map;
 @RequestMapping("/api/received-alerts")
 public class ReceivedAlertsController {
 
-    private final AlertasRecibidasUseCase recibidas;
+    private final ReceivedAlertsUseCase received;
 
-    public ReceivedAlertsController(AlertasRecibidasUseCase recibidas) {
-        this.recibidas = recibidas;
+    public ReceivedAlertsController(ReceivedAlertsUseCase received) {
+        this.received = received;
     }
 
     @GetMapping
-    public ResponseEntity<List<ReceivedAlert>> recibidas(@AuthenticationPrincipal Long currentUserId) {
+    public ResponseEntity<List<ReceivedAlert>> received(@AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(recibidas.recibidas(currentUserId, LocalDateTime.now()));
+                .body(received.received(currentUserId, LocalDateTime.now()));
     }
 
     /** Código para abrir /seguimiento/{codigo} de una alerta recibida. */
     @PostMapping("/{alertId}/tracking")
-    public ResponseEntity<Map<String, String>> seguimiento(@PathVariable Long alertId,
+    public ResponseEntity<Map<String, String>> tracking(@PathVariable Long alertId,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(Map.of("code", recibidas.enlaceSeguimiento(currentUserId, alertId, LocalDateTime.now())));
+        return ResponseEntity.ok(Map.of("code", received.trackingLink(currentUserId, alertId, LocalDateTime.now())));
     }
 }

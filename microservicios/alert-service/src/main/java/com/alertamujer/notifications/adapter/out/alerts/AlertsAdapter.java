@@ -33,32 +33,32 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
-    public List<AlertRecipient> destinatarios(Long alertId) {
+    public List<AlertRecipient> recipients(Long alertId) {
         return alertsApi.recipientsOf(alertId);
     }
 
     @Override
-    public void registrarEntrega(Long destinatarioId, String status, String error) {
-        alertsApi.markDelivery(destinatarioId, status, error);
+    public void recordDelivery(Long recipientId, String status, String error) {
+        alertsApi.markDelivery(recipientId, status, error);
     }
 
     @Override
-    public List<Long> avisadasA(String email) {
+    public List<Long> notifiedTo(String email) {
         return alertsApi.alertsNotifiedTo(email);
     }
 
     @Override
-    public List<LocationPoint> recorrido(Long alertId) {
+    public List<LocationPoint> route(Long alertId) {
         return alertsApi.locationTrail(alertId);
     }
 
     @Override
-    public List<AlertMessageView> mensajes(Long alertId, Long afterId) {
+    public List<AlertMessageView> messages(Long alertId, Long afterId) {
         return alertsApi.messagesOf(alertId, afterId);
     }
 
     @Override
-    public AlertMessageView mensajeDeContacto(Long alertId, String name, String text) {
+    public AlertMessageView contactMessage(Long alertId, String name, String text) {
         return alertsApi.addContactMessage(alertId, name, text);
     }
 }

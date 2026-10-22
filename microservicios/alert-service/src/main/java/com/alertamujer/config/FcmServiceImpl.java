@@ -29,7 +29,7 @@ public class FcmServiceImpl implements FcmService {
 
     @Override
     public List<String> sendEmergencyAlert(List<String> deviceTokens, Map<String, String> data) {
-        List<String> fallidos = new ArrayList<>();
+        List<String> failedOnes = new ArrayList<>();
         for (String token : deviceTokens) {
             try {
                 FirebaseMessaging.getInstance().send(Message.builder()
@@ -46,10 +46,10 @@ public class FcmServiceImpl implements FcmService {
                                 .build())
                         .build());
             } catch (Exception e) {
-                fallidos.add(token);
+                failedOnes.add(token);
             }
         }
-        return fallidos;
+        return failedOnes;
     }
 
     @Override

@@ -1,21 +1,21 @@
 package com.alertamujer.zones.adapter.in.module;
 
 import com.alertamujer.zones.api.ZonesApi;
-import com.alertamujer.zones.application.port.in.ZonasUseCase;
+import com.alertamujer.zones.application.port.in.ZonesUseCase;
 import org.springframework.stereotype.Component;
 
 /** Adaptador de entrada: el contrato ZonesApi que usa el panel de Auth Service (por /internal/rpc). */
 @Component
 class ZonesApiAdapter implements ZonesApi {
 
-    private final ZonasUseCase zones;
+    private final ZonesUseCase zones;
 
-    ZonesApiAdapter(ZonasUseCase zones) {
+    ZonesApiAdapter(ZonesUseCase zones) {
         this.zones = zones;
     }
 
     @Override
     public long countActiveZones() {
-        return zones.contarActivas();
+        return zones.countActive();
     }
 }

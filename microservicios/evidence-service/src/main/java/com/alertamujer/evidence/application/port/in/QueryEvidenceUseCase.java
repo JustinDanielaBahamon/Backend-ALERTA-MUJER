@@ -10,7 +10,7 @@ public interface QueryEvidenceUseCase {
 
     List<EvidenceWithAlert> ofUser(Long userId);
 
-    Evidence una(Long id, Long userId);
+    Evidence one(Long id, Long userId);
 
     /** Evidence file; if admin is true the owner is not checked. */
     EvidenceWithContent file(Long id, Long userId, boolean admin);

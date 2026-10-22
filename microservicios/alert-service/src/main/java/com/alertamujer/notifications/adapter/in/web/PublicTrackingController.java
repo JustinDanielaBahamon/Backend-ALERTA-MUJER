@@ -2,8 +2,8 @@ package com.alertamujer.notifications.adapter.in.web;
 
 import com.alertamujer.alerts.api.AlertMessageView;
 import com.alertamujer.evidence.api.EvidenceApi;
-import com.alertamujer.notifications.application.port.in.SeguimientoPublicoUseCase;
-import com.alertamujer.notifications.application.port.in.SeguimientoPublicoUseCase.TrackingView;
+import com.alertamujer.notifications.application.port.in.PublicTrackingUseCase;
+import com.alertamujer.notifications.application.port.in.PublicTrackingUseCase.TrackingView;
 import org.springframework.core.io.Resource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -24,37 +24,37 @@ import java.util.List;
 @RestController
 public class PublicTrackingController {
 
-    private final SeguimientoPublicoUseCase seguimiento;
+    private final PublicTrackingUseCase tracking;
 
-    public PublicTrackingController(SeguimientoPublicoUseCase seguimiento) {
-        this.seguimiento = seguimiento;
+    public PublicTrackingController(PublicTrackingUseCase tracking) {
+        this.tracking = tracking;
     }
 
     /** v: identificador anónimo del navegador o la app que mira (para contar las vistas). */
     @GetMapping("/api/public/tracking/{code}")
     public ResponseEntity<TrackingView> query(@PathVariable String code,
-                                                  @RequestParam(name = "v", required = false) String visitante) {
+                                                  @RequestParam(name = "v", required = false) String visitor) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(seguimiento.query(code, visitante, LocalDateTime.now()));
+                .body(tracking.query(code, visitor, LocalDateTime.now()));
     }
 
     /** Chat de la alerta para el contacto. after: id del último mensaje que ya tiene (0 = todos). */
     @GetMapping("/api/public/tracking/{code}/messages")
-    public ResponseEntity<List<AlertMessageView>> mensajes(@PathVariable String code,
+    public ResponseEntity<List<AlertMessageView>> messages(@PathVariable String code,
                                                            @RequestParam(defaultValue = "0") Long after) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(seguimiento.mensajes(code, after, LocalDateTime.now()));
+                .body(tracking.messages(code, after, LocalDateTime.now()));
     }
 
     @PostMapping("/api/public/tracking/{code}/messages")
-    public ResponseEntity<AlertMessageView> enviarMensaje(@PathVariable String code, @RequestBody MensajeContacto message) {
-        return ResponseEntity.ok(seguimiento.enviarMensaje(code, message.name(), message.body(), LocalDateTime.now()));
+    public ResponseEntity<AlertMessageView> sendMessage(@PathVariable String code, @RequestBody ContactMessage message) {
+        return ResponseEntity.ok(tracking.sendMessage(code, message.name(), message.body(), LocalDateTime.now()));
     }
 
     /** name: cómo se presenta el contacto (el enlace no dice quién es). */
-    public record MensajeContacto(String name, String body) {}
+    public record ContactMessage(String name, String body) {}
 
     /**
      * Video o audio de la alerta para el contacto. Con almacenamiento S3 redirige a un enlace firmado
@@ -62,7 +62,7 @@ public class PublicTrackingController {
      */
     @GetMapping("/api/public/tracking/{code}/evidence/{id}")
     public ResponseEntity<Resource> evidence(@PathVariable String code, @PathVariable Long id) {
-        EvidenceApi.EvidenceFile file = seguimiento.evidence(code, id, LocalDateTime.now());
+        EvidenceApi.EvidenceFile file = tracking.evidence(code, id, LocalDateTime.now());
         if (file.temporaryLink().isPresent()) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(file.temporaryLink().get())

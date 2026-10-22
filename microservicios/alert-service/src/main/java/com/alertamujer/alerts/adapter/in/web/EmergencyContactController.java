@@ -2,7 +2,7 @@ package com.alertamujer.alerts.adapter.in.web;
 
 import com.alertamujer.alerts.adapter.in.web.dto.EmergencyContactRequest;
 import com.alertamujer.alerts.adapter.in.web.dto.EmergencyContactResponse;
-import com.alertamujer.alerts.application.port.in.ContactosEmergenciaUseCase;
+import com.alertamujer.alerts.application.port.in.EmergencyContactsUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,21 +15,21 @@ import java.util.Map;
 @RequestMapping("/api/contacts")
 public class EmergencyContactController {
 
-    private final ContactosEmergenciaUseCase contactos;
+    private final EmergencyContactsUseCase contacts;
 
-    public EmergencyContactController(ContactosEmergenciaUseCase contactos) {
-        this.contactos = contactos;
+    public EmergencyContactController(EmergencyContactsUseCase contacts) {
+        this.contacts = contacts;
     }
 
     /** Va aparte de la lista: consulta Auth Service por cada contacto y no debe demorar la pantalla. */
     @GetMapping("/app-status")
     public ResponseEntity<Map<Long, String>> appStatus(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(contactos.estadoApp(currentUserId));
+        return ResponseEntity.ok(contacts.appStatus(currentUserId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmergencyContactResponse> getContactById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return contactos.one(id, currentUserId)
+        return contacts.one(id, currentUserId)
                 .map(c -> ResponseEntity.ok(EmergencyContactResponse.of(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,25 +37,25 @@ public class EmergencyContactController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EmergencyContactResponse>> getContactsByUser(@PathVariable Long userId,
                                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(contactos.ofUser(userId, currentUserId).stream()
+        return ResponseEntity.ok(contacts.ofUser(userId, currentUserId).stream()
                 .map(EmergencyContactResponse::of).toList());
     }
 
     @PostMapping
     public ResponseEntity<EmergencyContactResponse> createContact(@RequestBody EmergencyContactRequest request,
                                                                   @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.create(request.toData(), currentUserId)));
+        return ResponseEntity.ok(EmergencyContactResponse.of(contacts.create(request.toData(), currentUserId)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EmergencyContactResponse> updateContact(@PathVariable Long id, @RequestBody EmergencyContactRequest request,
                                                                   @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.update(id, request.toData(), currentUserId)));
+        return ResponseEntity.ok(EmergencyContactResponse.of(contacts.update(id, request.toData(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContact(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        contactos.delete(id, currentUserId);
+        contacts.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -10,10 +10,10 @@ import org.springframework.web.util.HtmlUtils;
 final class EmailLayout {
 
     static final String VIOLET = "#7B1DB2";
-    static final String VIOLETA_OSCURO = "#2B0C3B";
-    static final String VIOLETA_CLARO = "#F4EEFB";
+    static final String DARK_VIOLET = "#2B0C3B";
+    static final String LIGHT_VIOLET = "#F4EEFB";
     private static final String TEXT = "#2D1B3D";
-    private static final String TEXTO_SUAVE = "#6E5A80";
+    private static final String SOFT_TEXT = "#6E5A80";
 
     private EmailLayout() {}
 
@@ -54,11 +54,11 @@ final class EmailLayout {
                 </table>
                 </body></html>
                 """.formatted(HtmlUtils.htmlEscape(summary), HtmlUtils.htmlEscape(logoUrl), HtmlUtils.htmlEscape(title),
-                body, VIOLETA_CLARO, VIOLETA_OSCURO, TEXT, VIOLET, TEXTO_SUAVE, pie);
+                body, LIGHT_VIOLET, DARK_VIOLET, TEXT, VIOLET, SOFT_TEXT, pie);
     }
 
     /** Botón grande (un enlace con estilo de botón: los correos no tienen botones de verdad). */
-    static String boton(String url, String text) {
+    static String button(String url, String text) {
         return """
                 <p style="text-align:center;margin:26px 0">
                   <a href="%s" style="background:%s;color:#FFFFFF;padding:15px 28px;border-radius:30px;
@@ -67,12 +67,12 @@ final class EmailLayout {
     }
 
     /** Recuadro destacado (p. ej. el número de emergencias). */
-    static String destacado(String html) {
-        return "<p style=\"background:" + VIOLETA_CLARO + ";border-left:4px solid " + VIOLET
+    static String highlighted(String html) {
+        return "<p style=\"background:" + LIGHT_VIOLET + ";border-left:4px solid " + VIOLET
                 + ";border-radius:10px;padding:12px 14px;margin:18px 0\">" + html + "</p>";
     }
 
     static String note(String html) {
-        return "<p style=\"font-size:12px;color:" + TEXTO_SUAVE + ";margin:16px 0 0\">" + html + "</p>";
+        return "<p style=\"font-size:12px;color:" + SOFT_TEXT + ";margin:16px 0 0\">" + html + "</p>";
     }
 }

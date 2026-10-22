@@ -12,22 +12,22 @@ class FrequentLocationTest {
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Test
-    void unLugarNuevoEsActivoConRiesgoModerado() {
+    void aNewPlaceIsActiveWithModerateRisk() {
         FrequentLocation l = FrequentLocation.created(10L,
-                new DatosLugar("Casa", null, null, BigDecimal.ONE, BigDecimal.ONE, null, " ", null), NOW);
+                new PlaceData("Casa", null, null, BigDecimal.ONE, BigDecimal.ONE, null, " ", null), NOW);
 
         assertEquals(10L, l.getUserProfileId());
-        assertEquals(FrequentLocation.RIESGO_POR_DEFECTO, l.getRiskLevel());
+        assertEquals(FrequentLocation.DEFAULT_RISK, l.getRiskLevel());
         assertTrue(l.getIsActive());
         assertEquals(NOW, l.getCreatedAt());
     }
 
     @Test
-    void actualizarNoBorraLoQueNoSeEnvia() {
+    void updateDoesNotEraseWhatIsNotSent() {
         FrequentLocation l = FrequentLocation.created(10L,
-                new DatosLugar("Casa", "Calle 1", "Bogotá", BigDecimal.ONE, BigDecimal.ONE, "Notas", "alta", true), NOW);
+                new PlaceData("Casa", "Calle 1", "Bogotá", BigDecimal.ONE, BigDecimal.ONE, "Notas", "alta", true), NOW);
 
-        l.update(new DatosLugar(null, null, null, null, null, null, null, false), NOW.plusHours(1));
+        l.update(new PlaceData(null, null, null, null, null, null, null, false), NOW.plusHours(1));
 
         assertEquals("Casa", l.getName());
         assertEquals("Calle 1", l.getAddress());

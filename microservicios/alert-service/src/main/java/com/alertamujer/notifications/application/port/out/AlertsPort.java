@@ -17,17 +17,17 @@ public interface AlertsPort {
     List<AlertSummary> findMany(Collection<Long> alertIds);
 
     /** Envíos registrados de la alerta (correo y push a cada contacto). */
-    List<AlertRecipient> destinatarios(Long alertId);
+    List<AlertRecipient> recipients(Long alertId);
 
     /** "sent" o "failed" con el motivo. */
-    void registrarEntrega(Long destinatarioId, String status, String error);
+    void recordDelivery(Long recipientId, String status, String error);
 
     /** Alertas en las que se avisó a este correo como contacto de emergencia. */
-    List<Long> avisadasA(String email);
+    List<Long> notifiedTo(String email);
 
-    List<LocationPoint> recorrido(Long alertId);
+    List<LocationPoint> route(Long alertId);
 
-    List<AlertMessageView> mensajes(Long alertId, Long afterId);
+    List<AlertMessageView> messages(Long alertId, Long afterId);
 
-    AlertMessageView mensajeDeContacto(Long alertId, String name, String text);
+    AlertMessageView contactMessage(Long alertId, String name, String text);
 }

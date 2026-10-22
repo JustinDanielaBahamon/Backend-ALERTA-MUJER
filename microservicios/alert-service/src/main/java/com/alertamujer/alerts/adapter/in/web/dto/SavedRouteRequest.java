@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.adapter.in.web.dto;
 
-import com.alertamujer.alerts.application.port.in.NuevoRecorrido;
+import com.alertamujer.alerts.application.port.in.NewRoute;
 import com.alertamujer.alerts.domain.model.RoutePoint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -12,8 +12,8 @@ public record SavedRouteRequest(String name, String startLabel, String endLabel,
                                 String country, BigDecimal distanceKm, Integer estimatedMinutes,
                                 List<RoutePoint> points, @JsonProperty("isManual") Boolean isManual) {
 
-    public NuevoRecorrido aNuevo() {
-        return new NuevoRecorrido(name, startLabel, endLabel, city, department, country, distanceKm, estimatedMinutes,
+    public NewRoute toNew() {
+        return new NewRoute(name, startLabel, endLabel, city, department, country, distanceKm, estimatedMinutes,
                 points, isManual);
     }
 }

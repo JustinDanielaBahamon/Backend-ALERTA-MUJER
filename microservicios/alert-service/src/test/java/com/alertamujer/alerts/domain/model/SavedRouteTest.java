@@ -13,7 +13,7 @@ class SavedRouteTest {
     private static final RoutePoint B = new RoutePoint(4.7, -74.0, null);
 
     @Test
-    void necesitaNombreYAlMenosDosPuntosValidos() {
+    void needsANameAndAtLeastTwoValidPoints() {
         assertDoesNotThrow(() -> SavedRoute.validate("Casa", List.of(A, B)));
         assertThrows(IllegalArgumentException.class, () -> SavedRoute.validate(" ", List.of(A, B)));
         assertThrows(IllegalArgumentException.class, () -> SavedRoute.validate("Casa", List.of(A)));
@@ -22,30 +22,30 @@ class SavedRouteTest {
     }
 
     @Test
-    void maximo4RecorridosYUnoNuevoEsEstrellaMientrasHayaCupo() {
-        assertDoesNotThrow(() -> SavedRoute.verificarCupo(3));
-        assertThrows(ConflictException.class, () -> SavedRoute.verificarCupo(SavedRoute.MAX_ROUTES));
+    void atMost4RoutesAndANewOneIsStarredWhileThereIsRoom() {
+        assertDoesNotThrow(() -> SavedRoute.checkRoom(3));
+        assertThrows(ConflictException.class, () -> SavedRoute.checkRoom(SavedRoute.MAX_ROUTES));
 
         SavedRoute r = new SavedRoute();
-        r.estrellaInicial(1);
+        r.initialStar(1);
         assertTrue(r.getIsStarred());
-        r.estrellaInicial(SavedRoute.MAX_STARRED);
+        r.initialStar(SavedRoute.MAX_STARRED);
         assertFalse(r.getIsStarred());
     }
 
     @Test
-    void marcarEstrellaRespetaElMaximo() {
+    void markStarredRespectsTheMaximum() {
         SavedRoute r = new SavedRoute();
 
-        assertThrows(ConflictException.class, () -> r.marcarEstrella(true, SavedRoute.MAX_STARRED));
-        r.marcarEstrella(true, 1);
+        assertThrows(ConflictException.class, () -> r.markStarred(true, SavedRoute.MAX_STARRED));
+        r.markStarred(true, 1);
         assertTrue(r.getIsStarred());
-        r.marcarEstrella(false, SavedRoute.MAX_STARRED);
+        r.markStarred(false, SavedRoute.MAX_STARRED);
         assertFalse(r.getIsStarred());
     }
 
     @Test
-    void renombrarIgnoraUnNombreVacio() {
+    void renameIgnoresAnEmptyName() {
         SavedRoute r = new SavedRoute();
         r.setName("Casa");
 

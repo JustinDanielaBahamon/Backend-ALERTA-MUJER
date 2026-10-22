@@ -10,7 +10,7 @@ interface SafeTripJpaRepository extends JpaRepository<SafeTripJpaEntity, Long> {
 
     Optional<SafeTripJpaEntity> findFirstByUserProfileIdAndStatus(Long userProfileId, String status);
 
-    List<SafeTripJpaEntity> findByStatusAndExpectedArrivalBefore(String status, LocalDateTime momento);
+    List<SafeTripJpaEntity> findByStatusAndExpectedArrivalBefore(String status, LocalDateTime moment);
 
-    long countByUserProfileIdAndCreatedAtAfter(Long userProfileId, LocalDateTime desde);
+    long countByUserProfileIdAndCreatedAtAfter(Long userProfileId, LocalDateTime since);
 }

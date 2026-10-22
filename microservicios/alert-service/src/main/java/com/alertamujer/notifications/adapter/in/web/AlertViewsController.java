@@ -1,7 +1,7 @@
 package com.alertamujer.notifications.adapter.in.web;
 
-import com.alertamujer.notifications.application.port.in.VistasAlertaUseCase;
-import com.alertamujer.notifications.application.port.out.VistasRepositorio.Conteo;
+import com.alertamujer.notifications.application.port.in.AlertViewsUseCase;
+import com.alertamujer.notifications.application.port.out.ViewsRepository.ViewCount;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 @RestController
 public class AlertViewsController {
 
-    private final VistasAlertaUseCase views;
+    private final AlertViewsUseCase views;
 
-    public AlertViewsController(VistasAlertaUseCase views) {
+    public AlertViewsController(AlertViewsUseCase views) {
         this.views = views;
     }
 
     @GetMapping("/api/alerts/{id}/views")
-    public ResponseEntity<Conteo> views(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
+    public ResponseEntity<ViewCount> views(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(views.views(id, userId, LocalDateTime.now()));
     }
 }

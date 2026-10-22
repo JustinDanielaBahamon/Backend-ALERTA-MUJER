@@ -22,19 +22,19 @@ public class TrackingLink {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime revokedAt;
 
-    public static final Duration VIGENCIA_TRAS_TERMINAR = Duration.ofHours(2);
+    public static final Duration VALIDITY_AFTER_END = Duration.ofHours(2);
     private static final SecureRandom RANDOM = new SecureRandom();
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Código nuevo de 256 bits en Base64 URL (43 caracteres). No se puede recuperar después. */
-    public static String generarCodigo() {
+    public static String generateCode() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    public static TrackingLink para(Long alertId, String code) {
+    public static TrackingLink forAlert(Long alertId, String code) {
         TrackingLink l = new TrackingLink();
         l.alertId = alertId;
         l.tokenHash = hash(code);
@@ -50,17 +50,17 @@ public class TrackingLink {
     }
 
     /** Descarta de entrada códigos que no pueden ser válidos, sin consultar la base. */
-    public static boolean formatoPosible(String code) {
+    public static boolean possibleFormat(String code) {
         return code != null && code.length() >= 20 && code.length() <= 100;
     }
 
     /** El seguimiento de una alerta sigue disponible: activa, o terminada hace menos de 2 horas. */
-    public static boolean seguimientoVigente(String alertStatus, LocalDateTime end, LocalDateTime now) {
+    public static boolean liveTracking(String alertStatus, LocalDateTime end, LocalDateTime now) {
         if ("active".equals(alertStatus)) return true;
-        return end == null || !end.plus(VIGENCIA_TRAS_TERMINAR).isBefore(now);
+        return end == null || !end.plus(VALIDITY_AFTER_END).isBefore(now);
     }
 
-    public boolean revocado() {
+    public boolean revoked() {
         return revokedAt != null;
     }
 

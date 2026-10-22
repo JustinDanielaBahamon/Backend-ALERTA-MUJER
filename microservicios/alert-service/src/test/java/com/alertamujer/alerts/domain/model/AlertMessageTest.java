@@ -14,8 +14,8 @@ class AlertMessageTest {
     }
 
     @Test
-    void escribeElMensajeLimpio() {
-        AlertMessage m = AlertMessage.escribir(alert("active"), AlertMessage.DE_LA_DUENA, " Ana ", "  Estoy bien  ", 0);
+    void writesTheCleanMessage() {
+        AlertMessage m = AlertMessage.write(alert("active"), AlertMessage.FROM_OWNER, " Ana ", "  Estoy bien  ", 0);
 
         assertEquals(5L, m.getAlertId());
         assertEquals("owner", m.getSenderType());
@@ -24,22 +24,22 @@ class AlertMessageTest {
     }
 
     @Test
-    void sinNombreUsaUnoPorDefectoYCortaLosLargos() {
-        assertEquals("Ella", AlertMessage.escribir(alert("active"), AlertMessage.DE_LA_DUENA, null, "Hola", 0).getSenderName());
-        assertEquals("Contacto", AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "  ", "Hola", 0).getSenderName());
+    void withoutNameUsesADefaultAndTruncatesLongOnes() {
+        assertEquals("Ella", AlertMessage.write(alert("active"), AlertMessage.FROM_OWNER, null, "Hola", 0).getSenderName());
+        assertEquals("Contacto", AlertMessage.write(alert("active"), AlertMessage.FROM_CONTACT, "  ", "Hola", 0).getSenderName());
         assertEquals(AlertMessage.MAX_NAME,
-                AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "x".repeat(100), "Hola", 0).getSenderName().length());
+                AlertMessage.write(alert("active"), AlertMessage.FROM_CONTACT, "x".repeat(100), "Hola", 0).getSenderName().length());
     }
 
     @Test
-    void rechazaMensajesInvalidosOConLaAlertaTerminada() {
+    void rejectsInvalidMessagesOrWithTheAlertEnded() {
         assertThrows(IllegalArgumentException.class,
-                () -> AlertMessage.escribir(alert("resolved"), AlertMessage.DE_CONTACTO, "Eva", "Hola", 0));
+                () -> AlertMessage.write(alert("resolved"), AlertMessage.FROM_CONTACT, "Eva", "Hola", 0));
         assertThrows(IllegalArgumentException.class,
-                () -> AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "Eva", "   ", 0));
+                () -> AlertMessage.write(alert("active"), AlertMessage.FROM_CONTACT, "Eva", "   ", 0));
         assertThrows(IllegalArgumentException.class,
-                () -> AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "Eva", "x".repeat(501), 0));
+                () -> AlertMessage.write(alert("active"), AlertMessage.FROM_CONTACT, "Eva", "x".repeat(501), 0));
         assertThrows(IllegalArgumentException.class,
-                () -> AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "Eva", "Hola", AlertMessage.MAXIMO_POR_ALERTA));
+                () -> AlertMessage.write(alert("active"), AlertMessage.FROM_CONTACT, "Eva", "Hola", AlertMessage.MAX_PER_ALERT));
     }
 }

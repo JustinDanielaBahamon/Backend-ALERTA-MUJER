@@ -27,14 +27,14 @@ public class ResourceCall {
      * Llamada nueva: el número es el que marcó la app o, si no lo envía, el del recurso. La dueña
      * sale del token, nunca del body.
      */
-    public static ResourceCall newOne(Long profile, EmergencyResource recurso, Long alertId, Long deviceId,
-                                     String telefonoMarcado, String status, LocalDateTime now) {
+    public static ResourceCall newOne(Long profile, EmergencyResource resource, Long alertId, Long deviceId,
+                                     String dialedNumber, String status, LocalDateTime now) {
         ResourceCall c = new ResourceCall();
         c.userProfileId = profile;
-        c.emergencyResourceId = recurso.getId();
+        c.emergencyResourceId = resource.getId();
         c.alertId = alertId;
         c.deviceId = deviceId;
-        c.telephoneDialed = telefonoMarcado != null && !telefonoMarcado.isBlank() ? telefonoMarcado.trim() : recurso.getTelephone();
+        c.telephoneDialed = dialedNumber != null && !dialedNumber.isBlank() ? dialedNumber.trim() : resource.getTelephone();
         if (c.telephoneDialed == null) throw new IllegalArgumentException("El recurso no tiene teléfono");
         c.status = status != null ? status : "initiated";
         c.startedAt = now;
@@ -46,10 +46,10 @@ public class ResourceCall {
     }
 
     /** Resultado de la llamada: solo los datos que lleguen. */
-    public void update(String newStatus, LocalDateTime end, Integer duracionSegundos) {
+    public void update(String newStatus, LocalDateTime end, Integer newDurationSeconds) {
         if (newStatus != null) status = newStatus;
         if (end != null) endedAt = end;
-        if (duracionSegundos != null) durationSeconds = duracionSegundos;
+        if (newDurationSeconds != null) durationSeconds = newDurationSeconds;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

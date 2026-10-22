@@ -28,7 +28,7 @@ public class Zone {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static Zone newOne(DatosZona d) {
+    public static Zone newOne(ZoneData d) {
         Zone z = new Zone();
         z.createdByAdminId = d.createdByAdminId();
         z.replace(d);
@@ -38,7 +38,7 @@ public class Zone {
     }
 
     /** Edición desde el panel: reemplaza todos los datos de la zona. */
-    public void replace(DatosZona d) {
+    public void replace(ZoneData d) {
         name = d.name();
         zoneType = d.zoneType();
         riskLevel = d.riskLevel();
@@ -51,7 +51,7 @@ public class Zone {
         isActive = d.isActive();
     }
 
-    public boolean activa() {
+    public boolean active() {
         return Boolean.TRUE.equals(isActive);
     }
 

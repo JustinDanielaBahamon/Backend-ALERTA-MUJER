@@ -2,7 +2,7 @@ package com.alertamujer.zones.adapter.in.web;
 
 import com.alertamujer.zones.adapter.in.web.dto.ZoneRequest;
 import com.alertamujer.zones.adapter.in.web.dto.ZoneResponse;
-import com.alertamujer.zones.application.port.in.ZonasUseCase;
+import com.alertamujer.zones.application.port.in.ZonesUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("/api/zones")
 public class ZoneController {
 
-    private final ZonasUseCase zones;
+    private final ZonesUseCase zones;
 
-    public ZoneController(ZonasUseCase zones) {
+    public ZoneController(ZonesUseCase zones) {
         this.zones = zones;
     }
 
@@ -27,17 +27,17 @@ public class ZoneController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ZoneResponse> getZoneById(@PathVariable Long id) {
-        return zones.una(id).map(z -> ResponseEntity.ok(ZoneResponse.of(z))).orElse(ResponseEntity.notFound().build());
+        return zones.one(id).map(z -> ResponseEntity.ok(ZoneResponse.of(z))).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/city/{city}")
     public ResponseEntity<List<ZoneResponse>> getZonesByCity(@PathVariable String city) {
-        return ResponseEntity.ok(zones.deCiudad(city).stream().map(ZoneResponse::of).toList());
+        return ResponseEntity.ok(zones.ofCity(city).stream().map(ZoneResponse::of).toList());
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<List<ZoneResponse>> getZonesByType(@PathVariable String type) {
-        return ResponseEntity.ok(zones.deTipo(type).stream().map(ZoneResponse::of).toList());
+        return ResponseEntity.ok(zones.ofType(type).stream().map(ZoneResponse::of).toList());
     }
 
     @PostMapping

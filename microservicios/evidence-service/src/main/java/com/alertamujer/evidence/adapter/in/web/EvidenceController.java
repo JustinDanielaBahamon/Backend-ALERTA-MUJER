@@ -72,7 +72,7 @@ public class EvidenceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EvidenceDto> getEvidenceById(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(query.una(id, userId)));
+        return ResponseEntity.ok(EvidenceDto.of(query.one(id, userId)));
     }
 
     /** Uploads a photo, video, audio or PDF and links it to one of the user's alerts. */

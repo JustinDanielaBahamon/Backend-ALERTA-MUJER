@@ -4,5 +4,5 @@ package com.alertamujer.resources.application.port.out;
 public interface IdentityPort {
 
     /** El JWT trae users.id; las llamadas se guardan por user_profile.id. */
-    Long perfilRequerido(Long userId);
+    Long requiredProfile(Long userId);
 }

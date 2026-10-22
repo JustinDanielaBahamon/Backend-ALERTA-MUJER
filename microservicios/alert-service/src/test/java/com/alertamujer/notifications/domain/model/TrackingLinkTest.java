@@ -12,31 +12,31 @@ class TrackingLinkTest {
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Test
-    void elCodigoEsAleatorioYSoloSeGuardaSuHash() {
-        String code = TrackingLink.generarCodigo();
+    void theCodeIsRandomAndOnlyItsHashIsStored() {
+        String code = TrackingLink.generateCode();
 
         assertEquals(43, code.length());
-        assertNotEquals(code, TrackingLink.generarCodigo());
-        TrackingLink enlace = TrackingLink.para(5L, code);
-        assertEquals(5L, enlace.getAlertId());
-        assertEquals(TrackingLink.hash(code), enlace.getTokenHash());
-        assertFalse(enlace.getTokenHash().contains(code));
-        assertFalse(enlace.revocado());
+        assertNotEquals(code, TrackingLink.generateCode());
+        TrackingLink link = TrackingLink.forAlert(5L, code);
+        assertEquals(5L, link.getAlertId());
+        assertEquals(TrackingLink.hash(code), link.getTokenHash());
+        assertFalse(link.getTokenHash().contains(code));
+        assertFalse(link.revoked());
     }
 
     @Test
-    void descartaCodigosQueNoPuedenSerValidos() {
-        assertFalse(TrackingLink.formatoPosible(null));
-        assertFalse(TrackingLink.formatoPosible("corto"));
-        assertFalse(TrackingLink.formatoPosible("x".repeat(101)));
-        assertTrue(TrackingLink.formatoPosible(TrackingLink.generarCodigo()));
+    void discardsCodesThatCannotBeValid() {
+        assertFalse(TrackingLink.possibleFormat(null));
+        assertFalse(TrackingLink.possibleFormat("corto"));
+        assertFalse(TrackingLink.possibleFormat("x".repeat(101)));
+        assertTrue(TrackingLink.possibleFormat(TrackingLink.generateCode()));
     }
 
     @Test
-    void elSeguimientoValeHastaDosHorasDespuesDeTerminar() {
-        assertTrue(TrackingLink.seguimientoVigente("active", null, NOW));
-        assertTrue(TrackingLink.seguimientoVigente("resolved", NOW.minusMinutes(119), NOW));
-        assertFalse(TrackingLink.seguimientoVigente("resolved", NOW.minusMinutes(121), NOW));
-        assertTrue(TrackingLink.seguimientoVigente("cancelled", null, NOW));
+    void trackingIsValidUpToTwoHoursAfterEnding() {
+        assertTrue(TrackingLink.liveTracking("active", null, NOW));
+        assertTrue(TrackingLink.liveTracking("resolved", NOW.minusMinutes(119), NOW));
+        assertFalse(TrackingLink.liveTracking("resolved", NOW.minusMinutes(121), NOW));
+        assertTrue(TrackingLink.liveTracking("cancelled", null, NOW));
     }
 }

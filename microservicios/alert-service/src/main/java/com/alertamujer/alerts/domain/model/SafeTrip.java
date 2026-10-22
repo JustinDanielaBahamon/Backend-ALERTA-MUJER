@@ -10,21 +10,21 @@ import java.time.LocalDateTime;
  */
 public class SafeTrip {
 
-    public static final String ACTIVO = "active";
-    public static final String LLEGO = "arrived";
-    public static final String CANCELADO = "cancelled";
-    public static final String ALERTADO = "alerted";
+    public static final String ACTIVE = "active";
+    public static final String ARRIVED = "arrived";
+    public static final String CANCELLED = "cancelled";
+    public static final String ALERTED = "alerted";
 
     /** Límites de tiempo: evitan trayectos absurdos o temporizadores olvidados por días. */
-    public static final int MINUTOS_MINIMOS = 5;
-    public static final int MINUTOS_MAXIMOS = 240;
+    public static final int MIN_MINUTES = 5;
+    public static final int MAX_MINUTES = 240;
     public static final int EXTENSION_MAXIMA = 60;
-    public static final int DURACION_TOTAL_MAXIMA = 360;
+    public static final int MAX_TOTAL_DURATION = 360;
     /** Margen después de la hora de llegada antes de avisar (un semáforo, un ascensor...). */
-    public static final Duration GRACIA = Duration.ofMinutes(2);
+    public static final Duration GRACE = Duration.ofMinutes(2);
     /** Se le pregunta "¿ya llegaste?" este tiempo antes de la hora de llegada. */
-    public static final Duration AVISO_PREVIO = Duration.ofMinutes(5);
-    private static final int MAXIMO_DESTINO = 120;
+    public static final Duration REMINDER_LEAD = Duration.ofMinutes(5);
+    private static final int MAX_DESTINATION = 120;
 
     private Long id;
     private Long userProfileId;
@@ -35,7 +35,7 @@ public class SafeTrip {
     private BigDecimal destinationLongitude;
     private LocalDateTime startedAt;
     private LocalDateTime expectedArrival;
-    private String status = ACTIVO;
+    private String status = ACTIVE;
     private boolean reminderSent;
     private Long alertId;
     private LocalDateTime endedAt;
@@ -46,9 +46,9 @@ public class SafeTrip {
     public static SafeTrip created(Long profile, Long userId, Long deviceId, String target, int minutes,
                                  BigDecimal lat, BigDecimal lng, LocalDateTime now) {
         if (target == null || target.isBlank()) throw new IllegalArgumentException("Escribe a dónde vas");
-        if (minutes < MINUTOS_MINIMOS || minutes > MINUTOS_MAXIMOS) {
-            throw new IllegalArgumentException("El tiempo de llegada debe estar entre " + MINUTOS_MINIMOS + " y "
-                    + MINUTOS_MAXIMOS + " minutos");
+        if (minutes < MIN_MINUTES || minutes > MAX_MINUTES) {
+            throw new IllegalArgumentException("El tiempo de llegada debe estar entre " + MIN_MINUTES + " y "
+                    + MAX_MINUTES + " minutos");
         }
         if (deviceId == null) throw new IllegalArgumentException("Falta el celular desde el que sales");
         SafeTrip t = new SafeTrip();
@@ -56,7 +56,7 @@ public class SafeTrip {
         t.userId = userId;
         t.deviceId = deviceId;
         String clean = target.trim();
-        t.destination = clean.length() > MAXIMO_DESTINO ? clean.substring(0, MAXIMO_DESTINO) : clean;
+        t.destination = clean.length() > MAX_DESTINATION ? clean.substring(0, MAX_DESTINATION) : clean;
         t.destinationLatitude = lat;
         t.destinationLongitude = lng;
         t.startedAt = now;
@@ -64,52 +64,52 @@ public class SafeTrip {
         return t;
     }
 
-    public boolean activo() {
-        return ACTIVO.equals(status);
+    public boolean active() {
+        return ACTIVE.equals(status);
     }
 
     /** Pasó la hora de llegada (más el margen) sin que confirmara. */
-    public boolean vencido(LocalDateTime now) {
-        return activo() && now.isAfter(expectedArrival.plus(GRACIA));
+    public boolean expired(LocalDateTime now) {
+        return active() && now.isAfter(expectedArrival.plus(GRACE));
     }
 
     /** Toca preguntarle si ya llegó (una sola vez). */
-    public boolean porVencer(LocalDateTime now) {
-        return activo() && !reminderSent && !now.isBefore(expectedArrival.minus(AVISO_PREVIO));
+    public boolean dueSoon(LocalDateTime now) {
+        return active() && !reminderSent && !now.isBefore(expectedArrival.minus(REMINDER_LEAD));
     }
 
-    public void llegar(LocalDateTime now) {
-        exigirActivo();
-        status = LLEGO;
+    public void arrive(LocalDateTime now) {
+        requireActive();
+        status = ARRIVED;
         endedAt = now;
     }
 
-    public void cancelar(LocalDateTime now) {
-        exigirActivo();
-        status = CANCELADO;
+    public void cancel(LocalDateTime now) {
+        requireActive();
+        status = CANCELLED;
         endedAt = now;
     }
 
     /** Más tiempo: hasta EXTENSION_MAXIMA cada vez y DURACION_TOTAL_MAXIMA en total. */
     public void extender(int minutes) {
-        exigirActivo();
+        requireActive();
         if (minutes < 1 || minutes > EXTENSION_MAXIMA) {
             throw new IllegalArgumentException("Puedes agregar entre 1 y " + EXTENSION_MAXIMA + " minutos");
         }
         LocalDateTime newOne = expectedArrival.plusMinutes(minutes);
-        if (Duration.between(startedAt, newOne).toMinutes() > DURACION_TOTAL_MAXIMA) {
-            throw new IllegalArgumentException("Un trayecto no puede durar más de " + DURACION_TOTAL_MAXIMA / 60 + " horas");
+        if (Duration.between(startedAt, newOne).toMinutes() > MAX_TOTAL_DURATION) {
+            throw new IllegalArgumentException("Un trayecto no puede durar más de " + MAX_TOTAL_DURATION / 60 + " horas");
         }
         expectedArrival = newOne;
         reminderSent = false; // se le vuelve a preguntar antes de la nueva hora
     }
 
-    public void marcarRecordatorio() {
+    public void markReminder() {
         reminderSent = true;
     }
 
-    public void marcarAlertado(Long alert, LocalDateTime now) {
-        status = ALERTADO;
+    public void markAlerted(Long alert, LocalDateTime now) {
+        status = ALERTED;
         alertId = alert;
         endedAt = now;
     }
@@ -118,8 +118,8 @@ public class SafeTrip {
         return profile != null && profile.equals(userProfileId);
     }
 
-    private void exigirActivo() {
-        if (!activo()) throw new IllegalArgumentException("Este trayecto ya terminó");
+    private void requireActive() {
+        if (!active()) throw new IllegalArgumentException("Este trayecto ya terminó");
     }
 
     // ── Datos ───────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 package com.alertamujer.alerts.adapter.in.web.dto;
 
-import com.alertamujer.alerts.application.port.in.NuevaAlerta;
-import com.alertamujer.alerts.domain.model.CambiosAlerta;
+import com.alertamujer.alerts.application.port.in.NewAlert;
+import com.alertamujer.alerts.domain.model.AlertChanges;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,11 +15,11 @@ public record AlertRequest(Long deviceId, String alertType, String activationMet
                            BigDecimal latitude, BigDecimal longitude, LocalDateTime startedAt,
                            LocalDateTime endedAt, LocalDateTime cancelledAt, List<Long> contactIds) {
 
-    public NuevaAlerta aNueva() {
-        return new NuevaAlerta(deviceId, alertType, activationMethod, status, message, latitude, longitude, startedAt, contactIds);
+    public NewAlert toNew() {
+        return new NewAlert(deviceId, alertType, activationMethod, status, message, latitude, longitude, startedAt, contactIds);
     }
 
-    public CambiosAlerta toChanges() {
-        return new CambiosAlerta(alertType, activationMethod, status, message, endedAt, cancelledAt);
+    public AlertChanges toChanges() {
+        return new AlertChanges(alertType, activationMethod, status, message, endedAt, cancelledAt);
     }
 }

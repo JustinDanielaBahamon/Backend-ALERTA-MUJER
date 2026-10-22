@@ -36,14 +36,14 @@ public class ZoneReport {
     }
 
     public void approve(Integer adminId, LocalDateTime now) {
-        revisar("approved", adminId, now);
+        review("approved", adminId, now);
     }
 
     public void reject(Integer adminId, LocalDateTime now) {
-        revisar("rejected", adminId, now);
+        review("rejected", adminId, now);
     }
 
-    private void revisar(String newStatus, Integer adminId, LocalDateTime now) {
+    private void review(String newStatus, Integer adminId, LocalDateTime now) {
         status = newStatus;
         reviewedByAdminId = adminId;
         reviewedAt = now;

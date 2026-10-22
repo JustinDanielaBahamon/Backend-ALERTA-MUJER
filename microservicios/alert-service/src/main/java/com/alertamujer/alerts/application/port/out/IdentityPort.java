@@ -12,15 +12,15 @@ public interface IdentityPort {
     Optional<Long> profileOf(Long userId);
 
     /** Como perfilDe, pero falla si la usuaria no tiene perfil. */
-    Long perfilRequerido(Long userId);
+    Long requiredProfile(Long userId);
 
     Optional<UserSummary> user(Long userId);
 
     Map<Long, UserSummary> usersByProfile();
 
     /** true si el correo es de una usuaria registrada (se le puede avisar también por push). */
-    boolean tieneCuenta(String email);
+    boolean hasAccount(String email);
 
     /** users.id de la persona registrada con ese correo, si existe. */
-    Optional<Long> usuariaPorCorreo(String email);
+    Optional<Long> userByEmail(String email);
 }

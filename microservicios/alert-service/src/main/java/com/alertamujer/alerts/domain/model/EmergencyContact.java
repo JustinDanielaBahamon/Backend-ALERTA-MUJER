@@ -23,7 +23,7 @@ public class EmergencyContact {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static EmergencyContact created(Long profile, DatosContacto data) {
+    public static EmergencyContact created(Long profile, ContactData data) {
         EmergencyContact c = new EmergencyContact();
         c.userProfileId = profile;
         c.contactName = data.contactName();
@@ -39,7 +39,7 @@ public class EmergencyContact {
     }
 
     /** Solo se cambian los campos enviados: un PUT con datos parciales no debe borrar el resto. */
-    public void update(DatosContacto data) {
+    public void update(ContactData data) {
         if (data.contactName() != null) contactName = data.contactName();
         if (data.telephone() != null) telephone = data.telephone();
         if (data.email() != null) email = data.email().isBlank() ? null : data.email().trim();
@@ -49,7 +49,7 @@ public class EmergencyContact {
     }
 
     /** Correo sin espacios ("" si no tiene): sin correo no se le puede avisar. */
-    public String correoParaAvisar() {
+    public String emailToNotify() {
         return email == null ? "" : email.trim();
     }
 

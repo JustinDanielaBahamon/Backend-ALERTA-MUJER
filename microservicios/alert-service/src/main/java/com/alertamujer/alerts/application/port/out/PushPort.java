@@ -7,5 +7,5 @@ import java.util.Map;
 public interface PushPort {
 
     /** Envía un push de datos (silencioso). Devuelve los tokens a los que no se pudo enviar. */
-    List<String> enviarDatos(List<String> tokens, Map<String, String> data);
+    List<String> sendData(List<String> tokens, Map<String, String> data);
 }

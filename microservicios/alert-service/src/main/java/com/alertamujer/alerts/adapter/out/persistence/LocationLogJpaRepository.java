@@ -22,10 +22,10 @@ interface LocationLogJpaRepository extends JpaRepository<LocationLogJpaEntity, L
     @Modifying
     @Transactional
     @Query("delete from LocationLogJpaEntity l where l.alertId is null and l.recordedAt < :antes")
-    int borrarSinAlertaAntesDe(@Param("antes") LocalDateTime before);
+    int deleteWithoutAlertBefore(@Param("antes") LocalDateTime before);
 
     @Modifying
     @Transactional
     @Query("delete from LocationLogJpaEntity l where l.alertId is not null and l.recordedAt < :antes")
-    int borrarDeAlertasAntesDe(@Param("antes") LocalDateTime before);
+    int deleteFromAlertsBefore(@Param("antes") LocalDateTime before);
 }

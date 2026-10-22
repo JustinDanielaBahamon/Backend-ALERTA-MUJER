@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface IdentityPort {
 
     /** El JWT trae users.id; los reportes se guardan por user_profile.id. */
-    Long perfilRequerido(Long userId);
+    Long requiredProfile(Long userId);
 
     Optional<Long> profileOf(Long userId);
 }

@@ -11,7 +11,7 @@ public class LogEmailSender implements EmailSender {
     @Override
     public void send(EmailMessage m) {
         // No se registra el enlace: el código de seguimiento es una credencial
-        log.info("Correo NO enviado (EMAIL_PROVIDER sin configurar) para {} · asunto: {}", ocultar(m.to()), m.subject());
+        log.info("Correo NO enviado (EMAIL_PROVIDER sin configurar) para {} · asunto: {}", hide(m.to()), m.subject());
         throw new EmailException("No hay proveedor de correo configurado");
     }
 
@@ -20,8 +20,8 @@ public class LogEmailSender implements EmailSender {
         return "log";
     }
 
-    static String ocultar(String email) {
-        int arroba = email == null ? -1 : email.indexOf('@');
-        return arroba <= 1 ? "***" : email.charAt(0) + "***" + email.substring(arroba);
+    static String hide(String email) {
+        int at = email == null ? -1 : email.indexOf('@');
+        return at <= 1 ? "***" : email.charAt(0) + "***" + email.substring(at);
     }
 }

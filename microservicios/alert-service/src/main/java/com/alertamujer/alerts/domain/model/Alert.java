@@ -32,18 +32,18 @@ public class Alert {
     /** Estados que la administración puede asignar. */
     public static final Set<String> STATUSES = Set.of(ACTIVE, "resolved", "cancelled", "expired");
     /** Cuántas alertas puede conservar cada usuaria (pruebas para una denuncia sin llenar la nube). */
-    public static final int MAX_ALERTAS_CONSERVADAS = 5;
+    public static final int MAX_KEPT_ALERTS = 5;
 
-    private static final Set<String> ESTADOS_TERMINADA = Set.of("cancelled", "resolved", "finished", "ended");
+    private static final Set<String> ENDED_STATUSES = Set.of("cancelled", "resolved", "finished", "ended");
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Estados en los que una alerta activa se considera terminada. */
-    public static boolean esEstadoFinal(String status) {
+    public static boolean isFinalStatus(String status) {
         return "resolved".equals(status) || "cancelled".equals(status) || "expired".equals(status);
     }
 
-    public boolean estaActiva() {
+    public boolean isActive() {
         return ACTIVE.equals(status);
     }
 
@@ -52,21 +52,21 @@ public class Alert {
     }
 
     /** La alerta ya no está en curso: sus envíos pendientes no van a llegar. */
-    public boolean terminada() {
+    public boolean ended() {
         return endedAt != null || cancelledAt != null
-                || (status != null && ESTADOS_TERMINADA.contains(status.toLowerCase()));
+                || (status != null && ENDED_STATUSES.contains(status.toLowerCase()));
     }
 
     /** Sigue activa desde antes del límite (superó la duración máxima). */
-    public boolean expired(LocalDateTime limite) {
-        return estaActiva() && startedAt != null && startedAt.isBefore(limite);
+    public boolean expired(LocalDateTime limit) {
+        return isActive() && startedAt != null && startedAt.isBefore(limit);
     }
 
     /**
      * Cambios de la dueña: solo se aplican los campos enviados. Devuelve true si con ellos terminó
      * una alerta activa (hay que avisar a los contactos que la recibieron).
      */
-    public boolean update(CambiosAlerta changes, LocalDateTime now) {
+    public boolean update(AlertChanges changes, LocalDateTime now) {
         String previous = status;
         if (changes.alertType() != null) alertType = changes.alertType();
         if (changes.activationMethod() != null) activationMethod = changes.activationMethod();
@@ -74,8 +74,8 @@ public class Alert {
         if (changes.message() != null) message = changes.message();
         if (changes.endedAt() != null) endedAt = changes.endedAt();
         if (changes.cancelledAt() != null) cancelledAt = changes.cancelledAt();
-        if (!ACTIVE.equals(previous) || !esEstadoFinal(status)) return false;
-        marcarCierre(now);
+        if (!ACTIVE.equals(previous) || !isFinalStatus(status)) return false;
+        markClosed(now);
         return true;
     }
 
@@ -89,8 +89,8 @@ public class Alert {
         }
         String previous = status;
         status = newStatus;
-        marcarCierre(now);
-        return ACTIVE.equals(previous) && esEstadoFinal(newStatus);
+        markClosed(now);
+        return ACTIVE.equals(previous) && isFinalStatus(newStatus);
     }
 
     /** Superó la duración máxima configurada. */
@@ -103,15 +103,15 @@ public class Alert {
      * Marca (o desmarca) la alerta para conservar sus evidencias más allá de 60 días.
      * conservadas = cuántas alertas tiene ya marcadas la usuaria.
      */
-    public void conservarEvidencias(boolean conservar, long kept) {
-        if (conservar && !keepEvidence && kept >= MAX_ALERTAS_CONSERVADAS) {
-            throw new IllegalArgumentException("Puedes conservar hasta " + MAX_ALERTAS_CONSERVADAS
+    public void keepEvidence(boolean keep, long kept) {
+        if (keep && !keepEvidence && kept >= MAX_KEPT_ALERTS) {
+            throw new IllegalArgumentException("Puedes conservar hasta " + MAX_KEPT_ALERTS
                     + " alertas. Deja de conservar otra para guardar esta.");
         }
-        keepEvidence = conservar;
+        keepEvidence = keep;
     }
 
-    private void marcarCierre(LocalDateTime now) {
+    private void markClosed(LocalDateTime now) {
         if ("resolved".equals(status) && endedAt == null) endedAt = now;
         if ("cancelled".equals(status) && cancelledAt == null) cancelledAt = now;
     }

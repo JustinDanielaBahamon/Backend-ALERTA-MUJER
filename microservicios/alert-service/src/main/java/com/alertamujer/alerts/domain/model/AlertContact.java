@@ -22,34 +22,34 @@ public class AlertContact {
     private String errorMessage;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public static final String CANAL_CORREO = "email";
-    public static final String CANAL_PUSH = "push";
+    public static final String EMAIL_CHANNEL = "email";
+    public static final String PUSH_CHANNEL = "push";
 
-    private static final Set<String> ESTADOS_ABIERTOS = Set.of("pending", "sent");
-    private static final int MAXIMO_ERROR = 500;
+    private static final Set<String> OPEN_STATUSES = Set.of("pending", "sent");
+    private static final int MAX_ERROR = 500;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static AlertContact created(Long alertId, Long contactoId, String canal, String target) {
+    public static AlertContact created(Long alertId, Long contactId, String channel, String target) {
         AlertContact d = new AlertContact();
         d.alertId = alertId;
-        d.emergencyContactId = contactoId;
-        d.channel = canal;
+        d.emergencyContactId = contactId;
+        d.channel = channel;
         d.destination = target;
         return d;
     }
 
     /** Resultado de un intento de envío: "sent" o "failed" (con el motivo). */
-    public void registrarIntento(String newStatus, String error, LocalDateTime now) {
+    public void recordAttempt(String newStatus, String error, LocalDateTime now) {
         status = newStatus;
         attempts = (attempts == null ? 0 : attempts) + 1;
         if ("sent".equals(newStatus)) sentAt = now;
-        errorMessage = error == null ? null : error.length() > MAXIMO_ERROR ? error.substring(0, MAXIMO_ERROR) : error;
+        errorMessage = error == null ? null : error.length() > MAX_ERROR ? error.substring(0, MAX_ERROR) : error;
     }
 
     /** Estado que ve la usuaria: un envío abierto de una alerta terminada se informa como "expired". */
-    public String estadoVisible(boolean alertaTerminada) {
-        return alertaTerminada && ESTADOS_ABIERTOS.contains(status) ? "expired" : status;
+    public String visibleStatus(boolean alertEnded) {
+        return alertEnded && OPEN_STATUSES.contains(status) ? "expired" : status;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

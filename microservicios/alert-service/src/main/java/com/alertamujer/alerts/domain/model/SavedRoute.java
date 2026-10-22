@@ -37,14 +37,14 @@ public class SavedRoute {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Nombre y al menos un punto de inicio y uno de fin, con coordenadas válidas. */
-    public static void validate(String name, List<RoutePoint> puntos) {
+    public static void validate(String name, List<RoutePoint> points) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("El recorrido necesita un nombre");
         }
-        if (puntos == null || puntos.size() < 2) {
+        if (points == null || points.size() < 2) {
             throw new IllegalArgumentException("El recorrido necesita al menos un punto de inicio y uno de fin");
         }
-        for (RoutePoint p : puntos) {
+        for (RoutePoint p : points) {
             if (p == null || p.latitude() == null || p.longitude() == null
                     || Math.abs(p.latitude()) > 90 || Math.abs(p.longitude()) > 180) {
                 throw new IllegalArgumentException("Coordenadas inválidas en el recorrido");
@@ -53,15 +53,15 @@ public class SavedRoute {
     }
 
     /** recorridos y estrellas = los que ya tiene la usuaria. */
-    public static void verificarCupo(long recorridos) {
-        if (recorridos >= MAX_ROUTES) {
+    public static void checkRoom(long routes) {
+        if (routes >= MAX_ROUTES) {
             throw new ConflictException("Solo puedes tener " + MAX_ROUTES + " recorridos guardados. Elimina uno para crear otro.");
         }
     }
 
     /** Igual que en el móvil: un recorrido nuevo es estrella mientras haya cupo. */
-    public void estrellaInicial(long estrellas) {
-        isStarred = estrellas < MAX_STARRED;
+    public void initialStar(long starredCount) {
+        isStarred = starredCount < MAX_STARRED;
     }
 
     public boolean esDe(Long profile) {
@@ -72,12 +72,12 @@ public class SavedRoute {
         if (name != null && !name.isBlank()) this.name = name.trim();
     }
 
-    public void marcarEstrella(Boolean estrella, long estrellas) {
-        if (estrella == null || estrella.equals(isStarred)) return;
-        if (estrella && estrellas >= MAX_STARRED) {
+    public void markStarred(Boolean starred, long starredCount) {
+        if (starred == null || starred.equals(isStarred)) return;
+        if (starred && starredCount >= MAX_STARRED) {
             throw new ConflictException("Solo puedes tener " + MAX_STARRED + " recorridos estrella. Quita la estrella a otro para marcar este.");
         }
-        isStarred = estrella;
+        isStarred = starred;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

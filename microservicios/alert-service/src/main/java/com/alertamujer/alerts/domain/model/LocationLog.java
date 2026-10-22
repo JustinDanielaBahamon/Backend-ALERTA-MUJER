@@ -17,31 +17,31 @@ public class LocationLog {
     private BigDecimal accuracy;
     private LocalDateTime recordedAt = LocalDateTime.now();
 
-    private static final BigDecimal MAX_LATITUD = BigDecimal.valueOf(90);
-    private static final BigDecimal MAX_LONGITUD = BigDecimal.valueOf(180);
+    private static final BigDecimal MAX_LATITUDE = BigDecimal.valueOf(90);
+    private static final BigDecimal MAX_LONGITUDE = BigDecimal.valueOf(180);
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static LocationLog created(Long profile, BigDecimal latitud, BigDecimal longitud, BigDecimal precision) {
-        if (latitud == null || longitud == null
-                || latitud.abs().compareTo(MAX_LATITUD) > 0 || longitud.abs().compareTo(MAX_LONGITUD) > 0) {
+    public static LocationLog created(Long profile, BigDecimal latitude, BigDecimal longitude, BigDecimal precision) {
+        if (latitude == null || longitude == null
+                || latitude.abs().compareTo(MAX_LATITUDE) > 0 || longitude.abs().compareTo(MAX_LONGITUDE) > 0) {
             throw new IllegalArgumentException("Coordenadas inválidas");
         }
         LocationLog l = new LocationLog();
         l.userProfileId = profile;
-        l.latitude = latitud;
-        l.longitude = longitud;
+        l.latitude = latitude;
+        l.longitude = longitude;
         l.accuracy = precision;
         return l;
     }
 
-    public boolean esDeAlerta() {
+    public boolean belongsToAlert() {
         return alertId != null;
     }
 
     /** Puntos en cola sin conexión: se respeta su hora si es de las últimas 24 h y no del futuro. */
-    public void registrarHora(LocalDateTime enviada, LocalDateTime now) {
-        recordedAt = enviada != null && enviada.isAfter(now.minusHours(24)) && !enviada.isAfter(now) ? enviada : now;
+    public void recordTime(LocalDateTime sent, LocalDateTime now) {
+        recordedAt = sent != null && sent.isAfter(now.minusHours(24)) && !sent.isAfter(now) ? sent : now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

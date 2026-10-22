@@ -53,7 +53,7 @@ class EvidenceApiHttpClient implements EvidenceApi {
             FileData d = http.get().uri("/alerts/{a}/evidences/{e}", alertId, evidenceId).retrieve().body(FileData.class);
             if (d == null) return Optional.empty();
             String content = base + "/alerts/" + alertId + "/evidences/" + evidenceId + "/content";
-            return Optional.of(new EvidenceFile(d.contentType(), d.fileName(), new ContenidoRemoto(content, key),
+            return Optional.of(new EvidenceFile(d.contentType(), d.fileName(), new RemoteContent(content, key),
                     Optional.ofNullable(d.temporaryLink()).map(URI::create)));
         } catch (HttpClientErrorException.NotFound e) {
             return Optional.empty();
@@ -64,11 +64,11 @@ class EvidenceApiHttpClient implements EvidenceApi {
     record FileData(String contentType, String fileName, String temporaryLink) {}
 
     /** Contenido del archivo en Evidence Service; se descarga al leerlo, con la clave interna. */
-    static final class ContenidoRemoto extends AbstractResource {
+    static final class RemoteContent extends AbstractResource {
         private final String url;
         private final String key;
 
-        ContenidoRemoto(String url, String key) {
+        RemoteContent(String url, String key) {
             this.url = url;
             this.key = key;
         }
@@ -85,12 +85,12 @@ class EvidenceApiHttpClient implements EvidenceApi {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            HttpURLConnection conexion = (HttpURLConnection) new URL(url).openConnection();
-            conexion.setRequestProperty(InternalKey.HEADER, key);
-            conexion.setConnectTimeout(90_000);
-            conexion.setReadTimeout(90_000);
-            if (conexion.getResponseCode() != 200) throw new IOException("Evidence Service respondió " + conexion.getResponseCode());
-            return conexion.getInputStream();
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestProperty(InternalKey.HEADER, key);
+            connection.setConnectTimeout(90_000);
+            connection.setReadTimeout(90_000);
+            if (connection.getResponseCode() != 200) throw new IOException("Evidence Service respondió " + connection.getResponseCode());
+            return connection.getInputStream();
         }
     }
 }

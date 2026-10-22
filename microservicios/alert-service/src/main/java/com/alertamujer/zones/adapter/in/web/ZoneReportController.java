@@ -2,7 +2,7 @@ package com.alertamujer.zones.adapter.in.web;
 
 import com.alertamujer.zones.adapter.in.web.dto.ZoneReportRequest;
 import com.alertamujer.zones.adapter.in.web.dto.ZoneReportResponse;
-import com.alertamujer.zones.application.port.in.ReportesZonaUseCase;
+import com.alertamujer.zones.application.port.in.ZoneReportsUseCase;
 import com.alertamujer.zones.domain.model.ZoneReport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,9 +18,9 @@ import java.util.Map;
 @RequestMapping("/api/zone-reports")
 public class ZoneReportController {
 
-    private final ReportesZonaUseCase reports;
+    private final ZoneReportsUseCase reports;
 
-    public ZoneReportController(ReportesZonaUseCase reports) {
+    public ZoneReportController(ZoneReportsUseCase reports) {
         this.reports = reports;
     }
 
@@ -38,7 +38,7 @@ public class ZoneReportController {
 
     @GetMapping("/zone/{zoneId}")
     public ResponseEntity<List<ZoneReportResponse>> getReportsByZone(@PathVariable Long zoneId) {
-        return ResponseEntity.ok(views(reports.deZona(zoneId)));
+        return ResponseEntity.ok(views(reports.ofZone(zoneId)));
     }
 
     /** Reportes de una usuaria (id de usuaria o de perfil): los propios, o cualquiera para la administración. */

@@ -22,11 +22,11 @@ public class FrequentLocation {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    public static final String RIESGO_POR_DEFECTO = "moderada";
+    public static final String DEFAULT_RISK = "moderada";
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static FrequentLocation created(Long profile, DatosLugar data, LocalDateTime now) {
+    public static FrequentLocation created(Long profile, PlaceData data, LocalDateTime now) {
         FrequentLocation l = new FrequentLocation();
         l.userProfileId = profile;
         l.name = data.name();
@@ -35,7 +35,7 @@ public class FrequentLocation {
         l.latitude = data.latitude();
         l.longitude = data.longitude();
         l.notes = data.notes();
-        l.riskLevel = data.riskLevel() == null || data.riskLevel().isBlank() ? RIESGO_POR_DEFECTO : data.riskLevel();
+        l.riskLevel = data.riskLevel() == null || data.riskLevel().isBlank() ? DEFAULT_RISK : data.riskLevel();
         l.isActive = data.isActive() == null || data.isActive();
         l.createdAt = now;
         return l;
@@ -46,7 +46,7 @@ public class FrequentLocation {
     }
 
     /** Actualización parcial: la web usa PATCH y el móvil envía solo lo modificado. */
-    public void update(DatosLugar data, LocalDateTime now) {
+    public void update(PlaceData data, LocalDateTime now) {
         if (data.name() != null && !data.name().isBlank()) name = data.name();
         if (data.address() != null) address = data.address();
         if (data.city() != null) city = data.city();
