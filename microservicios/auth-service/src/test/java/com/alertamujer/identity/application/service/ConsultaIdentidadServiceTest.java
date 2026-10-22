@@ -36,7 +36,7 @@ class ConsultaIdentidadServiceTest {
 
     @Test
     void porPerfilYPorCuentaPasanPorSuUsuaria() {
-        UserProfile perfil = UserProfile.de(1L);
+        UserProfile perfil = UserProfile.of(1L);
         Account cuenta = Account.nueva(1L, "hash");
         when(perfiles.find(10L)).thenReturn(Optional.of(perfil));
         when(cuentas.find(4L)).thenReturn(Optional.of(cuenta));
@@ -51,9 +51,9 @@ class ConsultaIdentidadServiceTest {
 
     @Test
     void porIdDePerfilOmiteLosPerfilesSinPersona() {
-        UserProfile conPersona = UserProfile.de(1L);
+        UserProfile conPersona = UserProfile.of(1L);
         conPersona.setId(10L);
-        UserProfile huerfano = UserProfile.de(99L);
+        UserProfile huerfano = UserProfile.of(99L);
         huerfano.setId(11L);
         when(usuarias.todas()).thenReturn(List.of(usuaria(1L)));
         when(perfiles.todos()).thenReturn(List.of(conPersona, huerfano));

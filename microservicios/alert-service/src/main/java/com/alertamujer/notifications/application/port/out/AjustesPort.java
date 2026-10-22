@@ -4,5 +4,5 @@ package com.alertamujer.notifications.application.port.out;
 public interface AjustesPort {
 
     /** Número de emergencia que se ofrece a los contactos (en Colombia, 123). */
-    String numeroEmergencia();
+    String emergencyNumber();
 }

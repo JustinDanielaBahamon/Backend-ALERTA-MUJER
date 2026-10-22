@@ -7,7 +7,7 @@ import java.util.Optional;
 /** Puerto de salida: la fila única de configuración. */
 public interface ConfiguracionRepositorio {
 
-    Optional<SystemConfiguration> actual();
+    Optional<SystemConfiguration> current();
 
     SystemConfiguration save(SystemConfiguration config);
 }

@@ -37,7 +37,7 @@ class EvidenceCleanupServiceTest {
         when(repository.savedBefore(ahora.minusDays(60))).thenReturn(List.of(normal, conservada));
         when(alerts.keepEvidence(Set.of(10L, 20L))).thenReturn(Set.of(20L));
 
-        assertEquals(1, service.limpiar(ahora));
+        assertEquals(1, service.clear(ahora));
 
         verify(repository).deleteAll(List.of(normal));
         verify(storage).delete("clave-1");
@@ -48,7 +48,7 @@ class EvidenceCleanupServiceTest {
     void withoutOldEvidenceDoesNothing() {
         when(repository.savedBefore(any())).thenReturn(List.of());
 
-        assertEquals(0, service.limpiar(LocalDateTime.now()));
+        assertEquals(0, service.clear(LocalDateTime.now()));
         verifyNoInteractions(storage, alerts);
     }
 

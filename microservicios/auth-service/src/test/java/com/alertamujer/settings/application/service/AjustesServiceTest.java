@@ -18,11 +18,11 @@ class AjustesServiceTest {
 
     @Test
     void sinConfiguracionUsaValoresSegurosParaLosOtrosModulos() {
-        when(repository.actual()).thenReturn(Optional.empty());
+        when(repository.current()).thenReturn(Optional.empty());
 
-        assertEquals(0, service.duracionMaximaAlertaMinutos());
-        assertEquals("123", service.numeroEmergencia());
-        assertEquals(5, service.maximoContactos());
+        assertEquals(0, service.maxAlertDurationMinutes());
+        assertEquals("123", service.emergencyNumber());
+        assertEquals(5, service.maxContacts());
         assertThrows(IllegalStateException.class, service::obtener);
     }
 
@@ -30,7 +30,7 @@ class AjustesServiceTest {
     void actualizarGuardaYDevuelveLaHoraDelCambio() {
         SystemConfiguration c = new SystemConfiguration();
         c.setSosMaxDurationMinutes(120);
-        when(repository.actual()).thenReturn(Optional.of(c));
+        when(repository.current()).thenReturn(Optional.of(c));
         when(repository.save(any())).thenAnswer(inv -> {
             SystemConfiguration saved = inv.getArgument(0);
             saved.setUpdatedAt(null); // la base no devuelve la hora del trigger

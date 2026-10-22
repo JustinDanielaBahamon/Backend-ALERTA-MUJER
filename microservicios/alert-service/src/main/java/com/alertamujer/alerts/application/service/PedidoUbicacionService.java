@@ -38,7 +38,7 @@ public class PedidoUbicacionService implements PedirUbicacionUseCase {
     }
 
     @Override
-    public Resultado pedir(Long userId) {
+    public Resultado perform(Long userId) {
         Instant ahora = clock.instant();
         Instant anterior = ultimoPedido.get(userId);
         if (anterior != null && anterior.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(ahora)) {

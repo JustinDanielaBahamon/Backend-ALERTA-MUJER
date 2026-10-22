@@ -18,7 +18,7 @@ public class UserProfile {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static UserProfile de(Long userId) {
+    public static UserProfile of(Long userId) {
         UserProfile p = new UserProfile();
         p.userId = userId;
         return p;

@@ -42,21 +42,21 @@ class SeguimientoPublicoServiceTest {
         enlace = TrackingLink.para(5L, CODIGO);
         when(enlaces.porHash(TrackingLink.hash(CODIGO))).thenReturn(Optional.of(enlace));
         when(identidad.nombreDePilaDelPerfil(10L)).thenReturn(Optional.of("Ana"));
-        when(ajustes.numeroEmergencia()).thenReturn("123");
+        when(ajustes.emergencyNumber()).thenReturn("123");
     }
 
-    private void alert(String estado, LocalDateTime fin) {
-        when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", estado, null,
+    private void alert(String status, LocalDateTime fin) {
+        when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", status, null,
                 AHORA.minusHours(1), new BigDecimal("4.6"), new BigDecimal("-74.1"), fin, null)));
     }
 
     @Test
     void crearGuardaSoloElHashDelCodigo() {
-        String codigo = service.crearEnlace(5L);
+        String code = service.crearEnlace(5L);
 
         ArgumentCaptor<TrackingLink> stored = ArgumentCaptor.forClass(TrackingLink.class);
         verify(enlaces).save(stored.capture());
-        assertEquals(TrackingLink.hash(codigo), stored.getValue().getTokenHash());
+        assertEquals(TrackingLink.hash(code), stored.getValue().getTokenHash());
         assertEquals(5L, stored.getValue().getAlertId());
     }
 

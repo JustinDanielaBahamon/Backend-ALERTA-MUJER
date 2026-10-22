@@ -8,22 +8,22 @@ import java.util.function.Supplier;
  */
 public final class AuditSource {
 
-    private static final ThreadLocal<String> ACTUAL = new ThreadLocal<>();
+    private static final ThreadLocal<String> CURRENT = new ThreadLocal<>();
 
     private AuditSource() {}
 
-    public static String actual() {
-        return ACTUAL.get();
+    public static String current() {
+        return CURRENT.get();
     }
 
     /** Ejecuta la tarea con este origen (p. ej. "Tarea automática · Expiración de alertas"). */
-    public static <T> T con(String origen, Supplier<T> tarea) {
-        String anterior = ACTUAL.get();
-        ACTUAL.set(origen);
+    public static <T> T runAs(String source, Supplier<T> task) {
+        String anterior = CURRENT.get();
+        CURRENT.set(source);
         try {
-            return tarea.get();
+            return task.get();
         } finally {
-            if (anterior == null) ACTUAL.remove(); else ACTUAL.set(anterior);
+            if (anterior == null) CURRENT.remove(); else CURRENT.set(anterior);
         }
     }
 }

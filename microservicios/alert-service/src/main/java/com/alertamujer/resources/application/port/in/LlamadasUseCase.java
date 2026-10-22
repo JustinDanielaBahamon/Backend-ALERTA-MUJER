@@ -20,9 +20,9 @@ public interface LlamadasUseCase {
 
     List<ResourceCall> deAlerta(Long alertId);
 
-    ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String estado, Long userId);
+    ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String status, Long userId);
 
-    ResourceCall actualizar(Long id, String estado, LocalDateTime fin, Integer duracionSegundos, Long userId);
+    ResourceCall actualizar(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId);
 
     void delete(Long id, Long userId);
 }

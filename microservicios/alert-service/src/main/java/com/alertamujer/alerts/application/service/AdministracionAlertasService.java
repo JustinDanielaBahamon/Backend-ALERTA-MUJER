@@ -58,10 +58,10 @@ public class AdministracionAlertasService implements AdministrarAlertasUseCase {
 
     @Override
     @Transactional
-    public Alert cambiarEstado(Long id, String estado) {
+    public Alert cambiarEstado(Long id, String status) {
         Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         LocalDateTime ahora = LocalDateTime.now();
-        if (alert.cambiarEstado(estado, ahora)) events.alertaTerminada(alert, ahora);
+        if (alert.cambiarEstado(status, ahora)) events.alertaTerminada(alert, ahora);
         return repository.save(alert);
     }
 

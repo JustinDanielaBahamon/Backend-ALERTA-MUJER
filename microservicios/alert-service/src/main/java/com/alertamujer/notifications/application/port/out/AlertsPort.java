@@ -20,7 +20,7 @@ public interface AlertsPort {
     List<AlertRecipient> destinatarios(Long alertId);
 
     /** "sent" o "failed" con el motivo. */
-    void registrarEntrega(Long destinatarioId, String estado, String error);
+    void registrarEntrega(Long destinatarioId, String status, String error);
 
     /** Alertas en las que se avisó a este correo como contacto de emergencia. */
     List<Long> avisadasA(String correo);
@@ -29,5 +29,5 @@ public interface AlertsPort {
 
     List<AlertMessageView> mensajes(Long alertId, Long afterId);
 
-    AlertMessageView mensajeDeContacto(Long alertId, String name, String texto);
+    AlertMessageView mensajeDeContacto(Long alertId, String name, String text);
 }

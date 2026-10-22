@@ -34,24 +34,24 @@ public class TrackingLink {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
-    public static TrackingLink para(Long alertId, String codigo) {
+    public static TrackingLink para(Long alertId, String code) {
         TrackingLink l = new TrackingLink();
         l.alertId = alertId;
-        l.tokenHash = hash(codigo);
+        l.tokenHash = hash(code);
         return l;
     }
 
-    public static String hash(String codigo) {
+    public static String hash(String code) {
         try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(codigo.getBytes(StandardCharsets.UTF_8)));
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(code.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
         }
     }
 
     /** Descarta de entrada códigos que no pueden ser válidos, sin consultar la base. */
-    public static boolean formatoPosible(String codigo) {
-        return codigo != null && codigo.length() >= 20 && codigo.length() <= 100;
+    public static boolean formatoPosible(String code) {
+        return code != null && code.length() >= 20 && code.length() <= 100;
     }
 
     /** El seguimiento de una alerta sigue disponible: activa, o terminada hace menos de 2 horas. */

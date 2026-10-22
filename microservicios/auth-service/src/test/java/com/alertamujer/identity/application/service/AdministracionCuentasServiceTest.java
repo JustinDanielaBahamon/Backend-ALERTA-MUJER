@@ -47,8 +47,8 @@ class AdministracionCuentasServiceTest {
         lenient().when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
     }
 
-    private static CambiosCuenta estado(String estado) {
-        return new CambiosCuenta(estado, null, null, null, null);
+    private static CambiosCuenta status(String status) {
+        return new CambiosCuenta(status, null, null, null, null);
     }
 
     @Test
@@ -64,9 +64,9 @@ class AdministracionCuentasServiceTest {
 
     @Test
     void noPuedeBloquearseASiMismaNiUsarEstadosDesconocidos() {
-        IllegalArgumentException propia = assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, estado("blocked"), 1L));
+        IllegalArgumentException propia = assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, status("blocked"), 1L));
         assertEquals("Cannot block your own account", propia.getMessage());
-        assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, estado("raro"), 2L));
+        assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, status("raro"), 2L));
         verify(cuentas, never()).save(any());
     }
 
@@ -84,7 +84,7 @@ class AdministracionCuentasServiceTest {
 
     @Test
     void anonimizarBorraLosDatosPersonalesYCierraLasSesiones() {
-        UserProfile perfil = UserProfile.de(1L);
+        UserProfile perfil = UserProfile.of(1L);
         perfil.setId(10L);
         perfil.setProfilePhotoUrl("data:image/jpeg;base64,/9j/4AAQ");
         when(perfiles.deUsuaria(1L)).thenReturn(Optional.of(perfil));
@@ -106,7 +106,7 @@ class AdministracionCuentasServiceTest {
 
     @Test
     void listarUneCadaPersonaConSuCuentaYSuPerfil() {
-        UserProfile perfil = UserProfile.de(1L);
+        UserProfile perfil = UserProfile.of(1L);
         perfil.setId(10L);
         when(usuarias.todas()).thenReturn(List.of(ana));
         when(cuentas.todas()).thenReturn(List.of(cuenta));

@@ -40,10 +40,10 @@ public class AlertContact {
     }
 
     /** Resultado de un intento de envío: "sent" o "failed" (con el motivo). */
-    public void registrarIntento(String estado, String error, LocalDateTime ahora) {
-        status = estado;
+    public void registrarIntento(String newStatus, String error, LocalDateTime ahora) {
+        status = newStatus;
         attempts = (attempts == null ? 0 : attempts) + 1;
-        if ("sent".equals(estado)) sentAt = ahora;
+        if ("sent".equals(newStatus)) sentAt = ahora;
         errorMessage = error == null ? null : error.length() > MAXIMO_ERROR ? error.substring(0, MAXIMO_ERROR) : error;
     }
 

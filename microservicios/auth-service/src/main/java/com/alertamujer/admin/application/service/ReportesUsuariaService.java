@@ -29,9 +29,9 @@ public class ReportesUsuariaService implements ReportesUsuariaUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserReportView> listAll(String estado) {
+    public List<UserReportView> listAll(String status) {
         Map<Long, UserSummary> nombres = usuarias.porId();
-        List<UserReport> casos = estado == null ? repository.todos() : repository.conEstado(estado);
+        List<UserReport> casos = status == null ? repository.todos() : repository.conEstado(status);
         return casos.stream()
                 .sorted(Comparator.comparing(UserReport::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(r -> view(r, nombres.get(r.getReportedUserId()), nombres.get(r.getReporterUserId())))

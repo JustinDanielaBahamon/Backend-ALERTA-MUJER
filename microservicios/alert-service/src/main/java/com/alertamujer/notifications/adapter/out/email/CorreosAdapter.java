@@ -21,25 +21,25 @@ class CorreosAdapter implements CorreosPort {
 
     @Override
     public void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime inicio,
-                              String seguimientoUrl, String mapsUrl, String numeroEmergencia) {
-        enviar(AlertEmailTemplate.construir(para, nombreContacto, nombreUsuaria, inicio, seguimientoUrl, mapsUrl,
-                numeroEmergencia, logoUrl));
+                              String seguimientoUrl, String mapsUrl, String emergencyNumber) {
+        send(AlertEmailTemplate.construir(para, nombreContacto, nombreUsuaria, inicio, seguimientoUrl, mapsUrl,
+                emergencyNumber, logoUrl));
     }
 
     @Override
-    public void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String estado, LocalDateTime fin,
-                            String numeroEmergencia) {
-        enviar(AlertEmailTemplate.construirFin(para, nombreContacto, nombreUsuaria, estado, fin, numeroEmergencia, logoUrl));
+    public void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime fin,
+                            String emergencyNumber) {
+        send(AlertEmailTemplate.construirFin(para, nombreContacto, nombreUsuaria, status, fin, emergencyNumber, logoUrl));
     }
 
     @Override
-    public void codigoRecuperacion(String para, String name, String codigo, int minutosValidez) {
-        enviar(CodigoRecuperacionTemplate.construir(para, name, codigo, minutosValidez, logoUrl));
+    public void codigoRecuperacion(String para, String name, String code, int validityMinutes) {
+        send(CodigoRecuperacionTemplate.construir(para, name, code, validityMinutes, logoUrl));
     }
 
-    private void enviar(EmailMessage mensaje) {
+    private void send(EmailMessage message) {
         try {
-            emailSender.send(mensaje);
+            emailSender.send(message);
         } catch (EmailSender.EmailException e) {
             throw new CorreoNoEnviadoException(e.getMessage());
         }

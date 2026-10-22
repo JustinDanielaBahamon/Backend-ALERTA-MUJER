@@ -17,7 +17,7 @@ class ConfiguracionPersistenceAdapter implements ConfiguracionRepositorio {
     }
 
     @Override
-    public Optional<SystemConfiguration> actual() {
+    public Optional<SystemConfiguration> current() {
         return jpa.findBySingletonKey(SystemConfiguration.CLAVE).map(ConfiguracionPersistenceAdapter::aDominio);
     }
 

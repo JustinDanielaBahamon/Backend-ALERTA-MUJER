@@ -21,7 +21,7 @@ public class EstadoSistemaService implements EstadoSistemaUseCase {
     }
 
     @Override
-    public SystemStatus estado() {
+    public SystemStatus status() {
         long inicio = System.nanoTime();
         boolean baseDatos = infraestructura.baseDeDatosResponde();
         long latenciaMs = Duration.ofNanos(System.nanoTime() - inicio).toMillis();

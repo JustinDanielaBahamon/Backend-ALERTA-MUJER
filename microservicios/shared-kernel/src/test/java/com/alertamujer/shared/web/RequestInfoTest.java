@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class RequestInfoTest {
 
     @AfterEach
-    void limpiar() {
+    void clear() {
         RequestContextHolder.resetRequestAttributes();
     }
 
@@ -23,19 +23,19 @@ class RequestInfoTest {
     }
 
     @Test
-    void origen_distingueAppMovilYPanelWeb() {
+    void source_distinguishesMobileAppAndWebPanel() {
         conUserAgent("okhttp/4.12.0");
-        assertEquals("App móvil · Android", RequestInfo.origen());
+        assertEquals("App móvil · Android", RequestInfo.source());
 
         conUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36");
-        assertEquals("Panel web · Chrome · Linux", RequestInfo.origen());
+        assertEquals("Panel web · Chrome · Linux", RequestInfo.source());
 
         conUserAgent("curl/8.5.0");
-        assertEquals("Cliente curl", RequestInfo.origen());
+        assertEquals("Cliente curl", RequestInfo.source());
     }
 
     @Test
-    void origen_sinPeticionEsNull() {
-        assertNull(RequestInfo.origen());
+    void source_withoutRequestIsNull() {
+        assertNull(RequestInfo.source());
     }
 }

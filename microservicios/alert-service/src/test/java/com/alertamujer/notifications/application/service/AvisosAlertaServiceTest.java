@@ -39,7 +39,7 @@ class AvisosAlertaServiceTest {
     @BeforeEach
     void setUp() {
         when(identidad.nombreCompletoDelPerfil(10L)).thenReturn(Optional.of("Ana Gómez"));
-        when(ajustes.numeroEmergencia()).thenReturn("123");
+        when(ajustes.emergencyNumber()).thenReturn("123");
         when(seguimiento.crearEnlace(5L)).thenReturn("CODIGO");
         when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", "active", null,
                 INICIO, new BigDecimal("4.6"), new BigDecimal("-74.1"), null, null)));
@@ -72,11 +72,11 @@ class AvisosAlertaServiceTest {
         when(alerts.destinatarios(5L)).thenReturn(List.of(CORREO, PUSH));
         when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("token-mama"));
-        when(push.enviar(anyList(), anyMap())).thenReturn(List.of());
+        when(push.send(anyList(), anyMap())).thenReturn(List.of());
 
         service.alertaActivada(5L, 10L, INICIO);
 
-        verify(push).enviar(List.of("token-mama"),
+        verify(push).send(List.of("token-mama"),
                 Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez", "codigo", "CODIGO"));
         verify(alerts).registrarEntrega(101L, "sent", null);
         verify(seguimiento, times(1)).crearEnlace(5L);
@@ -92,7 +92,7 @@ class AvisosAlertaServiceTest {
 
         when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("t1"));
-        when(push.enviar(anyList(), anyMap())).thenReturn(List.of("t1"));
+        when(push.send(anyList(), anyMap())).thenReturn(List.of("t1"));
         service.alertaActivada(5L, 10L, INICIO);
         verify(alerts).registrarEntrega(101L, "failed", "FCM rechazó el envío a todos los dispositivos");
     }
@@ -117,7 +117,7 @@ class AvisosAlertaServiceTest {
         service.alertaTerminada(5L, 10L, "resolved", fin);
 
         verify(correos).finDeAlerta("mama@correo.com", "Mamá", "Ana Gómez", "resolved", fin, "123");
-        verify(push).enviar(eq(List.of("token-mama")), argThat(d -> "ALERTA_FINALIZADA".equals(d.get("tipo"))));
+        verify(push).send(eq(List.of("token-mama")), argThat(d -> "ALERTA_FINALIZADA".equals(d.get("tipo"))));
         verify(alerts, never()).registrarEntrega(any(), any(), any());
         verifyNoInteractions(seguimiento);
     }

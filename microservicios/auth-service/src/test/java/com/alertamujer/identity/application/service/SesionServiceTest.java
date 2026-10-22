@@ -152,7 +152,7 @@ class SesionServiceTest {
 
     @Test
     void conCorreo_unaAdministradoraQuedaEnLaAuditoria() {
-        ana.setRoleId(User.ROL_ADMIN);
+        ana.setRoleId(User.ADMIN_ROLE);
         when(usuarias.porCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
         when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
         when(cifrado.coincide("mala", "hash")).thenReturn(false);
@@ -215,7 +215,7 @@ class SesionServiceTest {
         service.cerrar(null, null);
         verifyNoInteractions(events);
 
-        ana.setRoleId(User.ROL_ADMIN);
+        ana.setRoleId(User.ADMIN_ROLE);
         when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
         service.cerrar(1L, "inactividad");
         verify(events).sesionAdmin(4L, AdminSessionEvent.LOGOUT, "Por inactividad");

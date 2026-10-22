@@ -27,13 +27,13 @@ import java.time.format.DateTimeFormatter;
 public class JsonTimeConfig {
 
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer fechasConZona() {
+    public Jackson2ObjectMapperBuilderCustomizer datesWithZone() {
         return builder -> builder
-                .serializerByType(LocalDateTime.class, new ConZona())
+                .serializerByType(LocalDateTime.class, new WithZone())
                 .deserializerByType(LocalDateTime.class, new FlexibleLocalDateTime());
     }
 
-    static final class ConZona extends JsonSerializer<LocalDateTime> {
+    static final class WithZone extends JsonSerializer<LocalDateTime> {
         @Override
         public void serialize(LocalDateTime value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeString(value.atZone(ZoneId.systemDefault()).toOffsetDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
@@ -43,11 +43,11 @@ public class JsonTimeConfig {
     static final class FlexibleLocalDateTime extends JsonDeserializer<LocalDateTime> {
         @Override
         public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            String texto = p.getValueAsString();
-            if (texto == null || texto.isBlank()) return null;
-            String t = texto.trim();
-            boolean conDesfase = t.endsWith("Z") || t.matches(".*[+-]\\d{2}:?\\d{2}$");
-            return conDesfase
+            String text = p.getValueAsString();
+            if (text == null || text.isBlank()) return null;
+            String t = text.trim();
+            boolean hasOffset = t.endsWith("Z") || t.matches(".*[+-]\\d{2}:?\\d{2}$");
+            return hasOffset
                     ? OffsetDateTime.parse(t).atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                     : LocalDateTime.parse(t);
         }

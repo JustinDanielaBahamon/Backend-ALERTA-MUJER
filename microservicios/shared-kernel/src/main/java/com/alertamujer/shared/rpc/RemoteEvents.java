@@ -12,34 +12,34 @@ import org.springframework.web.client.RestClient;
  * evento en memoria del monolito cuando quien lo escucha vive en otro servicio. Sin broker de
  * mensajería: si el otro servicio no responde, el envío se registra en el log y no frena al emisor.
  */
-public class EventosRemotos {
+public class RemoteEvents {
 
-    private static final Logger log = LoggerFactory.getLogger(EventosRemotos.class);
+    private static final Logger log = LoggerFactory.getLogger(RemoteEvents.class);
 
     private final RestClient http;
     private final ObjectMapper json;
 
-    public EventosRemotos(String urlServicio, String key, ObjectMapper json) {
-        SimpleClientHttpRequestFactory tiempos = new SimpleClientHttpRequestFactory();
-        tiempos.setConnectTimeout(90_000);
-        tiempos.setReadTimeout(90_000);
+    public RemoteEvents(String serviceUrl, String key, ObjectMapper json) {
+        SimpleClientHttpRequestFactory timeouts = new SimpleClientHttpRequestFactory();
+        timeouts.setConnectTimeout(90_000);
+        timeouts.setReadTimeout(90_000);
         this.http = RestClient.builder()
-                .baseUrl(urlServicio.replaceAll("/+$", "") + "/internal/events")
-                .requestFactory(tiempos)
-                .defaultHeader(ClaveInterna.CABECERA, key)
+                .baseUrl(serviceUrl.replaceAll("/+$", "") + "/internal/events")
+                .requestFactory(timeouts)
+                .defaultHeader(InternalKey.HEADER, key)
                 .build();
         this.json = json;
     }
 
-    public void enviar(Object evento) {
+    public void send(Object event) {
         try {
-            http.post().uri("/" + evento.getClass().getSimpleName())
+            http.post().uri("/" + event.getClass().getSimpleName())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(json.writeValueAsString(evento))
+                    .body(json.writeValueAsString(event))
                     .retrieve()
                     .toBodilessEntity();
         } catch (Exception e) {
-            log.warn("No se pudo enviar el evento {} a otro microservicio: {}", evento.getClass().getSimpleName(), e.getMessage());
+            log.warn("No se pudo enviar el evento {} a otro microservicio: {}", event.getClass().getSimpleName(), e.getMessage());
         }
     }
 }

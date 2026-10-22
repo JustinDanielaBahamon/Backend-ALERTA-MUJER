@@ -19,8 +19,8 @@ class AlertTest {
         return a;
     }
 
-    private static CambiosAlerta estado(String estado) {
-        return new CambiosAlerta(null, null, estado, null, null, null);
+    private static CambiosAlerta status(String status) {
+        return new CambiosAlerta(null, null, status, null, null, null);
     }
 
     @Test
@@ -44,7 +44,7 @@ class AlertTest {
     void cancelarUnaAlertaActivaGuardaLaHoraYAvisaQueTermino() {
         Alert a = activa();
 
-        assertTrue(a.actualizar(estado("cancelled"), AHORA));
+        assertTrue(a.actualizar(status("cancelled"), AHORA));
 
         assertEquals("cancelled", a.getStatus());
         assertEquals(AHORA, a.getCancelledAt());
@@ -77,9 +77,9 @@ class AlertTest {
     @Test
     void terminarUnaAlertaYaTerminadaNoVuelveAAvisar() {
         Alert a = activa();
-        a.actualizar(estado("cancelled"), AHORA);
+        a.actualizar(status("cancelled"), AHORA);
 
-        assertFalse(a.actualizar(estado("resolved"), AHORA.plusMinutes(1)));
+        assertFalse(a.actualizar(status("resolved"), AHORA.plusMinutes(1)));
     }
 
     @Test

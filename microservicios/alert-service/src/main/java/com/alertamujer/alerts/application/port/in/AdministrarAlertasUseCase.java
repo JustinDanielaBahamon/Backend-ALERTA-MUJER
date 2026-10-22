@@ -15,7 +15,7 @@ public interface AdministrarAlertasUseCase {
     List<AdminAlertView> listAll();
 
     /** Cambia el estado de cualquier alerta, por ejemplo a "resolved" (atendida). */
-    Alert cambiarEstado(Long id, String estado);
+    Alert cambiarEstado(Long id, String status);
 
     /**
      * Detalle para el panel: última ubicación (solo de alertas activas o atendidas, auditoría S2) y

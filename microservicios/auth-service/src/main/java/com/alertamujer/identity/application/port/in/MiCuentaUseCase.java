@@ -11,7 +11,7 @@ public interface MiCuentaUseCase {
     UsuariaConFoto actualizar(Long userId, CambiosUsuaria cambios);
 
     /** Exige la contraseña actual para evitar cambios desde una sesión ajena. */
-    void cambiarContrasena(Long userId, String actual, String nueva);
+    void cambiarContrasena(Long userId, String current, String nueva);
 
     /**
      * La propia usuaria elimina su cuenta escribiendo la palabra de confirmación. Las cuentas de
@@ -22,5 +22,5 @@ public interface MiCuentaUseCase {
     /** Palabra que hay que escribir para confirmar la eliminación. */
     String CONFIRMACION_ELIMINAR = "ELIMINAR";
 
-    record UsuariaConFoto(User usuaria, String foto) {}
+    record UsuariaConFoto(User usuaria, String photo) {}
 }

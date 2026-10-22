@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /** Estado real de las piezas del backend que el panel muestra en Configuración. */
 public interface EstadoSistemaUseCase {
 
-    SystemStatus estado();
+    SystemStatus status();
 
     /** pushNotifications indica si Firebase está configurado (sin él no salen notificaciones push). */
     record SystemStatus(boolean database, long databaseLatencyMs, boolean pushNotifications,

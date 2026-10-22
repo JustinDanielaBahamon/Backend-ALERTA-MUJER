@@ -21,7 +21,7 @@ public interface ReportesZonaUseCase {
      */
     List<ZoneReport> deUsuaria(Long idPedido, Long userId, boolean admin);
 
-    List<ZoneReport> conEstado(String estado);
+    List<ZoneReport> conEstado(String status);
 
     ZoneReport create(Long zoneId, String clasificacion, String comentario, Long userId);
 

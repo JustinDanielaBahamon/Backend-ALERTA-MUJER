@@ -9,11 +9,11 @@ public interface ConsultarAjustesUseCase {
     SystemConfiguration publicos();
 
     /** 0 si no hay configuración (no expira ninguna alerta). */
-    int duracionMaximaAlertaMinutos();
+    int maxAlertDurationMinutes();
 
     /** "123" si no hay configuración. */
-    String numeroEmergencia();
+    String emergencyNumber();
 
     /** 5 si no hay configuración. */
-    int maximoContactos();
+    int maxContacts();
 }

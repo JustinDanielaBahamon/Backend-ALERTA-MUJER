@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.domain.model;
 
-import com.alertamujer.shared.web.FotoDataUri;
+import com.alertamujer.shared.web.PhotoDataUri;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -30,7 +30,7 @@ public class EmergencyContact {
         c.telephone = data.telephone();
         c.email = data.email();
         c.relationship = data.relationship();
-        c.photo = FotoDataUri.validate(data.photo());
+        c.photo = PhotoDataUri.validate(data.photo());
         return c;
     }
 
@@ -45,7 +45,7 @@ public class EmergencyContact {
         if (data.email() != null) email = data.email().isBlank() ? null : data.email().trim();
         if (data.relationship() != null) relationship = data.relationship();
         // "" quita la foto; null la deja como estaba
-        if (data.photo() != null) photo = FotoDataUri.validate(data.photo());
+        if (data.photo() != null) photo = PhotoDataUri.validate(data.photo());
     }
 
     /** Correo sin espacios ("" si no tiene): sin correo no se le puede avisar. */

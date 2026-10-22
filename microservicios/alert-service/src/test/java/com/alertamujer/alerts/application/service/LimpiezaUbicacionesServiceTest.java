@@ -17,7 +17,7 @@ class LimpiezaUbicacionesServiceTest {
         when(repository.borrarSinAlertaAntesDe(ahora.minusDays(7))).thenReturn(120);
         when(repository.borrarDeAlertasAntesDe(ahora.minusDays(30))).thenReturn(15);
 
-        assertEquals(135, new LimpiezaUbicacionesService(repository, 7, 30).limpiar(ahora));
+        assertEquals(135, new LimpiezaUbicacionesService(repository, 7, 30).clear(ahora));
 
         verify(repository).borrarSinAlertaAntesDe(ahora.minusDays(7));
         verify(repository).borrarDeAlertasAntesDe(ahora.minusDays(30));

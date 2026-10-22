@@ -33,22 +33,22 @@ public class GlobalExceptionHandler {
         org.springframework.web.server.ResponseStatusException.class
     })
     public ResponseEntity<ErrorResponse> handleSpringErrorResponse(Exception ex) {
-        HttpStatusCode codigo = ((org.springframework.web.ErrorResponse) ex).getStatusCode();
-        HttpStatus estado = HttpStatus.resolve(codigo.value());
-        String mensaje = switch (codigo.value()) {
+        HttpStatusCode code = ((org.springframework.web.ErrorResponse) ex).getStatusCode();
+        HttpStatus status = HttpStatus.resolve(code.value());
+        String message = switch (code.value()) {
             case 404 -> "El recurso solicitado no existe";
             case 405 -> "Método HTTP no permitido para esta ruta";
             case 415 -> "Tipo de contenido no soportado";
-            default -> codigo.is4xxClientError() ? "La solicitud no es válida" : "Ocurrió un error inesperado";
+            default -> code.is4xxClientError() ? "La solicitud no es válida" : "Ocurrió un error inesperado";
         };
-        if (codigo.is5xxServerError()) log.error("Error en la solicitud", ex);
+        if (code.is5xxServerError()) log.error("Error en la solicitud", ex);
         return ResponseEntity
-            .status(codigo)
+            .status(code)
             .body(ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(codigo.value())
-                .error(estado != null ? estado.getReasonPhrase() : "Error")
-                .message(mensaje)
+                .status(code.value())
+                .error(status != null ? status.getReasonPhrase() : "Error")
+                .message(message)
                 .build());
     }
 
@@ -64,14 +64,14 @@ public class GlobalExceptionHandler {
         return badRequest("El cuerpo de la solicitud no es válido");
     }
 
-    private static ResponseEntity<ErrorResponse> badRequest(String mensaje) {
+    private static ResponseEntity<ErrorResponse> badRequest(String message) {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Bad Request")
-                .message(mensaje)
+                .message(message)
                 .build());
     }
 

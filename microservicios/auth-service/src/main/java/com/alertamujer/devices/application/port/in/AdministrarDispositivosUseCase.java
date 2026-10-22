@@ -14,9 +14,9 @@ public interface AdministrarDispositivosUseCase {
     DispositivoConDuena obtener(Long id);
 
     /** active, inactive, blocked o lost. */
-    DispositivoConDuena cambiarEstado(Long id, String estado);
+    DispositivoConDuena cambiarEstado(Long id, String status);
 
     void delete(Long id);
 
-    record DispositivoConDuena(Device dispositivo, UserSummary owner) {}
+    record DispositivoConDuena(Device device, UserSummary owner) {}
 }

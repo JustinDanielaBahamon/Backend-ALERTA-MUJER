@@ -3,7 +3,7 @@ package com.alertamujer.microservice;
 import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.identity.api.AccountDeletedEvent;
 import com.alertamujer.identity.api.PasswordRecoveryRequestedEvent;
-import com.alertamujer.shared.rpc.EventosRemotos;
+import com.alertamujer.shared.rpc.RemoteEvents;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -18,32 +18,32 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Component
 class EventosHaciaAlertService {
 
-    private final EventosRemotos alerts;
-    private final EventosRemotos evidences;
+    private final RemoteEvents alerts;
+    private final RemoteEvents evidences;
 
-    EventosHaciaAlertService(@Qualifier("eventosHaciaAlertas") EventosRemotos alerts,
-                             @Qualifier("eventosHaciaEvidencias") EventosRemotos evidences) {
+    EventosHaciaAlertService(@Qualifier("eventosHaciaAlertas") RemoteEvents alerts,
+                             @Qualifier("eventosHaciaEvidencias") RemoteEvents evidences) {
         this.alerts = alerts;
         this.evidences = evidences;
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
-    void recuperacionDeContrasena(PasswordRecoveryRequestedEvent evento) {
-        alerts.enviar(evento);
+    void recuperacionDeContrasena(PasswordRecoveryRequestedEvent event) {
+        alerts.send(event);
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
-    void celularNuevo(NewPhoneSignedInEvent evento) {
-        alerts.enviar(evento);
+    void celularNuevo(NewPhoneSignedInEvent event) {
+        alerts.send(event);
     }
 
     /** Cuenta eliminada: Alert borra contactos, ubicaciones y recorridos; Evidence, las grabaciones. */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
-    void cuentaEliminada(AccountDeletedEvent evento) {
-        alerts.enviar(evento);
-        evidences.enviar(evento);
+    void cuentaEliminada(AccountDeletedEvent event) {
+        alerts.send(event);
+        evidences.send(event);
     }
 }

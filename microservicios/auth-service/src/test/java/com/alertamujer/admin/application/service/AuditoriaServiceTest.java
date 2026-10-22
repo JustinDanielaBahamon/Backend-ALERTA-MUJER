@@ -24,7 +24,7 @@ class AuditoriaServiceTest {
     private final UsuariasPort usuarias = mock(UsuariasPort.class);
     private final AuditoriaService service = new AuditoriaService(repository, usuarias);
 
-    private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ROL_ADMIN, null);
+    private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ADMIN_ROLE, null);
     private static final UserSummary ANA = new UserSummary(5L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
     private static final FiltroAuditoria TODO = new FiltroAuditoria(null, null, null, null, null);
 
@@ -43,11 +43,11 @@ class AuditoriaServiceTest {
 
     @Test
     void elCsvNeutralizaFormulasYMarcaLosCambiosSinResponsable() {
-        AuditLog sistema = new AuditLog();
-        sistema.setId(1L);
-        sistema.setAction("UPDATE");
-        sistema.setDescription("=HYPERLINK(\"x\")");
-        when(repository.primeros(TODO, AuditoriaService.MAXIMO_EXPORTACION)).thenReturn(List.of(sistema));
+        AuditLog system = new AuditLog();
+        system.setId(1L);
+        system.setAction("UPDATE");
+        system.setDescription("=HYPERLINK(\"x\")");
+        when(repository.primeros(TODO, AuditoriaService.MAXIMO_EXPORTACION)).thenReturn(List.of(system));
         when(usuarias.porCuenta()).thenReturn(Map.of());
 
         String csv = new String(service.exportar(TODO), StandardCharsets.UTF_8);
@@ -67,7 +67,7 @@ class AuditoriaServiceTest {
     @Test
     void unEventoDeSesionSeGuardaConLosDatosDeLaPeticionYNuncaFalla() {
         ContextoPeticionPort peticion = mock(ContextoPeticionPort.class);
-        when(peticion.dispositivo()).thenReturn("Chrome · Linux");
+        when(peticion.device()).thenReturn("Chrome · Linux");
         when(peticion.ip()).thenReturn("1.2.3.4");
         EventosSeguridadService events = new EventosSeguridadService(repository, peticion);
 

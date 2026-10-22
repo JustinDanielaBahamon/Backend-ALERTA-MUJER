@@ -39,7 +39,7 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
     }
 
     @Override
-    public int limpiar(LocalDateTime ahora) {
+    public int clear(LocalDateTime ahora) {
         List<Evidence> viejas = repository.savedBefore(ahora.minusDays(days));
         if (viejas.isEmpty()) return 0;
         Set<Long> kept = alerts.keepEvidence(
@@ -61,8 +61,8 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
         return suyas.size();
     }
 
-    private void remove(List<Evidence> evidences, String origen) {
-        AuditSource.con(origen, () -> {
+    private void remove(List<Evidence> evidences, String source) {
+        AuditSource.runAs(source, () -> {
             repository.deleteAll(evidences);
             return null;
         });

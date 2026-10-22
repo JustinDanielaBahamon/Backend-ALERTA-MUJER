@@ -26,8 +26,8 @@ class EventosIdentidadAdapter implements EventosIdentidadPort {
     }
 
     @Override
-    public void codigoRecuperacion(String correo, String name, String codigo, int minutosValidez) {
-        publisher.publishEvent(new PasswordRecoveryRequestedEvent(correo, name, codigo, minutosValidez));
+    public void codigoRecuperacion(String correo, String name, String code, int validityMinutes) {
+        publisher.publishEvent(new PasswordRecoveryRequestedEvent(correo, name, code, validityMinutes));
     }
 
     @Override

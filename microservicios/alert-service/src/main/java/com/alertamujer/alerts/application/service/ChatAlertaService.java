@@ -40,21 +40,21 @@ public class ChatAlertaService implements ChatAlertaUseCase {
 
     @Override
     @Transactional
-    public AlertMessage enviarDeLaDuena(Long alertId, Long userId, String texto) {
+    public AlertMessage enviarDeLaDuena(Long alertId, Long userId, String text) {
         Alert alert = ownAlert(alertId, userId);
         String name = identidad.usuaria(userId).map(UserSummary::firstName).orElse(null);
-        return save(alert, AlertMessage.DE_LA_DUENA, name, texto);
+        return save(alert, AlertMessage.DE_LA_DUENA, name, text);
     }
 
     @Override
     @Transactional
-    public AlertMessage enviarDeContacto(Long alertId, String name, String texto) {
+    public AlertMessage enviarDeContacto(Long alertId, String name, String text) {
         Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        return save(alert, AlertMessage.DE_CONTACTO, name, texto);
+        return save(alert, AlertMessage.DE_CONTACTO, name, text);
     }
 
-    private AlertMessage save(Alert alert, String type, String name, String texto) {
-        return mensajes.save(AlertMessage.escribir(alert, type, name, texto, mensajes.contar(alert.getId())));
+    private AlertMessage save(Alert alert, String type, String name, String text) {
+        return mensajes.save(AlertMessage.escribir(alert, type, name, text, mensajes.contar(alert.getId())));
     }
 
     private Alert ownAlert(Long alertId, Long userId) {

@@ -3,7 +3,7 @@ package com.alertamujer.admin.adapter.out.exportacion;
 import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
 import com.alertamujer.admin.application.port.out.ExportadorInformesPort;
 import com.alertamujer.alerts.api.AdminAlertView;
-import com.alertamujer.shared.web.HoraColombia;
+import com.alertamujer.shared.web.ColombiaTime;
 import com.lowagie.text.Document;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
@@ -81,10 +81,10 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         PdfPTable data = new PdfPTable(new float[]{1, 3, 1, 3});
         data.setWidthPercentage(100);
         String periodo = informe.fromDate() == null && informe.toDate() == null ? null
-                : (informe.fromDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.fromDate()))) + " a "
-                + (informe.toDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.toDate())));
+                : (informe.fromDate() == null ? "…" : FECHA.format(ColombiaTime.of(informe.fromDate()))) + " a "
+                + (informe.toDate() == null ? "…" : FECHA.format(ColombiaTime.of(informe.toDate())));
         String[][] pares = {
-                {"Generado", FECHA.format(HoraColombia.de(LocalDateTime.now()))}, {"Creado por", informe.createdByName()},
+                {"Generado", FECHA.format(ColombiaTime.of(LocalDateTime.now()))}, {"Creado por", informe.createdByName()},
                 {"Ciudad", informe.city()}, {"Periodo", periodo},
                 {"Usuaria", informe.userLabel()}, {"Acontecimiento", informe.event()},
         };
@@ -137,7 +137,7 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
                     : a.latitude().setScale(4, java.math.RoundingMode.HALF_UP).toPlainString() + ", "
                     + a.longitude().setScale(4, java.math.RoundingMode.HALF_UP).toPlainString();
             String[] valores = {String.valueOf(a.id()),
-                    a.startedAt() == null ? "" : FECHA.format(HoraColombia.de(a.startedAt())),
+                    a.startedAt() == null ? "" : FECHA.format(ColombiaTime.of(a.startedAt())),
                     duracion(a), usuaria,
                     ESTADOS.getOrDefault(a.status(), a.status() == null ? "" : a.status()),
                     METODOS.getOrDefault(a.activationMethod(), a.activationMethod() == null ? "" : a.activationMethod()),
@@ -164,8 +164,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
     private static String[] fila(AdminAlertView a) {
         return new String[]{
                 String.valueOf(a.id()),
-                a.startedAt() == null ? "" : FECHA.format(HoraColombia.de(a.startedAt())),
-                a.endedAt() != null ? FECHA.format(HoraColombia.de(a.endedAt())) : a.cancelledAt() != null ? FECHA.format(HoraColombia.de(a.cancelledAt())) : "",
+                a.startedAt() == null ? "" : FECHA.format(ColombiaTime.of(a.startedAt())),
+                a.endedAt() != null ? FECHA.format(ColombiaTime.of(a.endedAt())) : a.cancelledAt() != null ? FECHA.format(ColombiaTime.of(a.cancelledAt())) : "",
                 a.userName() == null ? "" : a.userName(),
                 a.userEmail() == null ? "" : a.userEmail(),
                 ESTADOS.getOrDefault(a.status(), a.status() == null ? "" : a.status()),
@@ -196,8 +196,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         return p;
     }
 
-    private static PdfPCell sinBorde(String texto, Font f) {
-        PdfPCell c = new PdfPCell(new Phrase(texto, f));
+    private static PdfPCell sinBorde(String text, Font f) {
+        PdfPCell c = new PdfPCell(new Phrase(text, f));
         c.setBorder(Rectangle.NO_BORDER);
         c.setPaddingBottom(4);
         return c;
@@ -251,16 +251,16 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
     private static class PiePagina extends PdfPageEventHelper {
         @Override
         public void onEndPage(PdfWriter writer, Document document) {
-            Phrase texto = new Phrase("Documento confidencial · Contiene datos personales de usuarias de AlertaMujer · Página "
+            Phrase text = new Phrase("Documento confidencial · Contiene datos personales de usuarias de AlertaMujer · Página "
                     + writer.getPageNumber(), fuente(false, 7.5f, GRIS));
-            ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, texto,
+            ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_CENTER, text,
                     (document.left() + document.right()) / 2, document.bottom() - 18, 0);
         }
     }
 
     /** Comillas si hace falta y protección contra fórmulas (inyección CSV). */
-    static String celdaCsv(String valor) {
-        String v = valor == null ? "" : valor;
+    static String celdaCsv(String value) {
+        String v = value == null ? "" : value;
         if (!v.isEmpty() && "=+-@\t\r".indexOf(v.charAt(0)) >= 0 && !v.matches("-?\\d+(\\.\\d+)?")) v = "'" + v;
         if (v.contains(";") || v.contains("\"") || v.contains("\n") || v.contains("\r")) {
             v = "\"" + v.replace("\"", "\"\"") + "\"";

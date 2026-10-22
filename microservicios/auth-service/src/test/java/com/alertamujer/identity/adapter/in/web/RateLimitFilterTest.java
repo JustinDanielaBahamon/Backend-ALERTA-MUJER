@@ -9,13 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RateLimitFilterTest {
 
-    private final RateLimitFilter filtro = new RateLimitFilter();
+    private final RateLimitFilter filter = new RateLimitFilter();
 
-    private int post(String ruta, String ip) throws Exception {
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", ruta);
+    private int post(String path, String ip) throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
         request.setRemoteAddr(ip);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        filtro.doFilter(request, response, new MockFilterChain());
+        filter.doFilter(request, response, new MockFilterChain());
         return response.getStatus();
     }
 

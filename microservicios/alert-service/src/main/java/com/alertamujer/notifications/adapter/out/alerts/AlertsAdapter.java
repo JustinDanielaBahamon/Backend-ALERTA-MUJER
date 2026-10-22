@@ -38,8 +38,8 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
-    public void registrarEntrega(Long destinatarioId, String estado, String error) {
-        alertsApi.markDelivery(destinatarioId, estado, error);
+    public void registrarEntrega(Long destinatarioId, String status, String error) {
+        alertsApi.markDelivery(destinatarioId, status, error);
     }
 
     @Override
@@ -58,7 +58,7 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
-    public AlertMessageView mensajeDeContacto(Long alertId, String name, String texto) {
-        return alertsApi.addContactMessage(alertId, name, texto);
+    public AlertMessageView mensajeDeContacto(Long alertId, String name, String text) {
+        return alertsApi.addContactMessage(alertId, name, text);
     }
 }

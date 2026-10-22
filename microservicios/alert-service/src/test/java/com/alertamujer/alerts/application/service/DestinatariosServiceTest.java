@@ -36,11 +36,11 @@ class DestinatariosServiceTest {
 
     @InjectMocks private DestinatariosService service;
 
-    private static Alert alert(String estado) {
+    private static Alert alert(String status) {
         Alert a = new Alert();
         a.setId(5L);
         a.setUserProfileId(10L);
-        a.setStatus(estado);
+        a.setStatus(status);
         return a;
     }
 

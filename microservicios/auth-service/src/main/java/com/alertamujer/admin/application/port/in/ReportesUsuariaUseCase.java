@@ -9,7 +9,7 @@ import java.util.List;
 public interface ReportesUsuariaUseCase {
 
     /** Todos (estado null) o los de un estado, del más reciente al más antiguo. */
-    List<UserReportView> listAll(String estado);
+    List<UserReportView> listAll(String status);
 
     UserReportView obtener(Long id);
 

@@ -6,7 +6,7 @@ import com.alertamujer.admin.application.port.out.UsuariasPort;
 import com.alertamujer.admin.domain.model.AuditLog;
 import com.alertamujer.admin.domain.model.FiltroAuditoria;
 import com.alertamujer.identity.api.UserSummary;
-import com.alertamujer.shared.web.HoraColombia;
+import com.alertamujer.shared.web.ColombiaTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,21 +34,21 @@ public class AuditoriaService implements AuditoriaUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public AuditPage listAll(FiltroAuditoria filtro, int pagina, int requestedSize) {
+    public AuditPage listAll(FiltroAuditoria filter, int pagina, int requestedSize) {
         int size = Math.max(1, Math.min(requestedSize, TAMANO_MAXIMO));
-        AuditoriaRepositorio.Pagina p = repository.pagina(filtro, Math.max(0, pagina), size);
+        AuditoriaRepositorio.Pagina p = repository.pagina(filter, Math.max(0, pagina), size);
         return new AuditPage(vistas(p.registros()), p.total(), p.numero(), size);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public byte[] exportar(FiltroAuditoria filtro) {
+    public byte[] exportar(FiltroAuditoria filter) {
         StringBuilder sb = new StringBuilder("﻿");
         sb.append("ID;Fecha;Responsable;Rol;Correo;Origen;Acción;Tipo;Registro;Detalle;IP\r\n");
-        for (AuditLogView v : vistas(repository.primeros(filtro, MAXIMO_EXPORTACION))) {
+        for (AuditLogView v : vistas(repository.primeros(filter, MAXIMO_EXPORTACION))) {
             sb.append(String.join(";", List.of(
                     String.valueOf(v.id()),
-                    v.createdAt() == null ? "" : FECHA.format(HoraColombia.de(v.createdAt())),
+                    v.createdAt() == null ? "" : FECHA.format(ColombiaTime.of(v.createdAt())),
                     celda(v.actorName() == null ? "Sin responsable" : v.actorName()),
                     celda(v.actorRole()),
                     celda(v.actorEmail()),
@@ -88,8 +88,8 @@ public class AuditoriaService implements AuditoriaUseCase {
     }
 
     /** Entre comillas y protegida contra fórmulas (inyección CSV). */
-    static String celda(String valor) {
-        String v = valor == null ? "" : valor;
+    static String celda(String value) {
+        String v = value == null ? "" : value;
         if (!v.isEmpty() && "=+-@".indexOf(v.charAt(0)) >= 0) v = "'" + v;
         return "\"" + v.replace("\"", "\"\"") + "\"";
     }

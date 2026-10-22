@@ -33,7 +33,7 @@ public class User {
     public static final String TERMINOS_VIGENTES = "2026-10";
 
     public static final long ROL_USUARIA = 1L;
-    public static final long ROL_ADMIN = 2L;
+    public static final long ADMIN_ROLE = 2L;
     private static final int MAXIMO_NOMBRE = 100;
     private static final DateTimeFormatter FECHA_FORMULARIO =
             DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
@@ -75,8 +75,8 @@ public class User {
         return vacioANull(telefono == null ? null : telefono.replaceAll("[\\s().-]", ""));
     }
 
-    public static String vacioANull(String valor) {
-        return valor == null || valor.isBlank() ? null : valor.trim();
+    public static String vacioANull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     /** Fecha DD/MM/AAAA como la escriben los formularios; null si falta o no es válida. */
@@ -96,7 +96,7 @@ public class User {
     }
 
     public boolean esAdmin() {
-        return roleId != null && roleId == ROL_ADMIN;
+        return roleId != null && roleId == ADMIN_ROLE;
     }
 
     /** Rol que viaja en el JWT. */
@@ -137,8 +137,8 @@ public class User {
         birthdate = null;
     }
 
-    private static String recortar(String texto) {
-        return texto.length() > MAXIMO_NOMBRE ? texto.substring(0, MAXIMO_NOMBRE) : texto;
+    private static String recortar(String text) {
+        return text.length() > MAXIMO_NOMBRE ? text.substring(0, MAXIMO_NOMBRE) : text;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

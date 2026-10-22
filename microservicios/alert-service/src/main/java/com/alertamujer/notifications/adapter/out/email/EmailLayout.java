@@ -27,7 +27,7 @@ final class EmailLayout {
      * @param cuerpo  HTML ya escapado
      * @param pie     HTML ya escapado con el motivo por el que llega el correo
      */
-    static String pagina(String logoUrl, String resumen, String titulo, String cuerpo, String pie) {
+    static String pagina(String logoUrl, String resumen, String titulo, String body, String pie) {
         return """
                 <!doctype html>
                 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -54,16 +54,16 @@ final class EmailLayout {
                 </table>
                 </body></html>
                 """.formatted(HtmlUtils.htmlEscape(resumen), HtmlUtils.htmlEscape(logoUrl), HtmlUtils.htmlEscape(titulo),
-                cuerpo, VIOLETA_CLARO, VIOLETA_OSCURO, TEXTO, VIOLETA, TEXTO_SUAVE, pie);
+                body, VIOLETA_CLARO, VIOLETA_OSCURO, TEXTO, VIOLETA, TEXTO_SUAVE, pie);
     }
 
     /** Botón grande (un enlace con estilo de botón: los correos no tienen botones de verdad). */
-    static String boton(String url, String texto) {
+    static String boton(String url, String text) {
         return """
                 <p style="text-align:center;margin:26px 0">
                   <a href="%s" style="background:%s;color:#FFFFFF;padding:15px 28px;border-radius:30px;
                      text-decoration:none;font-weight:bold;font-size:16px;display:inline-block">%s</a>
-                </p>""".formatted(HtmlUtils.htmlEscape(url), VIOLETA, HtmlUtils.htmlEscape(texto));
+                </p>""".formatted(HtmlUtils.htmlEscape(url), VIOLETA, HtmlUtils.htmlEscape(text));
     }
 
     /** Recuadro destacado (p. ej. el número de emergencias). */

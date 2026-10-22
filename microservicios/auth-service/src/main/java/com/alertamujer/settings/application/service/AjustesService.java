@@ -45,23 +45,23 @@ public class AjustesService implements AdministrarAjustesUseCase, ConsultarAjust
 
     @Override
     @Transactional(readOnly = true)
-    public int duracionMaximaAlertaMinutos() {
-        return repository.actual().map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
+    public int maxAlertDurationMinutes() {
+        return repository.current().map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public String numeroEmergencia() {
-        return repository.actual().map(SystemConfiguration::getEmergencyPhoneNumber).orElse("123");
+    public String emergencyNumber() {
+        return repository.current().map(SystemConfiguration::getEmergencyPhoneNumber).orElse("123");
     }
 
     @Override
     @Transactional(readOnly = true)
-    public int maximoContactos() {
-        return repository.actual().map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);
+    public int maxContacts() {
+        return repository.current().map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);
     }
 
     private SystemConfiguration existente() {
-        return repository.actual().orElseThrow(() -> new IllegalStateException("Falta la configuración del sistema"));
+        return repository.current().orElseThrow(() -> new IllegalStateException("Falta la configuración del sistema"));
     }
 }

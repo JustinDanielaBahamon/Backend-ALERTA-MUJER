@@ -23,7 +23,7 @@ class AdministracionDispositivosServiceTest {
     private final IdentityPort identidad = mock(IdentityPort.class);
     private final AdministracionDispositivosService service = new AdministracionDispositivosService(repository, identidad);
 
-    private static Device dispositivo(Long id, LocalDateTime acceso) {
+    private static Device device(Long id, LocalDateTime acceso) {
         Device d = new Device();
         d.setId(id);
         d.setAccountId(4L);
@@ -35,22 +35,22 @@ class AdministracionDispositivosServiceTest {
     void listaDelMasRecienteAlMasAntiguoConSuDuena() {
         LocalDateTime ahora = LocalDateTime.now();
         UserSummary ana = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
-        when(repository.todos()).thenReturn(List.of(dispositivo(1L, ahora.minusDays(1)), dispositivo(2L, null), dispositivo(3L, ahora)));
+        when(repository.todos()).thenReturn(List.of(device(1L, ahora.minusDays(1)), device(2L, null), device(3L, ahora)));
         when(identidad.duenasPorCuenta()).thenReturn(Map.of(4L, ana));
 
         List<DispositivoConDuena> r = service.listAll();
 
-        assertEquals(List.of(3L, 1L, 2L), r.stream().map(dc -> dc.dispositivo().getId()).toList());
+        assertEquals(List.of(3L, 1L, 2L), r.stream().map(dc -> dc.device().getId()).toList());
         assertSame(ana, r.get(0).owner());
     }
 
     @Test
     void cambiarEstadoValidaYGuarda() {
-        Device d = dispositivo(1L, null);
+        Device d = device(1L, null);
         when(repository.find(1L)).thenReturn(Optional.of(d));
         when(repository.find(9L)).thenReturn(Optional.empty());
 
-        assertEquals("lost", service.cambiarEstado(1L, "lost").dispositivo().getStatus());
+        assertEquals("lost", service.cambiarEstado(1L, "lost").device().getStatus());
         assertThrows(IllegalArgumentException.class, () -> service.cambiarEstado(1L, "roto"));
         assertThrows(ResourceNotFoundException.class, () -> service.cambiarEstado(9L, "lost"));
         verify(repository, times(1)).save(any());

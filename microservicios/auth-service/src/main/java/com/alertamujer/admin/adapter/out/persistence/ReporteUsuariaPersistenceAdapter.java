@@ -23,8 +23,8 @@ class ReporteUsuariaPersistenceAdapter implements ReporteUsuariaRepositorio {
     }
 
     @Override
-    public List<UserReport> conEstado(String estado) {
-        return jpa.findByStatus(estado).stream().map(ReporteUsuariaPersistenceAdapter::aDominio).toList();
+    public List<UserReport> conEstado(String status) {
+        return jpa.findByStatus(status).stream().map(ReporteUsuariaPersistenceAdapter::aDominio).toList();
     }
 
     @Override

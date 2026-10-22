@@ -58,12 +58,12 @@ class EventosNotificacionesListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void alEntrarDesdeOtroCelular(NewPhoneSignedInEvent e) {
-        nuevoCelular.avisar(e.otrosTokens(), e.celular());
+        nuevoCelular.avisar(e.otherTokens(), e.phone());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void alPedirRecuperacion(PasswordRecoveryRequestedEvent e) {
-        codigoRecuperacion.enviar(e.email(), e.name(), e.codigo(), e.minutosValidez());
+        codigoRecuperacion.send(e.email(), e.name(), e.code(), e.validityMinutes());
     }
 }

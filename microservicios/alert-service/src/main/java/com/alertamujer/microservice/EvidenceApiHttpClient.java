@@ -1,7 +1,7 @@
 package com.alertamujer.microservice;
 
 import com.alertamujer.evidence.api.EvidenceApi;
-import com.alertamujer.shared.rpc.ClaveInterna;
+import com.alertamujer.shared.rpc.InternalKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.AbstractResource;
@@ -33,11 +33,11 @@ class EvidenceApiHttpClient implements EvidenceApi {
     EvidenceApiHttpClient(@Value("${services.evidence.url}") String url, @Value("${internal.api-key:}") String key) {
         this.base = url.replaceAll("/+$", "") + "/internal/evidence";
         this.key = key;
-        SimpleClientHttpRequestFactory tiempos = new SimpleClientHttpRequestFactory();
-        tiempos.setConnectTimeout(90_000);
-        tiempos.setReadTimeout(90_000);
-        this.http = RestClient.builder().baseUrl(base).requestFactory(tiempos)
-                .defaultHeader(ClaveInterna.CABECERA, key).build();
+        SimpleClientHttpRequestFactory timeouts = new SimpleClientHttpRequestFactory();
+        timeouts.setConnectTimeout(90_000);
+        timeouts.setReadTimeout(90_000);
+        this.http = RestClient.builder().baseUrl(base).requestFactory(timeouts)
+                .defaultHeader(InternalKey.HEADER, key).build();
     }
 
     @Override
@@ -86,7 +86,7 @@ class EvidenceApiHttpClient implements EvidenceApi {
         @Override
         public InputStream getInputStream() throws IOException {
             HttpURLConnection conexion = (HttpURLConnection) new URL(url).openConnection();
-            conexion.setRequestProperty(ClaveInterna.CABECERA, key);
+            conexion.setRequestProperty(InternalKey.HEADER, key);
             conexion.setConnectTimeout(90_000);
             conexion.setReadTimeout(90_000);
             if (conexion.getResponseCode() != 200) throw new IOException("Evidence Service respondió " + conexion.getResponseCode());

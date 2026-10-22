@@ -6,13 +6,13 @@ import java.time.LocalDateTime;
 public record UserSummary(Long id, String firstName, String lastName, String email, String telephone,
                           Long roleId, LocalDateTime createdAt) {
 
-    public static final long ROL_ADMIN = 2L;
+    public static final long ADMIN_ROLE = 2L;
 
     public String fullName() {
         return ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     }
 
     public boolean admin() {
-        return roleId != null && roleId == ROL_ADMIN;
+        return roleId != null && roleId == ADMIN_ROLE;
     }
 }

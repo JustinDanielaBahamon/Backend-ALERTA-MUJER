@@ -48,8 +48,8 @@ class RecuperacionContrasenaServiceTest {
         lenient().when(solicitudes.pendientesDeCuenta(4L)).thenAnswer(inv -> List.copyOf(pendientes));
     }
 
-    private RecoveryRequest pendiente(String codigo, LocalDateTime creada) {
-        RecoveryRequest r = RecoveryRequest.nueva(4L, codigo, null, creada);
+    private RecoveryRequest pendiente(String code, LocalDateTime creada) {
+        RecoveryRequest r = RecoveryRequest.nueva(4L, code, null, creada);
         pendientes.add(r);
         return r;
     }
@@ -58,12 +58,12 @@ class RecuperacionContrasenaServiceTest {
     void enviaUnCodigoDeSeisDigitosYGuardaSoloSuHash() {
         service.solicitar(" ana@correo.com ", "1.2.3.4");
 
-        ArgumentCaptor<String> codigo = ArgumentCaptor.forClass(String.class);
-        verify(events).codigoRecuperacion(eq("ana@correo.com"), eq("Ana Gómez"), codigo.capture(), eq(15));
-        assertTrue(codigo.getValue().matches("\\d{6}"));
+        ArgumentCaptor<String> code = ArgumentCaptor.forClass(String.class);
+        verify(events).codigoRecuperacion(eq("ana@correo.com"), eq("Ana Gómez"), code.capture(), eq(15));
+        assertTrue(code.getValue().matches("\\d{6}"));
         ArgumentCaptor<RecoveryRequest> saved = ArgumentCaptor.forClass(RecoveryRequest.class);
         verify(solicitudes).save(saved.capture());
-        assertEquals(RecoveryRequest.hash(4L, codigo.getValue()), saved.getValue().getTokenHash());
+        assertEquals(RecoveryRequest.hash(4L, code.getValue()), saved.getValue().getTokenHash());
         assertEquals("1.2.3.4", saved.getValue().getRequestedIp());
     }
 

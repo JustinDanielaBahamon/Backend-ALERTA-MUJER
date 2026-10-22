@@ -4,8 +4,8 @@ import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.devices.api.DevicesApi;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.settings.api.SettingsApi;
-import com.alertamujer.shared.rpc.ContratosExpuestos;
-import com.alertamujer.shared.rpc.EventosRemotos;
+import com.alertamujer.shared.rpc.ExposedContracts;
+import com.alertamujer.shared.rpc.RemoteEvents;
 import com.alertamujer.shared.rpc.RpcClientFactory;
 import com.alertamujer.zones.api.ZonesApi;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +24,8 @@ import java.util.List;
 public class AuthMicroservicioConfig {
 
     @Bean
-    ContratosExpuestos contratosExpuestos() {
-        return new ContratosExpuestos(List.of(IdentityApi.class, DevicesApi.class, SettingsApi.class));
+    ExposedContracts contratosExpuestos() {
+        return new ExposedContracts(List.of(IdentityApi.class, DevicesApi.class, SettingsApi.class));
     }
 
     @Bean
@@ -39,14 +39,14 @@ public class AuthMicroservicioConfig {
     }
 
     @Bean
-    EventosRemotos eventosHaciaAlertas(@Value("${services.alert.url}") String url,
+    RemoteEvents eventosHaciaAlertas(@Value("${services.alert.url}") String url,
                                        @Value("${internal.api-key:}") String key, ObjectMapper json) {
-        return new EventosRemotos(url, key, json);
+        return new RemoteEvents(url, key, json);
     }
 
     @Bean
-    EventosRemotos eventosHaciaEvidencias(@Value("${services.evidence.url}") String url,
+    RemoteEvents eventosHaciaEvidencias(@Value("${services.evidence.url}") String url,
                                           @Value("${internal.api-key:}") String key, ObjectMapper json) {
-        return new EventosRemotos(url, key, json);
+        return new RemoteEvents(url, key, json);
     }
 }

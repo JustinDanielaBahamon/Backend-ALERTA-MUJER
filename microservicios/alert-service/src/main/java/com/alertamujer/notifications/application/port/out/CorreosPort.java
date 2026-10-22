@@ -10,13 +10,13 @@ public interface CorreosPort {
 
     /** Aviso al contacto de que la usuaria activó una alerta. mapsUrl puede ser null. */
     void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime inicio,
-                       String seguimientoUrl, String mapsUrl, String numeroEmergencia);
+                       String seguimientoUrl, String mapsUrl, String emergencyNumber);
 
     /** Aviso de que la alerta terminó. estado: resolved, cancelled o expired. */
-    void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String estado, LocalDateTime fin,
-                     String numeroEmergencia);
+    void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime fin,
+                     String emergencyNumber);
 
-    void codigoRecuperacion(String para, String name, String codigo, int minutosValidez);
+    void codigoRecuperacion(String para, String name, String code, int validityMinutes);
 
     /** El proveedor rechazó el correo o no hay proveedor configurado. */
     class CorreoNoEnviadoException extends RuntimeException {

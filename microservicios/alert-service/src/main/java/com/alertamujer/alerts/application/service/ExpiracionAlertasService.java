@@ -36,7 +36,7 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
     @Override
     public int revisar(LocalDateTime ahora) {
         // guardarTodas abre la transacción dentro de AuditSource.con, así la auditoría registra el origen
-        int expiradas = AuditSource.con("Tarea automática · Expiración de alertas", () -> expirarVencidas(ahora));
+        int expiradas = AuditSource.runAs("Tarea automática · Expiración de alertas", () -> expirarVencidas(ahora));
         ultimaRevision = ahora;
         expiradasUltimaRevision = expiradas;
         if (expiradas > 0) log.info("Alertas expiradas por superar la duración máxima: {}", expiradas);
@@ -54,7 +54,7 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
     }
 
     int expirarVencidas(LocalDateTime ahora) {
-        int minutos = ajustes.duracionMaximaAlertaMinutos();
+        int minutos = ajustes.maxAlertDurationMinutes();
         if (minutos <= 0) return 0;
         LocalDateTime limite = ahora.minusMinutes(minutos);
         List<Alert> vencidas = repository.activas().stream().filter(a -> a.vencida(limite)).toList();

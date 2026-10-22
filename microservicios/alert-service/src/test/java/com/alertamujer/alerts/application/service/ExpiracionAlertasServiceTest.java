@@ -38,7 +38,7 @@ class ExpiracionAlertasServiceTest {
     void expiraSoloLasQuePasanLaDuracionMaximaYAvisa() {
         Alert vieja = alert(AHORA.minusMinutes(31));
         Alert reciente = alert(AHORA.minusMinutes(10));
-        when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(30);
+        when(ajustes.maxAlertDurationMinutes()).thenReturn(30);
         when(repository.activas()).thenReturn(List.of(vieja, reciente));
 
         assertEquals(1, service.revisar(AHORA));
@@ -55,7 +55,7 @@ class ExpiracionAlertasServiceTest {
 
     @Test
     void sinConfiguracionNoExpiraNada() {
-        when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(0);
+        when(ajustes.maxAlertDurationMinutes()).thenReturn(0);
 
         assertEquals(0, service.revisar(AHORA));
         verifyNoInteractions(repository, events);
@@ -63,17 +63,17 @@ class ExpiracionAlertasServiceTest {
 
     @Test
     void laRevisionRegistraElOrigenDeLaTareaParaLaAuditoria() {
-        when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(30);
+        when(ajustes.maxAlertDurationMinutes()).thenReturn(30);
         when(repository.activas()).thenReturn(List.of());
-        String[] origen = new String[1];
+        String[] source = new String[1];
         when(repository.guardarTodas(List.of())).thenAnswer(inv -> {
-            origen[0] = AuditSource.actual();
+            source[0] = AuditSource.current();
             return List.of();
         });
 
         service.revisar(AHORA);
 
-        assertEquals("Tarea automática · Expiración de alertas", origen[0]);
-        assertNull(AuditSource.actual());
+        assertEquals("Tarea automática · Expiración de alertas", source[0]);
+        assertNull(AuditSource.current());
     }
 }

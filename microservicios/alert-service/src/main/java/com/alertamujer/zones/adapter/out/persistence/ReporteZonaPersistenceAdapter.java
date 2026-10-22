@@ -38,8 +38,8 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
     }
 
     @Override
-    public List<ZoneReport> conEstado(String estado) {
-        return jpa.findByStatus(estado).stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
+    public List<ZoneReport> conEstado(String status) {
+        return jpa.findByStatus(status).stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
     }
 
     @Override

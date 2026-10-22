@@ -23,16 +23,16 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final List<String> origenesPermitidos;
+    private final List<String> allowedOrigins;
 
     /**
      * @param origenes orígenes del panel web que pueden llamar a la API (CORS_ORIGIN, separados
      *                 por coma; admite comodines). La app móvil no envía Origin y no se ve afectada.
      */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                          @Value("${cors.allowed-origins}") String[] origenes) {
+                          @Value("${cors.allowed-origins}") String[] origins) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.origenesPermitidos = Arrays.stream(origenes).map(String::trim).filter(o -> !o.isEmpty()).toList();
+        this.allowedOrigins = Arrays.stream(origins).map(String::trim).filter(o -> !o.isEmpty()).toList();
     }
 
     @Bean
@@ -61,7 +61,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(origenesPermitidos);
+        configuration.setAllowedOriginPatterns(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

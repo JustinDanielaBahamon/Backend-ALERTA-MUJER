@@ -27,7 +27,7 @@ class PedidoUbicacionServiceTest {
         when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of());
 
-        assertEquals(1, service.pedir(1L).celulares());
+        assertEquals(1, service.perform(1L).celulares());
         verify(push).enviarDatos(List.of("t1"), Map.of("tipo", "PEDIR_UBICACION"));
     }
 
@@ -35,7 +35,7 @@ class PedidoUbicacionServiceTest {
     void sinCelularConNotificacionesAvisa() {
         when(celulares.tokensDeCelulares(1L)).thenReturn(List.of());
 
-        assertThrows(IllegalStateException.class, () -> service.pedir(1L));
+        assertThrows(IllegalStateException.class, () -> service.perform(1L));
         verifyNoInteractions(push);
     }
 
@@ -44,7 +44,7 @@ class PedidoUbicacionServiceTest {
         when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of("t1"));
 
-        assertThrows(IllegalStateException.class, () -> service.pedir(1L));
+        assertThrows(IllegalStateException.class, () -> service.perform(1L));
     }
 
     @Test
@@ -52,7 +52,7 @@ class PedidoUbicacionServiceTest {
         when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of());
 
-        service.pedir(1L);
-        assertThrows(IllegalStateException.class, () -> service.pedir(1L));
+        service.perform(1L);
+        assertThrows(IllegalStateException.class, () -> service.perform(1L));
     }
 }

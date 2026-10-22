@@ -15,7 +15,7 @@ class NotificacionesAjustesAdapter implements AjustesPort {
     }
 
     @Override
-    public String numeroEmergencia() {
-        return settingsApi.numeroEmergencia();
+    public String emergencyNumber() {
+        return settingsApi.emergencyNumber();
     }
 }

@@ -16,7 +16,7 @@ public interface ChatAlertaUseCase {
     /** Igual, pero solo para la dueña (una alerta ajena se responde como inexistente). */
     List<AlertMessage> mensajesDeLaDuena(Long alertId, Long userId, Long afterId);
 
-    AlertMessage enviarDeLaDuena(Long alertId, Long userId, String texto);
+    AlertMessage enviarDeLaDuena(Long alertId, Long userId, String text);
 
-    AlertMessage enviarDeContacto(Long alertId, String name, String texto);
+    AlertMessage enviarDeContacto(Long alertId, String name, String text);
 }

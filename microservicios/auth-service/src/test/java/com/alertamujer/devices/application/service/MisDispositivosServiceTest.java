@@ -44,7 +44,7 @@ class MisDispositivosServiceTest {
         return d;
     }
 
-    private static DatosDispositivo celular(String name) {
+    private static DatosDispositivo phone(String name) {
         return new DatosDispositivo("uuid", "Xiaomi", "Note 13", name, "android", null, null, null, null, null, "t-nuevo", null);
     }
 
@@ -53,7 +53,7 @@ class MisDispositivosServiceTest {
         when(repository.deCuenta(4L)).thenReturn(List.of(propio(10L, "android", "t-viejo"), propio(11L, "web", "t-web"),
                 propio(12L, "android", null), propio(30L, "android", "t-nuevo")));
 
-        Device d = service.registrar(celular("Mi Xiaomi"), 1L);
+        Device d = service.registrar(phone("Mi Xiaomi"), 1L);
 
         assertEquals(4L, d.getAccountId());
         verify(events).nuevoCelular("Mi Xiaomi", List.of("t-viejo"));
@@ -67,7 +67,7 @@ class MisDispositivosServiceTest {
         existente.setDeviceName("Mi Xiaomi");
         when(repository.deCuenta(4L)).thenReturn(List.of(existente, propio(11L, "android", "t-otro")));
 
-        Device d = service.registrar(celular("Mi Xiaomi"), 1L);
+        Device d = service.registrar(phone("Mi Xiaomi"), 1L);
 
         assertEquals(10L, d.getId(), "no se crea un registro nuevo");
         verify(repository, never()).save(argThat((Device x) -> Long.valueOf(30L).equals(x.getId())));
@@ -77,7 +77,7 @@ class MisDispositivosServiceTest {
     @Test
     void elPanelWebOElPrimerCelularNoAvisan() {
         when(repository.deCuenta(4L)).thenReturn(List.of(propio(30L, "android", "t-nuevo")));
-        service.registrar(celular(null), 1L);
+        service.registrar(phone(null), 1L);
 
         service.registrar(new DatosDispositivo("uuid", null, null, null, "web", null, null, null, null, null, null, null), 1L);
 
@@ -89,7 +89,7 @@ class MisDispositivosServiceTest {
         when(repository.find(10L)).thenReturn(Optional.of(propio(10L, "android", "t")));
 
         assertThrows(AccessDeniedException.class, () -> service.uno(10L, 2L));
-        assertThrows(AccessDeniedException.class, () -> service.registrarUso(10L, celular("x"), 2L));
+        assertThrows(AccessDeniedException.class, () -> service.registrarUso(10L, phone("x"), 2L));
         assertThrows(AccessDeniedException.class, () -> service.cambiarTokenPush(10L, "t2", 2L));
         assertThrows(AccessDeniedException.class, () -> service.delete(10L, 2L));
         verify(repository, never()).delete(any());

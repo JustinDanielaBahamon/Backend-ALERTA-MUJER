@@ -8,14 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JwtKeyProviderTest {
 
     @Test
-    void rechazaSecretoVacioCortoOElQueEstuvoPublicado() {
+    void rejectsAnEmptyShortOrPublishedSecret() {
         assertThrows(IllegalStateException.class, () -> new JwtKeyProvider(""));
         assertThrows(IllegalStateException.class, () -> new JwtKeyProvider("corto"));
-        assertThrows(IllegalStateException.class, () -> new JwtKeyProvider(JwtKeyProvider.SECRETO_PUBLICADO));
+        assertThrows(IllegalStateException.class, () -> new JwtKeyProvider(JwtKeyProvider.PUBLISHED_SECRET));
     }
 
     @Test
-    void aceptaUnSecretoLargoYPropio() {
+    void acceptsALongOwnSecret() {
         assertNotNull(new JwtKeyProvider("un-secreto-aleatorio-de-prueba-con-mas-de-32-caracteres").key());
     }
 }

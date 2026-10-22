@@ -49,7 +49,7 @@ public class LocationLogController {
     @PostMapping("/me/request")
     public ResponseEntity<Map<String, Object>> requestFromPhone(@AuthenticationPrincipal Long currentUserId) {
         try {
-            var r = pedirUbicacion.pedir(currentUserId);
+            var r = pedirUbicacion.perform(currentUserId);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(Map.of("celulares", r.celulares(), "solicitadoEn", r.solicitadoEn().toString()));
         } catch (IllegalStateException e) {

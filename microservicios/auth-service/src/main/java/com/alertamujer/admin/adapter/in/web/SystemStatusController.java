@@ -20,6 +20,6 @@ public class SystemStatusController {
     @GetMapping("/api/admin/system-status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SystemStatus> systemStatus() {
-        return ResponseEntity.ok(estadoSistema.estado());
+        return ResponseEntity.ok(estadoSistema.status());
     }
 }

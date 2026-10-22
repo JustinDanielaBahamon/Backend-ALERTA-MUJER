@@ -44,10 +44,10 @@ public class AdministracionDispositivosService implements AdministrarDispositivo
 
     @Override
     @Transactional
-    public DispositivoConDuena cambiarEstado(Long id, String estado) {
-        if (estado == null || !Device.ESTADOS.contains(estado)) throw new IllegalArgumentException("Estado no válido: " + estado);
+    public DispositivoConDuena cambiarEstado(Long id, String status) {
+        if (status == null || !Device.ESTADOS.contains(status)) throw new IllegalArgumentException("Estado no válido: " + status);
         Device d = existente(id);
-        d.cambiarEstado(estado);
+        d.cambiarEstado(status);
         repository.save(d);
         return obtener(id);
     }

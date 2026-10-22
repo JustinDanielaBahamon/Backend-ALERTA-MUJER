@@ -9,7 +9,7 @@ import java.time.Instant;
 public interface PedirUbicacionUseCase {
 
     /** @throws IllegalStateException si no tiene un celular con notificaciones o pidió hace muy poco */
-    Resultado pedir(Long userId);
+    Resultado perform(Long userId);
 
     record Resultado(int celulares, Instant solicitadoEn) {}
 }

@@ -16,7 +16,7 @@ public record AdminDeviceView(Long id, Long accountId, Long userId, String owner
                               String permissions, LocalDateTime permissionsUpdatedAt) {
 
     public static AdminDeviceView of(DispositivoConDuena dc) {
-        Device d = dc.dispositivo();
+        Device d = dc.device();
         UserSummary u = dc.owner();
         return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.id() : null,
                 u == null ? null : u.fullName(), u != null ? u.email() : null, u != null ? u.telephone() : null,

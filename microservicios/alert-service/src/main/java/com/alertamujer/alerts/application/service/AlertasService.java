@@ -59,12 +59,12 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
     @Override
     public List<Alert> deUsuaria(Long idPedido, Long userId) {
         Long propio = profileOf(userId);
-        UserSummary actual = identidad.usuaria(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        UserSummary current = identidad.usuaria(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
         // users.id y user_profile.id no coinciden necesariamente (en producción son distintos)
         if (idPedido.equals(userId) || idPedido.equals(propio)) {
             return repository.ofUser(propio);
         }
-        if (!actual.admin()) {
+        if (!current.admin()) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
         // Para la administración el id se interpreta como users.id y, si no existe, como user_profile.id

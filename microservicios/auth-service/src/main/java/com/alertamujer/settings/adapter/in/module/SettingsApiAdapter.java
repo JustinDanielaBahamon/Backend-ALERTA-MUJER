@@ -15,17 +15,17 @@ class SettingsApiAdapter implements SettingsApi {
     }
 
     @Override
-    public int duracionMaximaAlertaMinutos() {
-        return consultas.duracionMaximaAlertaMinutos();
+    public int maxAlertDurationMinutes() {
+        return consultas.maxAlertDurationMinutes();
     }
 
     @Override
-    public String numeroEmergencia() {
-        return consultas.numeroEmergencia();
+    public String emergencyNumber() {
+        return consultas.emergencyNumber();
     }
 
     @Override
-    public int maximoContactos() {
-        return consultas.maximoContactos();
+    public int maxContacts() {
+        return consultas.maxContacts();
     }
 }

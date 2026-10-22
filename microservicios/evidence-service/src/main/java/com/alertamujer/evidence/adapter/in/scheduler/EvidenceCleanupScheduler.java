@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @Component
 class EvidenceCleanupScheduler {
 
-    private final CleanUpEvidenceUseCase limpiar;
+    private final CleanUpEvidenceUseCase clear;
 
-    EvidenceCleanupScheduler(CleanUpEvidenceUseCase limpiar) {
-        this.limpiar = limpiar;
+    EvidenceCleanupScheduler(CleanUpEvidenceUseCase clear) {
+        this.clear = clear;
     }
 
     // Every day at 4:00 a.m. (Colombia time)
     @Scheduled(cron = "${evidence.retention.cron:0 0 4 * * *}", zone = "America/Bogota")
-    void limpiar() {
-        limpiar.limpiar(LocalDateTime.now());
+    void clear() {
+        clear.clear(LocalDateTime.now());
     }
 }

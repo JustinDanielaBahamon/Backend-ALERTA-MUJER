@@ -56,7 +56,7 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     public EmergencyContact create(DatosContacto data, Long userId) {
         // La dueña sale del JWT, nunca del body (evita IDOR)
         Long perfil = profileOf(userId);
-        int maximo = ajustes.maximoContactos();
+        int maximo = ajustes.maxContacts();
         if (repository.ofUser(perfil).size() >= maximo) {
             throw new IllegalArgumentException("Puedes tener como máximo " + maximo + " contactos de emergencia");
         }

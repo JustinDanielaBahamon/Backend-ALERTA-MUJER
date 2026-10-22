@@ -53,8 +53,8 @@ public class ReportesZonaService implements ReportesZonaUseCase {
     }
 
     @Override
-    public List<ZoneReport> conEstado(String estado) {
-        return repository.conEstado(estado);
+    public List<ZoneReport> conEstado(String status) {
+        return repository.conEstado(status);
     }
 
     @Override

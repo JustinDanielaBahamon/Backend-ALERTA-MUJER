@@ -14,7 +14,7 @@ import com.alertamujer.alerts.domain.model.LocationLog;
 import com.alertamujer.alerts.domain.model.SafeTrip;
 import com.alertamujer.shared.exception.ConflictException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
-import com.alertamujer.shared.web.HoraColombia;
+import com.alertamujer.shared.web.ColombiaTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -125,11 +125,11 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
 
     private void alertar(SafeTrip t, LocalDateTime ahora) {
         Optional<LocationLog> ultima = ubicaciones.ultima(t.getUserProfileId());
-        String mensaje = "No confirmó que llegó a " + t.getDestination() + ". Salió a las "
-                + HORA.format(HoraColombia.de(t.getStartedAt())) + " y debía llegar a las "
-                + HORA.format(HoraColombia.de(t.getExpectedArrival())) + "."
+        String message = "No confirmó que llegó a " + t.getDestination() + ". Salió a las "
+                + HORA.format(ColombiaTime.of(t.getStartedAt())) + " y debía llegar a las "
+                + HORA.format(ColombiaTime.of(t.getExpectedArrival())) + "."
                 + ultima.map(l -> " Última ubicación hace " + minutosDesde(l.getRecordedAt(), ahora) + " min.").orElse("");
-        Alert alert = alerts.activar(new NuevaAlerta(t.getDeviceId(), "main", "timer", "active", mensaje,
+        Alert alert = alerts.activar(new NuevaAlerta(t.getDeviceId(), "main", "timer", "active", message,
                 ultima.map(LocationLog::getLatitude).orElse(t.getDestinationLatitude()),
                 ultima.map(LocationLog::getLongitude).orElse(t.getDestinationLongitude()),
                 null, null), t.getUserId());

@@ -40,13 +40,13 @@ public class RateLimitFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        String ruta = httpRequest.getRequestURI();
-        if ("POST".equalsIgnoreCase(httpRequest.getMethod()) && RUTAS.contains(ruta)) {
+        String path = httpRequest.getRequestURI();
+        if ("POST".equalsIgnoreCase(httpRequest.getMethod()) && RUTAS.contains(path)) {
             long currentTime = System.currentTimeMillis();
             if (requestCounts.size() > MAX_ENTRADAS) {
                 requestCounts.values().removeIf(c -> currentTime - c.timestamp > VENTANA_MS);
             }
-            RequestCounter counter = requestCounts.computeIfAbsent(httpRequest.getRemoteAddr() + "|" + ruta,
+            RequestCounter counter = requestCounts.computeIfAbsent(httpRequest.getRemoteAddr() + "|" + path,
                     k -> new RequestCounter(currentTime, new AtomicInteger(0)));
 
             synchronized (counter) {

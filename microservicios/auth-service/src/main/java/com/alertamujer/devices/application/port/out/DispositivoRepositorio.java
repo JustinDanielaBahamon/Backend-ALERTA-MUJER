@@ -8,7 +8,7 @@ import java.util.Optional;
 /** Puerto de salida: los dispositivos. */
 public interface DispositivoRepositorio {
 
-    Device save(Device dispositivo);
+    Device save(Device device);
 
     Optional<Device> find(Long id);
 

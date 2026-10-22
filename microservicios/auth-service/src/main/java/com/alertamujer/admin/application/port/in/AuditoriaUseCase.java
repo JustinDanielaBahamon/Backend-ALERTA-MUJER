@@ -8,10 +8,10 @@ import java.util.List;
 /** Auditoría del panel: cambios registrados por los triggers y eventos de sesión de las cuentas admin. */
 public interface AuditoriaUseCase {
 
-    AuditPage listAll(FiltroAuditoria filtro, int pagina, int size);
+    AuditPage listAll(FiltroAuditoria filter, int pagina, int size);
 
     /** CSV (";" y BOM UTF-8, para Excel en español) con los registros que cumplen el filtro. */
-    byte[] exportar(FiltroAuditoria filtro);
+    byte[] exportar(FiltroAuditoria filter);
 
     /** Cuentas de administración, para filtrar por responsable. */
     List<AuditActor> responsables();

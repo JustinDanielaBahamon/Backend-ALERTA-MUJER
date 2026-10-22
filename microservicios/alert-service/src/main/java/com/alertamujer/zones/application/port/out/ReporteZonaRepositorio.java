@@ -16,7 +16,7 @@ public interface ReporteZonaRepositorio {
 
     List<ZoneReport> dePerfil(Long perfil);
 
-    List<ZoneReport> conEstado(String estado);
+    List<ZoneReport> conEstado(String status);
 
     ZoneReport save(ZoneReport reporte);
 

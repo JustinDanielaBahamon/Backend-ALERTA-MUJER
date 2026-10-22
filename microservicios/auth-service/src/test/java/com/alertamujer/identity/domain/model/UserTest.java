@@ -83,7 +83,7 @@ class UserTest {
     @Test
     void elRolDosEsAdministradora() {
         User u = new User();
-        u.setRoleId(User.ROL_ADMIN);
+        u.setRoleId(User.ADMIN_ROLE);
         assertTrue(u.esAdmin());
         assertEquals("admin", u.rolDelToken());
     }

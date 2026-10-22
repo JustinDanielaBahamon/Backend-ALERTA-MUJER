@@ -18,8 +18,8 @@ class DispositivoPersistenceAdapter implements DispositivoRepositorio {
     }
 
     @Override
-    public Device save(Device dispositivo) {
-        return aDominio(jpa.save(aFila(dispositivo)));
+    public Device save(Device device) {
+        return aDominio(jpa.save(aFila(device)));
     }
 
     @Override

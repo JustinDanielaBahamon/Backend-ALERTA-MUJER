@@ -32,8 +32,8 @@ public class EventosSeguridadService implements RegistrarEventoSeguridadUseCase 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registrar(Long accountId, String accion, String detalle) {
         try {
-            repository.save(AuditLog.eventoDeSesion(accountId, accion, detalle, peticion.dispositivo(), peticion.ip(),
-                    peticion.origen()));
+            repository.save(AuditLog.eventoDeSesion(accountId, accion, detalle, peticion.device(), peticion.ip(),
+                    peticion.source()));
         } catch (RuntimeException e) {
             log.warn("No se pudo registrar el evento de seguridad {}: {}", accion, e.getMessage());
         }

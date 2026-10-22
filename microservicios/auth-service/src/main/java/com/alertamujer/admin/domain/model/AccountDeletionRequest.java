@@ -49,9 +49,9 @@ public class AccountDeletionRequest {
         if (!PENDIENTE.equals(status)) throw new IllegalArgumentException("Esta solicitud ya fue decidida");
     }
 
-    private void decidir(String estado, Long adminId, String nota, LocalDateTime ahora) {
+    private void decidir(String newStatus, Long adminId, String nota, LocalDateTime ahora) {
         verificarPendiente();
-        status = estado;
+        status = newStatus;
         decidedBy = adminId;
         decisionNote = nota == null || nota.isBlank() ? null : TextoModeracion.recortar(nota.trim(), MAXIMO_NOTA);
         decidedAt = ahora;

@@ -33,7 +33,7 @@ class ModeracionCuentasServiceTest {
     private final ModeracionCuentasService service = new ModeracionCuentasService(casos, acciones, solicitudes, cuentas, usuarias);
 
     private static final UserSummary ANA = new UserSummary(5L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
-    private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ROL_ADMIN, null);
+    private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ADMIN_ROLE, null);
 
     @BeforeEach
     void setUp() {
@@ -79,7 +79,7 @@ class ModeracionCuentasServiceTest {
     void elHistorialJuntaAccionesYSolicitudesDelMasReciente() {
         UserReport caso = UserReport.bloqueo(5L, 2L, "Acoso", "Mensajes", null, LocalDateTime.now());
         caso.setId(40L);
-        ModerationAction bloqueo = ModerationAction.de(40L, 2L, "block", "Mensajes");
+        ModerationAction bloqueo = ModerationAction.of(40L, 2L, "block", "Mensajes");
         bloqueo.setCreatedAt(LocalDateTime.now().minusDays(1));
         AccountDeletionRequest pedida = AccountDeletionRequest.nueva(5L, 2L, "Cuenta duplicada");
         when(casos.deUsuaria(5L)).thenReturn(List.of(caso));

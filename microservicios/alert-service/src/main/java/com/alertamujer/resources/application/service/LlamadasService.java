@@ -57,19 +57,19 @@ public class LlamadasService implements LlamadasUseCase {
 
     @Override
     @Transactional
-    public ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String estado, Long userId) {
+    public ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String status, Long userId) {
         if (recursoId == null) throw new IllegalArgumentException("Indica a qué recurso se llamó");
         EmergencyResource recurso = recursos.find(recursoId)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", recursoId));
         return repository.save(ResourceCall.nueva(identidad.perfilRequerido(userId), recurso, alertId, deviceId,
-                telefonoMarcado, estado, LocalDateTime.now()));
+                telefonoMarcado, status, LocalDateTime.now()));
     }
 
     @Override
     @Transactional
-    public ResourceCall actualizar(Long id, String estado, LocalDateTime fin, Integer duracionSegundos, Long userId) {
+    public ResourceCall actualizar(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId) {
         ResourceCall c = propia(id, userId);
-        c.actualizar(estado, fin, duracionSegundos);
+        c.actualizar(status, fin, duracionSegundos);
         return repository.save(c);
     }
 

@@ -41,7 +41,7 @@ class MiCuentaServiceTest {
     void setUp() {
         ana = User.nueva("Ana Gómez", "ana@correo.com", null, null, null, null);
         ana.setId(1L);
-        perfil = UserProfile.de(1L);
+        perfil = UserProfile.of(1L);
         cuenta = Account.nueva(1L, "hash");
         cuenta.setId(4L);
         lenient().when(usuarias.find(1L)).thenReturn(Optional.of(ana));
@@ -49,8 +49,8 @@ class MiCuentaServiceTest {
         lenient().when(usuarias.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
-    private static CambiosUsuaria foto(Optional<String> foto) {
-        return new CambiosUsuaria(null, null, null, null, null, null, foto);
+    private static CambiosUsuaria photo(Optional<String> photo) {
+        return new CambiosUsuaria(null, null, null, null, null, null, photo);
     }
 
     @Test
@@ -79,13 +79,13 @@ class MiCuentaServiceTest {
     @Test
     void guardaYQuitaLaFotoDePerfil() {
         assertEquals("data:image/jpeg;base64,/9j/4AAQ",
-                service.actualizar(1L, foto(Optional.of("data:image/jpeg;base64,/9j/4AAQ"))).foto());
-        assertNull(service.actualizar(1L, foto(Optional.of(""))).foto());
+                service.actualizar(1L, photo(Optional.of("data:image/jpeg;base64,/9j/4AAQ"))).photo());
+        assertNull(service.actualizar(1L, photo(Optional.of(""))).photo());
     }
 
     @Test
     void unaFotoQueNoEsImagenNoGuardaNada() {
-        assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, foto(Optional.of("<script>"))));
+        assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, photo(Optional.of("<script>"))));
         verify(usuarias, never()).save(any());
         verify(perfiles, never()).save(any());
     }
@@ -110,7 +110,7 @@ class MiCuentaServiceTest {
 
     @Test
     void elCambioDeContrasenaDeUnaAdministradoraQuedaEnLaAuditoria() {
-        ana.setRoleId(User.ROL_ADMIN);
+        ana.setRoleId(User.ADMIN_ROLE);
         when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
         when(cifrado.coincide("Actual123", "hash")).thenReturn(true);
         when(cifrado.coincide("Nueva1234", "hash")).thenReturn(false);
@@ -137,7 +137,7 @@ class MiCuentaServiceTest {
 
     @Test
     void eliminarMiCuenta_unaAdministradoraNoPuedeHacerloSola() {
-        ana.setRoleId(User.ROL_ADMIN);
+        ana.setRoleId(User.ADMIN_ROLE);
 
         assertThrows(IllegalArgumentException.class, () -> service.eliminarMiCuenta(1L, "ELIMINAR"));
         verifyNoInteractions(administracion);

@@ -7,7 +7,7 @@ import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.identity.api.AccountDeletedEvent;
 import com.alertamujer.identity.api.PasswordRecoveryRequestedEvent;
 import com.alertamujer.settings.api.SettingsApi;
-import com.alertamujer.shared.rpc.ContratosExpuestos;
+import com.alertamujer.shared.rpc.ExposedContracts;
 import com.alertamujer.shared.rpc.ReceivedEventsController.AcceptedEvents;
 import com.alertamujer.shared.rpc.RpcClientFactory;
 import com.alertamujer.zones.api.ZonesApi;
@@ -27,8 +27,8 @@ import java.util.List;
 public class AlertMicroservicioConfig {
 
     @Bean
-    ContratosExpuestos contratosExpuestos() {
-        return new ContratosExpuestos(List.of(AlertsApi.class, ZonesApi.class));
+    ExposedContracts contratosExpuestos() {
+        return new ExposedContracts(List.of(AlertsApi.class, ZonesApi.class));
     }
 
     @Bean

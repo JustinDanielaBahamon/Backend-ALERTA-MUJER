@@ -4,7 +4,7 @@ package com.alertamujer.alerts.application.port.out;
 public interface AjustesPort {
 
     /** Minutos tras los cuales una alerta activa se marca como expirada (0 = sin configuración). */
-    int duracionMaximaAlertaMinutos();
+    int maxAlertDurationMinutes();
 
-    int maximoContactos();
+    int maxContacts();
 }

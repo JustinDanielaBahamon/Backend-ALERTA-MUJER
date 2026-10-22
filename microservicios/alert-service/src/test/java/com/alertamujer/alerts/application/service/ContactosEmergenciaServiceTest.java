@@ -42,7 +42,7 @@ class ContactosEmergenciaServiceTest {
 
     @Test
     void crear_permiteHastaElLimiteYLaDuenaSaleDelToken() {
-        when(ajustes.maximoContactos()).thenReturn(5);
+        when(ajustes.maxContacts()).thenReturn(5);
         when(repository.ofUser(10L)).thenReturn(Collections.nCopies(4, new EmergencyContact()));
         when(repository.save(any(EmergencyContact.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -73,7 +73,7 @@ class ContactosEmergenciaServiceTest {
 
     @Test
     void crear_rechazaAlSuperarElLimite() {
-        when(ajustes.maximoContactos()).thenReturn(5);
+        when(ajustes.maxContacts()).thenReturn(5);
         when(repository.ofUser(10L)).thenReturn(Collections.nCopies(5, new EmergencyContact()));
 
         assertThrows(IllegalArgumentException.class, () -> service.create(EVA, 1L));
@@ -82,7 +82,7 @@ class ContactosEmergenciaServiceTest {
 
     @Test
     void crear_rechazaUnaFotoQueNoEsImagen() {
-        when(ajustes.maximoContactos()).thenReturn(5);
+        when(ajustes.maxContacts()).thenReturn(5);
         when(repository.ofUser(10L)).thenReturn(List.of());
 
         assertThrows(IllegalArgumentException.class,

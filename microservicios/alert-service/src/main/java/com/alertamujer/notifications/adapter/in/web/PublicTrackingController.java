@@ -31,26 +31,26 @@ public class PublicTrackingController {
     }
 
     /** v: identificador anónimo del navegador o la app que mira (para contar las vistas). */
-    @GetMapping("/api/public/tracking/{codigo}")
-    public ResponseEntity<TrackingView> consultar(@PathVariable String codigo,
+    @GetMapping("/api/public/tracking/{code}")
+    public ResponseEntity<TrackingView> consultar(@PathVariable String code,
                                                   @RequestParam(name = "v", required = false) String visitante) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(seguimiento.consultar(codigo, visitante, LocalDateTime.now()));
+                .body(seguimiento.consultar(code, visitante, LocalDateTime.now()));
     }
 
     /** Chat de la alerta para el contacto. after: id del último mensaje que ya tiene (0 = todos). */
-    @GetMapping("/api/public/tracking/{codigo}/messages")
-    public ResponseEntity<List<AlertMessageView>> mensajes(@PathVariable String codigo,
+    @GetMapping("/api/public/tracking/{code}/messages")
+    public ResponseEntity<List<AlertMessageView>> mensajes(@PathVariable String code,
                                                            @RequestParam(defaultValue = "0") Long after) {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(seguimiento.mensajes(codigo, after, LocalDateTime.now()));
+                .body(seguimiento.mensajes(code, after, LocalDateTime.now()));
     }
 
-    @PostMapping("/api/public/tracking/{codigo}/messages")
-    public ResponseEntity<AlertMessageView> enviarMensaje(@PathVariable String codigo, @RequestBody MensajeContacto mensaje) {
-        return ResponseEntity.ok(seguimiento.enviarMensaje(codigo, mensaje.name(), mensaje.body(), LocalDateTime.now()));
+    @PostMapping("/api/public/tracking/{code}/messages")
+    public ResponseEntity<AlertMessageView> enviarMensaje(@PathVariable String code, @RequestBody MensajeContacto message) {
+        return ResponseEntity.ok(seguimiento.enviarMensaje(code, message.name(), message.body(), LocalDateTime.now()));
     }
 
     /** name: cómo se presenta el contacto (el enlace no dice quién es). */
@@ -60,9 +60,9 @@ public class PublicTrackingController {
      * Video o audio de la alerta para el contacto. Con almacenamiento S3 redirige a un enlace firmado
      * que vence en minutos; en disco entrega el archivo (con Range, para adelantar).
      */
-    @GetMapping("/api/public/tracking/{codigo}/evidence/{id}")
-    public ResponseEntity<Resource> evidence(@PathVariable String codigo, @PathVariable Long id) {
-        EvidenceApi.EvidenceFile file = seguimiento.evidence(codigo, id, LocalDateTime.now());
+    @GetMapping("/api/public/tracking/{code}/evidence/{id}")
+    public ResponseEntity<Resource> evidence(@PathVariable String code, @PathVariable Long id) {
+        EvidenceApi.EvidenceFile file = seguimiento.evidence(code, id, LocalDateTime.now());
         if (file.temporaryLink().isPresent()) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(file.temporaryLink().get())

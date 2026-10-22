@@ -9,7 +9,7 @@ public interface RecuperarContrasenaUseCase {
     void solicitar(String email, String ip);
 
     /** Comprueba el código sin usarlo (paso intermedio de las pantallas). Cuenta como intento. */
-    void verificar(String email, String codigo);
+    void verificar(String email, String code);
 
-    void restablecer(String email, String codigo, String nuevaContrasena);
+    void restablecer(String email, String code, String nuevaContrasena);
 }

@@ -62,19 +62,19 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
         Map<Long, String> correoPorContacto = correosPorContacto(envios);
         // Un enlace por alerta: lo usan el correo (página web) y el push (pantalla de la app)
-        String codigo = seguimiento.crearEnlace(alertId);
-        String url = webBaseUrl + "/seguimiento/" + codigo;
+        String code = seguimiento.crearEnlace(alertId);
+        String url = webBaseUrl + "/seguimiento/" + code;
         for (AlertRecipient envio : envios) {
             if (CANAL_CORREO.equals(envio.channel())) {
                 enviarCorreo(envio, name, inicio, alert, url);
             } else if (CANAL_PUSH.equals(envio.channel())) {
-                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), name, alertId, codigo);
+                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), name, alertId, code);
             }
         }
     }
 
     @Override
-    public void alertaTerminada(Long alertId, Long perfilUsuaria, String estado, LocalDateTime fin) {
+    public void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime fin) {
         List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
         String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
@@ -82,15 +82,15 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         for (AlertRecipient envio : envios) {
             try {
                 if (CANAL_CORREO.equals(envio.channel())) {
-                    correos.finDeAlerta(envio.destination(), envio.contactName(), name, estado, fin, ajustes.numeroEmergencia());
+                    correos.finDeAlerta(envio.destination(), envio.contactName(), name, status, fin, ajustes.emergencyNumber());
                 } else if (CANAL_PUSH.equals(envio.channel()) && envio.emergencyContactId() != null) {
                     List<String> tokens = tokensDelContacto(correoPorContacto.get(envio.emergencyContactId()));
                     if (!tokens.isEmpty()) {
-                        push.enviar(tokens, Map.of(
+                        push.send(tokens, Map.of(
                                 "tipo", "ALERTA_FINALIZADA",
                                 "alertaId", String.valueOf(alertId),
                                 "nombre", name == null ? "" : name,
-                                "estado", estado));
+                                "estado", status));
                     }
                 }
             } catch (CorreoNoEnviadoException e) {
@@ -108,24 +108,24 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         String maps = alert != null && alert.latitude() != null && alert.longitude() != null
                 ? googleMaps(alert.latitude(), alert.longitude()) : null;
         try {
-            correos.avisoDeAlerta(envio.destination(), envio.contactName(), name, inicio, url, maps, ajustes.numeroEmergencia());
+            correos.avisoDeAlerta(envio.destination(), envio.contactName(), name, inicio, url, maps, ajustes.emergencyNumber());
             alerts.registrarEntrega(envio.id(), "sent", null);
         } catch (CorreoNoEnviadoException e) {
             alerts.registrarEntrega(envio.id(), "failed", e.getMessage());
         }
     }
 
-    private void enviarPush(AlertRecipient envio, String correoContacto, String name, Long alertId, String codigo) {
+    private void enviarPush(AlertRecipient envio, String correoContacto, String name, Long alertId, String code) {
         List<String> tokens = tokensDelContacto(correoContacto);
         if (tokens.isEmpty()) {
             alerts.registrarEntrega(envio.id(), "failed", "El contacto no tiene la app con notificaciones activas");
             return;
         }
-        List<String> fallidos = push.enviar(tokens, Map.of(
+        List<String> fallidos = push.send(tokens, Map.of(
                 "tipo", "ALERTA_SOS",
                 "alertaId", String.valueOf(alertId),
                 "nombre", name == null ? "" : name,
-                "codigo", codigo));
+                "codigo", code));
         if (fallidos.size() == tokens.size()) {
             alerts.registrarEntrega(envio.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
         } else {

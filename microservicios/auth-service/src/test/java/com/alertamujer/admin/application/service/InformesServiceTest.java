@@ -26,8 +26,8 @@ class InformesServiceTest {
     private final ExportadorInformesPort exportador = mock(ExportadorInformesPort.class);
     private final InformesService service = new InformesService(repository, alerts, usuarias, zonas, exportador);
 
-    private static AdminAlertView alert(Long id, String estado) {
-        return new AdminAlertView(id, 10L, 1L, "Ana", "ana@correo.com", 1L, "main", "panic_button", estado, null, null, null,
+    private static AdminAlertView alert(Long id, String status) {
+        return new AdminAlertView(id, 10L, 1L, "Ana", "ana@correo.com", 1L, "main", "panic_button", status, null, null, null,
                 LocalDateTime.of(2026, 10, 15, 8, 30), null, null, null);
     }
 

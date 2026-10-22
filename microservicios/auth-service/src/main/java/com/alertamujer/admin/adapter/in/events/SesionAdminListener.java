@@ -19,7 +19,7 @@ class SesionAdminListener {
     }
 
     @EventListener
-    public void alEventoDeSesion(AdminSessionEvent evento) {
-        events.registrar(evento.accountId(), evento.action(), evento.detail());
+    public void alEventoDeSesion(AdminSessionEvent event) {
+        events.registrar(event.accountId(), event.action(), event.detail());
     }
 }

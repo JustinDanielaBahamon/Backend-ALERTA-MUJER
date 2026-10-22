@@ -26,42 +26,42 @@ import java.util.stream.Collectors;
 @RequestMapping("/internal/rpc")
 public class RpcServerController {
 
-    private final ApplicationContext contexto;
+    private final ApplicationContext context;
     private final ObjectMapper json;
-    private final Map<String, Class<?>> contratos;
+    private final Map<String, Class<?>> contracts;
 
-    public RpcServerController(ApplicationContext contexto, ObjectMapper json, ObjectProvider<ContratosExpuestos> expuestos) {
-        this.contexto = contexto;
+    public RpcServerController(ApplicationContext context, ObjectMapper json, ObjectProvider<ExposedContracts> exposed) {
+        this.context = context;
         this.json = json;
-        ContratosExpuestos c = expuestos.getIfAvailable(() -> new ContratosExpuestos(java.util.List.of()));
-        this.contratos = c.contratos().stream().collect(Collectors.toMap(Class::getSimpleName, Function.identity()));
+        ExposedContracts c = exposed.getIfAvailable(() -> new ExposedContracts(java.util.List.of()));
+        this.contracts = c.contracts().stream().collect(Collectors.toMap(Class::getSimpleName, Function.identity()));
     }
 
-    @PostMapping("/{contrato}/{metodo}")
-    public ResponseEntity<Object> invocar(@PathVariable String contrato, @PathVariable String metodo,
-                                          @RequestBody JsonNode argumentos) throws Exception {
-        Class<?> type = contratos.get(contrato);
-        if (type == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorRemoto("NoExpuesto", contrato));
-        int cantidad = argumentos == null ? 0 : argumentos.size();
+    @PostMapping("/{contract}/{method}")
+    public ResponseEntity<Object> invoke(@PathVariable String contract, @PathVariable String method,
+                                          @RequestBody JsonNode arguments) throws Exception {
+        Class<?> type = contracts.get(contract);
+        if (type == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RemoteError("NoExpuesto", contract));
+        int count = arguments == null ? 0 : arguments.size();
         Method m = Arrays.stream(type.getMethods())
-                .filter(x -> x.getName().equals(metodo) && x.getParameterCount() == cantidad)
+                .filter(x -> x.getName().equals(method) && x.getParameterCount() == count)
                 .findFirst().orElse(null);
-        if (m == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorRemoto("NoExiste", metodo));
+        if (m == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RemoteError("NoExiste", method));
 
-        Object[] args = new Object[cantidad];
-        for (int i = 0; i < cantidad; i++) {
-            args[i] = json.readValue(json.treeAsTokens(argumentos.get(i)),
+        Object[] args = new Object[count];
+        for (int i = 0; i < count; i++) {
+            args[i] = json.readValue(json.treeAsTokens(arguments.get(i)),
                     json.getTypeFactory().constructType(m.getGenericParameterTypes()[i]));
         }
         try {
-            return ResponseEntity.ok(m.invoke(contexto.getBean(type), args));
+            return ResponseEntity.ok(m.invoke(context.getBean(type), args));
         } catch (InvocationTargetException e) {
-            Throwable causa = e.getCause();
-            return ResponseEntity.status(estadoDe(causa)).body(new ErrorRemoto(causa.getClass().getSimpleName(), causa.getMessage()));
+            Throwable cause = e.getCause();
+            return ResponseEntity.status(statusOf(cause)).body(new RemoteError(cause.getClass().getSimpleName(), cause.getMessage()));
         }
     }
 
-    private static HttpStatus estadoDe(Throwable e) {
+    private static HttpStatus statusOf(Throwable e) {
         if (e instanceof ResourceNotFoundException) return HttpStatus.NOT_FOUND;
         if (e instanceof AccessDeniedException) return HttpStatus.FORBIDDEN;
         if (e instanceof IllegalArgumentException) return HttpStatus.BAD_REQUEST;

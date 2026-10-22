@@ -67,11 +67,11 @@ public class Device {
 
     /** Solo acepta un JSON plano de nombres cortos con true/false; lo devuelve sin espacios. */
     public static String validarPermisos(String permisos) {
-        String valor = permisos.replaceAll("\\s", "");
-        if (valor.length() > MAXIMO_PERMISOS || !PERMISOS.matcher(valor).matches()) {
+        String value = permisos.replaceAll("\\s", "");
+        if (value.length() > MAXIMO_PERMISOS || !PERMISOS.matcher(value).matches()) {
             throw new IllegalArgumentException("Permisos del celular no válidos");
         }
-        return valor;
+        return value;
     }
 
     /**
@@ -159,13 +159,13 @@ public class Device {
     }
 
     /** Cambio de estado desde la administración. */
-    public void cambiarEstado(String estado) {
-        if (estado == null || !ESTADOS.contains(estado)) throw new IllegalArgumentException("Estado no válido: " + estado);
-        status = estado;
+    public void cambiarEstado(String newStatus) {
+        if (newStatus == null || !ESTADOS.contains(newStatus)) throw new IllegalArgumentException("Estado no válido: " + newStatus);
+        status = newStatus;
     }
 
-    private static String recortar(String valor, int max) {
-        String v = valor.trim();
+    private static String recortar(String value, int max) {
+        String v = value.trim();
         return v.length() > max ? v.substring(0, max) : v;
     }
 

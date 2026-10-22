@@ -10,15 +10,15 @@ import java.time.LocalDateTime;
 @Component
 class LimpiezaUbicacionesScheduler {
 
-    private final LimpiarUbicacionesUseCase limpiar;
+    private final LimpiarUbicacionesUseCase clear;
 
-    LimpiezaUbicacionesScheduler(LimpiarUbicacionesUseCase limpiar) {
-        this.limpiar = limpiar;
+    LimpiezaUbicacionesScheduler(LimpiarUbicacionesUseCase clear) {
+        this.clear = clear;
     }
 
     // Todos los días a las 3:30 a. m. (hora de Colombia), cuando casi nadie usa la app
     @Scheduled(cron = "${locations.retention.cron:0 30 3 * * *}", zone = "America/Bogota")
-    void limpiar() {
-        limpiar.limpiar(LocalDateTime.now());
+    void clear() {
+        clear.clear(LocalDateTime.now());
     }
 }

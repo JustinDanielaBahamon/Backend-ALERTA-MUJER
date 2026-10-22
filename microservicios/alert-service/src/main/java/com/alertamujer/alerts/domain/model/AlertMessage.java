@@ -27,13 +27,13 @@ public class AlertMessage {
      * Valida y crea un mensaje: solo mientras la alerta está activa, con texto y dentro de los
      * límites. enviados = mensajes que ya tiene la alerta.
      */
-    public static AlertMessage escribir(Alert alert, String type, String name, String texto, long enviados) {
+    public static AlertMessage escribir(Alert alert, String type, String name, String text, long enviados) {
         if (!alert.estaActiva()) {
             throw new IllegalArgumentException("La alerta ya terminó: no se pueden enviar más mensajes");
         }
-        String cuerpo = texto == null ? "" : texto.trim();
-        if (cuerpo.isEmpty()) throw new IllegalArgumentException("El mensaje está vacío");
-        if (cuerpo.length() > MAXIMO_LARGO) {
+        String body = text == null ? "" : text.trim();
+        if (body.isEmpty()) throw new IllegalArgumentException("El mensaje está vacío");
+        if (body.length() > MAXIMO_LARGO) {
             throw new IllegalArgumentException("El mensaje puede tener como máximo " + MAXIMO_LARGO + " caracteres");
         }
         if (enviados >= MAXIMO_POR_ALERTA) {
@@ -43,7 +43,7 @@ public class AlertMessage {
         m.alertId = alert.getId();
         m.senderType = type;
         m.senderName = nombreLimpio(name, DE_LA_DUENA.equals(type) ? "Ella" : "Contacto");
-        m.body = cuerpo;
+        m.body = body;
         return m;
     }
 

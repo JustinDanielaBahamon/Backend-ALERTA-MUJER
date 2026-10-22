@@ -13,14 +13,14 @@ class TrackingLinkTest {
 
     @Test
     void elCodigoEsAleatorioYSoloSeGuardaSuHash() {
-        String codigo = TrackingLink.generarCodigo();
+        String code = TrackingLink.generarCodigo();
 
-        assertEquals(43, codigo.length());
-        assertNotEquals(codigo, TrackingLink.generarCodigo());
-        TrackingLink enlace = TrackingLink.para(5L, codigo);
+        assertEquals(43, code.length());
+        assertNotEquals(code, TrackingLink.generarCodigo());
+        TrackingLink enlace = TrackingLink.para(5L, code);
         assertEquals(5L, enlace.getAlertId());
-        assertEquals(TrackingLink.hash(codigo), enlace.getTokenHash());
-        assertFalse(enlace.getTokenHash().contains(codigo));
+        assertEquals(TrackingLink.hash(code), enlace.getTokenHash());
+        assertFalse(enlace.getTokenHash().contains(code));
         assertFalse(enlace.revocado());
     }
 

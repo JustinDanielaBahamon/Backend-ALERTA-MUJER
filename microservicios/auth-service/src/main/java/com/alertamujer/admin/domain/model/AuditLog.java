@@ -25,16 +25,16 @@ public class AuditLog {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Evento de sesión de una administradora; el detalle se completa con el dispositivo. */
-    public static AuditLog eventoDeSesion(Long accountId, String accion, String detalle, String dispositivo, String ip,
-                                          String origen) {
+    public static AuditLog eventoDeSesion(Long accountId, String accion, String detalle, String device, String ip,
+                                          String source) {
         AuditLog r = new AuditLog();
         r.accountId = accountId;
         r.action = accion;
         r.entityType = TIPO_SESION;
-        String texto = detalle == null ? dispositivo : dispositivo == null ? detalle : detalle + " · " + dispositivo;
-        r.description = texto == null ? null : texto.length() > MAXIMO_DESCRIPCION ? texto.substring(0, MAXIMO_DESCRIPCION) : texto;
+        String text = detalle == null ? device : device == null ? detalle : detalle + " · " + device;
+        r.description = text == null ? null : text.length() > MAXIMO_DESCRIPCION ? text.substring(0, MAXIMO_DESCRIPCION) : text;
         r.ipAddress = ip;
-        r.source = origen;
+        r.source = source;
         return r;
     }
 

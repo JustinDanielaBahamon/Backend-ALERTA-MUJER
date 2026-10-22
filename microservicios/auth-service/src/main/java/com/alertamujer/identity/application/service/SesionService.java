@@ -78,7 +78,7 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
         User usuaria = usuarias.save(nueva);
         cuentas.save(Account.nueva(usuaria.getId(), cifrado.cifrar(d.password())));
         // Sin perfil no puede crear alertas, contactos ni ubicaciones
-        if (!perfiles.existeDeUsuaria(usuaria.getId())) perfiles.save(UserProfile.de(usuaria.getId()));
+        if (!perfiles.existeDeUsuaria(usuaria.getId())) perfiles.save(UserProfile.of(usuaria.getId()));
         return abrir(usuaria);
     }
 
@@ -153,7 +153,7 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
         User usuaria = usuarias.save(nueva);
         // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
         cuentas.save(Account.nueva(usuaria.getId(), cifrado.cifrar(UUID.randomUUID() + UUID.randomUUID().toString())));
-        perfiles.save(UserProfile.de(usuaria.getId()));
+        perfiles.save(UserProfile.of(usuaria.getId()));
         return usuaria;
     }
 

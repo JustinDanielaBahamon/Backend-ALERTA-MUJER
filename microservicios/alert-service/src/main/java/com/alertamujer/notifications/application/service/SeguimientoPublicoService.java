@@ -46,21 +46,21 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
     @Override
     @Transactional
     public String crearEnlace(Long alertId) {
-        String codigo = TrackingLink.generarCodigo();
-        enlaces.save(TrackingLink.para(alertId, codigo));
-        return codigo;
+        String code = TrackingLink.generarCodigo();
+        enlaces.save(TrackingLink.para(alertId, code));
+        return code;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TrackingView consultar(String codigo, LocalDateTime ahora) {
-        return view(alertaVigente(codigo, ahora));
+    public TrackingView consultar(String code, LocalDateTime ahora) {
+        return view(alertaVigente(code, ahora));
     }
 
     @Override
     @Transactional
-    public TrackingView consultar(String codigo, String visitante, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(codigo, ahora);
+    public TrackingView consultar(String code, String visitante, LocalDateTime ahora) {
+        AlertSummary alert = alertaVigente(code, ahora);
         if (visitante != null && visitante.matches("[A-Za-z0-9_-]{8,64}")) {
             vistas.registrar(alert.id(), visitante, ahora);
         }
@@ -78,34 +78,34 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
                 .map(e -> new EvidenciaPublica(e.id(), e.mediaType(), e.contentType(), e.createdAt()))
                 .toList();
         return new TrackingView(name, alert.status(), "active".equals(alert.status()), alert.startedAt(),
-                fin(alert), recorrido, ajustes.numeroEmergencia(), grabaciones);
+                fin(alert), recorrido, ajustes.emergencyNumber(), grabaciones);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public EvidenceFile evidence(String codigo, Long evidenciaId, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(codigo, ahora);
+    public EvidenceFile evidence(String code, Long evidenciaId, LocalDateTime ahora) {
+        AlertSummary alert = alertaVigente(code, ahora);
         return evidences.file(alert.id(), evidenciaId)
                 .orElseThrow(() -> new ResourceNotFoundException("La evidencia no existe"));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AlertMessageView> mensajes(String codigo, Long afterId, LocalDateTime ahora) {
-        return alerts.mensajes(alertaVigente(codigo, ahora).id(), afterId);
+    public List<AlertMessageView> mensajes(String code, Long afterId, LocalDateTime ahora) {
+        return alerts.mensajes(alertaVigente(code, ahora).id(), afterId);
     }
 
     @Override
     @Transactional
-    public AlertMessageView enviarMensaje(String codigo, String name, String texto, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(codigo, ahora);
-        limite.registrar(TrackingLink.hash(codigo), ahora);
-        return alerts.mensajeDeContacto(alert.id(), name, texto);
+    public AlertMessageView enviarMensaje(String code, String name, String text, LocalDateTime ahora) {
+        AlertSummary alert = alertaVigente(code, ahora);
+        limite.registrar(TrackingLink.hash(code), ahora);
+        return alerts.mensajeDeContacto(alert.id(), name, text);
     }
 
-    private AlertSummary alertaVigente(String codigo, LocalDateTime ahora) {
-        if (!TrackingLink.formatoPosible(codigo)) throw noDisponible();
-        TrackingLink enlace = enlaces.porHash(TrackingLink.hash(codigo)).orElseThrow(SeguimientoPublicoService::noDisponible);
+    private AlertSummary alertaVigente(String code, LocalDateTime ahora) {
+        if (!TrackingLink.formatoPosible(code)) throw noDisponible();
+        TrackingLink enlace = enlaces.porHash(TrackingLink.hash(code)).orElseThrow(SeguimientoPublicoService::noDisponible);
         if (enlace.revocado()) throw noDisponible();
         AlertSummary alert = alerts.find(enlace.getAlertId()).orElseThrow(SeguimientoPublicoService::noDisponible);
         if (!TrackingLink.seguimientoVigente(alert.status(), fin(alert), ahora)) throw noDisponible();

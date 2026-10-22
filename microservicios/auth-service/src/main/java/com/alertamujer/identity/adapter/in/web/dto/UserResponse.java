@@ -32,7 +32,7 @@ public class UserResponse {
     private String termsVersion;
     
     /** Persona con su foto (vive en user_profile; null si no se pide o no tiene). */
-    public static UserResponse of(User u, String foto) {
+    public static UserResponse of(User u, String photo) {
         return UserResponse.builder()
                 .id(u.getId())
                 .firstName(u.getFirstName())
@@ -44,7 +44,7 @@ public class UserResponse {
                 .documentNumber(u.getDocumentNumber())
                 .documentType(u.getDocumentType())
                 .birthdate(u.getBirthdate() == null ? null : u.getBirthdate().toString())
-                .profilePhoto(foto)
+                .profilePhoto(photo)
                 .createdAt(u.getCreatedAt())
                 .termsAcceptedAt(u.getTermsAcceptedAt())
                 .termsVersion(u.getTermsVersion())

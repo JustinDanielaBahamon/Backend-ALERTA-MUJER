@@ -6,8 +6,8 @@ public interface ContextoPeticionPort {
     String ip();
 
     /** Navegador o app y sistema del cliente. */
-    String dispositivo();
+    String device();
 
     /** "Panel web · Chrome · Linux", "App móvil · Android"... */
-    String origen();
+    String source();
 }

@@ -26,14 +26,14 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
     private static final Sort MAS_RECIENTES = Sort.by(Sort.Direction.DESC, "id");
 
     @Override
-    public Pagina pagina(FiltroAuditoria filtro, int pagina, int size) {
-        Page<AuditLogJpaEntity> p = jpa.findAll(especificacion(filtro), PageRequest.of(pagina, size, MAS_RECIENTES));
+    public Pagina pagina(FiltroAuditoria filter, int pagina, int size) {
+        Page<AuditLogJpaEntity> p = jpa.findAll(especificacion(filter), PageRequest.of(pagina, size, MAS_RECIENTES));
         return new Pagina(p.getContent().stream().map(AuditoriaPersistenceAdapter::aDominio).toList(), p.getTotalElements(), p.getNumber());
     }
 
     @Override
-    public List<AuditLog> primeros(FiltroAuditoria filtro, int maximo) {
-        return jpa.findAll(especificacion(filtro), PageRequest.of(0, maximo, MAS_RECIENTES)).getContent().stream()
+    public List<AuditLog> primeros(FiltroAuditoria filter, int maximo) {
+        return jpa.findAll(especificacion(filter), PageRequest.of(0, maximo, MAS_RECIENTES)).getContent().stream()
                 .map(AuditoriaPersistenceAdapter::aDominio).toList();
     }
 

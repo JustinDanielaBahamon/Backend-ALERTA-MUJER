@@ -43,8 +43,8 @@ public class ZoneReport {
         revisar("rejected", adminId, ahora);
     }
 
-    private void revisar(String estado, Integer adminId, LocalDateTime ahora) {
-        status = estado;
+    private void revisar(String newStatus, Integer adminId, LocalDateTime ahora) {
+        status = newStatus;
         reviewedByAdminId = adminId;
         reviewedAt = ahora;
     }

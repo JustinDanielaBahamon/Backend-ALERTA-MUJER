@@ -109,9 +109,9 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
 
     @Override
     @Transactional
-    public void registrarEntrega(Long destinatarioId, String estado, String error) {
+    public void registrarEntrega(Long destinatarioId, String status, String error) {
         repository.find(destinatarioId).ifPresent(d -> {
-            d.registrarIntento(estado, error, LocalDateTime.now());
+            d.registrarIntento(status, error, LocalDateTime.now());
             repository.save(d);
         });
     }

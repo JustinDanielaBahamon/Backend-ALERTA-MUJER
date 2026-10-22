@@ -56,27 +56,27 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
         pendientes.forEach(RecoveryRequest::reemplazar);
         solicitudes.guardarTodas(pendientes);
 
-        String codigo;
+        String code;
         do {
-            codigo = String.format("%06d", random.nextInt(1_000_000));
-        } while (solicitudes.existeHash(RecoveryRequest.hash(accountId, codigo)));
-        solicitudes.save(RecoveryRequest.nueva(accountId, codigo, ip, ahora));
+            code = String.format("%06d", random.nextInt(1_000_000));
+        } while (solicitudes.existeHash(RecoveryRequest.hash(accountId, code)));
+        solicitudes.save(RecoveryRequest.nueva(accountId, code, ip, ahora));
 
         User u = usuaria.get();
-        events.codigoRecuperacion(u.getEmail(), u.nombreCompleto(), codigo, RecoveryRequest.MINUTOS_VALIDEZ);
+        events.codigoRecuperacion(u.getEmail(), u.nombreCompleto(), code, RecoveryRequest.MINUTOS_VALIDEZ);
     }
 
     @Override
     @Transactional(noRollbackFor = IllegalArgumentException.class)
-    public void verificar(String email, String codigo) {
-        validate(email, codigo);
+    public void verificar(String email, String code) {
+        validate(email, code);
     }
 
     @Override
     @Transactional(noRollbackFor = IllegalArgumentException.class)
-    public void restablecer(String email, String codigo, String nuevaContrasena) {
+    public void restablecer(String email, String code, String nuevaContrasena) {
         Account.validarContrasenaNueva(nuevaContrasena);
-        RecoveryRequest solicitud = validate(email, codigo);
+        RecoveryRequest solicitud = validate(email, code);
         Account cuenta = cuentas.find(solicitud.getAccountId()).orElseThrow(() -> new IllegalArgumentException(CODIGO_INVALIDO));
         cuenta.cambiarContrasena(cifrado.cifrar(nuevaContrasena));
         cuentas.save(cuenta);
@@ -87,8 +87,8 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
         }
     }
 
-    private RecoveryRequest validate(String email, String codigo) {
-        if (codigo == null || !codigo.matches("\\d{6}")) throw new IllegalArgumentException(CODIGO_INVALIDO);
+    private RecoveryRequest validate(String email, String code) {
+        if (code == null || !code.matches("\\d{6}")) throw new IllegalArgumentException(CODIGO_INVALIDO);
         Account cuenta = usuarias.porCorreo(normalizar(email))
                 .flatMap(u -> cuentas.deUsuaria(u.getId()))
                 .filter(a -> !a.bloqueada())
@@ -101,7 +101,7 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
             solicitudes.save(solicitud);
             throw new IllegalArgumentException(CODIGO_INVALIDO);
         }
-        if (!solicitud.coincide(codigo)) {
+        if (!solicitud.coincide(code)) {
             solicitud.registrarFallo();
             solicitudes.save(solicitud);
             throw new IllegalArgumentException(CODIGO_INVALIDO);

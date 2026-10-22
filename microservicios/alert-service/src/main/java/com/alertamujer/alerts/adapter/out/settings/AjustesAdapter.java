@@ -15,12 +15,12 @@ class AjustesAdapter implements AjustesPort {
     }
 
     @Override
-    public int duracionMaximaAlertaMinutos() {
-        return settingsApi.duracionMaximaAlertaMinutos();
+    public int maxAlertDurationMinutes() {
+        return settingsApi.maxAlertDurationMinutes();
     }
 
     @Override
-    public int maximoContactos() {
-        return settingsApi.maximoContactos();
+    public int maxContacts() {
+        return settingsApi.maxContacts();
     }
 }

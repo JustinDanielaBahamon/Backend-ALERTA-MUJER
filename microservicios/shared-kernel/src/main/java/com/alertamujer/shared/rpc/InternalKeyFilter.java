@@ -20,11 +20,11 @@ import java.nio.charset.StandardCharsets;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ClaveInternaFilter extends OncePerRequestFilter {
+public class InternalKeyFilter extends OncePerRequestFilter {
 
     private final byte[] key;
 
-    public ClaveInternaFilter(@Value("${internal.api-key:}") String key) {
+    public InternalKeyFilter(@Value("${internal.api-key:}") String key) {
         this.key = key.getBytes(StandardCharsets.UTF_8);
     }
 
@@ -36,10 +36,10 @@ public class ClaveInternaFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String recibida = request.getHeader(ClaveInterna.CABECERA);
-        boolean valida = key.length > 0 && recibida != null
-                && MessageDigest.isEqual(key, recibida.getBytes(StandardCharsets.UTF_8));
-        if (!valida) {
+        String received = request.getHeader(InternalKey.HEADER);
+        boolean valid = key.length > 0 && received != null
+                && MessageDigest.isEqual(key, received.getBytes(StandardCharsets.UTF_8));
+        if (!valid) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Solo para microservicios");
             return;
         }

@@ -16,7 +16,7 @@ public interface DestinatariosAlertaUseCase {
     List<AlertRecipient> destinatarios(Long alertId);
 
     /** Resultado de un envío: "sent" o "failed" (con el motivo). */
-    void registrarEntrega(Long destinatarioId, String estado, String error);
+    void registrarEntrega(Long destinatarioId, String status, String error);
 
     /** Alertas en las que se avisó a este correo. */
     List<Long> alertasAvisadasA(String correo);

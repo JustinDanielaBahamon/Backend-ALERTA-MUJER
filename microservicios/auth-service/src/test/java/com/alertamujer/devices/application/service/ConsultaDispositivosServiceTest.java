@@ -17,7 +17,7 @@ class ConsultaDispositivosServiceTest {
     private final IdentityPort identidad = mock(IdentityPort.class);
     private final ConsultaDispositivosService service = new ConsultaDispositivosService(repository, identidad);
 
-    private static Device dispositivo(String os, String token) {
+    private static Device device(String os, String token) {
         Device d = new Device();
         d.setOsName(os);
         d.setFcmToken(token);
@@ -28,7 +28,7 @@ class ConsultaDispositivosServiceTest {
     void losTokensDelPerfilSeBuscanPorLaCuentaDeSuDuena() {
         when(identidad.userOfProfile(10L)).thenReturn(Optional.of(1L));
         when(identidad.cuentaDe(1L)).thenReturn(Optional.of(4L));
-        when(repository.deCuenta(4L)).thenReturn(List.of(dispositivo("android", "t1"), dispositivo("web", "t2"), dispositivo("android", " ")));
+        when(repository.deCuenta(4L)).thenReturn(List.of(device("android", "t1"), device("web", "t2"), device("android", " ")));
 
         assertEquals(List.of("t1", "t2"), service.tokensDelPerfil(10L));
         assertEquals(List.of("t1"), service.tokensDeCelulares(1L));

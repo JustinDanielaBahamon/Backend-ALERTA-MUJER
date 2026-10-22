@@ -52,11 +52,11 @@ public class Account {
         passwordHash = nuevoHash;
     }
 
-    public void cambiarEstado(String estado) {
-        if (!ESTADOS.contains(estado)) {
+    public void cambiarEstado(String newStatus) {
+        if (!ESTADOS.contains(newStatus)) {
             throw new IllegalArgumentException("Invalid account status. Must be one of: active, inactive, blocked, pending");
         }
-        status = estado;
+        status = newStatus;
     }
 
     /** Cuenta eliminada: inactiva y con una contraseña que nadie conoce. */

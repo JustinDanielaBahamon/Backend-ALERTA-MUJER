@@ -26,8 +26,8 @@ class AlertasRecibidasServiceTest {
     private final SeguimientoPublicoUseCase seguimiento = mock(SeguimientoPublicoUseCase.class);
     private final AlertasRecibidasService service = new AlertasRecibidasService(alerts, identidad, seguimiento);
 
-    private static AlertSummary alert(Long id, Long perfil, String estado, LocalDateTime inicio, LocalDateTime fin) {
-        return new AlertSummary(id, perfil, "main", "panic_button", estado, null, inicio, null, null, fin, null);
+    private static AlertSummary alert(Long id, Long perfil, String status, LocalDateTime inicio, LocalDateTime fin) {
+        return new AlertSummary(id, perfil, "main", "panic_button", status, null, inicio, null, null, fin, null);
     }
 
     @BeforeEach

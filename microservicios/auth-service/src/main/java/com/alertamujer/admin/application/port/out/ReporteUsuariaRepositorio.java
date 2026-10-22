@@ -10,7 +10,7 @@ public interface ReporteUsuariaRepositorio {
 
     List<UserReport> todos();
 
-    List<UserReport> conEstado(String estado);
+    List<UserReport> conEstado(String status);
 
     Optional<UserReport> find(Long id);
 

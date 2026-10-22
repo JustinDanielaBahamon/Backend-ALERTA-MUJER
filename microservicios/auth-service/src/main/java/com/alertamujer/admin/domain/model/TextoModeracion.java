@@ -10,15 +10,15 @@ public final class TextoModeracion {
     }
 
     /** Explicación de al menos 10 caracteres (recortada a 1000); si no, IllegalArgumentException con el mensaje. */
-    public static String explicacion(String valor, String mensaje) {
-        String v = valor == null ? "" : valor.trim();
-        if (v.length() < MINIMO_EXPLICACION) throw new IllegalArgumentException(mensaje);
+    public static String explicacion(String value, String message) {
+        String v = value == null ? "" : value.trim();
+        if (v.length() < MINIMO_EXPLICACION) throw new IllegalArgumentException(message);
         return recortar(v, MAXIMO_EXPLICACION);
     }
 
-    public static String requerido(String valor, String mensaje, int maximo) {
-        if (valor == null || valor.isBlank()) throw new IllegalArgumentException(mensaje);
-        return recortar(valor.trim(), maximo);
+    public static String requerido(String value, String message, int maximo) {
+        if (value == null || value.isBlank()) throw new IllegalArgumentException(message);
+        return recortar(value.trim(), maximo);
     }
 
     public static String recortar(String v, int maximo) {

@@ -14,7 +14,7 @@ import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
 import com.alertamujer.shared.exception.DuplicateFieldsException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
-import com.alertamujer.shared.web.FotoDataUri;
+import com.alertamujer.shared.web.PhotoDataUri;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +45,7 @@ public class MiCuentaService implements MiCuentaUseCase {
 
     @Override
     public UsuariaConFoto mia(Long userId) {
-        return new UsuariaConFoto(existente(userId), foto(userId));
+        return new UsuariaConFoto(existente(userId), photo(userId));
     }
 
     @Override
@@ -55,14 +55,14 @@ public class MiCuentaService implements MiCuentaUseCase {
         cambios = sinRepetidos(usuaria, cambios);
         // La foto se valida antes de guardar nada: "" o null la quitan
         if (cambios.profilePhoto() != null) {
-            String valida = FotoDataUri.validate(cambios.profilePhoto().orElse(null));
+            String valid = PhotoDataUri.validate(cambios.profilePhoto().orElse(null));
             perfiles.deUsuaria(userId).ifPresent(p -> {
-                p.setProfilePhotoUrl(valida);
+                p.setProfilePhotoUrl(valid);
                 perfiles.save(p);
             });
         }
         usuaria.actualizarDatos(cambios);
-        return new UsuariaConFoto(usuarias.save(usuaria), foto(userId));
+        return new UsuariaConFoto(usuarias.save(usuaria), photo(userId));
     }
 
     /**
@@ -88,9 +88,9 @@ public class MiCuentaService implements MiCuentaUseCase {
 
     @Override
     @Transactional
-    public void cambiarContrasena(Long userId, String actual, String nueva) {
+    public void cambiarContrasena(Long userId, String current, String nueva) {
         Account cuenta = cuentas.deUsuaria(userId).orElseThrow(() -> new IllegalArgumentException("La cuenta no existe"));
-        if (actual == null || !cifrado.coincide(actual, cuenta.getPasswordHash())) {
+        if (current == null || !cifrado.coincide(current, cuenta.getPasswordHash())) {
             throw new IllegalArgumentException("La contraseña actual no es correcta");
         }
         Account.validarContrasenaNueva(nueva);
@@ -122,7 +122,7 @@ public class MiCuentaService implements MiCuentaUseCase {
         return usuarias.find(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
     }
 
-    private String foto(Long userId) {
+    private String photo(Long userId) {
         return perfiles.deUsuaria(userId).map(UserProfile::getProfilePhotoUrl).orElse(null);
     }
 }

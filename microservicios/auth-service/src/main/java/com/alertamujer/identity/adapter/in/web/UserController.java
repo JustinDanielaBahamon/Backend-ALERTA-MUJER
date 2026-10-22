@@ -25,13 +25,13 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication authentication) {
-        return ResponseEntity.ok(respuesta(miCuenta.mia((Long) authentication.getPrincipal())));
+        return ResponseEntity.ok(response(miCuenta.mia((Long) authentication.getPrincipal())));
     }
 
     /** Cambios parciales: solo las claves enviadas; una clave con null o "" borra el dato. */
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateMe(Authentication authentication, @RequestBody Map<String, Object> updates) {
-        return ResponseEntity.ok(respuesta(miCuenta.actualizar((Long) authentication.getPrincipal(), cambios(updates))));
+        return ResponseEntity.ok(response(miCuenta.actualizar((Long) authentication.getPrincipal(), cambios(updates))));
     }
 
     @PutMapping("/me/password")
@@ -51,28 +51,28 @@ public class UserController {
 
     public record DeleteAccountRequest(String confirmation) {}
 
-    private static UserResponse respuesta(UsuariaConFoto u) {
-        return UserResponse.of(u.usuaria(), u.foto());
+    private static UserResponse response(UsuariaConFoto u) {
+        return UserResponse.of(u.usuaria(), u.photo());
     }
 
     static CambiosUsuaria cambios(Map<String, Object> updates) {
-        return new CambiosUsuaria(texto(updates, "firstName"), texto(updates, "lastName"), texto(updates, "telephone"),
-                texto(updates, "documentNumber"), texto(updates, "documentType"), date(updates.get("birthdate")),
-                texto(updates, "profilePhoto"));
+        return new CambiosUsuaria(text(updates, "firstName"), text(updates, "lastName"), text(updates, "telephone"),
+                text(updates, "documentNumber"), text(updates, "documentType"), date(updates.get("birthdate")),
+                text(updates, "profilePhoto"));
     }
 
     // null = la clave no llegó; Optional vacío = llegó con null
-    private static Optional<String> texto(Map<String, Object> updates, String key) {
+    private static Optional<String> text(Map<String, Object> updates, String key) {
         if (!updates.containsKey(key)) return null;
-        Object valor = updates.get(key);
-        return Optional.ofNullable(valor == null ? null : String.valueOf(valor));
+        Object value = updates.get(key);
+        return Optional.ofNullable(value == null ? null : String.valueOf(value));
     }
 
     // AAAA-MM-DD; una fecha con otro formato se ignora
-    private static LocalDate date(Object valor) {
-        if (valor == null) return null;
+    private static LocalDate date(Object value) {
+        if (value == null) return null;
         try {
-            return LocalDate.parse(String.valueOf(valor));
+            return LocalDate.parse(String.valueOf(value));
         } catch (RuntimeException e) {
             return null;
         }

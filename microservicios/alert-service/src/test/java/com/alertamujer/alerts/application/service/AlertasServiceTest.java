@@ -172,7 +172,7 @@ class AlertasServiceTest {
 
         perfil(2L, 30L);
         perfil(5L, 50L);
-        when(identidad.usuaria(2L)).thenReturn(Optional.of(new UserSummary(2L, "Admin", null, "admin@test.com", null, UserSummary.ROL_ADMIN, null)));
+        when(identidad.usuaria(2L)).thenReturn(Optional.of(new UserSummary(2L, "Admin", null, "admin@test.com", null, UserSummary.ADMIN_ROLE, null)));
         when(repository.ofUser(50L)).thenReturn(List.of(alert));
 
         assertEquals(List.of(alert), service.deUsuaria(5L, 2L));

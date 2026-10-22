@@ -28,7 +28,7 @@ public class ResourceCall {
      * sale del token, nunca del body.
      */
     public static ResourceCall nueva(Long perfil, EmergencyResource recurso, Long alertId, Long deviceId,
-                                     String telefonoMarcado, String estado, LocalDateTime ahora) {
+                                     String telefonoMarcado, String status, LocalDateTime ahora) {
         ResourceCall c = new ResourceCall();
         c.userProfileId = perfil;
         c.emergencyResourceId = recurso.getId();
@@ -36,7 +36,7 @@ public class ResourceCall {
         c.deviceId = deviceId;
         c.telephoneDialed = telefonoMarcado != null && !telefonoMarcado.isBlank() ? telefonoMarcado.trim() : recurso.getTelephone();
         if (c.telephoneDialed == null) throw new IllegalArgumentException("El recurso no tiene teléfono");
-        c.status = estado != null ? estado : "initiated";
+        c.status = status != null ? status : "initiated";
         c.startedAt = ahora;
         return c;
     }
@@ -46,8 +46,8 @@ public class ResourceCall {
     }
 
     /** Resultado de la llamada: solo los datos que lleguen. */
-    public void actualizar(String estado, LocalDateTime fin, Integer duracionSegundos) {
-        if (estado != null) status = estado;
+    public void actualizar(String newStatus, LocalDateTime fin, Integer duracionSegundos) {
+        if (newStatus != null) status = newStatus;
         if (fin != null) endedAt = fin;
         if (duracionSegundos != null) durationSeconds = duracionSegundos;
     }

@@ -32,11 +32,11 @@ public class RecoveryRequest {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static RecoveryRequest nueva(Long accountId, String codigo, String ip, LocalDateTime ahora) {
+    public static RecoveryRequest nueva(Long accountId, String code, String ip, LocalDateTime ahora) {
         RecoveryRequest r = new RecoveryRequest();
         r.accountId = accountId;
         r.method = "email";
-        r.tokenHash = hash(accountId, codigo);
+        r.tokenHash = hash(accountId, code);
         r.expiresAt = ahora.plusMinutes(MINUTOS_VALIDEZ);
         r.requestedIp = ip;
         r.createdAt = ahora;
@@ -44,10 +44,10 @@ public class RecoveryRequest {
     }
 
     /** Hash del código ligado a la cuenta: el mismo código en otra cuenta da otro hash. */
-    public static String hash(Long accountId, String codigo) {
+    public static String hash(Long accountId, String code) {
         try {
             byte[] d = MessageDigest.getInstance("SHA-256")
-                    .digest((accountId + ":" + codigo).getBytes(StandardCharsets.UTF_8));
+                    .digest((accountId + ":" + code).getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(d);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
@@ -64,8 +64,8 @@ public class RecoveryRequest {
     }
 
     /** Compara en tiempo constante. */
-    public boolean coincide(String codigo) {
-        return MessageDigest.isEqual(hash(accountId, codigo).getBytes(StandardCharsets.UTF_8),
+    public boolean coincide(String code) {
+        return MessageDigest.isEqual(hash(accountId, code).getBytes(StandardCharsets.UTF_8),
                 tokenHash.getBytes(StandardCharsets.UTF_8));
     }
 

@@ -13,19 +13,19 @@ class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
-    void rutaInexistenteDevuelve404() {
+    void unknownPathReturns404() {
         var r = handler.handleSpringErrorResponse(new NoResourceFoundException(HttpMethod.GET, "api/nada"));
         assertEquals(404, r.getStatusCode().value());
     }
 
     @Test
-    void metodoNoPermitidoDevuelve405() {
+    void methodNotAllowedReturns405() {
         var r = handler.handleSpringErrorResponse(new HttpRequestMethodNotSupportedException("PATCH"));
         assertEquals(405, r.getStatusCode().value());
     }
 
     @Test
-    void errorInternoNoExponeElMensaje() {
+    void internalErrorDoesNotExposeTheMessage() {
         var r = handler.handleRuntime(new RuntimeException("SELECT * FROM identity.user_account falló"));
         assertEquals(500, r.getStatusCode().value());
         assertFalse(r.getBody().getMessage().contains("SELECT"));

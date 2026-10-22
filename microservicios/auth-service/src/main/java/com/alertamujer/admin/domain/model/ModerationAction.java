@@ -21,7 +21,7 @@ public class ModerationAction {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static ModerationAction de(Long casoId, Long adminId, String type, String nota) {
+    public static ModerationAction of(Long casoId, Long adminId, String type, String nota) {
         ModerationAction a = new ModerationAction();
         a.userReportId = casoId;
         a.adminPerfilId = adminId.intValue();

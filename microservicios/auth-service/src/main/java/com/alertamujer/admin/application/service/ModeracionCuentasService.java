@@ -13,7 +13,7 @@ import com.alertamujer.admin.domain.model.UserReport;
 import com.alertamujer.identity.api.UserAccountChanges;
 import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
-import com.alertamujer.shared.web.FotoDataUri;
+import com.alertamujer.shared.web.PhotoDataUri;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,12 +52,12 @@ public class ModeracionCuentasService implements ModeracionCuentasUseCase {
     public void bloquear(Long userId, Bloqueo bloqueo, Long adminId) {
         String motivo = TextoModeracion.requerido(bloqueo == null ? null : bloqueo.reason(), "Elige el motivo del bloqueo", 100);
         String detalle = TextoModeracion.explicacion(bloqueo.description(), "Explica por qué se bloquea la cuenta" + MINIMO);
-        String evidence = FotoDataUri.validate(bloqueo.evidence());
+        String evidence = PhotoDataUri.validate(bloqueo.evidence());
         existente(userId);
         // identity impide que una administradora se bloquee a sí misma
         cuentas.actualizar(userId, new UserAccountChanges("blocked", null, null, null, null), adminId);
         UserReport caso = casos.save(UserReport.bloqueo(userId, adminId, motivo, detalle, evidence, LocalDateTime.now()));
-        acciones.save(ModerationAction.de(caso.getId(), adminId, ModerationAction.BLOQUEO, detalle));
+        acciones.save(ModerationAction.of(caso.getId(), adminId, ModerationAction.BLOQUEO, detalle));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ModeracionCuentasService implements ModeracionCuentasUseCase {
         UserReport caso = casos.deUsuaria(userId).stream()
                 .max(Comparator.comparing(UserReport::getCreatedAt))
                 .orElseGet(() -> casos.save(UserReport.desbloqueoSinCaso(userId, adminId, detalle, LocalDateTime.now())));
-        acciones.save(ModerationAction.de(caso.getId(), adminId, ModerationAction.DESBLOQUEO, detalle));
+        acciones.save(ModerationAction.of(caso.getId(), adminId, ModerationAction.DESBLOQUEO, detalle));
     }
 
     @Override

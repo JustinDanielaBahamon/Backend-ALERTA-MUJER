@@ -39,10 +39,10 @@ class GestionUsuariasServiceTest {
         when(infra.baseDeDatosResponde()).thenReturn(false);
         when(alerts.ultimaExpiracion()).thenReturn(new ExpirationStatus(null, 0));
 
-        var estado = new EstadoSistemaService(infra, alerts).estado();
+        var status = new EstadoSistemaService(infra, alerts).status();
 
-        assertFalse(estado.database());
-        assertEquals(-1, estado.activeAlerts());
+        assertFalse(status.database());
+        assertEquals(-1, status.activeAlerts());
         verify(alerts, never()).activas();
     }
 }

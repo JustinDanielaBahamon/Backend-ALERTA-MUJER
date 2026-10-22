@@ -16,21 +16,21 @@ public interface SeguimientoPublicoUseCase {
     /** Crea un enlace para la alerta y devuelve el código (no se puede recuperar después). */
     String crearEnlace(Long alertId);
 
-    TrackingView consultar(String codigo, LocalDateTime ahora);
+    TrackingView consultar(String code, LocalDateTime ahora);
 
     /**
      * Como consultar, y además deja constancia de que ese visitante (identificador anónimo del
      * navegador o la app) abrió el seguimiento: la usuaria ve cuántos la están viendo.
      */
-    TrackingView consultar(String codigo, String visitante, LocalDateTime ahora);
+    TrackingView consultar(String code, String visitante, LocalDateTime ahora);
 
     /** Archivo de una grabación de la alerta del enlace. */
-    EvidenceFile evidence(String codigo, Long evidenciaId, LocalDateTime ahora);
+    EvidenceFile evidence(String code, Long evidenciaId, LocalDateTime ahora);
 
-    List<AlertMessageView> mensajes(String codigo, Long afterId, LocalDateTime ahora);
+    List<AlertMessageView> mensajes(String code, Long afterId, LocalDateTime ahora);
 
     /** Mensaje del contacto; con límite por enlace para que nadie llene el chat. */
-    AlertMessageView enviarMensaje(String codigo, String name, String texto, LocalDateTime ahora);
+    AlertMessageView enviarMensaje(String code, String name, String text, LocalDateTime ahora);
 
     /** Solo el nombre de pila de la usuaria: el enlace puede reenviarse. */
     record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,

@@ -30,7 +30,7 @@ class InformeExportadorAdapterTest {
         assertTrue(csv.startsWith("﻿ID;Inicio;"));
         // La hora sale en hora de Colombia, sin importar la zona del servidor
         String inicio = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
-                .format(com.alertamujer.shared.web.HoraColombia.de(LocalDateTime.of(2026, 10, 15, 8, 30)));
+                .format(com.alertamujer.shared.web.ColombiaTime.of(LocalDateTime.of(2026, 10, 15, 8, 30)));
         assertTrue(csv.contains("7;" + inicio + ";;Ana;ana@correo.com;Activa;Botón de pánico;\"Ayuda; ya\";2.9273;-75.2819"));
     }
 

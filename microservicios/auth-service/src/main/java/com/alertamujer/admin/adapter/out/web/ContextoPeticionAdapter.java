@@ -14,12 +14,12 @@ class ContextoPeticionAdapter implements ContextoPeticionPort {
     }
 
     @Override
-    public String dispositivo() {
-        return RequestInfo.dispositivo();
+    public String device() {
+        return RequestInfo.device();
     }
 
     @Override
-    public String origen() {
-        return RequestInfo.origen();
+    public String source() {
+        return RequestInfo.source();
     }
 }

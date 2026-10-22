@@ -16,7 +16,7 @@ class DeviceTest {
         return new DatosDispositivo("uuid", marca, null, name, null, null, null, gps, null, null, null, permisos);
     }
 
-    private static Device celular(Long id, String os, LocalDateTime acceso) {
+    private static Device phone(Long id, String os, LocalDateTime acceso) {
         Device d = new Device();
         d.setId(id);
         d.setOsName(os);
@@ -79,8 +79,8 @@ class DeviceTest {
 
     @Test
     void laUbicacionDiariaSoloSeTomaDelCelularMasReciente() {
-        List<Device> cuenta = List.of(celular(1L, "android", AHORA.minusHours(2)), celular(2L, "android", AHORA),
-                celular(3L, "web", AHORA.plusHours(1)));
+        List<Device> cuenta = List.of(phone(1L, "android", AHORA.minusHours(2)), phone(2L, "android", AHORA),
+                phone(3L, "web", AHORA.plusHours(1)));
 
         assertTrue(Device.esElCelularMasReciente(cuenta, 2L));
         assertFalse(Device.esElCelularMasReciente(cuenta, 1L));

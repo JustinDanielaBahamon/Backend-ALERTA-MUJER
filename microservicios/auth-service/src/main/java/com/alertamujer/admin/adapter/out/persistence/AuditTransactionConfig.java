@@ -38,8 +38,8 @@ public class AuditTransactionConfig {
             super.doBegin(transaction, definition);
             Long userId = usuarioActual();
             String ip = RequestInfo.ip();
-            String origen = AuditSource.actual() != null ? AuditSource.actual() : RequestInfo.origen();
-            if (userId == null && ip == null && origen == null) return;
+            String source = AuditSource.current() != null ? AuditSource.current() : RequestInfo.source();
+            if (userId == null && ip == null && source == null) return;
             EntityManagerHolder holder = (EntityManagerHolder)
                     TransactionSynchronizationManager.getResource(obtainEntityManagerFactory());
             if (holder == null) return;
@@ -50,7 +50,7 @@ public class AuditTransactionConfig {
                     + "set_config('app.source', :origen, true)")
                     .setParameter("userId", userId == null ? -1L : userId)
                     .setParameter("ip", ip == null ? "" : ip)
-                    .setParameter("origen", origen == null ? "" : origen.length() > 120 ? origen.substring(0, 120) : origen)
+                    .setParameter("origen", source == null ? "" : source.length() > 120 ? source.substring(0, 120) : source)
                     .getSingleResult();
         }
 

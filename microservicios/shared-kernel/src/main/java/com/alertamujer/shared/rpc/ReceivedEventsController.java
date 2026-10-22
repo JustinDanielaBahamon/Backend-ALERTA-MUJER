@@ -22,25 +22,25 @@ import java.util.stream.Collectors;
 public class ReceivedEventsController {
 
     /** Eventos que este servicio acepta de otros. */
-    public record AcceptedEvents(List<Class<?>> tipos) {}
+    public record AcceptedEvents(List<Class<?>> types) {}
 
-    private final Map<String, Class<?>> tipos;
+    private final Map<String, Class<?>> types;
     private final ObjectMapper json;
     private final ApplicationEventPublisher events;
 
-    public ReceivedEventsController(ObjectProvider<AcceptedEvents> aceptados, ObjectMapper json,
+    public ReceivedEventsController(ObjectProvider<AcceptedEvents> accepted, ObjectMapper json,
                                       ApplicationEventPublisher events) {
-        this.tipos = aceptados.getIfAvailable(() -> new AcceptedEvents(List.of())).tipos().stream()
+        this.types = accepted.getIfAvailable(() -> new AcceptedEvents(List.of())).types().stream()
                 .collect(Collectors.toMap(Class::getSimpleName, Function.identity()));
         this.json = json;
         this.events = events;
     }
 
     @PostMapping("/{type}")
-    public ResponseEntity<Void> recibir(@PathVariable String type, @RequestBody JsonNode cuerpo) throws Exception {
-        Class<?> clase = tipos.get(type);
-        if (clase == null) return ResponseEntity.notFound().build();
-        events.publishEvent(json.treeToValue(cuerpo, clase));
+    public ResponseEntity<Void> receive(@PathVariable String type, @RequestBody JsonNode body) throws Exception {
+        Class<?> eventClass = types.get(type);
+        if (eventClass == null) return ResponseEntity.notFound().build();
+        events.publishEvent(json.treeToValue(body, eventClass));
         return ResponseEntity.accepted().build();
     }
 }

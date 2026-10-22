@@ -39,8 +39,8 @@ public class Alert {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Estados en los que una alerta activa se considera terminada. */
-    public static boolean esEstadoFinal(String estado) {
-        return "resolved".equals(estado) || "cancelled".equals(estado) || "expired".equals(estado);
+    public static boolean esEstadoFinal(String status) {
+        return "resolved".equals(status) || "cancelled".equals(status) || "expired".equals(status);
     }
 
     public boolean estaActiva() {
@@ -83,14 +83,14 @@ public class Alert {
      * Cambio de estado desde la administración: "resolved" guarda la hora de cierre y "cancelled" la
      * de cancelación. Devuelve true si terminó una alerta activa.
      */
-    public boolean cambiarEstado(String estado, LocalDateTime ahora) {
-        if (estado == null || !ESTADOS.contains(estado)) {
-            throw new IllegalArgumentException("Estado no válido: " + estado);
+    public boolean cambiarEstado(String newStatus, LocalDateTime ahora) {
+        if (newStatus == null || !ESTADOS.contains(newStatus)) {
+            throw new IllegalArgumentException("Estado no válido: " + newStatus);
         }
         String anterior = status;
-        status = estado;
+        status = newStatus;
         marcarCierre(ahora);
-        return ACTIVA.equals(anterior) && esEstadoFinal(estado);
+        return ACTIVA.equals(anterior) && esEstadoFinal(newStatus);
     }
 
     /** Superó la duración máxima configurada. */
