@@ -1,5 +1,6 @@
 package com.alertamujer.identity.adapter.in.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,8 +15,8 @@ public class RegisterRequest {
     
     @NotBlank(message = "El nombre es obligatorio")
     @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
-    // The app and the web send it as "nombre"
-    @com.fasterxml.jackson.annotation.JsonProperty("nombre")
+    // Apps released before the English refactor still send the Spanish names
+    @JsonAlias("nombre")
     private String name;
     
     @NotBlank(message = "El email es obligatorio")
@@ -27,17 +28,17 @@ public class RegisterRequest {
     private String password;
     
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
-    @com.fasterxml.jackson.annotation.JsonProperty("telefono") private String telephone;
+    @JsonAlias("telefono") private String telephone;
 
     @Size(max = 30, message = "El tipo de documento no puede exceder 30 caracteres")
-    @com.fasterxml.jackson.annotation.JsonProperty("tipoDocumento") private String documentType;
+    @JsonAlias("tipoDocumento") private String documentType;
 
     @Size(max = 30, message = "El número de documento no puede exceder 30 caracteres")
-    @com.fasterxml.jackson.annotation.JsonProperty("numeroDocumento") private String documentNumber;
+    @JsonAlias("numeroDocumento") private String documentNumber;
 
     /** DD/MM/YYYY, as the forms write it. */
-    @com.fasterxml.jackson.annotation.JsonProperty("fechaNacimiento") private String birthDate;
+    @JsonAlias("fechaNacimiento") private String birthDate;
 
     /** "Acepto los términos y la política de privacidad" checkbox. */
-    @com.fasterxml.jackson.annotation.JsonProperty("aceptaTerminos") private Boolean acceptsTerms;
+    @JsonAlias("aceptaTerminos") private Boolean acceptsTerms;
 }

@@ -1,6 +1,5 @@
 package com.alertamujer.admin.application.port.in;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,8 +28,8 @@ public interface AccountModerationUseCase {
 
     record Block(String reason, String description, String evidence) {}
 
-    record HistoryItem(@JsonProperty("fecha") LocalDateTime date, @JsonProperty("tipo") String type, @com.fasterxml.jackson.annotation.JsonProperty("adminNombre") String adminName, @com.fasterxml.jackson.annotation.JsonProperty("motivo") String reason, @com.fasterxml.jackson.annotation.JsonProperty("nota") String note,
-                         @com.fasterxml.jackson.annotation.JsonProperty("casoId") Long caseId, @com.fasterxml.jackson.annotation.JsonProperty("tieneEvidencia") boolean hasEvidence) {}
+    record HistoryItem(LocalDateTime date, String type, String adminName, String reason, String note,
+                         Long caseId, boolean hasEvidence) {}
 
     record DeletionRequestView(Long id, Long userId, String userName, String userEmail, Long requestedBy,
                          String requestedByName, String reason, String status, Long decidedBy,

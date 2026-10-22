@@ -51,7 +51,7 @@ public class LocationLogController {
         try {
             var r = requestLocation.perform(currentUserId);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body(Map.of("celulares", r.phones(), "solicitadoEn", r.requestedAt().toString()));
+                    .body(Map.of("phones", r.phones(), "requestedAt", r.requestedAt().toString()));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
         }

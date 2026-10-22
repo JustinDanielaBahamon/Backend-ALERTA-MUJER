@@ -8,4 +8,4 @@ import java.util.List;
  *
  * @param phone name of the new phone ("Galaxy de Ana", "Samsung A54"...)
  */
-public record NewPhoneSignedInEvent(@com.fasterxml.jackson.annotation.JsonProperty("celular") String phone, @com.fasterxml.jackson.annotation.JsonProperty("otrosTokens") List<String> otherTokens) {}
+public record NewPhoneSignedInEvent(String phone, List<String> otherTokens) {}

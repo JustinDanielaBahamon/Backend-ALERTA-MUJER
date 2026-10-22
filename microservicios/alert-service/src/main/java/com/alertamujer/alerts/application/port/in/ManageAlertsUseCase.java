@@ -27,9 +27,9 @@ public interface ManageAlertsUseCase {
 
     record AdminChannel(String channel, String status, LocalDateTime sentAt, LocalDateTime deliveredAt) {}
 
-    /** contacto: number of the contact in the alert (1, 2...). relationship: kinship, if any. */
-    record AdminDelivery(@com.fasterxml.jackson.annotation.JsonProperty("contacto") int contact, String relationship, List<AdminChannel> channels) {}
+    /** contact: number of the contact in the alert (1, 2...). relationship: kinship, if any. */
+    record AdminDelivery(int contact, String relationship, List<AdminChannel> channels) {}
 
-    /** ubicacionVisible: false if the alert was cancelled or expired (the administration does not see its route). */
-    record AdminDetail(@com.fasterxml.jackson.annotation.JsonProperty("ubicacionVisible") boolean locationVisible, @com.fasterxml.jackson.annotation.JsonProperty("puntos") int points, @com.fasterxml.jackson.annotation.JsonProperty("ultimaUbicacion") LastLocation lastLocation, @com.fasterxml.jackson.annotation.JsonProperty("envios") List<AdminDelivery> deliveries) {}
+    /** locationVisible: false if the alert was cancelled or expired (the administration does not see its route). */
+    record AdminDetail(boolean locationVisible, int points, LastLocation lastLocation, List<AdminDelivery> deliveries) {}
 }

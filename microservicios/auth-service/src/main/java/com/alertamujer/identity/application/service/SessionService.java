@@ -63,10 +63,10 @@ public class SessionService implements RegisterUserUseCase, SignInUseCase {
         Map<String, String> repeated = new LinkedHashMap<>();
         if (users.emailExists(d.email())) repeated.put("email", "Este correo ya está registrado");
         if (telephone != null && users.phoneExists(telephone)) {
-            repeated.put("telefono", "Este número de teléfono ya está registrado");
+            repeated.put("telephone", "Este número de teléfono ya está registrado");
         }
         if (document != null && users.documentExists(document)) {
-            repeated.put("numeroDocumento", "Este número de documento ya está registrado");
+            repeated.put("documentNumber", "Este número de documento ya está registrado");
         }
         if (!repeated.isEmpty()) throw new DuplicateFieldsException(repeated);
 

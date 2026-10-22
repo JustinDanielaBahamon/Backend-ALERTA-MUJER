@@ -11,5 +11,5 @@ public interface ViewsRepository {
     /** total: distinct visitors; watchingNow: those who opened it since "recent". */
     ViewCount count(Long alertId, LocalDateTime recent);
 
-    record ViewCount(int total, @com.fasterxml.jackson.annotation.JsonProperty("viendoAhora") int watchingNow) {}
+    record ViewCount(int total, int watchingNow) {}
 }
