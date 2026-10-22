@@ -77,7 +77,7 @@ class AlertNoticesServiceTest {
         service.alertActivated(5L, 10L, START);
 
         verify(push).send(List.of("token-mama"),
-                Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez", "codigo", "CODIGO"));
+                Map.of("type", "SOS_ALERT", "alertId", "5", "name", "Ana Gómez", "code", "CODIGO"));
         verify(alerts).recordDelivery(101L, "sent", null);
         verify(tracking, times(1)).createLink(5L);
     }
@@ -117,7 +117,7 @@ class AlertNoticesServiceTest {
         service.alertEnded(5L, 10L, "resolved", end);
 
         verify(emails).alertEnd("mama@correo.com", "Mamá", "Ana Gómez", "resolved", end, "123");
-        verify(push).send(eq(List.of("token-mama")), argThat(d -> "ALERTA_FINALIZADA".equals(d.get("tipo"))));
+        verify(push).send(eq(List.of("token-mama")), argThat(d -> "ALERT_ENDED".equals(d.get("type"))));
         verify(alerts, never()).recordDelivery(any(), any(), any());
         verifyNoInteractions(tracking);
     }

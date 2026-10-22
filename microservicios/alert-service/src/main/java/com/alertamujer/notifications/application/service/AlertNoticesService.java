@@ -87,10 +87,10 @@ public class AlertNoticesService implements NotifyContactsUseCase {
                     List<String> tokens = contactTokens(emailByContact.get(delivery.emergencyContactId()));
                     if (!tokens.isEmpty()) {
                         push.send(tokens, Map.of(
-                                "tipo", "ALERTA_FINALIZADA",
-                                "alertaId", String.valueOf(alertId),
-                                "nombre", name == null ? "" : name,
-                                "estado", status));
+                                "type", "ALERT_ENDED",
+                                "alertId", String.valueOf(alertId),
+                                "name", name == null ? "" : name,
+                                "status", status));
                     }
                 }
             } catch (EmailNotSentException e) {
@@ -122,10 +122,10 @@ public class AlertNoticesService implements NotifyContactsUseCase {
             return;
         }
         List<String> failedOnes = push.send(tokens, Map.of(
-                "tipo", "ALERTA_SOS",
-                "alertaId", String.valueOf(alertId),
-                "nombre", name == null ? "" : name,
-                "codigo", code));
+                "type", "SOS_ALERT",
+                "alertId", String.valueOf(alertId),
+                "name", name == null ? "" : name,
+                "code", code));
         if (failedOnes.size() == tokens.size()) {
             alerts.recordDelivery(delivery.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
         } else {

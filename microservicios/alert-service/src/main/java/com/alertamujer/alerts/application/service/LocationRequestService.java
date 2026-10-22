@@ -49,7 +49,7 @@ public class LocationRequestService implements RequestLocationUseCase {
         if (tokens.isEmpty()) {
             throw new IllegalStateException("Tu celular no tiene la app con notificaciones activas. Abre AlertaMujer en el celular e inicia sesión.");
         }
-        List<String> failedOnes = push.sendData(tokens, Map.of("tipo", "PEDIR_UBICACION"));
+        List<String> failedOnes = push.sendData(tokens, Map.of("type", "LOCATION_REQUEST"));
         if (failedOnes.size() == tokens.size()) {
             throw new IllegalStateException("No se pudo contactar al celular. Intenta de nuevo en un momento.");
         }

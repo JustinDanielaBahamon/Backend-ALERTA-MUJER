@@ -24,7 +24,7 @@ public class NewPhoneNoticeService implements NotifyNewPhoneUseCase {
     @Override
     public void notify(List<String> otherPhoneTokens, String phone) {
         try {
-            push.send(otherPhoneTokens, Map.of("tipo", "NUEVO_CELULAR", "celular", phone));
+            push.send(otherPhoneTokens, Map.of("type", "NEW_PHONE", "phone", phone));
         } catch (RuntimeException e) {
             log.warn("No se pudo avisar del nuevo celular: {}", e.getMessage());
         }

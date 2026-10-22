@@ -28,7 +28,7 @@ class LocationRequestServiceTest {
         when(push.sendData(anyList(), anyMap())).thenReturn(List.of());
 
         assertEquals(1, service.perform(1L).phones());
-        verify(push).sendData(List.of("t1"), Map.of("tipo", "PEDIR_UBICACION"));
+        verify(push).sendData(List.of("t1"), Map.of("type", "LOCATION_REQUEST"));
     }
 
     @Test

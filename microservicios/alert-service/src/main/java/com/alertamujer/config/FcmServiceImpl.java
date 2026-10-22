@@ -34,7 +34,7 @@ public class FcmServiceImpl implements FcmService {
             try {
                 FirebaseMessaging.getInstance().send(Message.builder()
                         .setToken(token)
-                        .putAllData(data)
+                        .putAllData(LegacyPushKeys.withLegacyKeys(data))
                         .setAndroidConfig(AndroidConfig.builder()
                                 .setPriority(AndroidConfig.Priority.HIGH)
                                 .setTtl(Duration.ofMinutes(5).toMillis())

@@ -142,10 +142,10 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
         List<String> tokens = phones.phoneTokens(t.getUserId());
         if (!tokens.isEmpty()) {
             push.sendData(tokens, Map.of(
-                    "tipo", "TRAYECTO_POR_VENCER",
-                    "trayectoId", String.valueOf(t.getId()),
-                    "destino", t.getDestination(),
-                    "minutos", String.valueOf(Math.max(0, Duration.between(now, t.getExpectedArrival()).toMinutes()))));
+                    "type", "TRIP_DUE_SOON",
+                    "tripId", String.valueOf(t.getId()),
+                    "destination", t.getDestination(),
+                    "minutes", String.valueOf(Math.max(0, Duration.between(now, t.getExpectedArrival()).toMinutes()))));
         }
         t.markReminder();
         trips.save(t);

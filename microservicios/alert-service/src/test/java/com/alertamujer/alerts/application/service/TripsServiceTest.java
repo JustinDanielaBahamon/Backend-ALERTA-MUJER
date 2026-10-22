@@ -110,7 +110,7 @@ class TripsServiceTest {
 
         assertEquals(0, service.review(DEPARTURE.plusMinutes(26)));
 
-        verify(push).sendData(eq(List.of("token")), argThat((Map<String, String> m) -> "TRAYECTO_POR_VENCER".equals(m.get("tipo"))));
+        verify(push).sendData(eq(List.of("token")), argThat((Map<String, String> m) -> "TRIP_DUE_SOON".equals(m.get("type"))));
         assertTrue(t.isReminderSent());
         verify(alerts, never()).activate(any(), any());
     }

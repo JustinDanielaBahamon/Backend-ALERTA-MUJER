@@ -21,7 +21,7 @@ class SimpleNoticesServiceTest {
 
         new NewPhoneNoticeService(push).notify(List.of("t1"), "Moto G");
 
-        verify(push).send(List.of("t1"), Map.of("tipo", "NUEVO_CELULAR", "celular", "Moto G"));
+        verify(push).send(List.of("t1"), Map.of("type", "NEW_PHONE", "phone", "Moto G"));
     }
 
     @Test
