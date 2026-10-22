@@ -187,21 +187,22 @@ Sin API Gateway. Cada cliente envía la petición al servicio dueño según el i
 
 - `render.yaml` define los 3 servicios (Docker) y el grupo de variables
   `alerta-mujer-microservicios` (`INTERNAL_API_KEY` generada, CORS y memoria).
-- Los secretos (JWT, base de datos, correo, B2) se toman de un solo lugar con referencias de Render.
+- Los secretos compartidos (`APP_DB_PASSWORD`, `JWT_SECRET`, `INTERNAL_API_KEY`) viven en el grupo de
+  variables `alerta-mujer-microservicios`; los de correo (Alert) y de Backblaze B2 (Evidence), en su servicio.
 - Firebase se sube como *Secret File* en Auth (inicio con Google) y Alert (push). Evidence no lo usa.
 - Cada servicio se duerme tras unos 15 minutos sin uso y despierta en la primera petición
   (alrededor de un minuto).
 
 ## Pruebas
 
-- **258 tests** en los microservicios (`mvn test` en `microservicios/`).
+- **291 tests** en los microservicios (`mvn test` en `microservicios/`).
   - Incluyen pruebas del dominio sin Spring ni base de datos, y de los casos de uso con puertos
     simulados.
-  - `NombresDeBeansTest` falla si dos adaptadores de módulos distintos tienen el mismo nombre de clase
+  - `BeanNamesTest` falla si dos adaptadores de módulos distintos tienen el mismo nombre de clase
     (Spring no arrancaría).
 - Al pasar cada módulo a hexagonal se comparó la API antes y después con pruebas de humo en Docker
   (201 pasos en total): mismos códigos HTTP, mismas claves y mismo orden en el JSON.
-- Local: `docker compose --profile micro up` levanta los 3 servicios con PostgreSQL y SeaweedFS
+- Local: `docker compose up -d --build` levanta los 3 servicios con PostgreSQL y SeaweedFS
   (S3), en los puertos 8081 (Auth), 8082 (Alert) y 8083 (Evidence).
 - Probado de punta a punta en la nube: registro y login en Auth; contactos y alertas en Alert
   (consulta a Auth); evidencias en Evidence (consulta a Alert y a Auth); y protección de `/internal`.
