@@ -26,12 +26,12 @@ public class EvidenceMicroserviceConfig {
     }
 
     @Bean
-    AlertsApi alertsApi(RpcClientFactory clientes, @Value("${services.alert.url}") String url) {
-        return clientes.create(AlertsApi.class, url);
+    AlertsApi alertsApi(RpcClientFactory clients, @Value("${services.alert.url}") String url) {
+        return clients.create(AlertsApi.class, url);
     }
 
     @Bean
-    IdentityApi identityApi(RpcClientFactory clientes, @Value("${services.auth.url}") String url) {
-        return clientes.create(IdentityApi.class, url);
+    IdentityApi identityApi(RpcClientFactory clients, @Value("${services.auth.url}") String url) {
+        return clients.create(IdentityApi.class, url);
     }
 }

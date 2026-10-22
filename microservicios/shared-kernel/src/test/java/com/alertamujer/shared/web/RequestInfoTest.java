@@ -16,7 +16,7 @@ class RequestInfoTest {
         RequestContextHolder.resetRequestAttributes();
     }
 
-    private void conUserAgent(String ua) {
+    private void withUserAgent(String ua) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         if (ua != null) request.addHeader("User-Agent", ua);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -24,13 +24,13 @@ class RequestInfoTest {
 
     @Test
     void source_distinguishesMobileAppAndWebPanel() {
-        conUserAgent("okhttp/4.12.0");
+        withUserAgent("okhttp/4.12.0");
         assertEquals("App móvil · Android", RequestInfo.source());
 
-        conUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36");
+        withUserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36");
         assertEquals("Panel web · Chrome · Linux", RequestInfo.source());
 
-        conUserAgent("curl/8.5.0");
+        withUserAgent("curl/8.5.0");
         assertEquals("Cliente curl", RequestInfo.source());
     }
 

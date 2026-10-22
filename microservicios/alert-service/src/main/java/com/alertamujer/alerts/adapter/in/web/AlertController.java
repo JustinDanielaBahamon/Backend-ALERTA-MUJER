@@ -73,7 +73,7 @@ public class AlertController {
 
     @GetMapping("/me")
     public ResponseEntity<List<AlertResponse>> getMine(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(alerts.mias(currentUserId).stream().map(AlertResponse::of).toList());
+        return ResponseEntity.ok(alerts.mine(currentUserId).stream().map(AlertResponse::of).toList());
     }
 
     @GetMapping("/{id}")

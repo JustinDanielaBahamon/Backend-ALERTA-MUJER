@@ -71,7 +71,7 @@ class AlertNoticesServiceTest {
     void highPriorityPushToTheContactWithTheApp() {
         when(alerts.recipients(5L)).thenReturn(List.of(EMAIL, PUSH));
         when(identity.userWithEmail("mama@correo.com")).thenReturn(Optional.of(7L));
-        when(devices.tokensDe(7L)).thenReturn(List.of("token-mama"));
+        when(devices.tokensOf(7L)).thenReturn(List.of("token-mama"));
         when(push.send(anyList(), anyMap())).thenReturn(List.of());
 
         service.alertActivated(5L, 10L, START);
@@ -91,7 +91,7 @@ class AlertNoticesServiceTest {
         verify(alerts).recordDelivery(101L, "failed", "El contacto no tiene la app con notificaciones activas");
 
         when(identity.userWithEmail("mama@correo.com")).thenReturn(Optional.of(7L));
-        when(devices.tokensDe(7L)).thenReturn(List.of("t1"));
+        when(devices.tokensOf(7L)).thenReturn(List.of("t1"));
         when(push.send(anyList(), anyMap())).thenReturn(List.of("t1"));
         service.alertActivated(5L, 10L, START);
         verify(alerts).recordDelivery(101L, "failed", "FCM rechazó el envío a todos los dispositivos");
@@ -111,7 +111,7 @@ class AlertNoticesServiceTest {
         LocalDateTime end = START.plusMinutes(20);
         when(alerts.recipients(5L)).thenReturn(List.of(EMAIL, PUSH));
         when(identity.userWithEmail("mama@correo.com")).thenReturn(Optional.of(7L));
-        when(devices.tokensDe(7L)).thenReturn(List.of("token-mama"));
+        when(devices.tokensOf(7L)).thenReturn(List.of("token-mama"));
         doThrow(new EmailNotSentException("Sin proveedor")).when(emails).alertEnd(any(), any(), any(), any(), any(), any());
 
         service.alertEnded(5L, 10L, "resolved", end);

@@ -43,7 +43,7 @@ public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase
     // ── For the user ───────────────────────────────────────────────
 
     @Override
-    public List<Alert> mias(Long userId) {
+    public List<Alert> mine(Long userId) {
         return repository.ofUser(profileOf(userId)).stream()
                 .sorted(Comparator.comparing(Alert::getStartedAt).reversed())
                 .toList();

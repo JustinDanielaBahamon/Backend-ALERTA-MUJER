@@ -17,7 +17,7 @@ class DevicesAdapter implements DevicesPort {
     }
 
     @Override
-    public List<String> tokensDe(Long userId) {
+    public List<String> tokensOf(Long userId) {
         return devicesApi.pushTokensOfUser(userId);
     }
 }

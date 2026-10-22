@@ -216,7 +216,7 @@ class AlertsServiceTest {
         old.setStartedAt(LocalDateTime.now().minusDays(1));
         when(repository.ofUser(10L)).thenReturn(List.of(old, alert));
 
-        assertEquals(List.of(alert, old), service.mias(1L));
+        assertEquals(List.of(alert, old), service.mine(1L));
     }
 
     @Test

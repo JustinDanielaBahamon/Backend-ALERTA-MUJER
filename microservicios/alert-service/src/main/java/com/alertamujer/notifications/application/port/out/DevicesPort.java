@@ -6,5 +6,5 @@ import java.util.List;
 public interface DevicesPort {
 
     /** Push tokens of all the person's devices (users.id). */
-    List<String> tokensDe(Long userId);
+    List<String> tokensOf(Long userId);
 }

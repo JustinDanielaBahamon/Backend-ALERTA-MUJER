@@ -27,7 +27,7 @@ final class EmailLayout {
      * @param body    already escaped HTML
      * @param footer  already escaped HTML with the reason the email arrives
      */
-    static String page(String logoUrl, String summary, String title, String body, String pie) {
+    static String page(String logoUrl, String summary, String title, String body, String footer) {
         return """
                 <!doctype html>
                 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -54,7 +54,7 @@ final class EmailLayout {
                 </table>
                 </body></html>
                 """.formatted(HtmlUtils.htmlEscape(summary), HtmlUtils.htmlEscape(logoUrl), HtmlUtils.htmlEscape(title),
-                body, LIGHT_VIOLET, DARK_VIOLET, TEXT, VIOLET, SOFT_TEXT, pie);
+                body, LIGHT_VIOLET, DARK_VIOLET, TEXT, VIOLET, SOFT_TEXT, footer);
     }
 
     /** Big button (a link styled as a button: emails do not have real buttons). */

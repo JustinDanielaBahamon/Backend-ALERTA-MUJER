@@ -51,12 +51,12 @@ class IdentityQueryServiceTest {
 
     @Test
     void byProfileIdSkipsProfilesWithoutPerson() {
-        UserProfile conPersona = UserProfile.of(1L);
-        conPersona.setId(10L);
+        UserProfile withPerson = UserProfile.of(1L);
+        withPerson.setId(10L);
         UserProfile orphan = UserProfile.of(99L);
         orphan.setId(11L);
         when(users.all()).thenReturn(List.of(user(1L)));
-        when(profiles.all()).thenReturn(List.of(conPersona, orphan));
+        when(profiles.all()).thenReturn(List.of(withPerson, orphan));
 
         Map<Long, User> byProfile = service.byProfileId();
 

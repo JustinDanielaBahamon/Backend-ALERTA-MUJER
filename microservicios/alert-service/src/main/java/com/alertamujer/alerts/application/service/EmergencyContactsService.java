@@ -87,7 +87,7 @@ public class EmergencyContactsService implements EmergencyContactsUseCase {
                     ? Optional.empty()
                     : identity.userByEmail(email.trim());
             statuses.put(c.getId(), account
-                    .map(id -> phones.phoneTokens(id).isEmpty() ? NO_PHONE : CON_APP)
+                    .map(id -> phones.phoneTokens(id).isEmpty() ? NO_PHONE : WITH_APP)
                     .orElse(NO_ACCOUNT));
         }
         return statuses;

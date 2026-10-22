@@ -102,7 +102,7 @@ public class SessionService implements RegisterUserUseCase, SignInUseCase {
 
     @Override
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
-    public Session conGoogle(String idToken) {
+    public Session withGoogle(String idToken) {
         GoogleIdentity id = google.verify(idToken);
         User user = users.byEmail(id.email()).orElseGet(() -> createFromGoogle(id));
         Account account = accountOf(user);

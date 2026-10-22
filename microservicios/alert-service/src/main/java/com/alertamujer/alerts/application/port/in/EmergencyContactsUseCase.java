@@ -28,7 +28,7 @@ public interface EmergencyContactsUseCase {
      */
     Map<Long, String> appStatus(Long userId);
 
-    String CON_APP = "app";
+    String WITH_APP = "app";
     String NO_PHONE = "account";
     String NO_ACCOUNT = "none";
 }

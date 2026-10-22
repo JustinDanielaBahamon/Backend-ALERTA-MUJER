@@ -38,17 +38,17 @@ public class AlertMicroserviceConfig {
     }
 
     @Bean
-    IdentityApi identityApi(RpcClientFactory clientes, @Value("${services.auth.url}") String url) {
-        return clientes.create(IdentityApi.class, url);
+    IdentityApi identityApi(RpcClientFactory clients, @Value("${services.auth.url}") String url) {
+        return clients.create(IdentityApi.class, url);
     }
 
     @Bean
-    DevicesApi devicesApi(RpcClientFactory clientes, @Value("${services.auth.url}") String url) {
-        return clientes.create(DevicesApi.class, url);
+    DevicesApi devicesApi(RpcClientFactory clients, @Value("${services.auth.url}") String url) {
+        return clients.create(DevicesApi.class, url);
     }
 
     @Bean
-    SettingsApi settingsApi(RpcClientFactory clientes, @Value("${services.auth.url}") String url) {
-        return clientes.create(SettingsApi.class, url);
+    SettingsApi settingsApi(RpcClientFactory clients, @Value("${services.auth.url}") String url) {
+        return clients.create(SettingsApi.class, url);
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface ManageOwnAlertsUseCase {
 
     /** Newest to oldest. */
-    List<Alert> mias(Long userId);
+    List<Alert> mine(Long userId);
 
     /** Empty if it does not exist or belongs to another user. */
     Optional<Alert> one(Long id, Long userId);

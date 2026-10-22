@@ -18,7 +18,7 @@ public class SafeTrip {
     /** Time limits: avoid absurd trips or timers forgotten for days. */
     public static final int MIN_MINUTES = 5;
     public static final int MAX_MINUTES = 240;
-    public static final int EXTENSION_MAXIMA = 60;
+    public static final int MAX_EXTENSION = 60;
     public static final int MAX_TOTAL_DURATION = 360;
     /** Margin after the arrival time before notifying (a traffic light, an elevator...). */
     public static final Duration GRACE = Duration.ofMinutes(2);
@@ -93,8 +93,8 @@ public class SafeTrip {
     /** More time: up to MAX_EXTENSION each time and MAX_TOTAL_DURATION in total. */
     public void extender(int minutes) {
         requireActive();
-        if (minutes < 1 || minutes > EXTENSION_MAXIMA) {
-            throw new IllegalArgumentException("Puedes agregar entre 1 y " + EXTENSION_MAXIMA + " minutos");
+        if (minutes < 1 || minutes > MAX_EXTENSION) {
+            throw new IllegalArgumentException("Puedes agregar entre 1 y " + MAX_EXTENSION + " minutos");
         }
         LocalDateTime newOne = expectedArrival.plusMinutes(minutes);
         if (Duration.between(startedAt, newOne).toMinutes() > MAX_TOTAL_DURATION) {

@@ -25,11 +25,11 @@ class BeanNamesTest {
 
     @Test
     void noTwoBeansShareAName() throws IOException {
-        List<Path> fuentes = Stream.of(Path.of("src/main/java"), Path.of("../shared-kernel/src/main/java"))
+        List<Path> sources = Stream.of(Path.of("src/main/java"), Path.of("../shared-kernel/src/main/java"))
                 .flatMap(BeanNamesTest::files)
-                .filter(BeanNamesTest::esBean)
+                .filter(BeanNamesTest::isBean)
                 .toList();
-        Map<String, List<Path>> byName = fuentes.stream()
+        Map<String, List<Path>> byName = sources.stream()
                 .collect(Collectors.groupingBy(p -> p.getFileName().toString(), Collectors.toList()));
         Map<String, List<Path>> repeated = byName.entrySet().stream()
                 .filter(e -> e.getValue().size() > 1)
@@ -45,7 +45,7 @@ class BeanNamesTest {
         }
     }
 
-    private static boolean esBean(Path file) {
+    private static boolean isBean(Path file) {
         try {
             return BEAN.matcher(Files.readString(file)).find();
         } catch (IOException e) {

@@ -10,7 +10,7 @@ public interface SignInUseCase {
      * registered it signs in to that account; otherwise it creates the user (who can only sign in with
      * Google).
      */
-    Session conGoogle(String idToken);
+    Session withGoogle(String idToken);
 
     /** New access token from the refresh one. */
     String refresh(String refreshToken);

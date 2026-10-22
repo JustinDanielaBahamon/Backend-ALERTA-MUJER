@@ -141,6 +141,6 @@ public class AlertNoticesService implements NotifyContactsUseCase {
     }
 
     private List<String> contactTokens(String email) {
-        return identity.userWithEmail(email).map(devices::tokensDe).orElse(List.of());
+        return identity.userWithEmail(email).map(devices::tokensOf).orElse(List.of());
     }
 }

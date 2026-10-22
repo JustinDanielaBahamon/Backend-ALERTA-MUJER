@@ -14,7 +14,7 @@ public interface CallsUseCase {
     /** Empty if it does not exist or belongs to another user. */
     Optional<ResourceCall> one(Long id, Long userId);
 
-    List<ResourceCall> mias(Long userId);
+    List<ResourceCall> mine(Long userId);
 
     List<ResourceCall> ofResource(Long resourceId);
 

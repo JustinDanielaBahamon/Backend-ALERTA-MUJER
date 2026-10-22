@@ -29,13 +29,13 @@ public class AuthMicroserviceConfig {
     }
 
     @Bean
-    AlertsApi alertsApi(RpcClientFactory clientes, @Value("${services.alert.url}") String url) {
-        return clientes.create(AlertsApi.class, url);
+    AlertsApi alertsApi(RpcClientFactory clients, @Value("${services.alert.url}") String url) {
+        return clients.create(AlertsApi.class, url);
     }
 
     @Bean
-    ZonesApi zonesApi(RpcClientFactory clientes, @Value("${services.alert.url}") String url) {
-        return clientes.create(ZonesApi.class, url);
+    ZonesApi zonesApi(RpcClientFactory clients, @Value("${services.alert.url}") String url) {
+        return clients.create(ZonesApi.class, url);
     }
 
     @Bean

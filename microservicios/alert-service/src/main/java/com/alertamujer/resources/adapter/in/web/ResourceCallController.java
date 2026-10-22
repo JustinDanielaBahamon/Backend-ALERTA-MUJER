@@ -38,12 +38,12 @@ public class ResourceCallController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
     public ResponseEntity<List<ResourceCallResponse>> getCallsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(views(calls.mias(userId)));
+        return ResponseEntity.ok(views(calls.mine(userId)));
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<ResourceCallResponse>> getMyCalls(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(views(calls.mias(currentUserId)));
+        return ResponseEntity.ok(views(calls.mine(currentUserId)));
     }
 
     @GetMapping("/resource/{emergencyResourceId}")

@@ -41,7 +41,7 @@ public class CallsService implements CallsUseCase {
     }
 
     @Override
-    public List<ResourceCall> mias(Long userId) {
+    public List<ResourceCall> mine(Long userId) {
         return repository.ofProfile(identity.requiredProfile(userId));
     }
 

@@ -50,7 +50,7 @@ public class AuthController {
     /** Sign-in with Google: accepts the Firebase token (web) or the Google token (mobile). */
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
-        return ResponseEntity.ok(AuthResponse.of(session.conGoogle(request.getIdToken())));
+        return ResponseEntity.ok(AuthResponse.of(session.withGoogle(request.getIdToken())));
     }
 
     /** Records the sign-out (the client deletes the token). Returns 204 even if there is no session. */

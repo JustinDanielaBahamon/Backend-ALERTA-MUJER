@@ -179,7 +179,7 @@ class SessionServiceTest {
         Account newOne = Account.newOne(9L, "aleatoria");
         when(accounts.ofUser(9L)).thenReturn(Optional.of(newOne));
 
-        Session s = service.conGoogle("token");
+        Session s = service.withGoogle("token");
 
         assertEquals("Eva", s.user().getFirstName());
         assertEquals(User.CURRENT_TERMS, s.user().getTermsVersion());
