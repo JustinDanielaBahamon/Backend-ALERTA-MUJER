@@ -31,6 +31,7 @@ class DatosDeUsuariaJdbcAdapter implements DatosDeUsuariaRepositorio {
         filas += jdbc.update("DELETE FROM alert.frequent_location WHERE user_profile_id = ?", p);
         filas += jdbc.update("DELETE FROM alert.alert_message WHERE alert_id IN " + SUS_ALERTAS, p);
         filas += jdbc.update("DELETE FROM notification.tracking_link WHERE alert_id IN " + SUS_ALERTAS, p);
+        filas += jdbc.update("DELETE FROM notification.tracking_view WHERE alert_id IN " + SUS_ALERTAS, p);
         // Los envíos quedan en el historial sin el correo ni el token de cada contacto
         filas += jdbc.update("UPDATE alert.alert_contact SET destination = '(eliminado)', error_message = NULL "
                 + "WHERE alert_id IN " + SUS_ALERTAS, p);

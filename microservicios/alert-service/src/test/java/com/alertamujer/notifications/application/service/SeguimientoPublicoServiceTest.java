@@ -32,7 +32,8 @@ class SeguimientoPublicoServiceTest {
     private final IdentidadPort identidad = mock(IdentidadPort.class);
     private final AjustesPort ajustes = mock(AjustesPort.class);
     private final EvidenciasPort evidencias = mock(EvidenciasPort.class);
-    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alertas, identidad, ajustes, evidencias);
+    private final VistasRepositorio vistas = mock(VistasRepositorio.class);
+    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alertas, identidad, ajustes, evidencias, vistas);
 
     private TrackingLink enlace;
 
