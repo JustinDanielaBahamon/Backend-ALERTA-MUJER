@@ -25,6 +25,7 @@ class DatosDeUsuariaJdbcAdapter implements DatosDeUsuariaRepositorio {
     @Transactional
     public int borrarDe(Long p) {
         int filas = 0;
+        filas += jdbc.update("DELETE FROM alert.safe_trip WHERE user_profile_id = ?", p);
         filas += jdbc.update("DELETE FROM alert.location_log WHERE user_profile_id = ?", p);
         filas += jdbc.update("DELETE FROM alert.saved_route WHERE user_profile_id = ?", p);
         filas += jdbc.update("DELETE FROM alert.frequent_location WHERE user_profile_id = ?", p);
