@@ -12,10 +12,15 @@ import com.alertamujer.identity.domain.model.Account;
 import com.alertamujer.identity.domain.model.CambiosUsuaria;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.shared.exception.DuplicateFieldsException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import com.alertamujer.shared.web.FotoDataUri;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /** Datos, foto y contraseña de la persona en sesión. */
 @Service
@@ -47,6 +52,7 @@ public class MiCuentaService implements MiCuentaUseCase {
     @Transactional
     public UsuariaConFoto actualizar(Long userId, CambiosUsuaria cambios) {
         User usuaria = existente(userId);
+        cambios = sinRepetidos(usuaria, cambios);
         // La foto se valida antes de guardar nada: "" o null la quitan
         if (cambios.profilePhoto() != null) {
             String valida = FotoDataUri.validar(cambios.profilePhoto().orElse(null));
@@ -57,6 +63,27 @@ public class MiCuentaService implements MiCuentaUseCase {
         }
         usuaria.actualizarDatos(cambios);
         return new UsuariaConFoto(usuarias.guardar(usuaria), foto(userId));
+    }
+
+    /**
+     * El teléfono y el documento identifican a una sola persona (así se registró): al cambiarlos o al
+     * completarlos (cuentas creadas con Google) no pueden ser los de otra cuenta.
+     */
+    private CambiosUsuaria sinRepetidos(User usuaria, CambiosUsuaria c) {
+        Optional<String> telefono = c.telephone() == null ? null : c.telephone().map(User::limpiarTelefono);
+        Optional<String> documento = c.documentNumber() == null ? null : c.documentNumber().map(User::vacioANull);
+        Map<String, String> repetidos = new LinkedHashMap<>();
+        if (telefono != null && telefono.isPresent() && !telefono.get().equals(usuaria.getTelephone())
+                && usuarias.existeTelefono(telefono.get())) {
+            repetidos.put("telephone", "Este número de teléfono ya está registrado");
+        }
+        if (documento != null && documento.isPresent() && !documento.get().equals(usuaria.getDocumentNumber())
+                && usuarias.existeDocumento(documento.get())) {
+            repetidos.put("documentNumber", "Este número de documento ya está registrado");
+        }
+        if (!repetidos.isEmpty()) throw new DuplicateFieldsException(repetidos);
+        return new CambiosUsuaria(c.firstName(), c.lastName(), telefono, documento, c.documentType(), c.birthdate(),
+                c.profilePhoto());
     }
 
     @Override

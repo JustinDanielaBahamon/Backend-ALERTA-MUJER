@@ -7,6 +7,7 @@ import com.alertamujer.identity.domain.model.Account;
 import com.alertamujer.identity.domain.model.CambiosUsuaria;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.identity.domain.model.UserProfile;
+import com.alertamujer.shared.exception.DuplicateFieldsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,6 +51,29 @@ class MiCuentaServiceTest {
 
     private static CambiosUsuaria foto(Optional<String> foto) {
         return new CambiosUsuaria(null, null, null, null, null, null, foto);
+    }
+
+    @Test
+    void completarDatos_rechazaTelefonoODocumentoDeOtraCuenta() {
+        when(usuarias.existeTelefono("3001234567")).thenReturn(true);
+        when(usuarias.existeDocumento("1080")).thenReturn(true);
+        CambiosUsuaria cambios = new CambiosUsuaria(null, null, Optional.of("300 123 4567"), Optional.of("1080"),
+                Optional.of("C.C"), null, null);
+
+        DuplicateFieldsException e = assertThrows(DuplicateFieldsException.class, () -> service.actualizar(1L, cambios));
+        assertEquals(java.util.Set.of("telephone", "documentNumber"), e.getFieldErrors().keySet());
+        verify(usuarias, never()).guardar(any());
+    }
+
+    @Test
+    void completarDatos_guardaElTelefonoLimpio() {
+        CambiosUsuaria cambios = new CambiosUsuaria(null, null, Optional.of("300 123-4567"), Optional.of(" 1080 "),
+                Optional.of("C.C"), java.time.LocalDate.of(1995, 5, 5), null);
+
+        User guardada = service.actualizar(1L, cambios).usuaria();
+
+        assertEquals("3001234567", guardada.getTelephone());
+        assertEquals("1080", guardada.getDocumentNumber());
     }
 
     @Test
