@@ -33,7 +33,7 @@ class EvidenceServiceTest {
     private Evidence evidence;
 
     @BeforeEach
-    void preparar() {
+    void setUp() {
         evidence = new Evidence();
         evidence.setId(4L);
         evidence.setAlertId(9L);
@@ -53,13 +53,13 @@ class EvidenceServiceTest {
 
     @Test
     void renameSavesTheNewName() {
-        assertEquals("Camino a casa.mp4", service.renombrar(4L, "Camino a casa", 1L).evidence().getFileName());
+        assertEquals("Camino a casa.mp4", service.rename(4L, "Camino a casa", 1L).evidence().getFileName());
     }
 
     @Test
     void anotherUserCannotViewOrRename() {
         assertThrows(AccessDeniedException.class, () -> service.una(4L, 2L));
-        assertThrows(AccessDeniedException.class, () -> service.renombrar(4L, "x", 2L));
+        assertThrows(AccessDeniedException.class, () -> service.rename(4L, "x", 2L));
         verify(repository, never()).save(any());
     }
 

@@ -26,7 +26,7 @@ class PasswordRecoveryServiceTest {
 
     @Mock private UserRepository users;
     @Mock private AccountRepository accounts;
-    @Mock private RecoveryRepository solicitudes;
+    @Mock private RecoveryRepository deletionRequests;
     @Mock private HashingPort hashing;
     @Mock private IdentityEventsPort events;
 
@@ -45,7 +45,7 @@ class PasswordRecoveryServiceTest {
         lenient().when(users.byEmail("ana@correo.com")).thenReturn(Optional.of(ana));
         lenient().when(accounts.ofUser(1L)).thenReturn(Optional.of(account));
         lenient().when(accounts.find(4L)).thenReturn(Optional.of(account));
-        lenient().when(solicitudes.pendingForAccount(4L)).thenAnswer(inv -> List.copyOf(pendingOnes));
+        lenient().when(deletionRequests.pendingForAccount(4L)).thenAnswer(inv -> List.copyOf(pendingOnes));
     }
 
     private RecoveryRequest pending(String code, LocalDateTime created) {
@@ -62,7 +62,7 @@ class PasswordRecoveryServiceTest {
         verify(events).recoveryCode(eq("ana@correo.com"), eq("Ana Gómez"), code.capture(), eq(15));
         assertTrue(code.getValue().matches("\\d{6}"));
         ArgumentCaptor<RecoveryRequest> saved = ArgumentCaptor.forClass(RecoveryRequest.class);
-        verify(solicitudes).save(saved.capture());
+        verify(deletionRequests).save(saved.capture());
         assertEquals(RecoveryRequest.hash(4L, code.getValue()), saved.getValue().getTokenHash());
         assertEquals("1.2.3.4", saved.getValue().getRequestedIp());
     }
@@ -76,7 +76,7 @@ class PasswordRecoveryServiceTest {
         service.request("ana@correo.com", null);
 
         verifyNoInteractions(events);
-        verify(solicitudes, never()).save(any());
+        verify(deletionRequests, never()).save(any());
     }
 
     @Test

@@ -44,7 +44,7 @@ public class MyAccountService implements MyAccountUseCase {
     }
 
     @Override
-    public UserWithPhoto mia(Long userId) {
+    public UserWithPhoto mine(Long userId) {
         return new UserWithPhoto(existing(userId), photo(userId));
     }
 

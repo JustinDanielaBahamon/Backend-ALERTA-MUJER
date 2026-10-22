@@ -27,7 +27,7 @@ public interface EvidenceStorage {
     void delete(String key);
 
     /** Temporary link to open it straight from the storage (S3). Empty if not supported (disk). */
-    default Optional<URI> temporaryLink(String key, String contentType, Duration vigencia) {
+    default Optional<URI> temporaryLink(String key, String contentType, Duration validity) {
         return Optional.empty();
     }
 }

@@ -21,7 +21,7 @@ public interface AccountModerationUseCase {
 
     DeletionRequestView requestDeletion(Long userId, String reason, Long adminId);
 
-    List<DeletionRequestView> solicitudes();
+    List<DeletionRequestView> deletionRequests();
 
     DeletionRequestView approve(Long requestId, String note, Long adminId);
 

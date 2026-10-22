@@ -9,7 +9,7 @@ public interface RecoveryRepository {
 
     RecoveryRequest save(RecoveryRequest deletionRequest);
 
-    void saveAll(List<RecoveryRequest> solicitudes);
+    void saveAll(List<RecoveryRequest> deletionRequests);
 
     List<RecoveryRequest> pendingForAccount(Long accountId);
 

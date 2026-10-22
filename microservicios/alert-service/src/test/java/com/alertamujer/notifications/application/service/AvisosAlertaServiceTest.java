@@ -108,15 +108,15 @@ class AvisosAlertaServiceTest {
 
     @Test
     void alTerminarAvisaPorCorreoYPushSinTocarLosEnvios() {
-        LocalDateTime fin = INICIO.plusMinutes(20);
+        LocalDateTime end = INICIO.plusMinutes(20);
         when(alerts.destinatarios(5L)).thenReturn(List.of(CORREO, PUSH));
         when(identity.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("token-mama"));
         doThrow(new CorreoNoEnviadoException("Sin proveedor")).when(correos).finDeAlerta(any(), any(), any(), any(), any(), any());
 
-        service.alertaTerminada(5L, 10L, "resolved", fin);
+        service.alertaTerminada(5L, 10L, "resolved", end);
 
-        verify(correos).finDeAlerta("mama@correo.com", "Mamá", "Ana Gómez", "resolved", fin, "123");
+        verify(correos).finDeAlerta("mama@correo.com", "Mamá", "Ana Gómez", "resolved", end, "123");
         verify(push).send(eq(List.of("token-mama")), argThat(d -> "ALERTA_FINALIZADA".equals(d.get("tipo"))));
         verify(alerts, never()).registrarEntrega(any(), any(), any());
         verifyNoInteractions(seguimiento);

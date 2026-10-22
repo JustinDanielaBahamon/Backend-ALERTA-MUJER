@@ -57,9 +57,9 @@ final class AlertEmailTemplate {
      * @param estado resolved, cancelled o expired
      */
     static EmailMessage construirFin(String para, String nombreContacto, String nombreUsuaria, String status,
-                                     LocalDateTime fin, String emergencyNumber, String logoUrl) {
+                                     LocalDateTime end, String emergencyNumber, String logoUrl) {
         String quien = nombreUsuaria == null || nombreUsuaria.isBlank() ? "una persona" : nombreUsuaria;
-        String hora = fin == null ? "hace un momento" : "a las " + hora(fin);
+        String hora = end == null ? "hace un momento" : "a las " + hora(end);
         String saludo = nombreContacto == null || nombreContacto.isBlank() ? "Hola" : "Hola, " + nombreContacto;
         String que = switch (status == null ? "" : status) {
             case "resolved" -> "fue marcada como atendida";

@@ -1,8 +1,8 @@
 package com.alertamujer.admin.adapter.in.web;
 
-import com.alertamujer.admin.application.port.in.AuditoriaUseCase;
-import com.alertamujer.admin.application.port.in.AuditoriaUseCase.AuditActor;
-import com.alertamujer.admin.application.port.in.AuditoriaUseCase.AuditPage;
+import com.alertamujer.admin.application.port.in.AuditUseCase;
+import com.alertamujer.admin.application.port.in.AuditUseCase.AuditActor;
+import com.alertamujer.admin.application.port.in.AuditUseCase.AuditPage;
 import com.alertamujer.admin.domain.model.AuditFilter;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
@@ -22,10 +22,10 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AuditLogController {
 
-    private final AuditoriaUseCase auditoria;
+    private final AuditUseCase audit;
 
-    public AuditLogController(AuditoriaUseCase auditoria) {
-        this.auditoria = auditoria;
+    public AuditLogController(AuditUseCase audit) {
+        this.audit = audit;
     }
 
     @GetMapping
@@ -37,12 +37,12 @@ public class AuditLogController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(auditoria.listAll(new AuditFilter(actorId, type, action, from, to), page, size));
+        return ResponseEntity.ok(audit.listAll(new AuditFilter(actorId, type, action, from, to), page, size));
     }
 
     @GetMapping("/actors")
     public ResponseEntity<List<AuditActor>> actors() {
-        return ResponseEntity.ok(auditoria.actors());
+        return ResponseEntity.ok(audit.actors());
     }
 
     @GetMapping("/export")
@@ -52,7 +52,7 @@ public class AuditLogController {
             @RequestParam(required = false) String action,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-        byte[] csv = auditoria.export(new AuditFilter(actorId, type, action, from, to));
+        byte[] csv = audit.export(new AuditFilter(actorId, type, action, from, to));
         return ResponseEntity.ok()
                 .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .header(HttpHeaders.CONTENT_DISPOSITION,

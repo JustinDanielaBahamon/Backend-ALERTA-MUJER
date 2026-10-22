@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.admin.application.port.in.InformesUseCase;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase;
 import com.alertamujer.admin.application.port.out.AlertsPort;
 import com.alertamujer.admin.application.port.out.ReportExporterPort;
 import com.alertamujer.admin.application.port.out.ReportExportRepository;
@@ -21,7 +21,7 @@ import java.util.Map;
 
 /** Informes de alertas: guardar, consultar con sus alertas y exportar. Solo conoce puertos. */
 @Service
-public class InformesService implements InformesUseCase {
+public class ReportExportService implements ReportExportUseCase {
 
     private final ReportExportRepository repository;
     private final AlertsPort alerts;
@@ -29,7 +29,7 @@ public class InformesService implements InformesUseCase {
     private final ZonesPort zones;
     private final ReportExporterPort exporter;
 
-    public InformesService(ReportExportRepository repository, AlertsPort alerts, UsersPort users, ZonesPort zones,
+    public ReportExportService(ReportExportRepository repository, AlertsPort alerts, UsersPort users, ZonesPort zones,
                            ReportExporterPort exporter) {
         this.repository = repository;
         this.alerts = alerts;
@@ -58,9 +58,9 @@ public class InformesService implements InformesUseCase {
     @Override
     @Transactional(readOnly = true)
     public ReportStats stats() {
-        List<AlertReport> informes = repository.all();
-        long exports = informes.stream().mapToLong(r -> r.getExportCount() == null ? 0 : r.getExportCount()).sum();
-        return new ReportStats(informes.size(), alerts.all().size(), zones.active(), exports);
+        List<AlertReport> reportExports = repository.all();
+        long exports = reportExports.stream().mapToLong(r -> r.getExportCount() == null ? 0 : r.getExportCount()).sum();
+        return new ReportStats(reportExports.size(), alerts.all().size(), zones.active(), exports);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class SavedRoute {
         return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    public void renombrar(String name) {
+    public void rename(String name) {
         if (name != null && !name.isBlank()) this.name = name.trim();
     }
 

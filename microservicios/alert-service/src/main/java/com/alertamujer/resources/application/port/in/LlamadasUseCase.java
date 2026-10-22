@@ -22,7 +22,7 @@ public interface LlamadasUseCase {
 
     ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String status, Long userId);
 
-    ResourceCall update(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId);
+    ResourceCall update(Long id, String status, LocalDateTime end, Integer duracionSegundos, Long userId);
 
     void delete(Long id, Long userId);
 }

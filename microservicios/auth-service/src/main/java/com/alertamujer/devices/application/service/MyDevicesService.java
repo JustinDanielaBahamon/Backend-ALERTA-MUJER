@@ -56,7 +56,7 @@ public class MyDevicesService implements MyDevicesUseCase {
                 .max(Comparator.comparing(Device::getLastAccess, Comparator.nullsFirst(Comparator.naturalOrder())));
         if (same.isPresent()) {
             Device d = same.get();
-            d.registrarUso(data, now);
+            d.recordUse(data, now);
             return repository.save(d);
         }
         Device stored = repository.save(Device.created(account, data, now));
@@ -74,9 +74,9 @@ public class MyDevicesService implements MyDevicesUseCase {
 
     @Override
     @Transactional
-    public Device registrarUso(Long id, DeviceData data, Long userId) {
+    public Device recordUse(Long id, DeviceData data, Long userId) {
         Device d = one(id, userId);
-        d.registrarUso(data, LocalDateTime.now());
+        d.recordUse(data, LocalDateTime.now());
         return repository.save(d);
     }
 

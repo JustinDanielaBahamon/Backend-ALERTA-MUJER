@@ -60,10 +60,10 @@ public class AlertasRecibidasService implements AlertasRecibidasUseCase {
 
     private ReceivedAlert view(AlertSummary a, LocalDateTime now) {
         String name = identity.nombreDePilaDelPerfil(a.userProfileId()).orElse("");
-        LocalDateTime fin = SeguimientoPublicoService.fin(a);
+        LocalDateTime end = SeguimientoPublicoService.end(a);
         boolean activa = "active".equals(a.status());
         // Aquí una alerta terminada sin hora de cierre ya no ofrece seguimiento
-        boolean disponible = activa || (fin != null && TrackingLink.seguimientoVigente(a.status(), fin, now));
-        return new ReceivedAlert(a.id(), name, a.status(), activa, a.startedAt(), fin, disponible);
+        boolean disponible = activa || (end != null && TrackingLink.seguimientoVigente(a.status(), end, now));
+        return new ReceivedAlert(a.id(), name, a.status(), activa, a.startedAt(), end, disponible);
     }
 }

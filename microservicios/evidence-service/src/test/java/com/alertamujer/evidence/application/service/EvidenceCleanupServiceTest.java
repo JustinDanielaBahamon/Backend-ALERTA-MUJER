@@ -33,8 +33,8 @@ class EvidenceCleanupServiceTest {
     void deletesOlderThan60DaysExceptFromKeptAlerts() {
         LocalDateTime now = LocalDateTime.of(2026, 10, 19, 4, 0);
         Evidence normal = evidence(1, 10);
-        Evidence conservada = evidence(2, 20);
-        when(repository.savedBefore(now.minusDays(60))).thenReturn(List.of(normal, conservada));
+        Evidence kept = evidence(2, 20);
+        when(repository.savedBefore(now.minusDays(60))).thenReturn(List.of(normal, kept));
         when(alerts.keepEvidence(Set.of(10L, 20L))).thenReturn(Set.of(20L));
 
         assertEquals(1, service.clear(now));

@@ -18,8 +18,8 @@ class VistasAlertaServiceTest {
 
     private final AlertsPort alerts = mock(AlertsPort.class);
     private final IdentityPort identity = mock(IdentityPort.class);
-    private final VistasRepositorio vistas = mock(VistasRepositorio.class);
-    private final VistasAlertaService service = new VistasAlertaService(alerts, identity, vistas);
+    private final VistasRepositorio views = mock(VistasRepositorio.class);
+    private final VistasAlertaService service = new VistasAlertaService(alerts, identity, views);
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 22, 10, 0);
 
     private void alertaDelPerfil(long profile) {
@@ -31,9 +31,9 @@ class VistasAlertaServiceTest {
     void laDuenaVeCuantosAbrieronYCuantosEstanMirando() {
         alertaDelPerfil(10L);
         when(identity.profileOf(1L)).thenReturn(Optional.of(10L));
-        when(vistas.count(5L, NOW.minusSeconds(90))).thenReturn(new Conteo(3, 1));
+        when(views.count(5L, NOW.minusSeconds(90))).thenReturn(new Conteo(3, 1));
 
-        assertEquals(new Conteo(3, 1), service.vistas(5L, 1L, NOW));
+        assertEquals(new Conteo(3, 1), service.views(5L, 1L, NOW));
     }
 
     @Test
@@ -41,7 +41,7 @@ class VistasAlertaServiceTest {
         alertaDelPerfil(10L);
         when(identity.profileOf(2L)).thenReturn(Optional.of(20L));
 
-        assertThrows(ResourceNotFoundException.class, () -> service.vistas(5L, 2L, NOW));
-        verifyNoInteractions(vistas);
+        assertThrows(ResourceNotFoundException.class, () -> service.views(5L, 2L, NOW));
+        verifyNoInteractions(views);
     }
 }

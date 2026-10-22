@@ -5,7 +5,7 @@ import com.alertamujer.evidence.domain.model.Evidence;
 /** Use cases for the user's changes (and deletion by the administration). */
 public interface UpdateEvidenceUseCase {
 
-    EvidenceWithAlert renombrar(Long id, String name, Long userId);
+    EvidenceWithAlert rename(Long id, String name, Long userId);
 
     /** If admin is true any evidence is deleted; otherwise only one belonging to the user. */
     void delete(Long id, Long userId, boolean admin);

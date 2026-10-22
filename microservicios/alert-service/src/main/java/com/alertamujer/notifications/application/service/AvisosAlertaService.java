@@ -74,7 +74,7 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     }
 
     @Override
-    public void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime fin) {
+    public void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime end) {
         List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
         String name = identity.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
@@ -82,7 +82,7 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         for (AlertRecipient envio : envios) {
             try {
                 if (CANAL_CORREO.equals(envio.channel())) {
-                    correos.finDeAlerta(envio.destination(), envio.contactName(), name, status, fin, ajustes.emergencyNumber());
+                    correos.finDeAlerta(envio.destination(), envio.contactName(), name, status, end, ajustes.emergencyNumber());
                 } else if (CANAL_PUSH.equals(envio.channel()) && envio.emergencyContactId() != null) {
                     List<String> tokens = tokensDelContacto(correoPorContacto.get(envio.emergencyContactId()));
                     if (!tokens.isEmpty()) {

@@ -54,13 +54,13 @@ class AdministracionAlertasServiceTest {
         when(repository.all()).thenReturn(List.of(alert(1L, 10L, now.minusDays(1)), alert(2L, 20L, now)));
         when(identity.usersByProfile()).thenReturn(Map.of(10L, new UserSummary(1L, "Ana", "Gómez", "ana@test.com", null, 1L, null)));
 
-        List<AdminAlertView> vistas = service.listAll();
+        List<AdminAlertView> views = service.listAll();
 
-        assertEquals(2L, vistas.get(0).id());
-        assertNull(vistas.get(0).userName());
-        assertEquals("Ana Gómez", vistas.get(1).userName());
-        assertEquals("ana@test.com", vistas.get(1).userEmail());
-        assertEquals(1L, vistas.get(1).userId());
+        assertEquals(2L, views.get(0).id());
+        assertNull(views.get(0).userName());
+        assertEquals("Ana Gómez", views.get(1).userName());
+        assertEquals("ana@test.com", views.get(1).userEmail());
+        assertEquals(1L, views.get(1).userId());
     }
 
     @Test
@@ -87,7 +87,7 @@ class AdministracionAlertasServiceTest {
         verifyNoInteractions(events);
     }
 
-    private static LocationLog punto(int minuto, double lat) {
+    private static LocationLog dot(int minuto, double lat) {
         LocationLog l = new LocationLog();
         l.setLatitude(java.math.BigDecimal.valueOf(lat));
         l.setLongitude(java.math.BigDecimal.valueOf(-75.28));
@@ -101,7 +101,7 @@ class AdministracionAlertasServiceTest {
         alert.setId(5L);
         alert.setStatus("active");
         when(repository.find(5L)).thenReturn(Optional.of(alert));
-        when(ubicaciones.ofAlert(5L)).thenReturn(List.of(punto(1, 2.91), punto(7, 2.93), punto(3, 2.92)));
+        when(ubicaciones.ofAlert(5L)).thenReturn(List.of(dot(1, 2.91), dot(7, 2.93), dot(3, 2.92)));
         when(destinatarios.contactosDe(alert)).thenReturn(List.of(new ContactoNotificado(9L, "Eva Ruiz", "Madre",
                 List.of(new CanalEnvio("email", "eva@correo.com", "sent", LocalDateTime.of(2026, 10, 20, 10, 0), null)))));
 

@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.port.out;
 
-import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.AlertReportView;
 import com.alertamujer.alerts.api.AdminAlertView;
 
 import java.util.List;

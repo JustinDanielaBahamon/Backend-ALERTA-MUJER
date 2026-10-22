@@ -44,7 +44,7 @@ class UbicacionesServiceTest {
         lenient().when(repository.save(any(LocationLog.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
-    private static NuevaUbicacion punto(Long alertId, Long deviceId) {
+    private static NuevaUbicacion dot(Long alertId, Long deviceId) {
         return new NuevaUbicacion(BigDecimal.valueOf(4.6), BigDecimal.valueOf(-74.1), null, alertId, deviceId, null);
     }
 
@@ -52,7 +52,7 @@ class UbicacionesServiceTest {
     void descartaLaUbicacionDiariaDeUnCelularQueNoEsElPrincipal() {
         when(phones.esElMasReciente(1L, 8L)).thenReturn(false);
 
-        assertTrue(service.save(punto(null, 8L), 1L).isEmpty());
+        assertTrue(service.save(dot(null, 8L), 1L).isEmpty());
         verify(repository, never()).save(any());
     }
 
@@ -60,7 +60,7 @@ class UbicacionesServiceTest {
     void laUbicacionDeUnaAlertaSeGuardaVengaDelCelularQueVenga() {
         when(alerts.find(5L)).thenReturn(Optional.of(alert));
 
-        LocationLog saved = service.save(punto(5L, 8L), 1L).orElseThrow();
+        LocationLog saved = service.save(dot(5L, 8L), 1L).orElseThrow();
 
         assertEquals(5L, saved.getAlertId());
         assertEquals(10L, saved.getUserProfileId());
@@ -75,7 +75,7 @@ class UbicacionesServiceTest {
         when(alerts.find(6L)).thenReturn(Optional.of(ajena));
         when(phones.esElMasReciente(1L, null)).thenReturn(true);
 
-        assertNull(service.save(punto(6L, null), 1L).orElseThrow().getAlertId());
+        assertNull(service.save(dot(6L, null), 1L).orElseThrow().getAlertId());
     }
 
     @Test

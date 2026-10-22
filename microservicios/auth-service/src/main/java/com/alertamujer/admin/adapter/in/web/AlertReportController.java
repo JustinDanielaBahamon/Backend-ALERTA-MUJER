@@ -1,9 +1,9 @@
 package com.alertamujer.admin.adapter.in.web;
 
 import com.alertamujer.admin.adapter.in.web.dto.AlertReportRequest;
-import com.alertamujer.admin.application.port.in.InformesUseCase;
-import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
-import com.alertamujer.admin.application.port.in.InformesUseCase.ReportStats;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.AlertReportView;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.ReportStats;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,40 +21,40 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AlertReportController {
 
-    private final InformesUseCase informes;
+    private final ReportExportUseCase reportExports;
 
-    public AlertReportController(InformesUseCase informes) {
-        this.informes = informes;
+    public AlertReportController(ReportExportUseCase reportExports) {
+        this.reportExports = reportExports;
     }
 
     @GetMapping
     public ResponseEntity<List<AlertReportView>> list() {
-        return ResponseEntity.ok(informes.listAll());
+        return ResponseEntity.ok(reportExports.listAll());
     }
 
     @GetMapping("/stats")
     public ResponseEntity<ReportStats> stats() {
-        return ResponseEntity.ok(informes.stats());
+        return ResponseEntity.ok(reportExports.stats());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AlertReportView> get(@PathVariable Long id) {
-        return ResponseEntity.ok(informes.get(id));
+        return ResponseEntity.ok(reportExports.get(id));
     }
 
     @PostMapping
     public ResponseEntity<AlertReportView> create(@RequestBody AlertReportRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(informes.create(request.toChanges(), currentUserId));
+        return ResponseEntity.ok(reportExports.create(request.toChanges(), currentUserId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AlertReportView> update(@PathVariable Long id, @RequestBody AlertReportRequest request) {
-        return ResponseEntity.ok(informes.update(id, request.toChanges()));
+        return ResponseEntity.ok(reportExports.update(id, request.toChanges()));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        informes.delete(id);
+        reportExports.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -63,7 +63,7 @@ public class AlertReportController {
     public ResponseEntity<byte[]> export(@PathVariable Long id, @RequestParam(defaultValue = "pdf") String format) {
         boolean pdf = "pdf".equalsIgnoreCase(format);
         if (!pdf && !"csv".equalsIgnoreCase(format)) throw new IllegalArgumentException("Formato no válido: " + format);
-        byte[] file = informes.export(id, pdf);
+        byte[] file = reportExports.export(id, pdf);
         return ResponseEntity.ok()
                 .contentType(pdf ? MediaType.APPLICATION_PDF : new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()

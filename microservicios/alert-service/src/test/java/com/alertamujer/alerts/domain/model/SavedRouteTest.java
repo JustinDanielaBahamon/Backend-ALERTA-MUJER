@@ -49,9 +49,9 @@ class SavedRouteTest {
         SavedRoute r = new SavedRoute();
         r.setName("Casa");
 
-        r.renombrar("  ");
+        r.rename("  ");
         assertEquals("Casa", r.getName());
-        r.renombrar(" Trabajo ");
+        r.rename(" Trabajo ");
         assertEquals("Trabajo", r.getName());
     }
 }

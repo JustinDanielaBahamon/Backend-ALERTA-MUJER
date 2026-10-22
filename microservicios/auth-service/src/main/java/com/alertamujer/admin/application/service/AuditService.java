@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.admin.application.port.in.AuditoriaUseCase;
+import com.alertamujer.admin.application.port.in.AuditUseCase;
 import com.alertamujer.admin.application.port.out.AuditRepository;
 import com.alertamujer.admin.application.port.out.UsersPort;
 import com.alertamujer.admin.domain.model.AuditLog;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 /** Auditoría del panel: lista, responsables y exportación a CSV. */
 @Service
-public class AuditService implements AuditoriaUseCase {
+public class AuditService implements AuditUseCase {
 
     static final int MAX_SIZE = 100;
     static final int MAX_EXPORT = 5000;
@@ -37,7 +37,7 @@ public class AuditService implements AuditoriaUseCase {
     public AuditPage listAll(AuditFilter filter, int page, int requestedSize) {
         int size = Math.max(1, Math.min(requestedSize, MAX_SIZE));
         AuditRepository.AuditLogPage p = repository.page(filter, Math.max(0, page), size);
-        return new AuditPage(vistas(p.records()), p.total(), p.number(), size);
+        return new AuditPage(views(p.records()), p.total(), p.number(), size);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class AuditService implements AuditoriaUseCase {
     public byte[] export(AuditFilter filter) {
         StringBuilder sb = new StringBuilder("﻿");
         sb.append("ID;Fecha;Responsable;Rol;Correo;Origen;Acción;Tipo;Registro;Detalle;IP\r\n");
-        for (AuditLogView v : vistas(repository.first(filter, MAX_EXPORT))) {
+        for (AuditLogView v : views(repository.first(filter, MAX_EXPORT))) {
             sb.append(String.join(";", List.of(
                     String.valueOf(v.id()),
                     v.createdAt() == null ? "" : DATE.format(ColombiaTime.of(v.createdAt())),
@@ -72,7 +72,7 @@ public class AuditService implements AuditoriaUseCase {
                 .toList();
     }
 
-    private List<AuditLogView> vistas(List<AuditLog> records) {
+    private List<AuditLogView> views(List<AuditLog> records) {
         Map<Long, UserSummary> byAccount = users.byAccount();
         return records.stream().map(r -> {
             UserSummary u = r.getAccountId() == null ? null : byAccount.get(r.getAccountId());

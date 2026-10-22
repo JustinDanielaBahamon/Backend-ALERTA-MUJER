@@ -32,15 +32,15 @@ public class AccountModerationService implements AccountModerationUseCase {
 
     private final UserReportRepository cases;
     private final ModerationActionRepository actions;
-    private final DeletionRequestRepository solicitudes;
+    private final DeletionRequestRepository deletionRequests;
     private final AccountsPort accounts;
     private final UsersPort users;
 
     public AccountModerationService(UserReportRepository cases, ModerationActionRepository actions,
-                                    DeletionRequestRepository solicitudes, AccountsPort accounts, UsersPort users) {
+                                    DeletionRequestRepository deletionRequests, AccountsPort accounts, UsersPort users) {
         this.cases = cases;
         this.actions = actions;
-        this.solicitudes = solicitudes;
+        this.deletionRequests = deletionRequests;
         this.accounts = accounts;
         this.users = users;
     }
@@ -84,11 +84,11 @@ public class AccountModerationService implements AccountModerationUseCase {
                     return new HistoryItem(a.getCreatedAt(), a.getActionType(), name(names.get(a.getAdminProfileId().longValue())),
                             a.isBlock() ? reportCase.getReason() : null, a.getNotes(), reportCase.getId(), reportCase.hasEvidence());
                 });
-        Stream<HistoryItem> deSolicitudes = solicitudes.all().stream()
+        Stream<HistoryItem> fromRequests = deletionRequests.all().stream()
                 .filter(s -> s.getUserId().equals(userId))
                 .map(s -> new HistoryItem(s.getCreatedAt(), "deletion_" + s.getStatus(), name(names.get(s.getRequestedBy())),
                         null, s.getReason(), null, false));
-        return Stream.concat(fromActions, deSolicitudes).sorted(Comparator.comparing(HistoryItem::date).reversed()).toList();
+        return Stream.concat(fromActions, fromRequests).sorted(Comparator.comparing(HistoryItem::date).reversed()).toList();
     }
 
     // ── Eliminación con dos administradoras ────────────────────────
@@ -99,15 +99,15 @@ public class AccountModerationService implements AccountModerationUseCase {
         String detail = ModerationText.explanation(reason, "Explica por qué se elimina la cuenta" + MIN);
         existing(userId);
         AccountDeletionRequest newOne = AccountDeletionRequest.newOne(userId, adminId, detail);
-        if (solicitudes.hasPending(userId)) throw new IllegalArgumentException("Ya hay una solicitud pendiente para esta cuenta");
-        return view(solicitudes.save(newOne), users.byId());
+        if (deletionRequests.hasPending(userId)) throw new IllegalArgumentException("Ya hay una solicitud pendiente para esta cuenta");
+        return view(deletionRequests.save(newOne), users.byId());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DeletionRequestView> solicitudes() {
+    public List<DeletionRequestView> deletionRequests() {
         Map<Long, UserSummary> names = users.byId();
-        return solicitudes.all().stream().map(s -> view(s, names)).toList();
+        return deletionRequests.all().stream().map(s -> view(s, names)).toList();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class AccountModerationService implements AccountModerationUseCase {
         AccountDeletionRequest s = existingRequest(requestId);
         s.approve(adminId, note, LocalDateTime.now());
         accounts.anonymize(s.getUserId());
-        return view(solicitudes.save(s), users.byId());
+        return view(deletionRequests.save(s), users.byId());
     }
 
     @Override
@@ -124,7 +124,7 @@ public class AccountModerationService implements AccountModerationUseCase {
     public DeletionRequestView reject(Long requestId, String note, Long adminId) {
         AccountDeletionRequest s = existingRequest(requestId);
         s.reject(adminId, note, LocalDateTime.now());
-        return view(solicitudes.save(s), users.byId());
+        return view(deletionRequests.save(s), users.byId());
     }
 
     // ── Apoyo ──────────────────────────────────────────────────────
@@ -134,7 +134,7 @@ public class AccountModerationService implements AccountModerationUseCase {
     }
 
     private AccountDeletionRequest existingRequest(Long id) {
-        return solicitudes.find(id).orElseThrow(() -> new ResourceNotFoundException("AccountDeletionRequest", id));
+        return deletionRequests.find(id).orElseThrow(() -> new ResourceNotFoundException("AccountDeletionRequest", id));
     }
 
     private static String name(UserSummary u) {

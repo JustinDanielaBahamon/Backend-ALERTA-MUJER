@@ -22,20 +22,20 @@ public class VistasAlertaService implements VistasAlertaUseCase {
 
     private final AlertsPort alerts;
     private final IdentityPort identity;
-    private final VistasRepositorio vistas;
+    private final VistasRepositorio views;
 
-    public VistasAlertaService(AlertsPort alerts, IdentityPort identity, VistasRepositorio vistas) {
+    public VistasAlertaService(AlertsPort alerts, IdentityPort identity, VistasRepositorio views) {
         this.alerts = alerts;
         this.identity = identity;
-        this.vistas = vistas;
+        this.views = views;
     }
 
     @Override
-    public Conteo vistas(Long alertId, Long userId, LocalDateTime now) {
+    public Conteo views(Long alertId, Long userId, LocalDateTime now) {
         AlertSummary alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
         Long profile = identity.profileOf(userId).orElse(null);
         // Una alerta ajena se responde igual que una inexistente: no se revela que existe
         if (!Objects.equals(profile, alert.userProfileId())) throw new ResourceNotFoundException("Alert", alertId);
-        return vistas.count(alertId, now.minus(VIENDO_AHORA));
+        return views.count(alertId, now.minus(VIENDO_AHORA));
     }
 }

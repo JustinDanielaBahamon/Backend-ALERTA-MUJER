@@ -56,7 +56,7 @@ public class RecorridosService implements RecorridosUseCase {
     @Transactional
     public SavedRoute update(Long id, String name, Boolean estrella, Long userId) {
         SavedRoute r = own(id, userId);
-        r.renombrar(name);
+        r.rename(name);
         if (estrella != null && !estrella.equals(r.getIsStarred())) {
             r.marcarEstrella(estrella, repository.contarEstrella(r.getUserProfileId()));
         }

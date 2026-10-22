@@ -47,10 +47,10 @@ public class EvidenceAdministrationService implements ManageEvidenceUseCase {
     @Transactional(readOnly = true)
     public Stats stats() {
         List<Evidence> all = repository.all();
-        long verificadas = all.stream().filter(e -> "verified".equals(e.getReviewStatus())).count();
-        long rechazadas = all.stream().filter(e -> "rejected".equals(e.getReviewStatus())).count();
-        long tamanio = all.stream().mapToLong(e -> e.getSizeBytes() == null ? 0 : e.getSizeBytes()).sum();
-        return new Stats(all.size(), verificadas, all.size() - verificadas - rechazadas, rechazadas, tamanio);
+        long verified = all.stream().filter(e -> "verified".equals(e.getReviewStatus())).count();
+        long rejected = all.stream().filter(e -> "rejected".equals(e.getReviewStatus())).count();
+        long size = all.stream().mapToLong(e -> e.getSizeBytes() == null ? 0 : e.getSizeBytes()).sum();
+        return new Stats(all.size(), verified, all.size() - verified - rejected, rejected, size);
     }
 
     @Override

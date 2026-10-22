@@ -25,7 +25,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication authentication) {
-        return ResponseEntity.ok(response(myAccount.mia((Long) authentication.getPrincipal())));
+        return ResponseEntity.ok(response(myAccount.mine((Long) authentication.getPrincipal())));
     }
 
     /** Cambios parciales: solo las claves enviadas; una clave con null o "" borra el dato. */

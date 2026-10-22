@@ -18,7 +18,7 @@ public interface MyDevicesUseCase {
     Device replace(Long id, DeviceData data, Long userId);
 
     /** La app informa los datos actuales del celular, sus permisos y la última conexión. */
-    Device registrarUso(Long id, DeviceData data, Long userId);
+    Device recordUse(Long id, DeviceData data, Long userId);
 
     void changePushToken(Long id, String token, Long userId);
 

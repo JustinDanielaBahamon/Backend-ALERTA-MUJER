@@ -20,11 +20,11 @@ import java.util.Map;
 public class AccountModerationController {
 
     private final AccountModerationUseCase moderation;
-    private final UserReportsUseCase reportes;
+    private final UserReportsUseCase reports;
 
-    public AccountModerationController(AccountModerationUseCase moderation, UserReportsUseCase reportes) {
+    public AccountModerationController(AccountModerationUseCase moderation, UserReportsUseCase reports) {
         this.moderation = moderation;
-        this.reportes = reportes;
+        this.reports = reports;
     }
 
     @PostMapping("/users/{id}/block")
@@ -48,7 +48,7 @@ public class AccountModerationController {
     /** Captura adjunta a un caso de moderación (data URI). */
     @GetMapping("/user-reports/{id}/evidence")
     public ResponseEntity<Map<String, String>> evidence(@PathVariable Long id) {
-        String evidence = reportes.evidence(id);
+        String evidence = reports.evidence(id);
         return evidence == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(Map.of("evidence", evidence));
     }
 
@@ -60,7 +60,7 @@ public class AccountModerationController {
 
     @GetMapping("/deletion-requests")
     public ResponseEntity<List<DeletionRequestView>> deletionRequests() {
-        return ResponseEntity.ok(moderation.solicitudes());
+        return ResponseEntity.ok(moderation.deletionRequests());
     }
 
     @PostMapping("/deletion-requests/{id}/approve")

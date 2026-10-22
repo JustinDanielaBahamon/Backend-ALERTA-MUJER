@@ -33,46 +33,46 @@ import java.util.Map;
 public class EvidenceController {
 
     private final UploadEvidenceUseCase upload;
-    private final QueryEvidenceUseCase consultar;
-    private final UpdateEvidenceUseCase modificar;
-    private final ManageEvidenceUseCase administrar;
+    private final QueryEvidenceUseCase query;
+    private final UpdateEvidenceUseCase update;
+    private final ManageEvidenceUseCase manage;
 
-    public EvidenceController(UploadEvidenceUseCase upload, QueryEvidenceUseCase consultar,
-                              UpdateEvidenceUseCase modificar, ManageEvidenceUseCase administrar) {
+    public EvidenceController(UploadEvidenceUseCase upload, QueryEvidenceUseCase query,
+                              UpdateEvidenceUseCase update, ManageEvidenceUseCase manage) {
         this.upload = upload;
-        this.consultar = consultar;
-        this.modificar = modificar;
-        this.administrar = administrar;
+        this.query = query;
+        this.update = update;
+        this.manage = manage;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminEvidenceView>> getAllEvidences() {
-        return ResponseEntity.ok(administrar.listAll().stream().map(AdminEvidenceView::of).toList());
+        return ResponseEntity.ok(manage.listAll().stream().map(AdminEvidenceView::of).toList());
     }
 
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ManageEvidenceUseCase.Stats> getStats() {
-        return ResponseEntity.ok(administrar.stats());
+        return ResponseEntity.ok(manage.stats());
     }
 
     /** Review by the administration: pending, verified or rejected. */
     @PatchMapping("/{id}/review")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminEvidenceView> review(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(AdminEvidenceView.of(administrar.changeReview(id, body.get("reviewStatus"))));
+        return ResponseEntity.ok(AdminEvidenceView.of(manage.changeReview(id, body.get("reviewStatus"))));
     }
 
     /** Evidence of the authenticated user (newest first). */
     @GetMapping("/me")
     public ResponseEntity<List<EvidenceView>> getMine(@AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(consultar.ofUser(userId).stream().map(EvidenceView::of).toList());
+        return ResponseEntity.ok(query.ofUser(userId).stream().map(EvidenceView::of).toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EvidenceDto> getEvidenceById(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(consultar.una(id, userId)));
+        return ResponseEntity.ok(EvidenceDto.of(query.una(id, userId)));
     }
 
     /** Uploads a photo, video, audio or PDF and links it to one of the user's alerts. */
@@ -97,7 +97,7 @@ public class EvidenceController {
                                             @RequestParam(defaultValue = "false") boolean download,
                                             @AuthenticationPrincipal Long userId,
                                             Authentication authentication) {
-        EvidenceWithContent file = consultar.file(id, userId, esAdmin(authentication));
+        EvidenceWithContent file = query.file(id, userId, esAdmin(authentication));
         Evidence e = file.evidence();
         boolean inline = !download && !"document".equals(e.getMediaType());
         ContentDisposition disposition = (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
@@ -114,26 +114,26 @@ public class EvidenceController {
     @PostMapping
     public ResponseEntity<EvidenceDto> createEvidence(@RequestBody EvidenceDto.WithoutFile body,
                                                       @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(modificar.registerWithoutFile(body.alertId(), body.mediaType(), body.fileUrl(), userId)));
+        return ResponseEntity.ok(EvidenceDto.of(update.registerWithoutFile(body.alertId(), body.mediaType(), body.fileUrl(), userId)));
     }
 
     /** The owner gives her evidence a shorter name. */
     @PatchMapping("/{id}/name")
     public ResponseEntity<EvidenceView> rename(@PathVariable Long id, @RequestBody Map<String, String> body,
                                                @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceView.of(modificar.renombrar(id, body == null ? null : body.get("name"), userId)));
+        return ResponseEntity.ok(EvidenceView.of(update.rename(id, body == null ? null : body.get("name"), userId)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EvidenceDto> updateEvidence(@PathVariable Long id, @RequestBody EvidenceDto.WithoutFile body,
                                                       @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(modificar.updateWithoutFile(id, body.mediaType(), body.fileUrl(), userId)));
+        return ResponseEntity.ok(EvidenceDto.of(update.updateWithoutFile(id, body.mediaType(), body.fileUrl(), userId)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvidence(@PathVariable Long id, @AuthenticationPrincipal Long userId,
                                                Authentication authentication) {
-        modificar.delete(id, userId, esAdmin(authentication));
+        update.delete(id, userId, esAdmin(authentication));
         return ResponseEntity.noContent().build();
     }
 

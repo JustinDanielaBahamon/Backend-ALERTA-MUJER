@@ -18,27 +18,27 @@ import java.util.Map;
 @RequestMapping("/api/zone-reports")
 public class ZoneReportController {
 
-    private final ReportesZonaUseCase reportes;
+    private final ReportesZonaUseCase reports;
 
-    public ZoneReportController(ReportesZonaUseCase reportes) {
-        this.reportes = reportes;
+    public ZoneReportController(ReportesZonaUseCase reports) {
+        this.reports = reports;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ZoneReportResponse>> getAllReports() {
-        return ResponseEntity.ok(vistas(reportes.all()));
+        return ResponseEntity.ok(views(reports.all()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ZoneReportResponse> getReportById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return reportes.one(id, currentUserId).map(r -> ResponseEntity.ok(ZoneReportResponse.of(r)))
+        return reports.one(id, currentUserId).map(r -> ResponseEntity.ok(ZoneReportResponse.of(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/zone/{zoneId}")
     public ResponseEntity<List<ZoneReportResponse>> getReportsByZone(@PathVariable Long zoneId) {
-        return ResponseEntity.ok(vistas(reportes.deZona(zoneId)));
+        return ResponseEntity.ok(views(reports.deZona(zoneId)));
     }
 
     /** Reportes de una usuaria (id de usuaria o de perfil): los propios, o cualquiera para la administración. */
@@ -46,41 +46,41 @@ public class ZoneReportController {
     public ResponseEntity<List<ZoneReportResponse>> getMyReports(@PathVariable Long userProfileId,
                                                                  @AuthenticationPrincipal Long currentUserId,
                                                                  Authentication authentication) {
-        return ResponseEntity.ok(vistas(reportes.ofUser(userProfileId, currentUserId, esAdmin(authentication))));
+        return ResponseEntity.ok(views(reports.ofUser(userProfileId, currentUserId, esAdmin(authentication))));
     }
 
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ZoneReportResponse>> getReportsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(vistas(reportes.withStatus(status)));
+        return ResponseEntity.ok(views(reports.withStatus(status)));
     }
 
     @PostMapping
     public ResponseEntity<ZoneReportResponse> createReport(@RequestBody ZoneReportRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(ZoneReportResponse.of(
-                reportes.create(request.zoneId(), request.classification(), request.comment(), currentUserId)));
+                reports.create(request.zoneId(), request.classification(), request.comment(), currentUserId)));
     }
 
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneReportResponse> approveReport(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
-        return ResponseEntity.ok(ZoneReportResponse.of(reportes.approve(id, request.get("adminId"))));
+        return ResponseEntity.ok(ZoneReportResponse.of(reports.approve(id, request.get("adminId"))));
     }
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneReportResponse> rejectReport(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
-        return ResponseEntity.ok(ZoneReportResponse.of(reportes.reject(id, request.get("adminId"))));
+        return ResponseEntity.ok(ZoneReportResponse.of(reports.reject(id, request.get("adminId"))));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        reportes.delete(id, currentUserId);
+        reports.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 
-    private static List<ZoneReportResponse> vistas(List<ZoneReport> list) {
+    private static List<ZoneReportResponse> views(List<ZoneReport> list) {
         return list.stream().map(ZoneReportResponse::of).toList();
     }
 

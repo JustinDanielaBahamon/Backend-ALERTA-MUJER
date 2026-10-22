@@ -139,7 +139,7 @@ public class Device {
      * La app lo informa al abrirse: actualiza los datos que lleguen (sin borrar los que no envía),
      * los permisos y la última conexión.
      */
-    public void registrarUso(DeviceData d, LocalDateTime now) {
+    public void recordUse(DeviceData d, LocalDateTime now) {
         if (d.brand() != null) brand = truncate(d.brand(), 50);
         if (d.model() != null) model = truncate(d.model(), 100);
         if (d.deviceName() != null) deviceName = truncate(d.deviceName(), 100);

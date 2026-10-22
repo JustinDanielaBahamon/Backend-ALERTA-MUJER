@@ -25,7 +25,7 @@ public class ResourceCallController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCallResponse>> getAllCalls() {
-        return ResponseEntity.ok(vistas(llamadas.all()));
+        return ResponseEntity.ok(views(llamadas.all()));
     }
 
     @GetMapping("/{id}")
@@ -38,24 +38,24 @@ public class ResourceCallController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
     public ResponseEntity<List<ResourceCallResponse>> getCallsByUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(vistas(llamadas.mias(userId)));
+        return ResponseEntity.ok(views(llamadas.mias(userId)));
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<ResourceCallResponse>> getMyCalls(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(vistas(llamadas.mias(currentUserId)));
+        return ResponseEntity.ok(views(llamadas.mias(currentUserId)));
     }
 
     @GetMapping("/resource/{emergencyResourceId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCallResponse>> getCallsByResource(@PathVariable Long emergencyResourceId) {
-        return ResponseEntity.ok(vistas(llamadas.deRecurso(emergencyResourceId)));
+        return ResponseEntity.ok(views(llamadas.deRecurso(emergencyResourceId)));
     }
 
     @GetMapping("/alert/{alertId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCallResponse>> getCallsByAlert(@PathVariable Long alertId) {
-        return ResponseEntity.ok(vistas(llamadas.deAlerta(alertId)));
+        return ResponseEntity.ok(views(llamadas.deAlerta(alertId)));
     }
 
     @PostMapping
@@ -76,7 +76,7 @@ public class ResourceCallController {
         return ResponseEntity.noContent().build();
     }
 
-    private static List<ResourceCallResponse> vistas(List<ResourceCall> list) {
+    private static List<ResourceCallResponse> views(List<ResourceCall> list) {
         return list.stream().map(ResourceCallResponse::of).toList();
     }
 }

@@ -20,11 +20,11 @@ import java.util.List;
 public class AdminController {
 
     private final ManageUsersUseCase users;
-    private final UserReportsUseCase reportes;
+    private final UserReportsUseCase reports;
 
-    public AdminController(ManageUsersUseCase users, UserReportsUseCase reportes) {
+    public AdminController(ManageUsersUseCase users, UserReportsUseCase reports) {
         this.users = users;
-        this.reportes = reportes;
+        this.reports = reports;
     }
 
     @GetMapping("/users")
@@ -42,34 +42,34 @@ public class AdminController {
 
     @GetMapping("/user-reports")
     public ResponseEntity<List<UserReportView>> getAllUserReports() {
-        return ResponseEntity.ok(reportes.listAll(null));
+        return ResponseEntity.ok(reports.listAll(null));
     }
 
     @GetMapping("/user-reports/pending")
     public ResponseEntity<List<UserReportView>> getPendingUserReports() {
-        return ResponseEntity.ok(reportes.listAll("pending"));
+        return ResponseEntity.ok(reports.listAll("pending"));
     }
 
     @GetMapping("/user-reports/{id}")
     public ResponseEntity<UserReportView> getUserReport(@PathVariable Long id) {
-        return ResponseEntity.ok(reportes.get(id));
+        return ResponseEntity.ok(reports.get(id));
     }
 
     @PostMapping("/user-reports")
     public ResponseEntity<UserReportView> createUserReport(@RequestBody UserReportRequest r, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(reportes.create(r.reportedUserEmail(), r.reason(), r.description(), r.severity(), currentUserId));
+        return ResponseEntity.ok(reports.create(r.reportedUserEmail(), r.reason(), r.description(), r.severity(), currentUserId));
     }
 
     /** Actualiza estado, gravedad, motivo, descripción o notas; la revisora sale de la sesión. */
     @PutMapping("/user-reports/{id}")
     public ResponseEntity<UserReportView> updateUserReport(@PathVariable Long id, @RequestBody UserReportRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(reportes.update(id, request.toChanges(), currentUserId));
+        return ResponseEntity.ok(reports.update(id, request.toChanges(), currentUserId));
     }
 
     @DeleteMapping("/user-reports/{id}")
     public ResponseEntity<Void> deleteUserReport(@PathVariable Long id) {
-        reportes.delete(id);
+        reports.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

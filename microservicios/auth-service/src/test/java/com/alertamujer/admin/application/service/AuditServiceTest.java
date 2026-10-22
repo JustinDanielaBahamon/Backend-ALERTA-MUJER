@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.admin.application.port.in.AuditoriaUseCase.AuditActor;
+import com.alertamujer.admin.application.port.in.AuditUseCase.AuditActor;
 import com.alertamujer.admin.application.port.out.AuditRepository;
 import com.alertamujer.admin.application.port.out.RequestContextPort;
 import com.alertamujer.admin.application.port.out.UsersPort;

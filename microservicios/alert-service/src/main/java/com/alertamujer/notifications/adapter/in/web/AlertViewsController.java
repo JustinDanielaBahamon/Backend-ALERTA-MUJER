@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 @RestController
 public class AlertViewsController {
 
-    private final VistasAlertaUseCase vistas;
+    private final VistasAlertaUseCase views;
 
-    public AlertViewsController(VistasAlertaUseCase vistas) {
-        this.vistas = vistas;
+    public AlertViewsController(VistasAlertaUseCase views) {
+        this.views = views;
     }
 
     @GetMapping("/api/alerts/{id}/views")
     public ResponseEntity<Conteo> views(@PathVariable Long id, @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(vistas.vistas(id, userId, LocalDateTime.now()));
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(views.views(id, userId, LocalDateTime.now()));
     }
 }

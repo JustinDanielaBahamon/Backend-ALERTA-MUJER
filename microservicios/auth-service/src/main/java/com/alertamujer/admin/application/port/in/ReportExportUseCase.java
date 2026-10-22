@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /** Informes de alertas del panel: se guardan con un nombre y sus alertas y se exportan a PDF o Excel. */
-public interface InformesUseCase {
+public interface ReportExportUseCase {
 
     List<AlertReportView> listAll();
 

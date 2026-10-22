@@ -30,17 +30,17 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
     private final IdentityPort identity;
     private final AjustesPort ajustes;
     private final EvidenciasPort evidences;
-    private final VistasRepositorio vistas;
+    private final VistasRepositorio views;
     private final LimiteMensajesContacto limite = new LimiteMensajesContacto();
 
     public SeguimientoPublicoService(EnlaceRepositorio enlaces, AlertsPort alerts, IdentityPort identity,
-                                     AjustesPort ajustes, EvidenciasPort evidences, VistasRepositorio vistas) {
+                                     AjustesPort ajustes, EvidenciasPort evidences, VistasRepositorio views) {
         this.enlaces = enlaces;
         this.alerts = alerts;
         this.identity = identity;
         this.ajustes = ajustes;
         this.evidences = evidences;
-        this.vistas = vistas;
+        this.views = views;
     }
 
     @Override
@@ -53,16 +53,16 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public TrackingView consultar(String code, LocalDateTime now) {
+    public TrackingView query(String code, LocalDateTime now) {
         return view(alertaVigente(code, now));
     }
 
     @Override
     @Transactional
-    public TrackingView consultar(String code, String visitante, LocalDateTime now) {
+    public TrackingView query(String code, String visitante, LocalDateTime now) {
         AlertSummary alert = alertaVigente(code, now);
         if (visitante != null && visitante.matches("[A-Za-z0-9_-]{8,64}")) {
-            vistas.registrar(alert.id(), visitante, now);
+            views.registrar(alert.id(), visitante, now);
         }
         return view(alert);
     }
@@ -78,7 +78,7 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
                 .map(e -> new EvidenciaPublica(e.id(), e.mediaType(), e.contentType(), e.createdAt()))
                 .toList();
         return new TrackingView(name, alert.status(), "active".equals(alert.status()), alert.startedAt(),
-                fin(alert), recorrido, ajustes.emergencyNumber(), grabaciones);
+                end(alert), recorrido, ajustes.emergencyNumber(), grabaciones);
     }
 
     @Override
@@ -108,11 +108,11 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
         TrackingLink enlace = enlaces.porHash(TrackingLink.hash(code)).orElseThrow(SeguimientoPublicoService::noDisponible);
         if (enlace.revocado()) throw noDisponible();
         AlertSummary alert = alerts.find(enlace.getAlertId()).orElseThrow(SeguimientoPublicoService::noDisponible);
-        if (!TrackingLink.seguimientoVigente(alert.status(), fin(alert), now)) throw noDisponible();
+        if (!TrackingLink.seguimientoVigente(alert.status(), end(alert), now)) throw noDisponible();
         return alert;
     }
 
-    static LocalDateTime fin(AlertSummary a) {
+    static LocalDateTime end(AlertSummary a) {
         return a.endedAt() != null ? a.endedAt() : a.cancelledAt();
     }
 

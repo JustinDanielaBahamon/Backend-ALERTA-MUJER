@@ -67,14 +67,14 @@ public class Alert {
      * una alerta activa (hay que avisar a los contactos que la recibieron).
      */
     public boolean update(CambiosAlerta changes, LocalDateTime now) {
-        String anterior = status;
+        String previous = status;
         if (changes.alertType() != null) alertType = changes.alertType();
         if (changes.activationMethod() != null) activationMethod = changes.activationMethod();
         if (changes.status() != null) status = changes.status();
         if (changes.message() != null) message = changes.message();
         if (changes.endedAt() != null) endedAt = changes.endedAt();
         if (changes.cancelledAt() != null) cancelledAt = changes.cancelledAt();
-        if (!ACTIVE.equals(anterior) || !esEstadoFinal(status)) return false;
+        if (!ACTIVE.equals(previous) || !esEstadoFinal(status)) return false;
         marcarCierre(now);
         return true;
     }
@@ -87,10 +87,10 @@ public class Alert {
         if (newStatus == null || !STATUSES.contains(newStatus)) {
             throw new IllegalArgumentException("Estado no válido: " + newStatus);
         }
-        String anterior = status;
+        String previous = status;
         status = newStatus;
         marcarCierre(now);
-        return ACTIVE.equals(anterior) && esEstadoFinal(newStatus);
+        return ACTIVE.equals(previous) && esEstadoFinal(newStatus);
     }
 
     /** Superó la duración máxima configurada. */

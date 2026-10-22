@@ -27,17 +27,17 @@ public class PasswordRecoveryService implements RecoverPasswordUseCase {
 
     private final UserRepository users;
     private final AccountRepository accounts;
-    private final RecoveryRepository solicitudes;
+    private final RecoveryRepository deletionRequests;
     private final HashingPort hashing;
     private final IdentityEventsPort events;
     private final SecureRandom random = new SecureRandom();
 
     public PasswordRecoveryService(UserRepository users, AccountRepository accounts,
-                                         RecoveryRepository solicitudes, HashingPort hashing,
+                                         RecoveryRepository deletionRequests, HashingPort hashing,
                                          IdentityEventsPort events) {
         this.users = users;
         this.accounts = accounts;
-        this.solicitudes = solicitudes;
+        this.deletionRequests = deletionRequests;
         this.hashing = hashing;
         this.events = events;
     }
@@ -51,16 +51,16 @@ public class PasswordRecoveryService implements RecoverPasswordUseCase {
         Long accountId = account.get().getId();
         LocalDateTime now = LocalDateTime.now();
 
-        List<RecoveryRequest> pendingOnes = solicitudes.pendingForAccount(accountId);
+        List<RecoveryRequest> pendingOnes = deletionRequests.pendingForAccount(accountId);
         if (pendingOnes.stream().anyMatch(r -> r.recent(now))) return;
         pendingOnes.forEach(RecoveryRequest::replace);
-        solicitudes.saveAll(pendingOnes);
+        deletionRequests.saveAll(pendingOnes);
 
         String code;
         do {
             code = String.format("%06d", random.nextInt(1_000_000));
-        } while (solicitudes.hashExists(RecoveryRequest.hash(accountId, code)));
-        solicitudes.save(RecoveryRequest.newOne(accountId, code, ip, now));
+        } while (deletionRequests.hashExists(RecoveryRequest.hash(accountId, code)));
+        deletionRequests.save(RecoveryRequest.newOne(accountId, code, ip, now));
 
         User u = user.get();
         events.recoveryCode(u.getEmail(), u.fullName(), code, RecoveryRequest.VALIDITY_MINUTES);
@@ -81,7 +81,7 @@ public class PasswordRecoveryService implements RecoverPasswordUseCase {
         account.changePassword(hashing.hash(newPassword));
         accounts.save(account);
         deletionRequest.use(LocalDateTime.now());
-        solicitudes.save(deletionRequest);
+        deletionRequests.save(deletionRequest);
         if (users.find(account.getUserId()).map(User::esAdmin).orElse(false)) {
             events.adminSession(account.getId(), AdminSessionEvent.PASSWORD_CHANGED, "Recuperación por correo");
         }
@@ -93,17 +93,17 @@ public class PasswordRecoveryService implements RecoverPasswordUseCase {
                 .flatMap(u -> accounts.ofUser(u.getId()))
                 .filter(a -> !a.blocked())
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_CODE));
-        RecoveryRequest deletionRequest = solicitudes.pendingForAccount(account.getId()).stream()
+        RecoveryRequest deletionRequest = deletionRequests.pendingForAccount(account.getId()).stream()
                 .max(Comparator.comparing(RecoveryRequest::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .orElseThrow(() -> new IllegalArgumentException(INVALID_CODE));
         if (deletionRequest.expired(LocalDateTime.now())) {
             deletionRequest.expire();
-            solicitudes.save(deletionRequest);
+            deletionRequests.save(deletionRequest);
             throw new IllegalArgumentException(INVALID_CODE);
         }
         if (!deletionRequest.coincide(code)) {
             deletionRequest.recordFailure();
-            solicitudes.save(deletionRequest);
+            deletionRequests.save(deletionRequest);
             throw new IllegalArgumentException(INVALID_CODE);
         }
         return deletionRequest;

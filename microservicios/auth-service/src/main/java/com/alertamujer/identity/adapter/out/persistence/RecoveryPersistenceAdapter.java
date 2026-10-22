@@ -22,8 +22,8 @@ class RecoveryPersistenceAdapter implements RecoveryRepository {
     }
 
     @Override
-    public void saveAll(List<RecoveryRequest> solicitudes) {
-        jpa.saveAll(solicitudes.stream().map(RecoveryPersistenceAdapter::toRow).toList());
+    public void saveAll(List<RecoveryRequest> deletionRequests) {
+        jpa.saveAll(deletionRequests.stream().map(RecoveryPersistenceAdapter::toRow).toList());
     }
 
     @Override

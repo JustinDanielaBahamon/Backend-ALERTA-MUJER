@@ -40,11 +40,11 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
 
     @Override
     public int clear(LocalDateTime now) {
-        List<Evidence> viejas = repository.savedBefore(now.minusDays(days));
-        if (viejas.isEmpty()) return 0;
+        List<Evidence> old = repository.savedBefore(now.minusDays(days));
+        if (old.isEmpty()) return 0;
         Set<Long> kept = alerts.keepEvidence(
-                viejas.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));
-        List<Evidence> toDelete = viejas.stream().filter(e -> !kept.contains(e.getAlertId())).toList();
+                old.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));
+        List<Evidence> toDelete = old.stream().filter(e -> !kept.contains(e.getAlertId())).toList();
         if (toDelete.isEmpty()) return 0;
         remove(toDelete, "Tarea automática · Limpieza de evidencias");
         log.info("Evidencias de más de {} días eliminadas: {}", days, toDelete.size());
@@ -54,11 +54,11 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
     @Override
     public int removeForUser(Long userProfileId) {
         if (userProfileId == null) return 0;
-        List<Evidence> suyas = repository.ofAlerts(alerts.idsOfUser(userProfileId));
-        if (suyas.isEmpty()) return 0;
-        remove(suyas, "Cuenta eliminada · Borrado de evidencias");
-        log.info("Cuenta eliminada: {} evidencias del perfil {} borradas", suyas.size(), userProfileId);
-        return suyas.size();
+        List<Evidence> theirs = repository.ofAlerts(alerts.idsOfUser(userProfileId));
+        if (theirs.isEmpty()) return 0;
+        remove(theirs, "Cuenta eliminada · Borrado de evidencias");
+        log.info("Cuenta eliminada: {} evidencias del perfil {} borradas", theirs.size(), userProfileId);
+        return theirs.size();
     }
 
     private void remove(List<Evidence> evidences, String source) {

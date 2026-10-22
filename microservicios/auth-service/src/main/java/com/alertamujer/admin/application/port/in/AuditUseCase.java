@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /** Auditoría del panel: cambios registrados por los triggers y eventos de sesión de las cuentas admin. */
-public interface AuditoriaUseCase {
+public interface AuditUseCase {
 
     AuditPage listAll(AuditFilter filter, int page, int size);
 

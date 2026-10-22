@@ -1,6 +1,6 @@
 package com.alertamujer.admin.adapter.out.export;
 
-import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.AlertReportView;
 import com.alertamujer.admin.application.port.out.ReportExporterPort;
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.shared.web.ColombiaTime;
@@ -104,9 +104,9 @@ class ReportExporterAdapter implements ReportExporterPort {
         doc.add(spacer(4));
         PdfPTable summary = new PdfPTable(new float[]{1, 1, 1});
         summary.setWidthPercentage(100);
-        summary.addCell(cajaResumen("Total de alertas", List.<String[]>of(new String[]{"", String.valueOf(alerts.size())})));
-        summary.addCell(cajaResumen("Por estado", counts(alerts, a -> STATUSES.getOrDefault(a.status(), a.status()))));
-        summary.addCell(cajaResumen("Por activación", counts(alerts, a -> METHODS.getOrDefault(a.activationMethod(), a.activationMethod()))));
+        summary.addCell(summaryBox("Total de alertas", List.<String[]>of(new String[]{"", String.valueOf(alerts.size())})));
+        summary.addCell(summaryBox("Por estado", counts(alerts, a -> STATUSES.getOrDefault(a.status(), a.status()))));
+        summary.addCell(summaryBox("Por activación", counts(alerts, a -> METHODS.getOrDefault(a.activationMethod(), a.activationMethod()))));
         doc.add(summary);
         String average = averageDuration(alerts);
         if (average != null) {
@@ -136,13 +136,13 @@ class ReportExporterAdapter implements ReportExporterPort {
             String location = a.latitude() == null || a.longitude() == null ? "—"
                     : a.latitude().setScale(4, java.math.RoundingMode.HALF_UP).toPlainString() + ", "
                     + a.longitude().setScale(4, java.math.RoundingMode.HALF_UP).toPlainString();
-            String[] valores = {String.valueOf(a.id()),
+            String[] values = {String.valueOf(a.id()),
                     a.startedAt() == null ? "" : DATE.format(ColombiaTime.of(a.startedAt())),
                     duration(a), user,
                     STATUSES.getOrDefault(a.status(), a.status() == null ? "" : a.status()),
                     METHODS.getOrDefault(a.activationMethod(), a.activationMethod() == null ? "" : a.activationMethod()),
                     a.message() == null ? "" : a.message(), location};
-            for (String v : valores) {
+            for (String v : values) {
                 PdfPCell phone = new PdfPCell(new Phrase(v, font(false, 7.5f, TEXT)));
                 phone.setBackgroundColor(background);
                 phone.setBorderColor(LILAC_BORDER);
@@ -203,20 +203,20 @@ class ReportExporterAdapter implements ReportExporterPort {
         return c;
     }
 
-    private static PdfPCell cajaResumen(String title, List<String[]> rows) {
-        PdfPCell caja = new PdfPCell();
-        caja.setBorderColor(LILAC_BORDER);
-        caja.setBackgroundColor(LILAC_ROW);
-        caja.setPadding(8);
-        caja.addElement(new Paragraph(title, font(true, 8.5f, GRIS)));
+    private static PdfPCell summaryBox(String title, List<String[]> rows) {
+        PdfPCell box = new PdfPCell();
+        box.setBorderColor(LILAC_BORDER);
+        box.setBackgroundColor(LILAC_ROW);
+        box.setPadding(8);
+        box.addElement(new Paragraph(title, font(true, 8.5f, GRIS)));
         if (rows.size() == 1 && rows.get(0)[0].isEmpty()) {
-            caja.addElement(new Paragraph(rows.get(0)[1], font(true, 20, VIOLET)));
+            box.addElement(new Paragraph(rows.get(0)[1], font(true, 20, VIOLET)));
         } else if (rows.isEmpty()) {
-            caja.addElement(new Paragraph("—", font(false, 9, TEXT)));
+            box.addElement(new Paragraph("—", font(false, 9, TEXT)));
         } else {
-            for (String[] f : rows) caja.addElement(new Paragraph(f[0] + ": " + f[1], font(false, 9, TEXT)));
+            for (String[] f : rows) box.addElement(new Paragraph(f[0] + ": " + f[1], font(false, 9, TEXT)));
         }
-        return caja;
+        return box;
     }
 
     private static List<String[]> counts(List<AdminAlertView> alerts, java.util.function.Function<AdminAlertView, String> key) {
@@ -225,20 +225,20 @@ class ReportExporterAdapter implements ReportExporterPort {
         return account.entrySet().stream().map(e -> new String[]{e.getKey(), String.valueOf(e.getValue())}).toList();
     }
 
-    private static LocalDateTime fin(AdminAlertView a) {
+    private static LocalDateTime end(AdminAlertView a) {
         return a.endedAt() != null ? a.endedAt() : a.cancelledAt();
     }
 
     /** "12 min", "1 h 05 min"; vacío si la alerta sigue activa. */
     static String duration(AdminAlertView a) {
-        LocalDateTime fin = fin(a);
-        if (a.startedAt() == null || fin == null) return "";
-        return formatMinutes(Math.max(0, java.time.Duration.between(a.startedAt(), fin).toMinutes()));
+        LocalDateTime end = end(a);
+        if (a.startedAt() == null || end == null) return "";
+        return formatMinutes(Math.max(0, java.time.Duration.between(a.startedAt(), end).toMinutes()));
     }
 
     private static String averageDuration(List<AdminAlertView> alerts) {
-        var minutes = alerts.stream().filter(a -> a.startedAt() != null && fin(a) != null)
-                .mapToLong(a -> Math.max(0, java.time.Duration.between(a.startedAt(), fin(a)).toMinutes())).toArray();
+        var minutes = alerts.stream().filter(a -> a.startedAt() != null && end(a) != null)
+                .mapToLong(a -> Math.max(0, java.time.Duration.between(a.startedAt(), end(a)).toMinutes())).toArray();
         if (minutes.length == 0) return null;
         return formatMinutes(Math.round(java.util.Arrays.stream(minutes).average().orElse(0)));
     }

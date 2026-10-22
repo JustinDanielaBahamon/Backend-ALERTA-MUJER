@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.service;
 
-import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.AlertReportView;
 import com.alertamujer.admin.application.port.out.*;
 import com.alertamujer.admin.domain.model.AlertReport;
 import com.alertamujer.admin.domain.model.ReportExportChanges;
@@ -17,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class InformesServiceTest {
+class ReportExportServiceTest {
 
     private final ReportExportRepository repository = mock(ReportExportRepository.class);
     private final AlertsPort alerts = mock(AlertsPort.class);
     private final UsersPort users = mock(UsersPort.class);
     private final ZonesPort zones = mock(ZonesPort.class);
     private final ReportExporterPort exporter = mock(ReportExporterPort.class);
-    private final InformesService service = new InformesService(repository, alerts, users, zones, exporter);
+    private final ReportExportService service = new ReportExportService(repository, alerts, users, zones, exporter);
 
     private static AdminAlertView alert(Long id, String status) {
         return new AdminAlertView(id, 10L, 1L, "Ana", "ana@correo.com", 1L, "main", "panic_button", status, null, null, null,

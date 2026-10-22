@@ -14,7 +14,7 @@ public class Evidence {
     public static final Set<String> REVISIONES = Set.of("pending", "verified", "rejected");
 
     // SVG/HTML are left out on purpose: they can run scripts when opened
-    private static final Set<String> DOCUMENTOS = Set.of("application/pdf");
+    private static final Set<String> DOCUMENTS = Set.of("application/pdf");
     private static final int MAX_NAME_LENGTH = 80;
 
     private Long id;
@@ -41,7 +41,7 @@ public class Evidence {
         if (c.startsWith("image/") && !c.contains("svg")) return "photo";
         if (c.startsWith("video/")) return "video";
         if (c.startsWith("audio/")) return "audio";
-        if (DOCUMENTOS.contains(c)) return "document";
+        if (DOCUMENTS.contains(c)) return "document";
         throw new IllegalArgumentException("Tipo de archivo no permitido. Sube una foto, video, audio o PDF.");
     }
 
@@ -53,15 +53,15 @@ public class Evidence {
     }
 
     /** Changes the name the user sees and keeps the extension (the file and its fingerprint do not change). */
-    public void renombrar(String name) {
-        String limpio = name == null ? "" : name.replaceAll("[\\\\/\\r\\n\"<>]", " ").trim().replaceAll("\\s+", " ");
-        if (limpio.isEmpty()) throw new IllegalArgumentException("Escribe un nombre para la evidencia");
-        if (limpio.length() > MAX_NAME_LENGTH) {
+    public void rename(String name) {
+        String clean = name == null ? "" : name.replaceAll("[\\\\/\\r\\n\"<>]", " ").trim().replaceAll("\\s+", " ");
+        if (clean.isEmpty()) throw new IllegalArgumentException("Escribe un nombre para la evidencia");
+        if (clean.length() > MAX_NAME_LENGTH) {
             throw new IllegalArgumentException("El nombre puede tener máximo " + MAX_NAME_LENGTH + " caracteres");
         }
         String extension = extension(fileName);
-        if (!extension.isEmpty() && !limpio.toLowerCase().endsWith(extension.toLowerCase())) limpio += extension;
-        this.fileName = limpio;
+        if (!extension.isEmpty() && !clean.toLowerCase().endsWith(extension.toLowerCase())) clean += extension;
+        this.fileName = clean;
     }
 
     public void changeReview(String review) {
@@ -78,8 +78,8 @@ public class Evidence {
 
     private static String extension(String name) {
         if (name == null) return "";
-        int punto = name.lastIndexOf('.');
-        return punto > 0 && name.length() - punto <= 6 ? name.substring(punto) : "";
+        int dot = name.lastIndexOf('.');
+        return dot > 0 && name.length() - dot <= 6 ? name.substring(dot) : "";
     }
 
     // ── Datos ───────────────────────────────────────────────────────

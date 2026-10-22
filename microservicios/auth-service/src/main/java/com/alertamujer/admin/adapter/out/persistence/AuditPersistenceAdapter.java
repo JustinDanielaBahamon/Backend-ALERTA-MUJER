@@ -15,11 +15,11 @@ import java.util.List;
 
 /** Adaptador de salida: la auditoría en PostgreSQL, con el filtro traducido a una consulta de JPA. */
 @Component
-class AuditoriaPersistenceAdapter implements AuditRepository {
+class AuditPersistenceAdapter implements AuditRepository {
 
     private final AuditLogJpaRepository jpa;
 
-    AuditoriaPersistenceAdapter(AuditLogJpaRepository jpa) {
+    AuditPersistenceAdapter(AuditLogJpaRepository jpa) {
         this.jpa = jpa;
     }
 
@@ -28,13 +28,13 @@ class AuditoriaPersistenceAdapter implements AuditRepository {
     @Override
     public AuditLogPage page(AuditFilter filter, int page, int size) {
         Page<AuditLogJpaEntity> p = jpa.findAll(specification(filter), PageRequest.of(page, size, NEWEST_FIRST));
-        return new AuditLogPage(p.getContent().stream().map(AuditoriaPersistenceAdapter::toDomain).toList(), p.getTotalElements(), p.getNumber());
+        return new AuditLogPage(p.getContent().stream().map(AuditPersistenceAdapter::toDomain).toList(), p.getTotalElements(), p.getNumber());
     }
 
     @Override
     public List<AuditLog> first(AuditFilter filter, int max) {
         return jpa.findAll(specification(filter), PageRequest.of(0, max, NEWEST_FIRST)).getContent().stream()
-                .map(AuditoriaPersistenceAdapter::toDomain).toList();
+                .map(AuditPersistenceAdapter::toDomain).toList();
     }
 
     @Override

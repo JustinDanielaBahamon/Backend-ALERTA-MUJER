@@ -16,13 +16,13 @@ public interface SeguimientoPublicoUseCase {
     /** Crea un enlace para la alerta y devuelve el código (no se puede recuperar después). */
     String crearEnlace(Long alertId);
 
-    TrackingView consultar(String code, LocalDateTime now);
+    TrackingView query(String code, LocalDateTime now);
 
     /**
      * Como consultar, y además deja constancia de que ese visitante (identificador anónimo del
      * navegador o la app) abrió el seguimiento: la usuaria ve cuántos la están viendo.
      */
-    TrackingView consultar(String code, String visitante, LocalDateTime now);
+    TrackingView query(String code, String visitante, LocalDateTime now);
 
     /** Archivo de una grabación de la alerta del enlace. */
     EvidenceFile evidence(String code, Long evidenciaId, LocalDateTime now);

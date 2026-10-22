@@ -25,11 +25,11 @@ class EvidenceAdministrationServiceTest {
     private final IdentityPort identity = mock(IdentityPort.class);
     private final EvidenceAdministrationService service = new EvidenceAdministrationService(repository, alerts, identity);
 
-    private Evidence evidence(Long id, String review, long tamanio) {
+    private Evidence evidence(Long id, String review, long size) {
         Evidence e = new Evidence();
         e.setId(id);
         e.setAlertId(5L);
-        e.setSizeBytes(tamanio);
+        e.setSizeBytes(size);
         e.setStorageKey("clave-" + id);
         e.setReviewStatus(review);
         return e;

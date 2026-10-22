@@ -108,9 +108,9 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
 
     @Override
     @Transactional
-    public EvidenceWithAlert renombrar(Long id, String name, Long userId) {
+    public EvidenceWithAlert rename(Long id, String name, Long userId) {
         Evidence e = una(id, userId);
-        e.renombrar(name);
+        e.rename(name);
         return new EvidenceWithAlert(repository.save(e), ownAlert(e.getAlertId(), userId));
     }
 

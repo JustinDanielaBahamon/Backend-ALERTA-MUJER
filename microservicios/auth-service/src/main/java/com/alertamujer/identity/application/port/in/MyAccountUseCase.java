@@ -6,7 +6,7 @@ import com.alertamujer.identity.domain.model.User;
 /** La persona en sesión consulta y cambia sus datos. */
 public interface MyAccountUseCase {
 
-    UserWithPhoto mia(Long userId);
+    UserWithPhoto mine(Long userId);
 
     UserWithPhoto update(Long userId, UserChanges changes);
 

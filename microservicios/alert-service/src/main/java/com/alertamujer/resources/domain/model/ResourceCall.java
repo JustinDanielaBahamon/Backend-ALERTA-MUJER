@@ -46,9 +46,9 @@ public class ResourceCall {
     }
 
     /** Resultado de la llamada: solo los datos que lleguen. */
-    public void update(String newStatus, LocalDateTime fin, Integer duracionSegundos) {
+    public void update(String newStatus, LocalDateTime end, Integer duracionSegundos) {
         if (newStatus != null) status = newStatus;
-        if (fin != null) endedAt = fin;
+        if (end != null) endedAt = end;
         if (duracionSegundos != null) durationSeconds = duracionSegundos;
     }
 

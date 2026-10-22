@@ -18,20 +18,20 @@ class EvidenceTest {
     }
 
     @Test
-    void renombrarConservaLaExtension() {
+    void renameKeepsTheExtension() {
         Evidence e = new Evidence();
         e.setFileName("video_1760870000000.mp4");
 
-        e.renombrar("  Camino a casa  ");
+        e.rename("  Camino a casa  ");
 
         assertEquals("Camino a casa.mp4", e.getFileName());
     }
 
     @Test
-    void rechazaNombresVaciosOMuyLargos() {
+    void rejectsEmptyOrTooLongNames() {
         Evidence e = new Evidence();
-        assertThrows(IllegalArgumentException.class, () -> e.renombrar("   "));
-        assertThrows(IllegalArgumentException.class, () -> e.renombrar("a".repeat(81)));
+        assertThrows(IllegalArgumentException.class, () -> e.rename("   "));
+        assertThrows(IllegalArgumentException.class, () -> e.rename("a".repeat(81)));
     }
 
     @Test

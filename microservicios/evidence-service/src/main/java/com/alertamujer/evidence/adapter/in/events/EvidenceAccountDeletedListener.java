@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 @Component
 class EvidenceAccountDeletedListener {
 
-    private final CleanUpEvidenceUseCase limpieza;
+    private final CleanUpEvidenceUseCase cleanup;
 
-    EvidenceAccountDeletedListener(CleanUpEvidenceUseCase limpieza) {
-        this.limpieza = limpieza;
+    EvidenceAccountDeletedListener(CleanUpEvidenceUseCase cleanup) {
+        this.cleanup = cleanup;
     }
 
     @EventListener
     public void onAccountDeleted(AccountDeletedEvent e) {
-        limpieza.removeForUser(e.userProfileId());
+        cleanup.removeForUser(e.userProfileId());
     }
 }

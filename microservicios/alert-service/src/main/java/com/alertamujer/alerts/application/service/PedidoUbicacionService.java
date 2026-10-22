@@ -40,8 +40,8 @@ public class PedidoUbicacionService implements PedirUbicacionUseCase {
     @Override
     public Resultado perform(Long userId) {
         Instant now = clock.instant();
-        Instant anterior = ultimoPedido.get(userId);
-        if (anterior != null && anterior.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(now)) {
+        Instant previous = ultimoPedido.get(userId);
+        if (previous != null && previous.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(now)) {
             throw new IllegalStateException("Ya se pidió la ubicación hace un momento. Espera unos segundos.");
         }
         // Solo celulares: un navegador no tiene GPS ni puede responder

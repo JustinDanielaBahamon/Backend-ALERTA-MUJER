@@ -13,7 +13,7 @@ public interface CorreosPort {
                        String seguimientoUrl, String mapsUrl, String emergencyNumber);
 
     /** Aviso de que la alerta terminó. estado: resolved, cancelled o expired. */
-    void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime fin,
+    void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime end,
                      String emergencyNumber);
 
     void recoveryCode(String para, String name, String code, int validityMinutes);

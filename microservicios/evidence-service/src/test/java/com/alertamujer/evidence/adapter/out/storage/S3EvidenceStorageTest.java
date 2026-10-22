@@ -27,7 +27,7 @@ class S3EvidenceStorageTest {
     }
 
     @Test
-    void rechazaClavesQueNoSonSuyas() {
+    void rejectsKeysThatAreNotItsOwn() {
         assertThrows(IllegalArgumentException.class,
                 () -> create().temporaryLink("../otra-cosa", "video/mp4", Duration.ofMinutes(1)));
     }

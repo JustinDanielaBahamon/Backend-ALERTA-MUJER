@@ -1,6 +1,6 @@
 package com.alertamujer.admin.adapter.out.export;
 
-import com.alertamujer.admin.application.port.in.InformesUseCase.AlertReportView;
+import com.alertamujer.admin.application.port.in.ReportExportUseCase.AlertReportView;
 import com.alertamujer.alerts.api.AdminAlertView;
 import org.junit.jupiter.api.Test;
 

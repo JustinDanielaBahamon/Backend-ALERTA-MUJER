@@ -89,7 +89,7 @@ class MyDevicesServiceTest {
         when(repository.find(10L)).thenReturn(Optional.of(own(10L, "android", "t")));
 
         assertThrows(AccessDeniedException.class, () -> service.one(10L, 2L));
-        assertThrows(AccessDeniedException.class, () -> service.registrarUso(10L, phone("x"), 2L));
+        assertThrows(AccessDeniedException.class, () -> service.recordUse(10L, phone("x"), 2L));
         assertThrows(AccessDeniedException.class, () -> service.changePushToken(10L, "t2", 2L));
         assertThrows(AccessDeniedException.class, () -> service.delete(10L, 2L));
         verify(repository, never()).delete(any());

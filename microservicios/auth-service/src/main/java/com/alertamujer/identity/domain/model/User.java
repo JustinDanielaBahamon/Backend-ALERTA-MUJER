@@ -43,11 +43,11 @@ public class User {
     /** Usuaria nueva desde el formulario de registro (nombre completo en un solo campo). */
     public static User newOne(String name, String email, String telephone, String documentType,
                              String documentNumber, LocalDate birth) {
-        String[] partes = name.split(" ");
+        String[] parts = name.split(" ");
         User u = new User();
         u.roleId = USER_ROLE;
-        u.firstName = partes[0];
-        u.lastName = partes.length > 1 ? partes[1] : "";
+        u.firstName = parts[0];
+        u.lastName = parts.length > 1 ? parts[1] : "";
         u.email = email;
         u.telephone = cleanPhone(telephone);
         u.documentType = emptyToNull(documentType);

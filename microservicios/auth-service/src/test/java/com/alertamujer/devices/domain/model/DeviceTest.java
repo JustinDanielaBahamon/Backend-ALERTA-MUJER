@@ -38,7 +38,7 @@ class DeviceTest {
     void recordUseUpdatesOnlyWhatArrivesTruncatedAndMarksTheConnection() {
         Device d = Device.created(4L, data("Samsung", null, null, null), NOW.minusDays(1));
 
-        d.registrarUso(data(null, "  Galaxy de Ana  ", "active", "{ \"ubicacion\": true }"), NOW);
+        d.recordUse(data(null, "  Galaxy de Ana  ", "active", "{ \"ubicacion\": true }"), NOW);
 
         assertEquals("Samsung", d.getBrand());
         assertEquals("Galaxy de Ana", d.getDeviceName());

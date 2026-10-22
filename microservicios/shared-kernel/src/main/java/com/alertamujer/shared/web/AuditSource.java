@@ -18,12 +18,12 @@ public final class AuditSource {
 
     /** Ejecuta la tarea con este origen (p. ej. "Tarea automática · Expiración de alertas"). */
     public static <T> T runAs(String source, Supplier<T> task) {
-        String anterior = CURRENT.get();
+        String previous = CURRENT.get();
         CURRENT.set(source);
         try {
             return task.get();
         } finally {
-            if (anterior == null) CURRENT.remove(); else CURRENT.set(anterior);
+            if (previous == null) CURRENT.remove(); else CURRENT.set(previous);
         }
     }
 }

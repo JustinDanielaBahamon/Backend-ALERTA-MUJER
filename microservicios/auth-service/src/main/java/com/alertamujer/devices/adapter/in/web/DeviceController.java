@@ -68,9 +68,9 @@ public class DeviceController {
 
     /** La app informa los datos actuales del celular y su última conexión (solo la dueña). */
     @PutMapping("/{id}/info")
-    public ResponseEntity<DeviceResponse> registrarUso(@PathVariable Long id, @RequestBody DeviceRequest request,
+    public ResponseEntity<DeviceResponse> recordUse(@PathVariable Long id, @RequestBody DeviceRequest request,
                                                        @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(DeviceResponse.of(myDevices.registrarUso(id, request.toData(), currentUserId)));
+        return ResponseEntity.ok(DeviceResponse.of(myDevices.recordUse(id, request.toData(), currentUserId)));
     }
 
     /**

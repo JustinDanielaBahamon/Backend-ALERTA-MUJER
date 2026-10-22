@@ -27,9 +27,9 @@ class CorreosAdapter implements CorreosPort {
     }
 
     @Override
-    public void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime fin,
+    public void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime end,
                             String emergencyNumber) {
-        send(AlertEmailTemplate.construirFin(para, nombreContacto, nombreUsuaria, status, fin, emergencyNumber, logoUrl));
+        send(AlertEmailTemplate.construirFin(para, nombreContacto, nombreUsuaria, status, end, emergencyNumber, logoUrl));
     }
 
     @Override

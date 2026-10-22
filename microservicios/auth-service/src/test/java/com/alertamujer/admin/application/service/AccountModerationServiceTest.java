@@ -27,10 +27,10 @@ class AccountModerationServiceTest {
 
     private final UserReportRepository cases = mock(UserReportRepository.class);
     private final ModerationActionRepository actions = mock(ModerationActionRepository.class);
-    private final DeletionRequestRepository solicitudes = mock(DeletionRequestRepository.class);
+    private final DeletionRequestRepository deletionRequests = mock(DeletionRequestRepository.class);
     private final AccountsPort accounts = mock(AccountsPort.class);
     private final UsersPort users = mock(UsersPort.class);
-    private final AccountModerationService service = new AccountModerationService(cases, actions, solicitudes, accounts, users);
+    private final AccountModerationService service = new AccountModerationService(cases, actions, deletionRequests, accounts, users);
 
     private static final UserSummary ANA = new UserSummary(5L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
     private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ADMIN_ROLE, null);
@@ -44,7 +44,7 @@ class AccountModerationServiceTest {
             r.setId(40L);
             return r;
         });
-        when(solicitudes.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(deletionRequests.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     @Test
@@ -84,7 +84,7 @@ class AccountModerationServiceTest {
         AccountDeletionRequest requested = AccountDeletionRequest.newOne(5L, 2L, "Cuenta duplicada");
         when(cases.ofUser(5L)).thenReturn(List.of(reportCase));
         when(actions.fromCases(any())).thenReturn(List.of(block));
-        when(solicitudes.all()).thenReturn(List.of(requested));
+        when(deletionRequests.all()).thenReturn(List.of(requested));
 
         List<HistoryItem> h = service.history(5L);
 
@@ -95,11 +95,11 @@ class AccountModerationServiceTest {
 
     @Test
     void cannotBeRequestedTwiceOrApprovedByTheSameAdmin() {
-        when(solicitudes.hasPending(5L)).thenReturn(true);
+        when(deletionRequests.hasPending(5L)).thenReturn(true);
         assertThrows(IllegalArgumentException.class, () -> service.requestDeletion(5L, "Cuenta duplicada", 2L));
 
         AccountDeletionRequest s = AccountDeletionRequest.newOne(5L, 2L, "Cuenta duplicada");
-        when(solicitudes.find(7L)).thenReturn(Optional.of(s));
+        when(deletionRequests.find(7L)).thenReturn(Optional.of(s));
         assertThrows(IllegalArgumentException.class, () -> service.approve(7L, null, 2L));
         verify(accounts, never()).anonymize(any());
 

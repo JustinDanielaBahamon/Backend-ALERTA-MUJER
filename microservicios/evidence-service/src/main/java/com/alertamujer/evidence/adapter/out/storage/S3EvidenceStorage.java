@@ -48,7 +48,7 @@ import java.util.UUID;
 public class S3EvidenceStorage implements EvidenceStorage {
 
     private static final Logger log = LoggerFactory.getLogger(S3EvidenceStorage.class);
-    private static final String PREFIJO = "evidencias/";
+    private static final String PREFIX = "evidencias/";
 
     private final S3Client s3;
     private final S3Presigner presigner;
@@ -60,18 +60,18 @@ public class S3EvidenceStorage implements EvidenceStorage {
                              @Value("${evidence.s3.access-key}") String accessKey,
                              @Value("${evidence.s3.secret-key}") String secretKey,
                              @Value("${evidence.s3.create-bucket:false}") boolean createBucket,
-                             @Value("${evidence.s3.public-endpoint:}") String endpointPublico) {
+                             @Value("${evidence.s3.public-endpoint:}") String publicEndpoint) {
         if (endpoint.isBlank() || bucket.isBlank() || accessKey.isBlank() || secretKey.isBlank()) {
             throw new IllegalStateException("evidence.storage=s3 requiere EVIDENCE_S3_ENDPOINT, _BUCKET, _ACCESS_KEY y _SECRET_KEY");
         }
-        var credenciales = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+        var credentials = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         // Rutas tipo endpoint/bucket/clave: las aceptan B2 y MinIO
         var config = S3Configuration.builder().pathStyleAccessEnabled(true).build();
         this.s3 = S3Client.builder()
                 .httpClient(UrlConnectionHttpClient.create())
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.of(region))
-                .credentialsProvider(credenciales)
+                .credentialsProvider(credentials)
                 .serviceConfiguration(config)
                 // Not every provider accepts the automatic CRC32 checksums of the new SDK
                 .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
@@ -80,9 +80,9 @@ public class S3EvidenceStorage implements EvidenceStorage {
         // Signed links are opened by the contact's browser: in local Docker the backend sees
         // "minio:9000" but the browser sees "localhost:9000"
         this.presigner = S3Presigner.builder()
-                .endpointOverride(URI.create(endpointPublico.isBlank() ? endpoint : endpointPublico))
+                .endpointOverride(URI.create(publicEndpoint.isBlank() ? endpoint : publicEndpoint))
                 .region(Region.of(region))
-                .credentialsProvider(credenciales)
+                .credentialsProvider(credentials)
                 .serviceConfiguration(config)
                 .build();
         this.bucket = bucket;
@@ -93,11 +93,11 @@ public class S3EvidenceStorage implements EvidenceStorage {
     public StoredFile save(IncomingFile file) {
         String key = UUID.randomUUID().toString();
         try {
-            String sha256 = huella(file);
+            String sha256 = fingerprint(file);
             // The SDK may read the content more than once (signing, retries): it gets a way to
             // open it again, which the multipart upload allows (kept in memory or on disk)
             ContentStreamProvider content = () -> file.content().get();
-            s3.putObject(b -> b.bucket(bucket).key(PREFIJO + key).contentType(file.contentType()),
+            s3.putObject(b -> b.bucket(bucket).key(PREFIX + key).contentType(file.contentType()),
                     RequestBody.fromContentProvider(content, file.size(), file.contentType()));
             return new StoredFile(key, sha256, file.size());
         } catch (IOException | UncheckedIOException e) {
@@ -108,7 +108,7 @@ public class S3EvidenceStorage implements EvidenceStorage {
         }
     }
 
-    private static String huella(IncomingFile file) throws IOException {
+    private static String fingerprint(IncomingFile file) throws IOException {
         try (InputStream in = file.content().get();
              DigestInputStream digest = new DigestInputStream(in, MessageDigest.getInstance("SHA-256"))) {
             digest.transferTo(OutputStream.nullOutputStream());
@@ -120,14 +120,14 @@ public class S3EvidenceStorage implements EvidenceStorage {
 
     @Override
     public Resource load(String key) {
-        return new ObjetoS3(validate(key));
+        return new BucketObject(validate(key));
     }
 
     @Override
     public void delete(String key) {
         if (key == null) return;
         try {
-            s3.deleteObject(b -> b.bucket(bucket).key(PREFIJO + validate(key)));
+            s3.deleteObject(b -> b.bucket(bucket).key(PREFIX + validate(key)));
         } catch (S3Exception e) {
             // If the file cannot be deleted, that must not prevent deleting the record
             log.warn("No se pudo borrar la evidencia {} del almacenamiento: {}", key, e.getMessage());
@@ -135,17 +135,17 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     @Override
-    public Optional<URI> temporaryLink(String key, String contentType, Duration vigencia) {
-        String objectKey = PREFIJO + validate(key);
-        var firmado = presigner.presignGetObject(p -> p
-                .signatureDuration(vigencia)
+    public Optional<URI> temporaryLink(String key, String contentType, Duration validity) {
+        String objectKey = PREFIX + validate(key);
+        var signed = presigner.presignGetObject(p -> p
+                .signatureDuration(validity)
                 .getObjectRequest(GetObjectRequest.builder()
                         .bucket(bucket)
                         .key(objectKey)
                         .responseContentType(contentType)
                         .responseContentDisposition("inline")
                         .build()));
-        return Optional.of(URI.create(firmado.url().toString()));
+        return Optional.of(URI.create(signed.url().toString()));
     }
 
     // The key is always a UUID generated here; it is validated anyway so no other objects are touched
@@ -167,18 +167,18 @@ public class S3EvidenceStorage implements EvidenceStorage {
     }
 
     /** Bucket object as a Resource: Spring serves it with Range support (seeking in videos). */
-    private final class ObjetoS3 extends AbstractResource {
+    private final class BucketObject extends AbstractResource {
         private final String key;
-        private HeadObjectResponse cabecera;
+        private HeadObjectResponse head;
 
-        private ObjetoS3(String key) {
+        private BucketObject(String key) {
             this.key = key;
         }
 
-        private Optional<HeadObjectResponse> cabecera() {
-            if (cabecera == null) {
+        private Optional<HeadObjectResponse> head() {
+            if (head == null) {
                 try {
-                    cabecera = s3.headObject(b -> b.bucket(bucket).key(PREFIJO + key));
+                    head = s3.headObject(b -> b.bucket(bucket).key(PREFIX + key));
                 } catch (NoSuchKeyException e) {
                     return Optional.empty();
                 } catch (S3Exception e) {
@@ -186,23 +186,23 @@ public class S3EvidenceStorage implements EvidenceStorage {
                     throw e;
                 }
             }
-            return Optional.of(cabecera);
+            return Optional.of(head);
         }
 
         @Override
         public boolean exists() {
-            return cabecera().isPresent();
+            return head().isPresent();
         }
 
         @Override
         public long contentLength() throws IOException {
-            return cabecera().map(HeadObjectResponse::contentLength)
+            return head().map(HeadObjectResponse::contentLength)
                     .orElseThrow(() -> new IOException("La evidencia no existe en el almacenamiento"));
         }
 
         @Override
         public InputStream getInputStream() {
-            return s3.getObject(b -> b.bucket(bucket).key(PREFIJO + key));
+            return s3.getObject(b -> b.bucket(bucket).key(PREFIX + key));
         }
 
         @Override

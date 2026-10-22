@@ -12,5 +12,5 @@ public interface AvisarContactosUseCase {
     void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime start);
 
     /** Aviso de cortesía: no cambia el estado de los envíos y un fallo solo se registra en el log. */
-    void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime fin);
+    void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime end);
 }

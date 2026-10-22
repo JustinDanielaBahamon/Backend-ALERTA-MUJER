@@ -55,8 +55,8 @@ public class SafeTrip {
         t.userProfileId = profile;
         t.userId = userId;
         t.deviceId = deviceId;
-        String limpio = target.trim();
-        t.destination = limpio.length() > MAXIMO_DESTINO ? limpio.substring(0, MAXIMO_DESTINO) : limpio;
+        String clean = target.trim();
+        t.destination = clean.length() > MAXIMO_DESTINO ? clean.substring(0, MAXIMO_DESTINO) : clean;
         t.destinationLatitude = lat;
         t.destinationLongitude = lng;
         t.startedAt = now;

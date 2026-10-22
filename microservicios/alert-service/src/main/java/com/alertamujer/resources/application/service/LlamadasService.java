@@ -67,9 +67,9 @@ public class LlamadasService implements LlamadasUseCase {
 
     @Override
     @Transactional
-    public ResourceCall update(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId) {
+    public ResourceCall update(Long id, String status, LocalDateTime end, Integer duracionSegundos, Long userId) {
         ResourceCall c = own(id, userId);
-        c.update(status, fin, duracionSegundos);
+        c.update(status, end, duracionSegundos);
         return repository.save(c);
     }
 

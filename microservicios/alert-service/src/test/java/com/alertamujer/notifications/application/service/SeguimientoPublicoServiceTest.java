@@ -32,8 +32,8 @@ class SeguimientoPublicoServiceTest {
     private final IdentityPort identity = mock(IdentityPort.class);
     private final AjustesPort ajustes = mock(AjustesPort.class);
     private final EvidenciasPort evidences = mock(EvidenciasPort.class);
-    private final VistasRepositorio vistas = mock(VistasRepositorio.class);
-    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alerts, identity, ajustes, evidences, vistas);
+    private final VistasRepositorio views = mock(VistasRepositorio.class);
+    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alerts, identity, ajustes, evidences, views);
 
     private TrackingLink enlace;
 
@@ -45,9 +45,9 @@ class SeguimientoPublicoServiceTest {
         when(ajustes.emergencyNumber()).thenReturn("123");
     }
 
-    private void alert(String status, LocalDateTime fin) {
+    private void alert(String status, LocalDateTime end) {
         when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", status, null,
-                NOW.minusHours(1), new BigDecimal("4.6"), new BigDecimal("-74.1"), fin, null)));
+                NOW.minusHours(1), new BigDecimal("4.6"), new BigDecimal("-74.1"), end, null)));
     }
 
     @Test
@@ -63,15 +63,15 @@ class SeguimientoPublicoServiceTest {
     @Test
     void consultarMuestraNombreDePilaRecorridoYGrabaciones() {
         alert("active", null);
-        LocationPoint punto = new LocationPoint(new BigDecimal("4.61"), new BigDecimal("-74.08"), null, NOW);
-        when(alerts.recorrido(5L)).thenReturn(List.of(punto));
+        LocationPoint dot = new LocationPoint(new BigDecimal("4.61"), new BigDecimal("-74.08"), null, NOW);
+        when(alerts.recorrido(5L)).thenReturn(List.of(dot));
         when(evidences.deAlerta(5L)).thenReturn(List.of(new EvidenceSummary(9L, "video", "video/mp4", 100L, NOW)));
 
-        TrackingView v = service.consultar(CODIGO, NOW);
+        TrackingView v = service.query(CODIGO, NOW);
 
         assertEquals("Ana", v.firstName());
         assertTrue(v.active());
-        assertEquals(punto, v.lastPoint());
+        assertEquals(dot, v.lastPoint());
         assertEquals("123", v.emergencyNumber());
         assertEquals(9L, v.evidence().get(0).id());
     }
@@ -82,14 +82,14 @@ class SeguimientoPublicoServiceTest {
         when(alerts.recorrido(5L)).thenReturn(List.of());
         when(evidences.deAlerta(5L)).thenReturn(List.of());
 
-        assertEquals(new BigDecimal("4.6"), service.consultar(CODIGO, NOW).lastPoint().latitude());
+        assertEquals(new BigDecimal("4.6"), service.query(CODIGO, NOW).lastPoint().latitude());
     }
 
     @Test
     void venceDosHorasDespuesDeTerminar() {
         alert("resolved", NOW.minusHours(3));
 
-        assertThrows(ResourceNotFoundException.class, () -> service.consultar(CODIGO, NOW));
+        assertThrows(ResourceNotFoundException.class, () -> service.query(CODIGO, NOW));
         assertThrows(ResourceNotFoundException.class, () -> service.mensajes(CODIGO, 0L, NOW));
         assertThrows(ResourceNotFoundException.class, () -> service.evidence(CODIGO, 9L, NOW));
     }
@@ -99,9 +99,9 @@ class SeguimientoPublicoServiceTest {
         alert("active", null);
         enlace.setRevokedAt(NOW);
 
-        assertThrows(ResourceNotFoundException.class, () -> service.consultar(CODIGO, NOW));
-        assertThrows(ResourceNotFoundException.class, () -> service.consultar("corto", NOW));
-        assertThrows(ResourceNotFoundException.class, () -> service.consultar(TrackingLink.generarCodigo(), NOW));
+        assertThrows(ResourceNotFoundException.class, () -> service.query(CODIGO, NOW));
+        assertThrows(ResourceNotFoundException.class, () -> service.query("corto", NOW));
+        assertThrows(ResourceNotFoundException.class, () -> service.query(TrackingLink.generarCodigo(), NOW));
     }
 
     @Test
