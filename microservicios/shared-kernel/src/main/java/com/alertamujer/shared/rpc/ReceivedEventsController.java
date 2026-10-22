@@ -36,7 +36,7 @@ public class ReceivedEventsController {
         this.events = events;
     }
 
-    @PostMapping("/{tipo}")
+    @PostMapping("/{type}")
     public ResponseEntity<Void> recibir(@PathVariable String type, @RequestBody JsonNode cuerpo) throws Exception {
         Class<?> clase = tipos.get(type);
         if (clase == null) return ResponseEntity.notFound().build();
