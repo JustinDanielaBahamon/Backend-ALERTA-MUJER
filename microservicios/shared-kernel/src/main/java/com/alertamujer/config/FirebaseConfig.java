@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Lo usan Auth (inicio de sesión con Google) y Alert (push); Evidence lo apaga con firebase.enabled=false. */
+/** Used by Auth (Google sign-in) and Alert (push); Evidence turns it off with firebase.enabled=false. */
 @Configuration
 @org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "firebase.enabled", havingValue = "true", matchIfMissing = true)
 public class FirebaseConfig {
@@ -58,7 +58,7 @@ public class FirebaseConfig {
             }
         }
 
-        // Inicializar solo si no existe ya
+        // Initialize only if it does not exist yet
         if (FirebaseApp.getApps().isEmpty() && serviceAccount != null && options != null) {
             FirebaseApp.initializeApp(options);
         }
@@ -66,16 +66,18 @@ public class FirebaseConfig {
         return FirebaseApp.getInstance();
     }
 
-    /**     * Enviar notificación simple a un solo dispositivo
+    /**
+     * Send a simple notification to a single device
      */
     public String sendToDevice(String token, String title, String body) throws Exception {
-        // Esta método se usa desde FcmServiceImpl, pero en producción
+        // This method is used from FcmServiceImpl, but in production
         // preferimos usar firebaseApp() + FirebaseMessaging.getInstance().send()
-        // Por ahora lanzamos una excepción para indicar que debe usarse la vía directa
+        // For now we throw an exception to signal that the direct path must be used
         throw new Exception("Use FirebaseMessaging.getInstance().send() directly");
     }
 
-    /**     * Enviar notificación en lote a múltiples dispositivos
+    /**
+     * Send a batch notification to several devices
      */
     public List<String> sendToMultipleDevices(List<String> tokens, String title, String body) throws Exception {
         List<String> successTokens = new ArrayList<>();

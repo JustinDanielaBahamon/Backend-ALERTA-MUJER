@@ -3,13 +3,13 @@ package com.alertamujer.admin.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Acción de una administradora sobre un caso de moderación (block, unblock).
+ * Action of an admin on a moderation case (block, unblock).
  */
 public class ModerationAction {
 
     private Long id;
     private Long userReportId;
-    /** users.id de la administradora. */
+    /** users.id of the admin. */
     private Integer adminProfileId;
     private String actionType;
     private String notes;

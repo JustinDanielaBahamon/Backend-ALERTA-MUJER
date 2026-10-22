@@ -5,7 +5,7 @@ import com.alertamujer.identity.domain.model.UserProfile;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los perfiles de las usuarias. */
+/** Output port: user profiles. */
 public interface ProfileRepository {
 
     UserProfile save(UserProfile profile);

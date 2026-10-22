@@ -1,8 +1,8 @@
 package com.alertamujer.identity.application.port.in;
 
 /**
- * Formulario de registro. fechaNacimiento en DD/MM/AAAA, como lo escriben los formularios.
- * aceptaTerminos: true si marcó la casilla; null si la app es anterior y no lo envía.
+ * Registration form. fechaNacimiento in DD/MM/YYYY, as the forms write it.
+ * aceptaTerminos: true if she checked the box; null if the app is older and does not send it.
  */
 public record RegistrationData(String name, String email, String password, String telephone,
                             String documentType, String documentNumber, String birthDate,

@@ -5,7 +5,7 @@ import com.alertamujer.identity.domain.model.User;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: las personas registradas. */
+/** Output port: registered people. */
 public interface UserRepository {
 
     User save(User user);
@@ -22,6 +22,6 @@ public interface UserRepository {
 
     boolean documentExists(String document);
 
-    /** Crea el rol de usuaria si la base aún no lo tiene (instalaciones nuevas). */
+    /** Creates the user role if the database does not have it yet (new installations). */
     void ensureUserRole();
 }

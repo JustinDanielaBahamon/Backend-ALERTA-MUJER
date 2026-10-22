@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los dispositivos en PostgreSQL. */
+/** Output adapter: devices in PostgreSQL. */
 @Component
 class DevicePersistenceAdapter implements DeviceRepository {
 

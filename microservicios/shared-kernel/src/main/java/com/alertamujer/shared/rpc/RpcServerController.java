@@ -18,9 +18,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Adaptador de entrada para los otros microservicios: POST /internal/rpc/{Contrato}/{metodo} con los
- * argumentos en un arreglo JSON ejecuta el método de la implementación local de ese contrato.
- * Es el lado servidor del cliente genérico (RpcClientFactory), al estilo de Feign.
+ * Input adapter for the other microservices: POST /internal/rpc/{Contract}/{method} with the
+ * arguments in a JSON array runs the method of the local implementation of that contract.
+ * It is the server side of the generic client (RpcClientFactory), Feign style.
  */
 @RestController
 @RequestMapping("/internal/rpc")

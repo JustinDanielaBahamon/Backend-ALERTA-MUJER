@@ -3,8 +3,8 @@ package com.alertamujer.shared.exception;
 import java.util.Map;
 
 /**
- * Datos que ya usa otra cuenta (correo, teléfono, documento...). Responde 409 con un mensaje por
- * campo para que el formulario lo muestre debajo de cada uno.
+ * Data already used by another account (email, phone, document...). Returns 409 with one message per
+ * field so the form shows it under each one.
  */
 public class DuplicateFieldsException extends ConflictException {
     private final Map<String, String> fieldErrors;

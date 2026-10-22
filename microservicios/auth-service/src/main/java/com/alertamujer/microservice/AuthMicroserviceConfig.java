@@ -16,9 +16,9 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * Cómo se conecta Auth Service con los otros microservicios.
- * - Atiende IdentityApi, DevicesApi y SettingsApi para Alert y Evidence.
- * - Usa AlertsApi y ZonesApi de Alert Service (el panel de administración).
+ * How Auth Service connects to the other microservices.
+ * - Serves IdentityApi, DevicesApi and SettingsApi for Alert and Evidence.
+ * - Uses AlertsApi and ZonesApi from Alert Service (the admin panel).
  */
 @Configuration
 public class AuthMicroserviceConfig {

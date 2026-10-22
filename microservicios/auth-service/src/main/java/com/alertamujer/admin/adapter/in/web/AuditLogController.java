@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Adaptador de entrada REST: módulo de Auditoría del panel. */
+/** REST input adapter: panel Audit module. */
 @RestController
 @RequestMapping("/api/admin/audit-log")
 @PreAuthorize("hasRole('ADMIN')")

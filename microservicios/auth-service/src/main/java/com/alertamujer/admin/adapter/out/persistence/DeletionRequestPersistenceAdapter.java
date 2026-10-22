@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: las solicitudes de eliminación en PostgreSQL. */
+/** Output adapter: deletion requests in PostgreSQL. */
 @Component
 class DeletionRequestPersistenceAdapter implements DeletionRequestRepository {
 

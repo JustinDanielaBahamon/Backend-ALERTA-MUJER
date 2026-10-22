@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Informe de alertas guardado por la administración: un nombre, datos descriptivos y las alertas que
- * incluye (elegidas a mano o por filtros). Se exporta a PDF o Excel.
+ * Alert report saved by the administration: a name, descriptive data and the alerts it includes
+ * (chosen by hand or by filters). Exported to PDF or Excel.
  */
 public class AlertReport {
 
@@ -21,11 +21,11 @@ public class AlertReport {
     private String description;
     /** PDF o EXCEL: formato preferido al exportar. */
     private String format = "PDF";
-    /** Ids de alertas separados por coma; vacío = usar los filtros. */
+    /** Comma-separated alert ids; empty = use the filters. */
     private String alertIds;
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
-    /** Filtro opcional por estado de la alerta. */
+    /** Optional filter by alert status. */
     private String alertStatus;
     private Integer exportCount = 0;
     private Long createdByUserId;
@@ -48,7 +48,7 @@ public class AlertReport {
         return r;
     }
 
-    /** Aplica los campos enviados validando estado, formato y filtro; "" en ciudad o filtro los quita. */
+    /** Applies the sent fields validating status, format and filter; "" in city or filter removes them. */
     public void apply(ReportExportChanges c) {
         if (c.name() != null && !c.name().isBlank()) name = c.name().trim();
         if (c.city() != null) city = c.city().isBlank() ? null : c.city().trim();
@@ -80,7 +80,7 @@ public class AlertReport {
                 .map(Long::valueOf).collect(Collectors.toSet());
     }
 
-    /** La alerta entra en el informe: si hay alertas elegidas, solo esas; si no, las que cumplen los filtros. */
+    /** Whether the alert goes in the report: if alerts were chosen, only those; otherwise those matching the filters. */
     public boolean includes(Long alertId, LocalDateTime start, String status) {
         Set<Long> ids = chosenIds();
         if (!ids.isEmpty()) return ids.contains(alertId);

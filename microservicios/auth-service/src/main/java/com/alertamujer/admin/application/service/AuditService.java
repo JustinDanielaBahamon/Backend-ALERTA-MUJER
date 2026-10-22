@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Auditoría del panel: lista, responsables y exportación a CSV. */
+/** Panel audit: list, actors and CSV export. */
 @Service
 public class AuditService implements AuditUseCase {
 
@@ -87,7 +87,7 @@ public class AuditService implements AuditUseCase {
         return u.admin() ? "Administración" : "Usuaria";
     }
 
-    /** Entre comillas y protegida contra fórmulas (inyección CSV). */
+    /** Quoted and protected against formulas (CSV injection). */
     static String cell(String value) {
         String v = value == null ? "" : value;
         if (!v.isEmpty() && "=+-@".indexOf(v.charAt(0)) >= 0) v = "'" + v;

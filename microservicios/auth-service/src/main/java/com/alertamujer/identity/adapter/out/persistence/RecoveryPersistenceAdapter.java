@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de salida: las solicitudes de recuperación en PostgreSQL. */
+/** Output adapter: recovery requests in PostgreSQL. */
 @Component
 class RecoveryPersistenceAdapter implements RecoveryRepository {
 

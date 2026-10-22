@@ -3,9 +3,9 @@ package com.alertamujer.devices.api;
 import java.util.List;
 
 /**
- * Se entró a una cuenta desde un celular nuevo. Lleva los tokens push de los otros celulares de la
- * usuaria para avisarles, por si no fue ella.
+ * Someone signed in to an account from a new phone. Carries the push tokens of the user's other
+ * phones to warn them, in case it was not her.
  *
- * @param celular nombre del celular nuevo ("Galaxy de Ana", "Samsung A54"...)
+ * @param phone name of the new phone ("Galaxy de Ana", "Samsung A54"...)
  */
 public record NewPhoneSignedInEvent(@com.fasterxml.jackson.annotation.JsonProperty("celular") String phone, @com.fasterxml.jackson.annotation.JsonProperty("otrosTokens") List<String> otherTokens) {}

@@ -15,8 +15,8 @@ import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Las rutas /internal/** solo las pueden llamar los otros microservicios: exigen la clave compartida
- * INTERNAL_API_KEY. Sin clave configurada se rechazan todas (nunca quedan abiertas por descuido).
+ * /internal/** paths can only be called by the other microservices: they require the shared key
+ * INTERNAL_API_KEY. Without a configured key all are rejected (never left open by mistake).
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

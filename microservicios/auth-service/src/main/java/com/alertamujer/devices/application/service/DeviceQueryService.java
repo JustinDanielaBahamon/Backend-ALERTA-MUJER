@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Tokens push y celular principal para los otros módulos y Alert Service. */
+/** Push tokens and primary phone for the other modules and Alert Service. */
 @Service
 @Transactional(readOnly = true)
 public class DeviceQueryService implements QueryDevicesUseCase {
@@ -24,7 +24,7 @@ public class DeviceQueryService implements QueryDevicesUseCase {
 
     @Override
     public List<String> profileTokens(Long profile) {
-        // Los dispositivos se guardan por cuenta: perfil -> usuaria -> cuenta
+        // Devices are stored per account: profile -> user -> account
         return identity.userOfProfile(profile).flatMap(identity::accountOf).map(this::tokens).orElse(List.of());
     }
 

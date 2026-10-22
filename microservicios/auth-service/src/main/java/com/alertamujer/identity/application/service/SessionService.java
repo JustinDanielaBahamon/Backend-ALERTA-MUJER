@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Registro, inicio de sesión (correo o Google), renovación y cierre. Solo conoce puertos. */
+/** Registration, sign-in (email or Google), refresh and sign-out. Only knows ports. */
 @Service
 public class SessionService implements RegisterUserUseCase, SignInUseCase {
 
@@ -73,16 +73,16 @@ public class SessionService implements RegisterUserUseCase, SignInUseCase {
         users.ensureUserRole();
         User newOne = User.newOne(d.name(), d.email(), d.telephone(), d.documentType(),
                 d.documentNumber(), User.formDate(d.birthDate()));
-        // Solo queda constancia si la casilla llegó marcada (las apps anteriores no la envían)
+        // Only recorded if the checkbox arrived checked (older apps do not send it)
         if (Boolean.TRUE.equals(d.acceptsTerms())) newOne.acceptTerms(LocalDateTime.now());
         User user = users.save(newOne);
         accounts.save(Account.newOne(user.getId(), hashing.hash(d.password())));
-        // Sin perfil no puede crear alertas, contactos ni ubicaciones
+        // Without a profile she cannot create alerts, contacts or locations
         if (!profiles.existsForUser(user.getId())) profiles.save(UserProfile.of(user.getId()));
         return open(user);
     }
 
-    // ── Inicio de sesión ────────────────────────────────────────────
+    // ── Sign-in ────────────────────────────────────────────
 
     @Override
     @Transactional(noRollbackFor = InvalidCredentialsException.class)
@@ -120,7 +120,7 @@ public class SessionService implements RegisterUserUseCase, SignInUseCase {
             if (!accountOf(user).canRefreshSession()) throw new InvalidCredentialsException("Account blocked");
             return tokens.access(user.getId(), user.roleOfToken());
         } catch (RuntimeException e) {
-            // Mismo mensaje para cualquier motivo: no se da pistas sobre el token
+            // Same message for any reason: no hints about the token
             throw new InvalidCredentialsException("Refresh token inválido o expirado");
         }
     }
@@ -148,10 +148,10 @@ public class SessionService implements RegisterUserUseCase, SignInUseCase {
     private User createFromGoogle(GoogleIdentity id) {
         users.ensureUserRole();
         User newOne = User.fromGoogle(id.email(), id.name(), id.givenName(), id.familyName());
-        // La pantalla de inicio avisa que continuar con Google es aceptar los términos
+        // The sign-in screen warns that continuing with Google means accepting the terms
         newOne.acceptTerms(LocalDateTime.now());
         User user = users.save(newOne);
-        // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
+        // Random password impossible to guess: the account is used with Google
         accounts.save(Account.newOne(user.getId(), hashing.hash(UUID.randomUUID() + UUID.randomUUID().toString())));
         profiles.save(UserProfile.of(user.getId()));
         return user;

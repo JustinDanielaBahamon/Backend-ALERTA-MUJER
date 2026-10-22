@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una solicitud de eliminación. El dominio es AccountDeletionRequest. */
+/** Row of a deletion request. The domain is AccountDeletionRequest. */
 @Entity
 @Table(name = "account_deletion_request", schema = "admin")
 @Data

@@ -5,7 +5,7 @@ import com.alertamujer.identity.domain.model.User;
 import java.util.Map;
 import java.util.Optional;
 
-/** Consultas que piden los otros módulos y microservicios. */
+/** Queries asked by the other modules and microservices. */
 public interface QueryIdentityUseCase {
 
     Optional<Long> profileOf(Long userId);

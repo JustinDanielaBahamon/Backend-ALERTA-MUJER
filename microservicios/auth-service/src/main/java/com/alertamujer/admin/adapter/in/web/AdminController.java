@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** Adaptador de entrada REST: gestión de usuarias y casos de moderación del panel. */
+/** REST input adapter: panel user management and moderation cases. */
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -38,7 +38,7 @@ public class AdminController {
         return ResponseEntity.ok(AdminUserDto.of(users.update(id, request.toChanges(), currentUserId)));
     }
 
-    // ── Reportes de usuarias (moderación) ──────────────────────────
+    // ── User reports (moderation) ──────────────────────────
 
     @GetMapping("/user-reports")
     public ResponseEntity<List<UserReportView>> getAllUserReports() {
@@ -60,7 +60,7 @@ public class AdminController {
         return ResponseEntity.ok(reports.create(r.reportedUserEmail(), r.reason(), r.description(), r.severity(), currentUserId));
     }
 
-    /** Actualiza estado, gravedad, motivo, descripción o notas; la revisora sale de la sesión. */
+    /** Updates status, severity, reason, description or notes; the reviewer comes from the session. */
     @PutMapping("/user-reports/{id}")
     public ResponseEntity<UserReportView> updateUserReport(@PathVariable Long id, @RequestBody UserReportRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {

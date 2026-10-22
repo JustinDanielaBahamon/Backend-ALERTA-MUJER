@@ -2,7 +2,7 @@ package com.alertamujer.identity.api;
 
 import java.time.LocalDateTime;
 
-/** Datos de una persona que otros módulos pueden conocer (sin credenciales ni documentos). */
+/** Data about a person that other modules may know (no credentials or documents). */
 public record UserSummary(Long id, String firstName, String lastName, String email, String telephone,
                           Long roleId, LocalDateTime createdAt) {
 

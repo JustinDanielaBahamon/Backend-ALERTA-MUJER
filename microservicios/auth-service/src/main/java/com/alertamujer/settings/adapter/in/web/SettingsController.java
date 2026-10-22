@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-/** Adaptador de entrada REST: la administración edita los parámetros y las apps con sesión los leen. */
+/** REST input adapter: the administration edits the parameters and signed-in apps read them. */
 @RestController
 public class SettingsController {
 

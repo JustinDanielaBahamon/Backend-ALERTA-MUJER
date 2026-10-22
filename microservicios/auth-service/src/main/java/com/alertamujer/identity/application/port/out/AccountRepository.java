@@ -5,7 +5,7 @@ import com.alertamujer.identity.domain.model.Account;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: las cuentas (credenciales y estado). */
+/** Output port: accounts (credentials and status). */
 public interface AccountRepository {
 
     Account save(Account account);

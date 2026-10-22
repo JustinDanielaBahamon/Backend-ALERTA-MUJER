@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de entrada: el contrato DevicesApi para los otros módulos y para Alert Service (por /internal/rpc). */
+/** Input adapter: the DevicesApi contract for the other modules and for Alert Service (through /internal/rpc). */
 @Component
 class DevicesApiAdapter implements DevicesApi {
 

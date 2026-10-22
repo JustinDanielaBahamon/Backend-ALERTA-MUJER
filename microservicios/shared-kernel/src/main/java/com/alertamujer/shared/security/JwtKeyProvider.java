@@ -8,14 +8,14 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Clave para firmar y verificar los JWT, leída de JWT_SECRET. Sin valor por defecto: antes el
- * código traía uno escrito y, si la variable faltaba en el servidor, cualquiera que viera el
- * repositorio podía fabricar tokens. Ahora el backend no arranca si falta, es corta o es ese valor.
+ * Key to sign and verify JWTs, read from JWT_SECRET. No default value: the code used to ship one
+ * and, if the variable was missing on the server, anyone who saw the repository could forge
+ * tokens. Now the backend does not start if it is missing, too short or that value.
  */
 @Component
 public class JwtKeyProvider {
 
-    /** Valor que estuvo publicado en el repositorio: nunca debe usarse. */
+    /** Value that was published in the repository: must never be used. */
     static final String PUBLISHED_SECRET = "alerta_mujer_jwt_secret_key_2026_xK9mP2qR5sT8uV1wX4yZ7";
     static final int MIN_LENGTH = 32;
 

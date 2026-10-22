@@ -30,7 +30,7 @@ class JsonTimeConfigTest {
 
         String expected = t.atZone(ZoneId.systemDefault()).toOffsetDateTime().toString();
         assertTrue(json.contains(expected.substring(0, 19)), json);
-        assertTrue(json.matches(".*(Z|[+-]\\d{2}:\\d{2})\".*"), json); // termina con su desfase
+        assertTrue(json.matches(".*(Z|[+-]\\d{2}:\\d{2})\".*"), json); // ends with its offset
     }
 
     @Test

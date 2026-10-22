@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: las cuentas en PostgreSQL. */
+/** Output adapter: accounts in PostgreSQL. */
 @Component
 class AccountPersistenceAdapter implements AccountRepository {
 

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-/** Compone las cuentas (identity) con el número de alertas de cada una (Alert Service). */
+/** Joins the accounts (identity) with the alert count of each one (Alert Service). */
 @Service
 public class UserManagementService implements ManageUsersUseCase {
 

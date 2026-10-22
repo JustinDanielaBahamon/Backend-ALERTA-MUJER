@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Limita los intentos por IP y por minuto en los endpoints públicos de autenticación (fuerza bruta,
- * registro masivo, abuso del correo de recuperación). La IP es la del cliente real: detrás del proxy
- * de Render la resuelve Tomcat con X-Forwarded-For (server.forward-headers-strategy=native), sin
- * confiar en el valor que el propio cliente pueda inventar.
+ * Limits attempts per IP and per minute on the public authentication endpoints (brute force,
+ * mass registration, abuse of the recovery email). The IP is the real client's: behind the Render
+ * proxy Tomcat resolves it with X-Forwarded-For (server.forward-headers-strategy=native), without
+ * trusting a value the client itself could invent.
  */
 @Component
 public class RateLimitFilter implements Filter {

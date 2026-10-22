@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/** Dispositivos de la persona en sesión. Solo conoce puertos. */
+/** Devices of the signed-in person. Only knows ports. */
 @Service
 public class MyDevicesService implements MyDevicesUseCase {
 
@@ -49,8 +49,8 @@ public class MyDevicesService implements MyDevicesUseCase {
     public Device registrar(DeviceData data, Long userId) {
         Long account = identity.requiredAccount(userId);
         LocalDateTime now = LocalDateTime.now();
-        // El mismo celular volviendo a registrarse (app reinstalada o datos borrados): se reutiliza el
-        // registro en vez de duplicarlo, y no se avisa de "otro celular"
+        // The same phone registering again (app reinstalled or data cleared): the record is reused
+        // instead of duplicated, and no "another phone" notice is sent
         Optional<Device> same = repository.ofAccount(account).stream()
                 .filter(d -> d.isSamePhone(data))
                 .max(Comparator.comparing(Device::getLastAccess, Comparator.nullsFirst(Comparator.naturalOrder())));
@@ -94,7 +94,7 @@ public class MyDevicesService implements MyDevicesUseCase {
         repository.delete(one(id, userId).getId());
     }
 
-    /** Se entró desde otro celular: se avisa a los demás celulares de la usuaria por si no fue ella. */
+    /** Signed in from another phone: the user's other phones are warned in case it was not her. */
     private void notifyNewPhone(Device created) {
         if (!created.isPhone()) return;
         List<String> tokens = repository.ofAccount(created.getAccountId()).stream()

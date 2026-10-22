@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-/** Adaptador de salida: la configuración en PostgreSQL (admin.system_configuration). */
+/** Output adapter: the configuration in PostgreSQL (admin.system_configuration). */
 @Component
 class ConfigurationPersistenceAdapter implements ConfigurationRepository {
 

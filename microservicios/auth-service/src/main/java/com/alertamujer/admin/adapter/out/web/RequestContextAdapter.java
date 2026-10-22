@@ -4,7 +4,7 @@ import com.alertamujer.admin.application.port.out.RequestContextPort;
 import com.alertamujer.shared.web.RequestInfo;
 import org.springframework.stereotype.Component;
 
-/** Adaptador de salida: lee la IP, el dispositivo y el origen de la petición HTTP en curso. */
+/** Output adapter: reads the IP, device and source of the current HTTP request. */
 @Component
 class RequestContextAdapter implements RequestContextPort {
 

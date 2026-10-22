@@ -3,8 +3,8 @@ package com.alertamujer.admin.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Registro de auditoría: cambios que guardan los triggers de la base y eventos de sesión de las
- * cuentas de administración.
+ * Audit record: changes stored by the database triggers and session events of the
+ * admin accounts.
  */
 public class AuditLog {
 
@@ -15,7 +15,7 @@ public class AuditLog {
     private Integer entityId;
     private String description;
     private String ipAddress;
-    /** Desde dónde se hizo: "Panel web · Chrome · Linux", "App móvil · Android", "Tarea automática · …". */
+    /** Where it was done from: "Panel web · Chrome · Linux", "App móvil · Android", "Tarea automática · …". */
     private String source;
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -24,7 +24,7 @@ public class AuditLog {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Evento de sesión de una administradora; el detalle se completa con el dispositivo. */
+    /** Session event of an admin; the detail is completed with the device. */
     public static AuditLog sessionEvent(Long accountId, String action, String detail, String device, String ip,
                                           String source) {
         AuditLog r = new AuditLog();

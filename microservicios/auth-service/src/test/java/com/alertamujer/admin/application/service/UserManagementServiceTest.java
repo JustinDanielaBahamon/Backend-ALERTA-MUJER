@@ -13,7 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/** Gestión de usuarias y estado del sistema: componen identity y Alert Service por sus puertos. */
+/** User management and system status: join identity and Alert Service through their ports. */
 class UserManagementServiceTest {
 
     private final AccountsPort accounts = mock(AccountsPort.class);

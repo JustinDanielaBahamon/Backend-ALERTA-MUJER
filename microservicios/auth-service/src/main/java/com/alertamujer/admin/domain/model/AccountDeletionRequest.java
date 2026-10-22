@@ -3,8 +3,8 @@ package com.alertamujer.admin.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Solicitud para eliminar una cuenta. Eliminar es irreversible: la pide una administradora y la
- * aprueba otra distinta.
+ * Request to delete an account. Deleting is irreversible: one admin requests it and a different one
+ * approves it.
  */
 public class AccountDeletionRequest {
 
@@ -33,14 +33,14 @@ public class AccountDeletionRequest {
         return s;
     }
 
-    /** Solo la aprueba una administradora distinta de la que la pidió. */
+    /** Only an admin other than the requester can approve it. */
     public void approve(Long adminId, String note, LocalDateTime now) {
         verifyPending();
         if (requestedBy.equals(adminId)) throw new IllegalArgumentException("La aprobación debe hacerla otra administradora");
         decide("approved", adminId, note, now);
     }
 
-    /** Rechazar o, si es quien la pidió, cancelar la solicitud. */
+    /** Reject or, if done by the requester, cancel the request. */
     public void reject(Long adminId, String note, LocalDateTime now) {
         decide("rejected", adminId, note, now);
     }

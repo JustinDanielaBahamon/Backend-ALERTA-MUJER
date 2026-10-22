@@ -5,10 +5,10 @@ import com.alertamujer.identity.api.UserSummary;
 
 import java.util.List;
 
-/** La administración ve, cambia de estado y borra cualquier dispositivo, con los datos de su dueña. */
+/** The administration sees, changes the status of and deletes any device, with its owner's data. */
 public interface ManageDevicesUseCase {
 
-    /** Del usado más recientemente al más antiguo. */
+    /** From most recently used to oldest. */
     List<DeviceWithOwner> listAll();
 
     DeviceWithOwner get(Long id);

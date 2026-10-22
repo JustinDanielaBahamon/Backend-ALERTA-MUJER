@@ -3,13 +3,13 @@ package com.alertamujer.shared.web;
 import java.util.regex.Pattern;
 
 /**
- * Fotos (perfil, contactos) que llegan como data URI de imagen en base64. Las apps las reducen a
- * ~400 px antes de enviarlas; aquí solo se acepta una imagen y se pone un tope de tamaño para que
- * nadie guarde archivos grandes en la base.
+ * Photos (profile, contacts) that arrive as a base64 image data URI. The apps shrink them to
+ * ~400 px before sending; here only an image is accepted, with a size cap so nobody stores
+ * large files in the database.
  */
 public final class PhotoDataUri {
 
-    /** ~300 KB de imagen: de sobra para una foto de 400 px. */
+    /** ~300 KB of image: more than enough for a 400 px photo. */
     public static final int MAX_CHARACTERS = 400_000;
 
     private static final Pattern FORMAT =
@@ -19,8 +19,8 @@ public final class PhotoDataUri {
     }
 
     /**
-     * Devuelve la foto lista para guardar: null si viene vacía (quitar la foto). Lanza
-     * IllegalArgumentException (400) si no es una imagen válida o es demasiado grande.
+     * Returns the photo ready to store: null if empty (remove the photo). Throws
+     * IllegalArgumentException (400) if it is not a valid image or is too large.
      */
     public static String validate(String photo) {
         if (photo == null || photo.isBlank()) return null;

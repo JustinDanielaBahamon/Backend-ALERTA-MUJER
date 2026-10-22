@@ -5,7 +5,7 @@ import com.alertamujer.identity.api.UserAccountView;
 
 import java.time.LocalDateTime;
 
-/** Usuaria en la lista del panel, con su número de alertas. */
+/** User in the panel list, with her alert count. */
 public record AdminUserDto(Long id, Long userProfileId, String firstName, String lastName, String email, String telephone,
                            String role, String accountStatus, LocalDateTime createdAt, LocalDateTime lastAccess,
                            Long alertCount) {

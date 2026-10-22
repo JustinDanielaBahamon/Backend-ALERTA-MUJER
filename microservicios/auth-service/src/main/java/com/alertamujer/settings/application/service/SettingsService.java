@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-/** Parámetros globales de la app. Solo conoce el puerto de la configuración. */
+/** Global app parameters. Only knows the configuration port. */
 @Service
 public class SettingsService implements ManageSettingsUseCase, QuerySettingsUseCase {
 

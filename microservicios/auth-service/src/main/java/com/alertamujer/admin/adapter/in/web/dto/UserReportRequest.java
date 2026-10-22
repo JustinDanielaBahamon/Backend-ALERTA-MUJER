@@ -2,7 +2,7 @@ package com.alertamujer.admin.adapter.in.web.dto;
 
 import com.alertamujer.admin.domain.model.ReportChanges;
 
-/** Body para crear (reportedUserEmail, reason, description, severity) o actualizar un caso de moderación. */
+/** Body to create (reportedUserEmail, reason, description, severity) or update a moderation case. */
 public record UserReportRequest(String reportedUserEmail, String reason, String description, String severity,
                                 String status, String resolutionNotes) {
 

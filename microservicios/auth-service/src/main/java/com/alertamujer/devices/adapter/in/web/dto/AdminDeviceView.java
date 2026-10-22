@@ -6,13 +6,13 @@ import com.alertamujer.identity.api.UserSummary;
 
 import java.time.LocalDateTime;
 
-/** Dispositivo con su dueña para el panel. No expone el token push, solo si existe. */
+/** Device with its owner for the panel. Does not expose the push token, only whether it exists. */
 public record AdminDeviceView(Long id, Long accountId, Long userId, String ownerName, String ownerEmail,
                               String ownerPhone, String deviceUuid, String brand, String model,
                               String osName, String osVersion, String appVersion, String gpsStatus,
                               String status, LocalDateTime lastAccess, LocalDateTime createdAt,
                               boolean pushTokenRegistered, String deviceName,
-                              /** JSON de permisos que informa la app ({"ubicacion":true,...}). */
+                              /** Permissions JSON the app reports ({"ubicacion":true,...}). */
                               String permissions, LocalDateTime permissionsUpdatedAt) {
 
     public static AdminDeviceView of(DeviceWithOwner dc) {

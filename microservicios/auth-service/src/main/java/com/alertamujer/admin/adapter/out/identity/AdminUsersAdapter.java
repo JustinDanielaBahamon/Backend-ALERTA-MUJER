@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.Optional;
 
-/** Adaptador de salida hacia identity (mismo microservicio) por su contrato IdentityApi. */
+/** Output adapter to identity (same microservice) through its IdentityApi contract. */
 @Component
 class AdminUsersAdapter implements UsersPort {
 

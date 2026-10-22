@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de la persona registrada, sin Spring ni base de datos. */
+/** Rules of the registered person, without Spring or a database. */
 class UserTest {
 
     @Test

@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un caso de moderación. El dominio es UserReport. */
+/** Row of a moderation case. The domain is UserReport. */
 @Entity
 @Table(name = "user_report", schema = "admin")
 @Data

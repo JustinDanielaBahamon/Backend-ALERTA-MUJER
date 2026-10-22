@@ -14,10 +14,10 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
- * Los triggers de auditoría (admin.log_row_change) guardan como actor la cuenta que indique
- * app.current_account_id y la IP de app.client_ip. Este gestor de transacciones los fija al
- * iniciar cada transacción con SET LOCAL (set_config(..., true)), así valen solo para esa
- * transacción y no se filtran a otras peticiones que reutilicen la conexión del pool.
+ * The audit triggers (admin.log_row_change) store as actor the account given by
+ * app.current_account_id and the IP from app.client_ip. This transaction manager sets them when
+ * each transaction starts with SET LOCAL (set_config(..., true)), so they only apply to that
+ * transaction and do not leak to other requests reusing the pooled connection.
  */
 @Configuration
 public class AuditTransactionConfig {
@@ -54,7 +54,7 @@ public class AuditTransactionConfig {
                     .getSingleResult();
         }
 
-        /** El filtro JWT deja como principal el id de users (Long). */
+        /** The JWT filter sets the users id (Long) as principal. */
         private static Long currentUser() {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             return auth != null && auth.getPrincipal() instanceof Long id ? id : null;

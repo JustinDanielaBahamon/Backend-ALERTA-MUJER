@@ -22,14 +22,14 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * Adaptador de salida: valida el token que envía el cliente al iniciar sesión con Google y devuelve la
- * identidad verificada.
+ * Output adapter: validates the token the client sends when signing in with Google and returns the
+ * verified identity.
  *
- * Acepta dos tipos de token:
- * - Token de Firebase Authentication (web, signInWithPopup): se valida con firebase-admin.
- * - Token de Google (app móvil, expo-auth-session): se valida contra los Client IDs permitidos.
+ * Accepts two kinds of token:
+ * - Firebase Authentication token (web, signInWithPopup): validated with firebase-admin.
+ * - Google token (mobile app, expo-auth-session): validated against the allowed Client IDs.
  *
- * Nunca se confía en el contenido sin verificar la firma: el emisor solo se lee para elegir el verificador.
+ * The content is never trusted without verifying the signature: the issuer is only read to pick the verifier.
  */
 @Component
 class GoogleVerifierAdapter implements GoogleVerifierPort {
@@ -77,7 +77,7 @@ class GoogleVerifierAdapter implements GoogleVerifierPort {
         } catch (InvalidCredentialsException e) {
             throw e;
         } catch (Exception e) {
-            // Solo el motivo, nunca el token
+            // Only the reason, never the token
             log.warn("Token de Firebase rechazado: {}", e.getMessage());
             throw new InvalidCredentialsException("Token de Google no válido o vencido");
         }
@@ -104,7 +104,7 @@ class GoogleVerifierAdapter implements GoogleVerifierPort {
         }
     }
 
-    // Solo para elegir el verificador; la firma se valida después
+    // Only to pick the verifier; the signature is validated afterwards
     private String readIssuer(String idToken) {
         try {
             String[] parts = idToken.split("\\.");

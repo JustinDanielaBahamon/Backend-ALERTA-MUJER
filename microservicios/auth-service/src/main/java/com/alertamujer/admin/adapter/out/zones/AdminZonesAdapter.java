@@ -4,7 +4,7 @@ import com.alertamujer.admin.application.port.out.ZonesPort;
 import com.alertamujer.zones.api.ZonesApi;
 import org.springframework.stereotype.Component;
 
-/** Adaptador de salida hacia las zonas de Alert Service (cliente HTTP, /internal/rpc). */
+/** Output adapter to the Alert Service zones (HTTP client, /internal/rpc). */
 @Component
 class AdminZonesAdapter implements ZonesPort {
 

@@ -2,7 +2,7 @@ package com.alertamujer.admin.adapter.in.web.dto;
 
 import com.alertamujer.identity.api.UserAccountChanges;
 
-/** Cambios parciales de una cuenta desde el panel (todos opcionales). */
+/** Partial changes to an account from the panel (all optional). */
 public record UpdateUserRequest(String accountStatus, String firstName, String lastName, String telephone, String email) {
 
     public UserAccountChanges toChanges() {

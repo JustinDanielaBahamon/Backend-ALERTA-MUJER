@@ -4,7 +4,7 @@ import com.alertamujer.settings.domain.model.SystemConfiguration;
 
 import java.time.LocalDateTime;
 
-/** Configuración para el panel de administración. */
+/** Configuration for the admin panel. */
 public record SettingsView(Integer sosMaxDurationMinutes, String emergencyPhoneNumber, String supportEmail,
                            Integer maxEmergencyContacts, String minAppVersion, LocalDateTime updatedAt) {
 

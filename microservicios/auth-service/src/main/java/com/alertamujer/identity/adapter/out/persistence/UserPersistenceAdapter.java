@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: las personas en PostgreSQL. El rol se guarda como relación y en el dominio es un id. */
+/** Output adapter: people in PostgreSQL. The role is stored as a relation and in the domain it is an id. */
 @Component
 class UserPersistenceAdapter implements UserRepository {
 

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST: bloqueos con motivo y eliminación de cuentas con aprobación de otra administradora. */
+/** REST input adapter: blocks with a reason and account deletion approved by another admin. */
 @RestController
 @RequestMapping("/api/admin")
 @PreAuthorize("hasRole('ADMIN')")
@@ -45,7 +45,7 @@ public class AccountModerationController {
         return ResponseEntity.ok(moderation.history(id));
     }
 
-    /** Captura adjunta a un caso de moderación (data URI). */
+    /** Screenshot attached to a moderation case (data URI). */
     @GetMapping("/user-reports/{id}/evidence")
     public ResponseEntity<Map<String, String>> evidence(@PathVariable Long id) {
         String evidence = reports.evidence(id);

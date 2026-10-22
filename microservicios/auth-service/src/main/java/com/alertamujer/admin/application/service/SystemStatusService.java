@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
-/** Estado del servidor para el panel: base de datos, push, alertas activas y última expiración. */
+/** Server status for the panel: database, push, active alerts and last expiration. */
 @Service
 public class SystemStatusService implements SystemStatusUseCase {
 

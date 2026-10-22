@@ -2,24 +2,24 @@ package com.alertamujer.devices.api;
 
 import java.util.List;
 
-/** Consultas del módulo devices para los demás módulos. */
+/** Queries of the devices module for the other modules. */
 public interface DevicesApi {
 
-    /** Tokens FCM de los dispositivos de la usuaria dueña del perfil (user_profile.id). */
+    /** FCM tokens of the devices of the user who owns the profile (user_profile.id). */
     List<String> pushTokensOfProfile(Long userProfileId);
 
-    /** Tokens FCM de los dispositivos de una persona (users.id); vacío si no tiene cuenta o dispositivos. */
+    /** FCM tokens of a person's devices (users.id); empty if she has no account or devices. */
     List<String> pushTokensOfUser(Long userId);
 
-    /** Tokens push solo de celulares (sin navegadores web): para pedir la ubicación por GPS. */
+    /** Push tokens of phones only (no web browsers): to request the GPS location. */
     List<String> phonePushTokensOfUser(Long userId);
 
     /**
-     * true si el dispositivo es el celular que la usuaria usó más recientemente (o si no se conoce):
-     * con varios celulares, la ubicación del día a día se toma solo de ese.
+     * true if the device is the phone the user used most recently (or if unknown):
+     * with several phones, the day-to-day location is taken only from that one.
      */
     boolean isMostRecentPhone(Long userId, Long deviceId);
 
-    /** Número de dispositivos registrados (estadísticas del panel). */
+    /** Number of registered devices (panel stats). */
     long countDevices();
 }

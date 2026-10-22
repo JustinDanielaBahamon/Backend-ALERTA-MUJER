@@ -15,10 +15,10 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 /**
- * Cliente HTTP genérico entre microservicios (al estilo de Feign): crea una implementación de un
- * contrato *Api que, en vez de ejecutar el código local, llama a POST /internal/rpc/{Contrato}/{metodo}
- * del servicio dueño. Así el código que usa IdentityApi, AlertsApi... no cambia al separar servicios:
- * solo cambia el adaptador que se inyecta.
+ * Generic HTTP client between microservices (Feign style): creates an implementation of a
+ * *Api contract that, instead of running local code, calls POST /internal/rpc/{Contract}/{method}
+ * on the owning service. So code using IdentityApi, AlertsApi... does not change when services are
+ * split: only the injected adapter changes.
  */
 @Component
 public class RpcClientFactory {
@@ -34,7 +34,7 @@ public class RpcClientFactory {
     @SuppressWarnings("unchecked")
     public <T> T create(Class<T> contract, String serviceUrl) {
         SimpleClientHttpRequestFactory timeouts = new SimpleClientHttpRequestFactory();
-        // Render despierta un servicio dormido en ~1 minuto: se espera hasta 90 s la primera vez
+        // Render wakes a sleeping service in ~1 minute: wait up to 90 s the first time
         timeouts.setConnectTimeout(90_000);
         timeouts.setReadTimeout(90_000);
         RestClient http = RestClient.builder()
@@ -69,14 +69,14 @@ public class RpcClientFactory {
         });
     }
 
-    /** Vuelve a lanzar del lado cliente el mismo tipo de error que ocurrió en el servicio remoto. */
+    /** Rethrows on the client side the same kind of error that happened in the remote service. */
     private RuntimeException translate(RestClientResponseException e) {
         String message = e.getStatusText();
         try {
             RemoteError error = json.readValue(e.getResponseBodyAsString(), RemoteError.class);
             if (error.message() != null) message = error.message();
         } catch (Exception ignored) {
-            // Respuesta sin cuerpo JSON (servicio caído, proxy de Render...)
+            // Response without a JSON body (service down, Render proxy...)
         }
         return switch (e.getStatusCode().value()) {
             case 404 -> new ResourceNotFoundException(message);

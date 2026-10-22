@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Caso de moderación sobre una usuaria: un reporte de la administración o el registro de un bloqueo
- * (con su motivo y, si hay, una captura). Modelo del dominio: no conoce la base de datos ni Spring.
+ * Moderation case about a user: a report by the administration or the record of a block
+ * (with its reason and, if any, a screenshot). Domain model: knows neither the database nor Spring.
  */
 public class UserReport {
 
@@ -14,13 +14,13 @@ public class UserReport {
     private Long reporterUserId;
     private String reason;
     private String description;
-    /** Gravedad para priorizar la moderación: low, medium, high o critical. */
+    /** Severity to prioritize moderation: low, medium, high or critical. */
     private String severity = "medium";
     private String status = "pending";
     private Integer reviewedByAdminId;
     private LocalDateTime reviewedAt;
     private String resolutionNotes;
-    /** Captura que respalda un bloqueo, como data URI de imagen. */
+    /** Screenshot backing a block, as an image data URI. */
     private String evidence;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
@@ -31,7 +31,7 @@ public class UserReport {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Reporte que crea la administración sobre una usuaria. */
+    /** Report the administration creates about a user. */
     public static UserReport userReport(Long reportedId, Long adminId, String reason, String description, String severity) {
         if (reason == null || reason.isBlank() || description == null || description.isBlank()) {
             throw new IllegalArgumentException("El motivo y la descripción son obligatorios");
@@ -45,7 +45,7 @@ public class UserReport {
         return r;
     }
 
-    /** Caso cerrado que deja un bloqueo hecho desde Gestión de usuarios. */
+    /** Closed case left by a block made from User management. */
     public static UserReport block(Long userId, Long adminId, String reason, String detail, String evidence, LocalDateTime now) {
         UserReport r = closed(userId, adminId, reason, detail, now);
         r.severity = "high";
@@ -54,7 +54,7 @@ public class UserReport {
         return r;
     }
 
-    /** Caso para anotar un desbloqueo cuando la usuaria no tiene ninguno (bloqueo anterior a este registro). */
+    /** Case to note an unblock when the user has none (block older than this record). */
     public static UserReport unblockWithoutCase(Long userId, Long adminId, String detail, LocalDateTime now) {
         return closed(userId, adminId, "Desbloqueo", detail, now);
     }
@@ -64,7 +64,7 @@ public class UserReport {
         return severity;
     }
 
-    /** Cambia los campos enviados; al cerrar el caso guarda quién y cuándo lo revisó. */
+    /** Changes the sent fields; when closing the case it stores who reviewed it and when. */
     public void update(ReportChanges c, Long adminId, LocalDateTime now) {
         if (c.reason() != null && !c.reason().isBlank()) reason = c.reason().trim();
         if (c.description() != null && !c.description().isBlank()) description = c.description().trim();

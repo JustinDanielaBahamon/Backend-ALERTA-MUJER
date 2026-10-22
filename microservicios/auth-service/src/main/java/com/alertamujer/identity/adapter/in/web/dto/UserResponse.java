@@ -27,11 +27,11 @@ public class UserResponse {
     /** Foto de perfil (data URI) o null. */
     private String profilePhoto;
     private LocalDateTime createdAt;
-    /** Constancia de aceptación de términos (null en cuentas anteriores al registro de esto). */
+    /** Record of acceptance of the terms (null on accounts older than this record). */
     private LocalDateTime termsAcceptedAt;
     private String termsVersion;
     
-    /** Persona con su foto (vive en user_profile; null si no se pide o no tiene). */
+    /** Person with her photo (lives in user_profile; null if not requested or missing). */
     public static UserResponse of(User u, String photo) {
         return UserResponse.builder()
                 .id(u.getId())

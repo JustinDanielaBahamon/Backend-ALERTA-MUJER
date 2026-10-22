@@ -5,19 +5,19 @@ import com.alertamujer.devices.domain.model.Device;
 
 import java.util.List;
 
-/** La persona en sesión y sus dispositivos. Solo puede tocar los de su cuenta. */
+/** The signed-in person and her devices. She can only touch the ones of her account. */
 public interface MyDevicesUseCase {
 
     List<Device> mine(Long userId);
 
     Device one(Long id, Long userId);
 
-    /** Registra el dispositivo en la cuenta; si es otro celular, avisa a los demás celulares. */
+    /** Registers the device in the account; if it is another phone, warns the other phones. */
     Device registrar(DeviceData data, Long userId);
 
     Device replace(Long id, DeviceData data, Long userId);
 
-    /** La app informa los datos actuales del celular, sus permisos y la última conexión. */
+    /** The app reports the phone's current data, its permissions and the last connection. */
     Device recordUse(Long id, DeviceData data, Long userId);
 
     void changePushToken(Long id, String token, Long userId);

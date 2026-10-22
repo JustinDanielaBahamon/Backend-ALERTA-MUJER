@@ -7,7 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas del dispositivo, sin Spring ni base de datos. */
+/** Device rules, without Spring or a database. */
 class DeviceTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);

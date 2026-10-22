@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Casos de moderación; la revisión se atribuye a la administradora de la sesión. */
+/** Moderation cases; the review is attributed to the admin of the session. */
 @Service
 public class UserReportsService implements UserReportsUseCase {
 

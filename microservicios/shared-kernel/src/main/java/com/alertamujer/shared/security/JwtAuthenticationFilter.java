@@ -29,8 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * El seguimiento público (enlace del correo a los contactos) no usa sesión: si el navegador manda
-     * un token viejo o vencido se ignora, para que un 401 nunca le cierre la página a quien ayuda.
+     * Public tracking (link in the email to the contacts) uses no session: if the browser sends
+     * an old or expired token it is ignored, so a 401 never closes the page for whoever is helping.
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
            try {
-                // Lógica de lectura y parseo del JWT
+                // JWT reading and parsing logic
                 Claims claims = Jwts.parser()
                         .setSigningKey(jwtKey)
                         .build()
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
-                // 1. Primero atrapamos la expiración específica
+                // 1. First catch the specific expiration
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");
@@ -73,7 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"Access Token expirado\"}");
                 return; 
             } catch (Exception e) {
-                // 2. Luego atrapamos cualquier otro error (firma inválida, malformado, etc.)
+                // 2. Then catch any other error (invalid signature, malformed, etc.)
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");

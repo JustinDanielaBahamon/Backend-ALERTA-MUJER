@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una cuenta (credenciales). El dominio es Account. */
+/** Row of an account (credentials). The domain is Account. */
 @Entity
 @Table(name = "account", schema = "identity")
 @Data

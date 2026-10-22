@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-/** Adaptador de entrada REST: los datos de la persona en sesión. */
+/** REST input adapter: the data of the signed-in person. */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -28,7 +28,7 @@ public class UserController {
         return ResponseEntity.ok(response(myAccount.mine((Long) authentication.getPrincipal())));
     }
 
-    /** Cambios parciales: solo las claves enviadas; una clave con null o "" borra el dato. */
+    /** Partial changes: only the sent keys; a key with null or "" erases the value. */
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateMe(Authentication authentication, @RequestBody Map<String, Object> updates) {
         return ResponseEntity.ok(response(myAccount.update((Long) authentication.getPrincipal(), changes(updates))));
@@ -42,7 +42,7 @@ public class UserController {
 
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 
-    /** La usuaria elimina su cuenta: hay que enviar {"confirmation": "ELIMINAR"}. */
+    /** The user deletes her account: {"confirmation": "ELIMINAR"} must be sent. */
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMe(Authentication authentication, @RequestBody DeleteAccountRequest request) {
         myAccount.deleteMyAccount((Long) authentication.getPrincipal(), request.confirmation());
@@ -61,14 +61,14 @@ public class UserController {
                 text(updates, "profilePhoto"));
     }
 
-    // null = la clave no llegó; Optional vacío = llegó con null
+    // null = the key did not arrive; empty Optional = it arrived as null
     private static Optional<String> text(Map<String, Object> updates, String key) {
         if (!updates.containsKey(key)) return null;
         Object value = updates.get(key);
         return Optional.ofNullable(value == null ? null : String.valueOf(value));
     }
 
-    // AAAA-MM-DD; una fecha con otro formato se ignora
+    // YYYY-MM-DD; a date in another format is ignored
     private static LocalDate date(Object value) {
         if (value == null) return null;
         try {

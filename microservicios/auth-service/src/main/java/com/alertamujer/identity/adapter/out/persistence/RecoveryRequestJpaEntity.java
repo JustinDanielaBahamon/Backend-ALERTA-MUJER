@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una solicitud de recuperación. El dominio es RecoveryRequest. */
+/** Row of a recovery request. The domain is RecoveryRequest. */
 @Entity
 @Table(name = "recovery_request", schema = "identity")
 @Data

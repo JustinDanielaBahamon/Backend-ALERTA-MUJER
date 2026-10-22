@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un dispositivo. El dominio es Device. */
+/** Row of a device. The domain is Device. */
 @Entity
 @Table(name = "device", schema = "identity")
 @Data

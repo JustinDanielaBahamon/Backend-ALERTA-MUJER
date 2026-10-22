@@ -5,7 +5,7 @@ import com.alertamujer.admin.domain.model.UserReport;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los casos de moderación. */
+/** Output port: the moderation cases. */
 public interface UserReportRepository {
 
     List<UserReport> all();

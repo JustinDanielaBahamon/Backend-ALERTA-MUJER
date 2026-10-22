@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 
-/** Adaptador de salida: las acciones de moderación en PostgreSQL. */
+/** Output adapter: moderation actions in PostgreSQL. */
 @Component
 class ModerationActionPersistenceAdapter implements ModerationActionRepository {
 

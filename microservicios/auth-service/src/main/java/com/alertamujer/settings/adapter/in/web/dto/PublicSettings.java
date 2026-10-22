@@ -2,7 +2,7 @@ package com.alertamujer.settings.adapter.in.web.dto;
 
 import com.alertamujer.settings.domain.model.SystemConfiguration;
 
-/** Lo que necesitan las apps de cualquier usuaria. */
+/** What the apps of any user need. */
 public record PublicSettings(String emergencyPhoneNumber, String supportEmail, Integer sosMaxDurationMinutes,
                              Integer maxEmergencyContacts, String minAppVersion) {
 

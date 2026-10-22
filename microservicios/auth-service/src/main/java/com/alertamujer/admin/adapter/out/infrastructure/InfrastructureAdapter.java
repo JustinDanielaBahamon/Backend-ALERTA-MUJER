@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-/** Adaptador de salida: consulta la base de datos, Firebase y la JVM. */
+/** Output adapter: queries the database, Firebase and the JVM. */
 @Component
 class InfrastructureAdapter implements InfrastructurePort {
 

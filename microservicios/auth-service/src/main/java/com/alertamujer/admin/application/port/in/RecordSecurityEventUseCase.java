@@ -1,11 +1,11 @@
 package com.alertamujer.admin.application.port.in;
 
 /**
- * Eventos de seguridad de las cuentas de administración (inicios y cierres de sesión, intentos
- * fallidos, cambio de contraseña). Solo cuentas admin: las usuarias de la app no llenan la auditoría.
+ * Security events of admin accounts (sign-ins and sign-outs, failed attempts,
+ * password change). Admin accounts only: app users do not fill the audit.
  */
 public interface RecordSecurityEventUseCase {
 
-    /** Nunca falla: un error al auditar no debe impedir iniciar sesión. */
+    /** Never fails: an audit error must not prevent signing in. */
     void registrar(Long accountId, String action, String detail);
 }

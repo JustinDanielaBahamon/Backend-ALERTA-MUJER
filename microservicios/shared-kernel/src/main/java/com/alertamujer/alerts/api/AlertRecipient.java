@@ -1,4 +1,4 @@
 package com.alertamujer.alerts.api;
 
-/** Un envío pendiente de una alerta: a qué contacto, por qué canal (email, push) y a qué destino. */
+/** A pending delivery of an alert: to which contact, through which channel (email, push) and to which destination. */
 public record AlertRecipient(Long id, Long emergencyContactId, String contactName, String channel, String destination) {}

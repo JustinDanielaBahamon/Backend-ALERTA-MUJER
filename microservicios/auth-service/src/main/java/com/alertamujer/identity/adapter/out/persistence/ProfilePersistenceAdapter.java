@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los perfiles en PostgreSQL. */
+/** Output adapter: profiles in PostgreSQL. */
 @Component
 class ProfilePersistenceAdapter implements ProfileRepository {
 

@@ -1,14 +1,14 @@
 package com.alertamujer.settings.api;
 
-/** Parámetros del sistema que necesitan otros módulos. */
+/** System parameters other modules need. */
 public interface SettingsApi {
 
-    /** Minutos tras los cuales una alerta activa se marca como expirada (0 = sin configuración). */
+    /** Minutes after which an active alert is marked as expired (0 = not configured). */
     int maxAlertDurationMinutes();
 
-    /** Número de emergencia que se ofrece a las usuarias y sus contactos (en Colombia, 123). */
+    /** Emergency number offered to users and their contacts (123 in Colombia). */
     String emergencyNumber();
 
-    /** Máximo de contactos de emergencia por usuaria (5 si no hay configuración). */
+    /** Maximum emergency contacts per user (5 if not configured). */
     int maxContacts();
 }

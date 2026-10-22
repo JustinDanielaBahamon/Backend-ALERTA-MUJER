@@ -8,8 +8,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Dispositivo de una cuenta: celular con la app o navegador del panel web (osName = "web"). Guarda
- * el token push y los permisos que informa la app. Modelo del dominio: no conoce la base de datos ni Spring.
+ * Device of an account: phone with the app or web panel browser (osName = "web"). Stores
+ * the push token and the permissions the app reports. Domain model: knows neither the database nor Spring.
  */
 public class Device {
 
@@ -18,7 +18,7 @@ public class Device {
     private String deviceUuid;
     private String brand;
     private String model;
-    /** Nombre del celular en Android ("Galaxy de Ana"); lo envía la app. */
+    /** Phone name on Android ("Galaxy de Ana"); sent by the app. */
     private String deviceName;
     private String osName;
     private String osVersion;
@@ -29,24 +29,24 @@ public class Device {
     private String status = "active";
     private LocalDateTime lastAccess;
     private LocalDateTime createdAt = LocalDateTime.now();
-    /** Token de Firebase Cloud Messaging para las notificaciones push. */
+    /** Firebase Cloud Messaging token for push notifications. */
     private String fcmToken;
-    /** Permisos que informa la app como JSON de sí/no ({"ubicacion":true,...}). */
+    /** Permissions the app reports as yes/no JSON ({"ubicacion":true,...}). */
     private String permissions;
     private LocalDateTime permissionsUpdatedAt;
 
-    /** osName con el que se registra el panel web (recibe notificaciones del navegador). */
+    /** osName the web panel registers with (receives browser notifications). */
     public static final String OS_WEB = "web";
     public static final Set<String> STATUSES = Set.of("active", "inactive", "blocked", "lost");
 
-    // Solo un objeto plano de nombres cortos con true/false: lo muestra la web, no se guarda otra cosa
+    // Only a flat object of short names with true/false: the web shows it, nothing else is stored
     private static final Pattern PERMISSIONS =
             Pattern.compile("^\\{(\"[a-zA-Z]{1,30}\":(true|false)(,\"[a-zA-Z]{1,30}\":(true|false))*)?}$");
     private static final int MAX_PERMISSIONS = 400;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Dispositivo nuevo de la cuenta; la última conexión es ahora. */
+    /** New device of the account; the last connection is now. */
     public static Device created(Long accountId, DeviceData d, LocalDateTime now) {
         Device n = new Device();
         n.accountId = accountId;
@@ -65,7 +65,7 @@ public class Device {
         return n;
     }
 
-    /** Solo acepta un JSON plano de nombres cortos con true/false; lo devuelve sin espacios. */
+    /** Only accepts a flat JSON of short names with true/false; returns it without spaces. */
     public static String validatePermissions(String permissions) {
         String value = permissions.replaceAll("\\s", "");
         if (value.length() > MAX_PERMISSIONS || !PERMISSIONS.matcher(value).matches()) {
@@ -75,8 +75,8 @@ public class Device {
     }
 
     /**
-     * true si el dispositivo es el celular de la cuenta usado más recientemente, o si no se sabe
-     * (sin id o desconocido): así una app antigua no pierde sus ubicaciones.
+     * true if the device is the account's most recently used phone, or if unknown
+     * (no id or unknown): so an old app does not lose its locations.
      */
     public static boolean isTheNewestPhone(List<Device> ofTheAccount, Long deviceId) {
         if (deviceId == null) return true;
@@ -89,8 +89,8 @@ public class Device {
     }
 
     /**
-     * true si los datos describen este mismo celular: misma marca, modelo, nombre y sistema. Reinstalar
-     * la app o borrar sus datos cambia el identificador guardado, pero el celular sigue siendo el mismo.
+     * true if the data describes this same phone: same brand, model, name and system. Reinstalling
+     * the app or clearing its data changes the stored identifier, but the phone is still the same.
      */
     public boolean isSamePhone(DeviceData d) {
         if (!isPhone() || d.brand() == null || d.model() == null || OS_WEB.equalsIgnoreCase(d.osName())) return false;
@@ -114,14 +114,14 @@ public class Device {
         return fcmToken != null && !fcmToken.isBlank();
     }
 
-    /** Cómo se nombra el celular en el aviso "entraron desde otro celular". */
+    /** How the phone is named in the "someone signed in from another phone" notice. */
     public String nameForNotice() {
         if (deviceName != null && !deviceName.isBlank()) return deviceName;
         String brandModel = ((brand == null ? "" : brand) + " " + (model == null ? "" : model)).trim();
         return brandModel.isEmpty() ? "otro celular" : brandModel;
     }
 
-    /** PUT completo: reemplaza los datos; el token push solo si llega uno. */
+    /** Full PUT: replaces the data; the push token only if one arrives. */
     public void replace(DeviceData d) {
         deviceUuid = d.deviceUuid();
         brand = d.brand();
@@ -136,8 +136,8 @@ public class Device {
     }
 
     /**
-     * La app lo informa al abrirse: actualiza los datos que lleguen (sin borrar los que no envía),
-     * los permisos y la última conexión.
+     * The app reports it when opened: updates the data that arrives (without erasing what it does not send),
+     * the permissions and the last connection.
      */
     public void recordUse(DeviceData d, LocalDateTime now) {
         if (d.brand() != null) brand = truncate(d.brand(), 50);
@@ -158,7 +158,7 @@ public class Device {
         fcmToken = token;
     }
 
-    /** Cambio de estado desde la administración. */
+    /** Status change from the administration. */
     public void changeStatus(String newStatus) {
         if (newStatus == null || !STATUSES.contains(newStatus)) throw new IllegalArgumentException("Estado no válido: " + newStatus);
         status = newStatus;

@@ -17,11 +17,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Las fechas se guardan como LocalDateTime en la zona del servidor (UTC en Docker y Render).
- * Antes salían sin zona ("2026-10-16T12:42:25") y la web y el móvil las tomaban como hora local,
- * mostrando 5 horas de más en Colombia. Ahora salen con su desfase ("2026-10-16T12:42:25Z") y cada
- * cliente las muestra en la hora del dispositivo. Al recibir se aceptan ambas formas: con desfase
- * se convierten a la zona del servidor; sin desfase se toman tal cual (como hasta ahora).
+ * Dates are stored as LocalDateTime in the server zone (UTC in Docker and Render).
+ * They used to go out without a zone ("2026-10-16T12:42:25") and the web and mobile took them as local
+ * time, showing 5 extra hours in Colombia. Now they go out with their offset ("2026-10-16T12:42:25Z")
+ * and each client shows them in the device time. On input both forms are accepted: with an offset
+ * they are converted to the server zone; without one they are taken as is (as before).
  */
 @Configuration
 public class JsonTimeConfig {

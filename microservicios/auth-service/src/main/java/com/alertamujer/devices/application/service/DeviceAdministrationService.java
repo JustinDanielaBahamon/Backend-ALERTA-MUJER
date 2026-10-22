@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Dispositivos para el panel: datos del celular más la dueña (el dispositivo solo guarda la cuenta). */
+/** Devices for the panel: phone data plus the owner (the device only stores the account). */
 @Service
 public class DeviceAdministrationService implements ManageDevicesUseCase {
 

@@ -1,4 +1,4 @@
 package com.alertamujer.shared.rpc;
 
-/** Error que devuelve un microservicio al atender una llamada interna, para volver a lanzarlo del otro lado. */
+/** Error a microservice returns while serving an internal call, to rethrow it on the other side. */
 public record RemoteError(String type, String message) {}

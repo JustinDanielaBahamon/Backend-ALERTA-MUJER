@@ -3,7 +3,7 @@ package com.alertamujer.identity.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Sesión de un dispositivo (refresh token). Solo se guarda el hash del token.
+ * Session of a device (refresh token). Only the token hash is stored.
  */
 public class DeviceSession {
 

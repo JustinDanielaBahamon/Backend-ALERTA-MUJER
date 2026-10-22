@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una acción de moderación. El dominio es ModerationAction. */
+/** Row of a moderation action. The domain is ModerationAction. */
 @Entity
 @Table(name = "moderation_action", schema = "admin")
 @Data

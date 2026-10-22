@@ -7,8 +7,8 @@ import java.time.LocalDateTime;
 import java.util.HexFormat;
 
 /**
- * Solicitud de recuperación de contraseña con un código de 6 dígitos. Solo se guarda el hash del
- * código. Vale 15 minutos y admite 5 intentos; pedir uno nuevo anula el anterior.
+ * Password recovery request with a 6-digit code. Only the code hash is stored.
+ * Valid for 15 minutes with 5 attempts; requesting a new one cancels the previous one.
  */
 public class RecoveryRequest {
 
@@ -43,7 +43,7 @@ public class RecoveryRequest {
         return r;
     }
 
-    /** Hash del código ligado a la cuenta: el mismo código en otra cuenta da otro hash. */
+    /** Code hash bound to the account: the same code on another account gives another hash. */
     public static String hash(Long accountId, String code) {
         try {
             byte[] d = MessageDigest.getInstance("SHA-256")
@@ -54,7 +54,7 @@ public class RecoveryRequest {
         }
     }
 
-    /** Pedida hace menos de un minuto: evita que se usen los correos para molestar. */
+    /** Requested less than a minute ago: prevents the emails from being used to harass. */
     public boolean recent(LocalDateTime now) {
         return createdAt != null && createdAt.isAfter(now.minusSeconds(SECONDS_BETWEEN_REQUESTS));
     }
@@ -77,7 +77,7 @@ public class RecoveryRequest {
         status = "expired";
     }
 
-    /** Un código equivocado gasta un intento; al quinto el código deja de servir. */
+    /** A wrong code uses up an attempt; at the fifth the code stops working. */
     public void recordFailure() {
         attempts = attempts + 1;
         if (attempts >= MAX_ATTEMPTS) status = "expired";

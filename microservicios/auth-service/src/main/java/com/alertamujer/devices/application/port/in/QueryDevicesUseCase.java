@@ -2,16 +2,16 @@ package com.alertamujer.devices.application.port.in;
 
 import java.util.List;
 
-/** Consultas que piden los otros módulos y Alert Service. */
+/** Queries asked by the other modules and Alert Service. */
 public interface QueryDevicesUseCase {
 
-    /** Tokens push de la dueña del perfil (user_profile.id). */
+    /** Push tokens of the profile owner (user_profile.id). */
     List<String> profileTokens(Long profile);
 
-    /** Tokens push de la persona (users.id); vacío si no tiene cuenta. */
+    /** Push tokens of the person (users.id); empty if she has no account. */
     List<String> userTokens(Long userId);
 
-    /** Solo celulares (sin navegadores web): para pedir la ubicación por GPS. */
+    /** Phones only (no web browsers): to request the GPS location. */
     List<String> phoneTokens(Long userId);
 
     boolean isTheNewestPhone(Long userId, Long deviceId);

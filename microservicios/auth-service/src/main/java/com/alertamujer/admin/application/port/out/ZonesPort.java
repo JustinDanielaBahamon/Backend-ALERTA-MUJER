@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.port.out;
 
-/** Puerto de salida hacia las zonas de Alert Service. */
+/** Output port to the Alert Service zones. */
 public interface ZonesPort {
 
     long active();

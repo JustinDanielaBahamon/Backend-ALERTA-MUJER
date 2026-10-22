@@ -5,10 +5,10 @@ import com.alertamujer.admin.domain.model.AccountDeletionRequest;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: las solicitudes de eliminación de cuentas. */
+/** Output port: account deletion requests. */
 public interface DeletionRequestRepository {
 
-    /** De la más reciente a la más antigua. */
+    /** Newest to oldest. */
     List<AccountDeletionRequest> all();
 
     Optional<AccountDeletionRequest> find(Long id);

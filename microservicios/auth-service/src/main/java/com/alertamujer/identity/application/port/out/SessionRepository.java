@@ -4,7 +4,7 @@ import com.alertamujer.identity.domain.model.DeviceSession;
 
 import java.util.List;
 
-/** Puerto de salida: las sesiones de los dispositivos. */
+/** Output port: device sessions. */
 public interface SessionRepository {
 
     List<DeviceSession> activeForAccount(Long accountId);

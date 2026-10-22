@@ -10,14 +10,14 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
- * Adaptador de salida: JWT firmados con JWT_SECRET. Alert y Evidence los validan con la misma clave
- * sin llamar a Auth Service.
+ * Output adapter: JWTs signed with JWT_SECRET. Alert and Evidence validate them with the same key
+ * without calling Auth Service.
  */
 @Component
 class JwtTokensAdapter implements TokensPort {
 
     private static final long ACCESS_DURATION_MS = 24L * 60 * 60 * 1000;          // 24 horas
-    private static final long REFRESH_DURATION_MS = 15L * 24 * 60 * 60 * 1000; // 15 días
+    private static final long REFRESH_DURATION_MS = 15L * 24 * 60 * 60 * 1000; // 15 days
 
     private final SecretKey key;
 

@@ -1,5 +1,5 @@
 /**
- * Núcleo compartido: cualquier módulo puede usar este paquete.
+ * Shared kernel: any module can use this package.
  */
 @org.springframework.modulith.NamedInterface("web")
 package com.alertamujer.shared.web;

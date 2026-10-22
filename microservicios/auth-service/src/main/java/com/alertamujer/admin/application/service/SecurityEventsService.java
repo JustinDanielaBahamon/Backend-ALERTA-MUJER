@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Guarda los eventos de sesión de las cuentas admin en la auditoría (tipo SESSION). */
+/** Stores the session events of admin accounts in the audit (type SESSION). */
 @Service
 public class SecurityEventsService implements RecordSecurityEventUseCase {
 
@@ -25,8 +25,8 @@ public class SecurityEventsService implements RecordSecurityEventUseCase {
     }
 
     /**
-     * Transacción propia: un intento fallido se guarda aunque el login termine en excepción, y un
-     * fallo al auditar nunca impide iniciar sesión.
+     * Own transaction: a failed attempt is stored even if the login ends in an exception, and a
+     * failure while auditing never prevents signing in.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)

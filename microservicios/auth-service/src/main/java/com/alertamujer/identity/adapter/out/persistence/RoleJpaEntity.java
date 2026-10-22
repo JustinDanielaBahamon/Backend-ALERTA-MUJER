@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/** Fila de un rol (1 = user, 2 = admin). En el dominio el rol es un dato de User. */
+/** Row of a role (1 = user, 2 = admin). In the domain the role is a field of User. */
 @Entity
 @Table(name = "role", schema = "identity")
 @Data

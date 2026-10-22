@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Credenciales de una persona (una cuenta por usuaria): hash de la contraseña y estado.
+ * Credentials of a person (one account per user): password hash and status.
  */
 public class Account {
 
@@ -28,7 +28,7 @@ public class Account {
         return a;
     }
 
-    /** Longitud permitida para una contraseña nueva. */
+    /** Allowed length for a new password. */
     public static void validateNewPassword(String password) {
         if (password == null || password.length() < MIN_PASSWORD || password.length() > MAX_PASSWORD) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres");
@@ -39,7 +39,7 @@ public class Account {
         return "blocked".equals(status);
     }
 
-    /** Una cuenta bloqueada o inactiva no puede seguir renovando su sesión. */
+    /** A blocked or inactive account cannot keep refreshing its session. */
     public boolean canRefreshSession() {
         return !blocked() && !"inactive".equals(status);
     }
@@ -59,7 +59,7 @@ public class Account {
         status = newStatus;
     }
 
-    /** Cuenta eliminada: inactiva y con una contraseña que nadie conoce. */
+    /** Deleted account: inactive and with a password nobody knows. */
     public void deactivate(String unusableHash) {
         status = "inactive";
         passwordHash = unusableHash;

@@ -8,7 +8,7 @@ import lombok.ToString;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/** Fila de una persona registrada. El dominio es User (con el rol como dato). */
+/** Row of a registered person. The domain is User (with the role as a field). */
 @Entity
 @Table(name = "users", schema = "identity")
 @Data
@@ -19,7 +19,7 @@ class UserJpaEntity {
     @EqualsAndHashCode.Include
     private Long id;
 
-    // EAGER: el nombre del rol se lee al convertir a dominio, fuera de la sesión de JPA
+    // EAGER: the role name is read when converting to the domain, outside the JPA session
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false, foreignKey = @ForeignKey(name = "fk_users_role"))
     @ToString.Exclude

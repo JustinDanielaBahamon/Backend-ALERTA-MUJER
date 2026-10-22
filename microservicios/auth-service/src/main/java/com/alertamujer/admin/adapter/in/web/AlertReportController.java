@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/** Adaptador de entrada REST: informes de alertas del panel (RF13.4). */
+/** REST input adapter: panel alert reports (RF13.4). */
 @RestController
 @RequestMapping("/api/admin/reports")
 @PreAuthorize("hasRole('ADMIN')")
@@ -58,7 +58,7 @@ public class AlertReportController {
         return ResponseEntity.noContent().build();
     }
 
-    /** Descarga el informe con sus alertas: {@code format=pdf} o {@code format=csv} (se abre en Excel). */
+    /** Downloads the report with its alerts: {@code format=pdf} or {@code format=csv} (opens in Excel). */
     @GetMapping("/{id}/export")
     public ResponseEntity<byte[]> export(@PathVariable Long id, @RequestParam(defaultValue = "pdf") String format) {
         boolean pdf = "pdf".equalsIgnoreCase(format);

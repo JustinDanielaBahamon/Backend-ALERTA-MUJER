@@ -5,14 +5,14 @@ import com.alertamujer.identity.api.UserAccountView;
 
 import java.util.List;
 
-/** Puerto de salida hacia identity: la administración de cuentas (identity guarda los datos y sus reglas). */
+/** Output port to identity: account administration (identity stores the data and its rules). */
 public interface AccountsPort {
 
     List<UserAccountView> listAll();
 
-    /** identity valida el estado, impide que una administradora se bloquee a sí misma y el correo repetido. */
+    /** identity validates the status, prevents an admin from blocking herself and repeated emails. */
     UserAccountView update(Long userId, UserAccountChanges changes, Long actor);
 
-    /** Borra los datos personales, cierra las sesiones y deja la cuenta inactiva. */
+    /** Erases the personal data, closes the sessions and leaves the account inactive. */
     void anonymize(Long userId);
 }

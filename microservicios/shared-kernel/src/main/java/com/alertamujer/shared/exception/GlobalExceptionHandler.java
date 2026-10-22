@@ -22,8 +22,8 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
-     * Errores propios de Spring MVC con su código HTTP (ruta inexistente 404, método no permitido 405,
-     * parámetro obligatorio ausente 400, tipo de contenido no soportado 415, ResponseStatusException...).
+     * Spring MVC errors with their HTTP code (unknown path 404, method not allowed 405,
+     * missing required parameter 400, unsupported content type 415, ResponseStatusException...).
      */
     @ExceptionHandler({
         org.springframework.web.servlet.resource.NoResourceFoundException.class,
@@ -52,13 +52,13 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    // /api/alerts/abc, ?page=x...: el valor no tiene el tipo esperado
+    // /api/alerts/abc, ?page=x...: the value does not have the expected type
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         return badRequest("El valor de '" + ex.getName() + "' no es válido");
     }
 
-    // JSON mal formado o con tipos que no corresponden
+    // Malformed JSON or with types that do not match
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException ex) {
         return badRequest("El cuerpo de la solicitud no es válido");
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    // Los servicios lanzan la AccessDeniedException del proyecto, no la de Spring Security
+    // Services throw the project's AccessDeniedException, not the Spring Security one
     @ExceptionHandler(com.alertamujer.shared.exception.AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleDomainAccessDenied(com.alertamujer.shared.exception.AccessDeniedException ex) {
         return ResponseEntity
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    // Violaciones de CHECK / FK / UNIQUE: no exponer el SQL ni los nombres de constraints
+    // CHECK / FK / UNIQUE violations: do not expose the SQL or the constraint names
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(org.springframework.dao.DataIntegrityViolationException ex) {
         return ResponseEntity
@@ -203,7 +203,7 @@ public class GlobalExceptionHandler {
                 .build());
     }
 
-    // El detalle queda en el log del servidor; al cliente no se le muestran mensajes internos
+    // The detail stays in the server log; the client never sees internal messages
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntime(RuntimeException ex) {
         log.error("Error no controlado", ex);

@@ -3,7 +3,7 @@ package com.alertamujer.settings.application.port.in;
 import com.alertamujer.settings.domain.model.SettingsChanges;
 import com.alertamujer.settings.domain.model.SystemConfiguration;
 
-/** La administración consulta y cambia los parámetros de la app. */
+/** The administration queries and changes the app parameters. */
 public interface ManageSettingsUseCase {
 
     SystemConfiguration get();

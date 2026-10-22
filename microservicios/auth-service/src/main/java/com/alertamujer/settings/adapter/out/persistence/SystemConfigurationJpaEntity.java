@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila única de configuración. El dominio es SystemConfiguration. */
+/** Single configuration row. The domain is SystemConfiguration. */
 @Entity
 @Table(name = "system_configuration", schema = "admin")
 @Data

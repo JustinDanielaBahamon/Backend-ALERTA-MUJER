@@ -13,15 +13,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Recibe eventos de otros microservicios y los publica dentro de este, para que sus listeners
- * (@EventListener / @TransactionalEventListener con fallbackExecution) reaccionen igual que en el
- * monolito. Solo acepta los tipos declarados en EventosAceptados.
+ * Receives events from other microservices and publishes them inside this one, so its listeners
+ * (@EventListener / @TransactionalEventListener with fallbackExecution) react as in the
+ * monolith. Only accepts the types declared in AcceptedEvents.
  */
 @RestController
 @RequestMapping("/internal/events")
 public class ReceivedEventsController {
 
-    /** Eventos que este servicio acepta de otros. */
+    /** Events this service accepts from others. */
     public record AcceptedEvents(List<Class<?>> types) {}
 
     private final Map<String, Class<?>> types;

@@ -3,27 +3,27 @@ package com.alertamujer.settings.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Configuración global de la app (una sola fila, singleton_key = 'SYSTEM'): la editan las
- * administradoras y la leen los demás módulos. Modelo del dominio: no conoce la base de datos ni Spring.
+ * Global app configuration (a single row, singleton_key = 'SYSTEM'): edited by the
+ * admins and read by the other modules. Domain model: knows neither the database nor Spring.
  */
 public class SystemConfiguration {
 
     private Long id;
     private String singletonKey = "SYSTEM";
-    /** Minutos tras los cuales una alerta activa se marca como expirada. */
+    /** Minutes after which an active alert is marked as expired. */
     private Integer sosMaxDurationMinutes;
     private String emergencyPhoneNumber;
-    /** Correo de soporte que ven las usuarias. */
+    /** Support email the users see. */
     private String adminEmail;
     private Boolean notificationsEnabled = true;
     private String defaultNotificationPriority = "normal";
     private String defaultTheme = "light";
     private Integer maxEmergencyContacts = 5;
-    /** Versión mínima de la app móvil (p. ej. "1.2.0"); null si no se exige ninguna. */
+    /** Minimum mobile app version (e.g. "1.2.0"); null if none is required. */
     private String minAppVersion;
     private Integer updatedByAdminId;
     private LocalDateTime createdAt = LocalDateTime.now();
-    /** Lo pone un trigger de la base. */
+    /** Set by a database trigger. */
     private LocalDateTime updatedAt;
 
     public static final String KEY = "SYSTEM";
@@ -33,7 +33,7 @@ public class SystemConfiguration {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Aplica los cambios enviados (null = sin cambio) validando cada valor; minAppVersion "" la quita. */
+    /** Applies the sent changes (null = no change) validating each value; minAppVersion "" removes it. */
     public void update(SettingsChanges c, Long adminUserId, LocalDateTime now) {
         if (c.sosMaxDurationMinutes() != null) {
             int minutes = c.sosMaxDurationMinutes();
@@ -68,11 +68,11 @@ public class SystemConfiguration {
             minAppVersion = version.isEmpty() ? null : version;
         }
         updatedByAdminId = adminUserId == null ? null : adminUserId.intValue();
-        // El trigger de la base pone la misma hora; así se ve sin volver a leer la fila
+        // The database trigger sets the same time; this way it shows without reading the row again
         updatedAt = now;
     }
 
-    /** Cuándo cambió por última vez (o cuándo se creó si nunca se editó). */
+    /** When it last changed (or when it was created if never edited). */
     public LocalDateTime lastUpdate() {
         return updatedAt != null ? updatedAt : createdAt;
     }

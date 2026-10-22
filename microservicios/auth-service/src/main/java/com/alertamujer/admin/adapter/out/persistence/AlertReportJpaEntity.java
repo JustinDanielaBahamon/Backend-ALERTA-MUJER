@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un informe de alertas. El dominio es AlertReport. */
+/** Row of an alert report. The domain is AlertReport. */
 @Entity
 @Table(name = "alert_report", schema = "admin")
 @Data

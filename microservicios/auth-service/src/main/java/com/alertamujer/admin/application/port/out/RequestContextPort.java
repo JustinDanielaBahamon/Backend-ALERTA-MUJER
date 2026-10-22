@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.port.out;
 
-/** Puerto de salida: datos de la petición en curso (vacíos si no hay petición, p. ej. una tarea automática). */
+/** Output port: data of the current request (empty if there is no request, e.g. a scheduled task). */
 public interface RequestContextPort {
 
     String ip();

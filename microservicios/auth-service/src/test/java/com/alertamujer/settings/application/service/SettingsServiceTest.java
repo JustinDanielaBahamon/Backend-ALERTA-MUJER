@@ -33,7 +33,7 @@ class SettingsServiceTest {
         when(repository.current()).thenReturn(Optional.of(c));
         when(repository.save(any())).thenAnswer(inv -> {
             SystemConfiguration saved = inv.getArgument(0);
-            saved.setUpdatedAt(null); // la base no devuelve la hora del trigger
+            saved.setUpdatedAt(null); // the database does not return the trigger time
             return saved;
         });
 

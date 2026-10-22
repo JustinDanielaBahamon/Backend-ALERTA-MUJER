@@ -1,9 +1,9 @@
 package com.alertamujer.identity.api;
 
 /**
- * Evento que identity publica en cada inicio, intento fallido, cambio de contraseña o cierre de
- * sesión de una cuenta admin. Otro módulo (la auditoría) lo escucha; identity no sabe quién lo usa.
- * En microservicios este evento viajaría por una cola de mensajes.
+ * Event identity publishes on every sign-in, failed attempt, password change or sign-out of an
+ * admin account. Another module (the audit) listens to it; identity does not know who uses it.
+ * In microservices this event would travel through a message queue.
  */
 public record AdminSessionEvent(Long accountId, String action, String detail) {
 

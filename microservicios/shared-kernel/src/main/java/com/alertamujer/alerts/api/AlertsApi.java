@@ -6,50 +6,50 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Consultas del módulo alerts para los demás módulos. */
+/** Queries of the alerts module for the other modules. */
 public interface AlertsApi {
 
     Optional<AlertSummary> findAlert(Long alertId);
 
-    /** Alertas por id (las que no existen se omiten). */
+    /** Alerts by id (missing ones are skipped). */
     Map<Long, AlertSummary> findAlerts(Collection<Long> alertIds);
 
-    /** Todas las alertas, por id. */
+    /** All alerts, by id. */
     Map<Long, AlertSummary> alertsById();
 
-    /** Todas las alertas con su usuaria, de la más reciente a la más antigua (panel). */
+    /** All alerts with their user, newest to oldest (panel). */
     List<AdminAlertView> adminAlertViews();
 
-    /** Número de alertas por user_profile.id. */
+    /** Number of alerts per user_profile.id. */
     Map<Long, Long> alertCountByProfile();
 
     long countActiveAlerts();
 
-    /** Última revisión automática de alertas vencidas. */
+    /** Last automatic run that expired overdue alerts. */
     ExpirationStatus expirationStatus();
 
-    /** Alertas en las que se avisó a este correo como contacto de emergencia. */
+    /** Alerts in which this email was notified as an emergency contact. */
     List<Long> alertsNotifiedTo(String email);
 
-    /** Envíos registrados para una alerta (correo y push a cada contacto). */
+    /** Deliveries recorded for an alert (email and push to each contact). */
     List<AlertRecipient> recipientsOf(Long alertId);
 
-    /** Guarda el resultado de un envío: "sent" o "failed" (con el motivo). */
+    /** Saves the result of a delivery: "sent" or "failed" (with the reason). */
     void markDelivery(Long recipientId, String status, String errorMessage);
 
-    /** Chat de la alerta: mensajes posteriores a afterId (null = todos). */
+    /** Alert chat: messages after afterId (null = all). */
     List<AlertMessageView> messagesOf(Long alertId, Long afterId);
 
-    /** Mensaje de un contacto (desde el seguimiento). IllegalArgumentException si la alerta terminó. */
+    /** Message from a contact (from the tracking page). IllegalArgumentException if the alert ended. */
     AlertMessageView addContactMessage(Long alertId, String senderName, String body);
 
-    /** Recorrido de la alerta, del primer punto al último. */
+    /** Route of the alert, from the first point to the last. */
     List<LocationPoint> locationTrail(Long alertId);
 
-    /** Ids de las alertas de una usuaria (user_profile.id). */
+    /** Ids of a user's alerts (user_profile.id). */
     List<Long> alertIdsOfProfile(Long userProfileId);
 
-    /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
+    /** Of those alerts, the ones the user marked to keep their evidence. */
     java.util.Set<Long> alertsKeepingEvidence(Collection<Long> alertIds);
 
     record ExpirationStatus(LocalDateTime lastCheck, int lastExpiredCount) {}

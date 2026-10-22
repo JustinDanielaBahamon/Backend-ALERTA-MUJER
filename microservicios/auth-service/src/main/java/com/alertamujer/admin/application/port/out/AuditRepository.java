@@ -5,13 +5,13 @@ import com.alertamujer.admin.domain.model.AuditFilter;
 
 import java.util.List;
 
-/** Puerto de salida: el registro de auditoría (lo llenan los triggers y los eventos de sesión). */
+/** Output port: the audit log (filled by the triggers and the session events). */
 public interface AuditRepository {
 
-    /** Página de registros que cumplen el filtro, del más reciente al más antiguo. */
+    /** Page of records matching the filter, newest to oldest. */
     AuditLogPage page(AuditFilter filter, int page, int size);
 
-    /** Los primeros registros que cumplen el filtro (para exportar). */
+    /** The first records matching the filter (for export). */
     List<AuditLog> first(AuditFilter filter, int max);
 
     AuditLog save(AuditLog record);

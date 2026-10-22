@@ -1,8 +1,8 @@
 package com.alertamujer.zones.api;
 
-/** Consultas del módulo zones para los demás módulos. */
+/** Queries of the zones module for the other modules. */
 public interface ZonesApi {
 
-    /** Zonas activas en el mapa (estadísticas del panel). */
+    /** Active zones on the map (panel stats). */
     long countActiveZones();
 }

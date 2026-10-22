@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-/** Adaptador de entrada REST: registro, sesión y recuperación de contraseña. */
+/** REST input adapter: registration, session and password recovery. */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -47,13 +47,13 @@ public class AuthController {
         return ResponseEntity.ok(AuthResponse.of(session.withEmail(request.getEmail(), request.getPassword())));
     }
 
-    /** Inicio de sesión con Google: acepta el token de Firebase (web) o de Google (móvil). */
+    /** Sign-in with Google: accepts the Firebase token (web) or the Google token (mobile). */
     @PostMapping("/google")
     public ResponseEntity<AuthResponse> loginWithGoogle(@Valid @RequestBody GoogleLoginRequest request) {
         return ResponseEntity.ok(AuthResponse.of(session.conGoogle(request.getIdToken())));
     }
 
-    /** Deja constancia del cierre de sesión (el cliente borra el token). Responde 204 aunque no haya sesión. */
+    /** Records the sign-out (the client deletes the token). Returns 204 even if there is no session. */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(Authentication authentication, @RequestBody(required = false) Map<String, String> body) {
         Long userId = authentication != null && authentication.getPrincipal() instanceof Long id ? id : null;
@@ -65,7 +65,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request,
                                                               HttpServletRequest http) {
         recovery.request(request.getEmail(), http.getRemoteAddr());
-        // Misma respuesta exista o no la cuenta
+        // Same response whether or not the account exists
         return ResponseEntity.ok(Map.of("message", "Si el correo está registrado, te enviamos un código de 6 dígitos"));
     }
 

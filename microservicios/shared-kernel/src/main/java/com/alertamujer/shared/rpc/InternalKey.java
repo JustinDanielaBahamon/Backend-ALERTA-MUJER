@@ -1,6 +1,6 @@
 package com.alertamujer.shared.rpc;
 
-/** Cabecera con la clave compartida que autoriza las llamadas entre microservicios. */
+/** Header with the shared key that authorizes calls between microservices. */
 public final class InternalKey {
 
     public static final String HEADER = "X-Internal-Key";

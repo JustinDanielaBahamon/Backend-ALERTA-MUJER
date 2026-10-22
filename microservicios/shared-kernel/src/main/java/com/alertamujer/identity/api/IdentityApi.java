@@ -4,17 +4,17 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Consultas del módulo identity para los demás módulos. Los ids de entrada son siempre users.id,
- * salvo que el nombre del método diga lo contrario (perfil = user_profile.id, cuenta = account.id).
+ * Queries of the identity module for the other modules. Input ids are always users.id,
+ * unless the method name says otherwise (profile = user_profile.id, account = account.id).
  */
 public interface IdentityApi {
 
-    /** Perfil de la usuaria en la app; lanza ResourceNotFoundException si no tiene. */
+    /** The user's app profile; throws ResourceNotFoundException if she has none. */
     Long requireProfileId(Long userId);
 
     Optional<Long> findProfileId(Long userId);
 
-    /** Cuenta (credenciales) de la persona; lanza ResourceNotFoundException si no tiene. */
+    /** The person's account (credentials); throws ResourceNotFoundException if she has none. */
     Long requireAccountId(Long userId);
 
     Optional<UserSummary> findUser(Long userId);
@@ -25,12 +25,12 @@ public interface IdentityApi {
 
     Optional<UserSummary> findUserByAccountId(Long accountId);
 
-    /** Todas las personas, por users.id (listados del panel). */
+    /** All people, by users.id (panel lists). */
     Map<Long, UserSummary> usersById();
 
-    /** Todas las personas con perfil de app, por user_profile.id. */
+    /** All people with an app profile, by user_profile.id. */
     Map<Long, UserSummary> usersByProfileId();
 
-    /** Todas las personas con cuenta, por account.id. */
+    /** All people with an account, by account.id. */
     Map<Long, UserSummary> usersByAccountId();
 }

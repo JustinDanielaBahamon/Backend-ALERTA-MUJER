@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los casos de moderación en PostgreSQL. */
+/** Output adapter: moderation cases in PostgreSQL. */
 @Component
 class UserReportPersistenceAdapter implements UserReportRepository {
 

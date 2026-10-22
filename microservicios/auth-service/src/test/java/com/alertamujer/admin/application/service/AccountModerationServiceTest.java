@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Moderación de cuentas con los puertos simulados. */
+/** Account moderation with mocked ports. */
 class AccountModerationServiceTest {
 
     private final UserReportRepository cases = mock(UserReportRepository.class);

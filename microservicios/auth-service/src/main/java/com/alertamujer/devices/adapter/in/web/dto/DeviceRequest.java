@@ -4,7 +4,7 @@ import com.alertamujer.devices.domain.model.DeviceData;
 
 import java.time.LocalDateTime;
 
-/** Datos del dispositivo que envían la app o la web. La cuenta sale del token: un id o accountId en el body se ignora. */
+/** Device data sent by the app or the web. The account comes from the token: an id or accountId in the body is ignored. */
 public record DeviceRequest(String deviceUuid, String brand, String model, String deviceName, String osName,
                             String osVersion, String appVersion, String gpsStatus, String status,
                             LocalDateTime lastAccess, String fcmToken, String permissions) {

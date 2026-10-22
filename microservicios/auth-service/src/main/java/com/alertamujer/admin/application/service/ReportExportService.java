@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Informes de alertas: guardar, consultar con sus alertas y exportar. Solo conoce puertos. */
+/** Alert reports: save, query with their alerts and export. Only knows ports. */
 @Service
 public class ReportExportService implements ReportExportUseCase {
 
@@ -96,7 +96,7 @@ public class ReportExportService implements ReportExportUseCase {
         return file;
     }
 
-    /** Alertas que cubre el informe: las elegidas o, si no hay, las que cumplen sus filtros. */
+    /** Alerts the report covers: the chosen ones or, if none, those matching its filters. */
     static List<AdminAlertView> alertsOf(AlertReport r, List<AdminAlertView> all) {
         return all.stream().filter(a -> r.includes(a.id(), a.startedAt(), a.status())).toList();
     }

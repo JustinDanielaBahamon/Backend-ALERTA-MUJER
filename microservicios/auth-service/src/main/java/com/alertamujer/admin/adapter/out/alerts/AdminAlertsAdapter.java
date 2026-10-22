@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de salida hacia Alert Service: en Auth Service, AlertsApi es un cliente HTTP (/internal/rpc). */
+/** Output adapter to Alert Service: in Auth Service, AlertsApi is an HTTP client (/internal/rpc). */
 @Component
 class AdminAlertsAdapter implements AlertsPort {
 

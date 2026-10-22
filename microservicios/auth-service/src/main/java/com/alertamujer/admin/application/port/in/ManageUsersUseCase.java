@@ -5,7 +5,7 @@ import com.alertamujer.identity.api.UserAccountView;
 
 import java.util.List;
 
-/** Gestión de usuarias del panel: las cuentas (identity) con su número de alertas (Alert Service). */
+/** Panel user management: the accounts (identity) with their alert count (Alert Service). */
 public interface ManageUsersUseCase {
 
     List<UserWithAlerts> listAll();

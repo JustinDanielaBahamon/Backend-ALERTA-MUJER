@@ -1,14 +1,14 @@
 package com.alertamujer.identity.application.port.in;
 
 /**
- * Recuperación de contraseña con un código de 6 dígitos enviado al correo. La respuesta al pedir el
- * código es la misma exista o no la cuenta (no revela qué correos están registrados).
+ * Password recovery with a 6-digit code sent by email. The response when requesting the
+ * code is the same whether or not the account exists (it does not reveal which emails are registered).
  */
 public interface RecoverPasswordUseCase {
 
     void request(String email, String ip);
 
-    /** Comprueba el código sin usarlo (paso intermedio de las pantallas). Cuenta como intento. */
+    /** Checks the code without using it (intermediate step of the screens). Counts as an attempt. */
     void verify(String email, String code);
 
     void reset(String email, String code, String newPassword);

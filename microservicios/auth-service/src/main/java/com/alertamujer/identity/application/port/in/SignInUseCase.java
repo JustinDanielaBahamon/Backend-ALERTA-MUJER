@@ -1,19 +1,20 @@
 package com.alertamujer.identity.application.port.in;
 
-/** Entrar, renovar y cerrar la sesión. */
+/** Sign in, refresh and sign out. */
 public interface SignInUseCase {
 
     Session withEmail(String email, String password);
 
     /**
-     * Con Google (token de Firebase en la web o de Google en el móvil). Si el correo ya está
-     * registrado entra a esa cuenta; si no, crea la usuaria (solo podrá entrar con Google).
+     * With Google (Firebase token on the web or Google token on mobile). If the email is already
+     * registered it signs in to that account; otherwise it creates the user (who can only sign in with
+     * Google).
      */
     Session conGoogle(String idToken);
 
-    /** Nuevo token de acceso a partir del de renovación. */
+    /** New access token from the refresh one. */
     String refresh(String refreshToken);
 
-    /** Cierre voluntario o por inactividad (el JWT no se revoca; queda en la auditoría si es administradora). */
+    /** Voluntary or inactivity sign-out (the JWT is not revoked; it is audited if she is an admin). */
     void close(Long userId, String reason);
 }

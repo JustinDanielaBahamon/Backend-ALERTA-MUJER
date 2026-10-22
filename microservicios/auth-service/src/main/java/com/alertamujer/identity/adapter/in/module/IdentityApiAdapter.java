@@ -12,8 +12,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Adaptador de entrada: el contrato IdentityApi para los otros módulos de Auth Service y para Alert
- * y Evidence (por /internal/rpc). Traduce el dominio al record UserSummary del contrato.
+ * Input adapter: the IdentityApi contract for the other Auth Service modules and for Alert
+ * and Evidence (through /internal/rpc). Translates the domain to the contract's UserSummary record.
  */
 @Component
 class IdentityApiAdapter implements IdentityApi {

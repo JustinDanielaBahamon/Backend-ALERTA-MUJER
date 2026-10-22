@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de auditoría (la escriben los triggers y los eventos de sesión). El dominio es AuditLog. */
+/** Audit row (written by the triggers and the session events). The domain is AuditLog. */
 @Entity
 @Table(name = "audit_log", schema = "admin")
 @Data

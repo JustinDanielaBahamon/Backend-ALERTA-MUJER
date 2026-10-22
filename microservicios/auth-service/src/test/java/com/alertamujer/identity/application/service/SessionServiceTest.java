@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Registro y sesión con los puertos simulados (sin base de datos, BCrypt ni JWT reales). */
+/** Registration and session with mocked ports (no real database, BCrypt or JWT). */
 @ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
 

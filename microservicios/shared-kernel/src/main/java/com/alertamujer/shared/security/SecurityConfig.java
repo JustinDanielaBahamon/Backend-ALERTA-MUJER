@@ -26,8 +26,8 @@ public class SecurityConfig {
     private final List<String> allowedOrigins;
 
     /**
-     * @param origenes orígenes del panel web que pueden llamar a la API (CORS_ORIGIN, separados
-     *                 por coma; admite comodines). La app móvil no envía Origin y no se ve afectada.
+     * @param origins web panel origins allowed to call the API (CORS_ORIGIN, comma separated;
+     *                wildcards allowed). The mobile app sends no Origin and is not affected.
      */
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           @Value("${cors.allowed-origins}") String[] origins) {
@@ -43,13 +43,13 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**", "/api/auth/**", "/actuator/health", "/actuator/info", "/health").permitAll()
-                // Llamadas entre microservicios: las protege ClaveInternaFilter con INTERNAL_API_KEY
+                // Calls between microservices: protected by InternalKeyFilter with INTERNAL_API_KEY
                 .requestMatchers("/internal/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/resources/**", "/api/zones/**").permitAll()
-                // Seguimiento público de una alerta: el código aleatorio del enlace es la credencial
+                // Public alert tracking: the random code of the link is the credential
                 .requestMatchers(HttpMethod.GET, "/api/public/tracking/**").permitAll()
-                // El contacto escribe en el chat de la alerta con su código de seguimiento (sin sesión)
+                // The contact writes in the alert chat with her tracking code (no session)
                 .requestMatchers(HttpMethod.POST, "/api/public/tracking/*/messages").permitAll()
                 .anyRequest().authenticated()
             )

@@ -2,18 +2,18 @@ package com.alertamujer.settings.application.port.in;
 
 import com.alertamujer.settings.domain.model.SystemConfiguration;
 
-/** Lo que leen las apps y los otros módulos y microservicios. */
+/** What the apps and the other modules and microservices read. */
 public interface QuerySettingsUseCase {
 
-    /** Para las apps de cualquier usuaria: número de emergencia, soporte, duración y versión mínima. */
+    /** For the apps of any user: emergency number, support, duration and minimum version. */
     SystemConfiguration publicPaths();
 
-    /** 0 si no hay configuración (no expira ninguna alerta). */
+    /** 0 if not configured (no alert expires). */
     int maxAlertDurationMinutes();
 
-    /** "123" si no hay configuración. */
+    /** "123" if not configured. */
     String emergencyNumber();
 
-    /** 5 si no hay configuración. */
+    /** 5 if not configured. */
     int maxContacts();
 }

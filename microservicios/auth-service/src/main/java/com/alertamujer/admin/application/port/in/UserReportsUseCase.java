@@ -5,15 +5,15 @@ import com.alertamujer.admin.domain.model.ReportChanges;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Casos de moderación, con el nombre y correo de la usuaria reportada y de quien reporta. */
+/** Moderation cases, with the name and email of the reported user and of the reporter. */
 public interface UserReportsUseCase {
 
-    /** Todos (estado null) o los de un estado, del más reciente al más antiguo. */
+    /** All (null status) or those with a status, newest to oldest. */
     List<UserReportView> listAll(String status);
 
     UserReportView get(Long id);
 
-    /** Reporte de la administración sobre una usuaria identificada por su correo. */
+    /** Report by the administration about a user identified by her email. */
     UserReportView create(String reportedEmail, String reason, String description, String severity, Long adminId);
 
     UserReportView update(Long id, ReportChanges changes, Long adminId);

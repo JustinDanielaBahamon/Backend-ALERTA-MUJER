@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de la configuración global, sin Spring ni base de datos. */
+/** Global configuration rules, without Spring or a database. */
 class SystemConfigurationTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);

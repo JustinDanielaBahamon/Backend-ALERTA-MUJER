@@ -11,9 +11,9 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Los correos y los push los envía Alert Service (módulo notifications). Estos eventos nacen aquí,
- * así que se reenvían por HTTP una vez confirmada la transacción, en segundo plano. La eliminación
- * de una cuenta también va a Evidence Service.
+ * Emails and pushes are sent by Alert Service (notifications module). These events are born here,
+ * so they are forwarded over HTTP once the transaction commits, in the background. Account deletion
+ * also goes to Evidence Service.
  */
 @Component
 class EventsToAlertService {

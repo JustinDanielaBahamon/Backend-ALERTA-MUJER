@@ -6,8 +6,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Adaptador de entrada: escucha los eventos de sesión que publica identity. Es síncrono para que el
- * intento fallido quede registrado aunque el login termine en error.
+ * Input adapter: listens to the session events identity publishes. It is synchronous so the
+ * failed attempt is recorded even if the login ends in an error.
  */
 @Component
 class AdminSessionListener {

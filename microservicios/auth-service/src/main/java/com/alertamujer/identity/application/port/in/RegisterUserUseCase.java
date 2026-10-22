@@ -1,11 +1,11 @@
 package com.alertamujer.identity.application.port.in;
 
-/** Registro con correo y contraseña. */
+/** Registration with email and password. */
 public interface RegisterUserUseCase {
 
     /**
-     * Crea la persona, su cuenta y su perfil y abre la sesión. Si el correo, el teléfono o el
-     * documento ya los usa otra cuenta, responde con todos los campos repetidos a la vez.
+     * Creates the person, her account and her profile and opens the session. If the email, phone or
+     * document is already used by another account, it answers with all the repeated fields at once.
      */
     Session registrar(RegistrationData data);
 }

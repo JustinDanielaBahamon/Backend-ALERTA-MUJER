@@ -3,7 +3,7 @@ package com.alertamujer.identity.adapter.in.web.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/** Token de identidad de Google (móvil) o de Firebase Authentication (web). */
+/** Google identity token (mobile) or Firebase Authentication token (web). */
 @Data
 public class GoogleLoginRequest {
     @NotBlank

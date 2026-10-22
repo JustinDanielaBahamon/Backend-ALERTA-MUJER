@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de salida: las sesiones de dispositivo en PostgreSQL. */
+/** Output adapter: device sessions in PostgreSQL. */
 @Component
 class SessionPersistenceAdapter implements SessionRepository {
 

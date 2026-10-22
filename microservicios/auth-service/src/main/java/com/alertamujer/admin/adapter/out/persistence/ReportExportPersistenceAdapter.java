@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los informes de alertas en PostgreSQL. */
+/** Output adapter: alert reports in PostgreSQL. */
 @Component
 class ReportExportPersistenceAdapter implements ReportExportRepository {
 

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST de los dispositivos (la dueña y la administración). */
+/** REST input adapter for devices (the owner and the administration). */
 @RestController
 @RequestMapping("/api/devices")
 public class DeviceController {
@@ -41,14 +41,14 @@ public class DeviceController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getDeviceById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
                                            Authentication authentication) {
-        // La administradora ve cualquier dispositivo, con los datos de su dueña
+        // The admin sees any device, with its owner's data
         if (esAdmin(authentication)) {
             return ResponseEntity.ok(AdminDeviceView.of(administration.get(id)));
         }
         return ResponseEntity.ok(DeviceResponse.of(myDevices.one(id, currentUserId)));
     }
 
-    /** Cambia el estado de cualquier dispositivo: active, inactive, blocked o lost. */
+    /** Changes the status of any device: active, inactive, blocked or lost. */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminDeviceView> changeDeviceStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
@@ -66,7 +66,7 @@ public class DeviceController {
         return ResponseEntity.ok(DeviceResponse.of(myDevices.replace(id, request.toData(), currentUserId)));
     }
 
-    /** La app informa los datos actuales del celular y su última conexión (solo la dueña). */
+    /** The app reports the phone's current data and its last connection (owner only). */
     @PutMapping("/{id}/info")
     public ResponseEntity<DeviceResponse> recordUse(@PathVariable Long id, @RequestBody DeviceRequest request,
                                                        @AuthenticationPrincipal Long currentUserId) {
@@ -74,8 +74,8 @@ public class DeviceController {
     }
 
     /**
-     * Registra el token push (FCM) del dispositivo de la usuaria. Responde 204 para no devolver el
-     * token; solo la dueña del dispositivo puede cambiarlo.
+     * Registers the push token (FCM) of the user's device. Returns 204 so the token is not sent back;
+     * only the device owner can change it.
      */
     @PutMapping("/{id}/push-token")
     public ResponseEntity<Void> updatePushToken(@PathVariable Long id, @RequestBody Map<String, String> body,

@@ -3,7 +3,7 @@ package com.alertamujer.shared.rpc;
 import java.util.List;
 
 /**
- * Contratos (interfaces *Api) que este microservicio atiende para los demás en /internal/rpc.
- * Cada servicio declara el suyo como bean; lo que no esté aquí no se puede invocar desde fuera.
+ * Contracts (*Api interfaces) this microservice serves to the others at /internal/rpc.
+ * Each service declares its own as a bean; anything not listed here cannot be invoked from outside.
  */
 public record ExposedContracts(List<Class<?>> contracts) {}

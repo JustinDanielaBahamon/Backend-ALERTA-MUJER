@@ -2,12 +2,12 @@ package com.alertamujer.admin.application.port.out;
 
 import java.time.LocalDateTime;
 
-/** Puerto de salida: estado de las piezas técnicas del servidor. */
+/** Output port: status of the server's technical pieces. */
 public interface InfrastructurePort {
 
     boolean databaseResponds();
 
-    /** Firebase configurado: sin él no salen notificaciones push. */
+    /** Firebase configured: without it no push notifications go out. */
     boolean pushConfigured();
 
     LocalDateTime startup();

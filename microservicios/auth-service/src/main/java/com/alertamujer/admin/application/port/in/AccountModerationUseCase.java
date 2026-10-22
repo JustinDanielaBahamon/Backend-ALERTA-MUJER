@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Bloqueos y eliminaciones de cuentas. Bloquear exige un motivo (y opcionalmente una captura) y
- * queda como un caso cerrado en Moderación. Eliminar es irreversible: una administradora lo
- * solicita y otra distinta lo aprueba.
+ * Account blocks and deletions. Blocking requires a reason (and optionally a screenshot) and
+ * stays as a closed case in Moderation. Deleting is irreversible: one admin
+ * requests it and a different one approves it.
  */
 public interface AccountModerationUseCase {
 
@@ -16,7 +16,7 @@ public interface AccountModerationUseCase {
 
     void unblock(Long userId, String note, Long adminId);
 
-    /** Lo que se ha hecho con la cuenta, del más reciente al más antiguo. */
+    /** What has been done with the account, newest to oldest. */
     List<HistoryItem> history(Long userId);
 
     DeletionRequestView requestDeletion(Long userId, String reason, Long adminId);

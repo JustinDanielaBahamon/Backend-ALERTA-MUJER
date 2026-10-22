@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/** Consultas de personas, perfiles y cuentas para los otros módulos y microservicios. */
+/** Queries of people, profiles and accounts for the other modules and microservices. */
 @Service
 @Transactional(readOnly = true)
 public class IdentityQueryService implements QueryIdentityUseCase {

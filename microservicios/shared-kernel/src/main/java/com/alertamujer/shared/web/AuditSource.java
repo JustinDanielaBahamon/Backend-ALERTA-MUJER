@@ -3,8 +3,8 @@ package com.alertamujer.shared.web;
 import java.util.function.Supplier;
 
 /**
- * Origen de los cambios hechos fuera de una petición HTTP (tareas programadas), para que la
- * auditoría no los muestre como "sin responsable". Dentro de una petición el origen sale de RequestInfo.
+ * Source of changes made outside an HTTP request (scheduled tasks), so the audit does not show
+ * them as "no actor". Inside a request the source comes from RequestInfo.
  */
 public final class AuditSource {
 
@@ -16,7 +16,7 @@ public final class AuditSource {
         return CURRENT.get();
     }
 
-    /** Ejecuta la tarea con este origen (p. ej. "Tarea automática · Expiración de alertas"). */
+    /** Runs the task with this source (e.g. "Tarea automática · Expiración de alertas"). */
     public static <T> T runAs(String source, Supplier<T> task) {
         String previous = CURRENT.get();
         CURRENT.set(source);

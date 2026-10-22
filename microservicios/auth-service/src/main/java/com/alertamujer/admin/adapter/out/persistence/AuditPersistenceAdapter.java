@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Adaptador de salida: la auditoría en PostgreSQL, con el filtro traducido a una consulta de JPA. */
+/** Output adapter: the audit in PostgreSQL, with the filter translated to a JPA query. */
 @Component
 class AuditPersistenceAdapter implements AuditRepository {
 

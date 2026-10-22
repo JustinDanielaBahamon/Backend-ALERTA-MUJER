@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/** Auth Service: identidad, sesiones (JWT), dispositivos, configuración del sistema y administración. */
+/** Auth Service: identity, sessions (JWT), devices, system configuration and administration. */
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

@@ -1,14 +1,14 @@
 package com.alertamujer.identity.application.port.out;
 
-/** Puerto de salida: avisos al resto del sistema (auditoría del panel y correo de recuperación). */
+/** Output port: notices to the rest of the system (panel audit and recovery email). */
 public interface IdentityEventsPort {
 
-    /** Inicio, fallo o cierre de sesión, o cambio de contraseña, de una administradora (auditoría). */
+    /** Sign-in, failure or sign-out, or password change, of an admin (audit). */
     void adminSession(Long accountId, String action, String detail);
 
-    /** El correo con el código lo envía Alert Service (notificaciones). */
+    /** The email with the code is sent by Alert Service (notifications). */
     void recoveryCode(String email, String name, String code, int validityMinutes);
 
-    /** Se eliminó una cuenta: los demás servicios borran sus datos personales. */
+    /** An account was deleted: the other services erase its personal data. */
     void accountDeleted(Long userId, Long userProfileId);
 }

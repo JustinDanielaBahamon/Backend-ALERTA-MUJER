@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Dispositivos de la usuaria con los puertos simulados. */
+/** The user's devices with mocked ports. */
 class MyDevicesServiceTest {
 
     private final DeviceRepository repository = mock(DeviceRepository.class);

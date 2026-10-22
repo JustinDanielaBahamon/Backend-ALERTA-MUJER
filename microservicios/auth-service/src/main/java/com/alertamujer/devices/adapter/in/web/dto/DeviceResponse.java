@@ -4,7 +4,7 @@ import com.alertamujer.devices.domain.model.Device;
 
 import java.time.LocalDateTime;
 
-/** Dispositivo como lo recibe su dueña (mismos campos y orden de siempre). */
+/** Device as its owner receives it (same fields and order as always). */
 public record DeviceResponse(Long id, Long accountId, String deviceUuid, String brand, String model, String deviceName,
                              String osName, String osVersion, String appVersion, String gpsStatus, String status,
                              LocalDateTime lastAccess, LocalDateTime createdAt, String fcmToken, String permissions,

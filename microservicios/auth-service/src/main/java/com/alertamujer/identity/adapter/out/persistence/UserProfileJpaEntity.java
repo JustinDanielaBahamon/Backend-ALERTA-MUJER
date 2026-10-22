@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila del perfil de una usuaria. El dominio es UserProfile. */
+/** Row of a user's profile. The domain is UserProfile. */
 @Entity
 @Table(name = "user_profile", schema = "identity")
 @Data

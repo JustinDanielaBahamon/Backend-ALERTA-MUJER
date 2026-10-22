@@ -21,7 +21,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/** Administración de cuentas: los datos y sus reglas viven en identity; el panel (admin) los usa. */
+/** Account administration: the data and its rules live in identity; the panel (admin) uses them. */
 @Service
 public class AccountAdministrationService implements ManageAccountsUseCase {
 
@@ -94,7 +94,7 @@ public class AccountAdministrationService implements ManageAccountsUseCase {
             profiles.save(p);
         });
         accounts.ofUser(userId).ifPresent(account -> {
-            // Contraseña aleatoria que nadie conoce: no se puede volver a entrar
+            // Random password nobody knows: she cannot sign in again
             account.deactivate(hashing.hash(UUID.randomUUID().toString()));
             accounts.save(account);
             sessions.activeForAccount(account.getId()).forEach(s -> {
@@ -102,7 +102,7 @@ public class AccountAdministrationService implements ManageAccountsUseCase {
                 sessions.save(s);
             });
         });
-        // Contactos, ubicaciones, recorridos y grabaciones viven en Alert y Evidence: se avisa para que los borren
+        // Contacts, locations, routes and recordings live in Alert and Evidence: they are notified so they delete them
         events.accountDeleted(userId, profile.map(UserProfile::getId).orElse(null));
     }
 

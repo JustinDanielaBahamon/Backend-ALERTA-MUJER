@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de entrada: el contrato IdentityAdminApi que usa el panel (módulo admin). */
+/** Input adapter: the IdentityAdminApi contract used by the panel (admin module). */
 @Component
 class IdentityAdminApiAdapter implements IdentityAdminApi {
 

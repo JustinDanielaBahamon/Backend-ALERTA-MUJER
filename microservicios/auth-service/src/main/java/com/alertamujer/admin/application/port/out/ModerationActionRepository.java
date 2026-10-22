@@ -5,7 +5,7 @@ import com.alertamujer.admin.domain.model.ModerationAction;
 import java.util.Collection;
 import java.util.List;
 
-/** Puerto de salida: las acciones de moderación de cada caso. */
+/** Output port: the moderation actions of each case. */
 public interface ModerationActionRepository {
 
     List<ModerationAction> fromCases(Collection<Long> caseIds);

@@ -4,7 +4,7 @@ import com.alertamujer.settings.domain.model.SystemConfiguration;
 
 import java.util.Optional;
 
-/** Puerto de salida: la fila única de configuración. */
+/** Output port: the single configuration row. */
 public interface ConfigurationRepository {
 
     Optional<SystemConfiguration> current();

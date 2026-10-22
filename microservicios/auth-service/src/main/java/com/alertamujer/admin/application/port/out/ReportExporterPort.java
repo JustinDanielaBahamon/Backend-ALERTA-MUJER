@@ -5,11 +5,11 @@ import com.alertamujer.alerts.api.AdminAlertView;
 
 import java.util.List;
 
-/** Puerto de salida: genera el archivo de un informe con sus alertas. */
+/** Output port: generates the file of a report with its alerts. */
 public interface ReportExporterPort {
 
     byte[] pdf(AlertReportView report, List<AdminAlertView> alerts);
 
-    /** CSV con ";" y BOM UTF-8, que es como Excel en español lo abre bien. */
+    /** CSV with ";" and UTF-8 BOM, which is how Excel in Spanish opens it correctly. */
     byte[] csv(AlertReportView report, List<AdminAlertView> alerts);
 }

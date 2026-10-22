@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de salida: genera el archivo de un informe de alertas, PDF (OpenPDF) o CSV para abrir en Excel. */
+/** Output adapter: generates the file of an alert report, PDF (OpenPDF) or CSV to open in Excel. */
 @Component
 class ReportExporterAdapter implements ReportExporterPort {
 
@@ -40,7 +40,7 @@ class ReportExporterAdapter implements ReportExporterPort {
     private static final String[] COLUMNS = {
             "ID", "Inicio", "Fin", "Usuaria", "Correo", "Estado", "Activación", "Mensaje", "Latitud", "Longitud", "Duración"};
 
-    /** CSV con separador ";" y BOM UTF-8, que es como Excel en español lo abre bien. */
+    /** CSV with ";" separator and UTF-8 BOM, which is how Excel in Spanish opens it correctly. */
     @Override
     public byte[] csv(AlertReportView report, List<AdminAlertView> alerts) {
         StringBuilder sb = new StringBuilder("\uFEFF");
@@ -64,7 +64,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         writer.setPageEvent(new PageFooter());
         doc.open();
 
-        // Encabezado: banda violeta con el nombre del informe
+        // Header: violet band with the report name
         PdfPTable band = new PdfPTable(1);
         band.setWidthPercentage(100);
         PdfPCell bandCell = new PdfPCell();
@@ -77,7 +77,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         doc.add(band);
         doc.add(spacer(8));
 
-        // Datos del informe en dos columnas
+        // Report data in two columns
         PdfPTable data = new PdfPTable(new float[]{1, 3, 1, 3});
         data.setWidthPercentage(100);
         String period = report.fromDate() == null && report.toDate() == null ? null
@@ -99,7 +99,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         }
         doc.add(spacer(10));
 
-        // Resumen: total, por estado y por forma de activación
+        // Summary: total, by status and by activation method
         doc.add(new Paragraph("Resumen", font(true, 11, VIOLET)));
         doc.add(spacer(4));
         PdfPTable summary = new PdfPTable(new float[]{1, 1, 1});
@@ -115,7 +115,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         }
         doc.add(spacer(10));
 
-        // Detalle: una fila por alerta, filas alternadas
+        // Detail: one row per alert, alternating rows
         doc.add(new Paragraph("Alertas incluidas", font(true, 11, VIOLET)));
         doc.add(spacer(4));
         String[] columns = {"#", "Inicio", "Duración", "Usuaria", "Estado", "Activación", "Mensaje", "Ubicación"};
@@ -229,7 +229,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         return a.endedAt() != null ? a.endedAt() : a.cancelledAt();
     }
 
-    /** "12 min", "1 h 05 min"; vacío si la alerta sigue activa. */
+    /** "12 min", "1 h 05 min"; empty while the alert is active. */
     static String duration(AdminAlertView a) {
         LocalDateTime end = end(a);
         if (a.startedAt() == null || end == null) return "";
@@ -247,7 +247,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         return min < 60 ? min + " min" : (min / 60) + " h " + String.format("%02d", min % 60) + " min";
     }
 
-    /** Pie de cada página: aviso de confidencialidad y número de página. */
+    /** Footer of each page: confidentiality notice and page number. */
     private static class PageFooter extends PdfPageEventHelper {
         @Override
         public void onEndPage(PdfWriter writer, Document document) {
@@ -258,7 +258,7 @@ class ReportExporterAdapter implements ReportExporterPort {
         }
     }
 
-    /** Comillas si hace falta y protección contra fórmulas (inyección CSV). */
+    /** Quotes if needed and protection against formulas (CSV injection). */
     static String csvCell(String value) {
         String v = value == null ? "" : value;
         if (!v.isEmpty() && "=+-@\t\r".indexOf(v.charAt(0)) >= 0 && !v.matches("-?\\d+(\\.\\d+)?")) v = "'" + v;

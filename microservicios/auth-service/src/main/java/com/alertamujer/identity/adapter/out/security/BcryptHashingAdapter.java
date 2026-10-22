@@ -4,7 +4,7 @@ import com.alertamujer.identity.application.port.out.HashingPort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-/** Adaptador de salida: contraseñas con BCrypt (Spring Security). */
+/** Output adapter: passwords with BCrypt (Spring Security). */
 @Component
 class BcryptHashingAdapter implements HashingPort {
 

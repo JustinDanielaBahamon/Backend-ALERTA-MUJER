@@ -1,17 +1,17 @@
 package com.alertamujer.identity.application.port.out;
 
-/** Puerto de salida: emisión y lectura de los JWT de sesión. */
+/** Output port: issuing and reading the session JWTs. */
 public interface TokensPort {
 
-    /** Token de acceso (24 horas) con el rol de la persona. */
+    /** Access token (24 hours) with the person's role. */
     String access(Long userId, String role);
 
-    /** Token de renovación (15 días) para renovar la sesión sin pedir la contraseña. */
+    /** Refresh token (15 days) to refresh the session without asking for the password. */
     String refresh(Long userId);
 
     /**
-     * users.id de un token de renovación válido.
-     * @throws RuntimeException si la firma no es válida, venció o no es de renovación
+     * users.id of a valid refresh token.
+     * @throws RuntimeException if the signature is invalid, it expired or it is not a refresh token
      */
     Long userForRefresh(String token);
 }

@@ -5,7 +5,7 @@ import com.alertamujer.admin.domain.model.AlertReport;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los informes de alertas. */
+/** Output port: the alert reports. */
 public interface ReportExportRepository {
 
     List<AlertReport> all();

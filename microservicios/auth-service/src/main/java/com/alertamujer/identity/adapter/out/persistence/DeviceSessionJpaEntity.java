@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una sesión de dispositivo. El dominio es DeviceSession. */
+/** Row of a device session. The domain is DeviceSession. */
 @Entity
 @Table(name = "device_session", schema = "identity")
 @Data

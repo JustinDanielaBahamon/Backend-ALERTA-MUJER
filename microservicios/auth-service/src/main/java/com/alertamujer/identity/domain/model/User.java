@@ -7,15 +7,15 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
 /**
- * Persona registrada (usuaria o administradora): datos personales y rol. Las credenciales están en
- * Account y la foto en UserProfile. Modelo del dominio: no conoce la base de datos ni Spring.
+ * Registered person (user or admin): personal data and role. Credentials live in
+ * Account and the photo in UserProfile. Domain model: knows neither the database nor Spring.
  */
 public class User {
 
     private Long id;
     /** 1 = usuaria, 2 = administradora. */
     private Long roleId;
-    /** Nombre del rol en la base (user, admin). */
+    /** Role name in the database (user, admin). */
     private String roleName;
     private String firstName;
     private String lastName;
@@ -25,11 +25,11 @@ public class User {
     private String documentType;
     private LocalDate birthdate;
     private LocalDateTime createdAt = LocalDateTime.now();
-    /** Cuándo aceptó los términos y la política de privacidad, y qué versión (null en cuentas antiguas). */
+    /** When she accepted the terms and the privacy policy, and which version (null on old accounts). */
     private LocalDateTime termsAcceptedAt;
     private String termsVersion;
 
-    /** Versión vigente de los términos y la política de privacidad. Cambiarla al publicar otra. */
+    /** Current version of the terms and the privacy policy. Change it when publishing another one. */
     public static final String CURRENT_TERMS = "2026-10";
 
     public static final long USER_ROLE = 1L;
@@ -40,7 +40,7 @@ public class User {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Usuaria nueva desde el formulario de registro (nombre completo en un solo campo). */
+    /** New user from the registration form (full name in a single field). */
     public static User newOne(String name, String email, String telephone, String documentType,
                              String documentNumber, LocalDate birth) {
         String[] parts = name.split(" ");
@@ -56,7 +56,7 @@ public class User {
         return u;
     }
 
-    /** Usuaria nueva que entra por primera vez con Google (sin teléfono ni documento). */
+    /** New user signing in for the first time with Google (no phone or document). */
     public static User fromGoogle(String email, String name, String givenName, String familyName) {
         String firstName = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
         String lastName = familyName != null ? familyName
@@ -70,7 +70,7 @@ public class User {
         return u;
     }
 
-    // "300 123-4567" y "3001234567" son el mismo número: se guarda sin espacios ni separadores
+    // "300 123-4567" and "3001234567" are the same number: stored without spaces or separators
     public static String cleanPhone(String telephone) {
         return emptyToNull(telephone == null ? null : telephone.replaceAll("[\\s().-]", ""));
     }
@@ -79,7 +79,7 @@ public class User {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
-    /** Fecha DD/MM/AAAA como la escriben los formularios; null si falta o no es válida. */
+    /** DD/MM/YYYY date as the forms write it; null if missing or invalid. */
     public static LocalDate formDate(String ddMmYyyy) {
         if (ddMmYyyy == null || ddMmYyyy.isBlank()) return null;
         try {
@@ -89,7 +89,7 @@ public class User {
         }
     }
 
-    /** Deja constancia de que aceptó los términos vigentes. */
+    /** Records that she accepted the current terms. */
     public void acceptTerms(LocalDateTime when) {
         termsAcceptedAt = when;
         termsVersion = CURRENT_TERMS;
@@ -99,7 +99,7 @@ public class User {
         return roleId != null && roleId == ADMIN_ROLE;
     }
 
-    /** Rol que viaja en el JWT. */
+    /** Role carried in the JWT. */
     public String roleOfToken() {
         return esAdmin() ? "admin" : "user";
     }
@@ -108,7 +108,7 @@ public class User {
         return ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     }
 
-    /** Cambios de la propia usuaria en su perfil: solo los campos enviados (Optional vacío = borrarlo). */
+    /** The user's own profile changes: only the sent fields (empty Optional = erase it). */
     public void updateData(UserChanges c) {
         if (c.firstName() != null) firstName = c.firstName().orElse(null);
         if (c.lastName() != null) lastName = c.lastName().orElse(null);
@@ -118,7 +118,7 @@ public class User {
         if (c.birthdate() != null) birthdate = c.birthdate();
     }
 
-    /** Cambios de la administración: solo los campos que llegan con valor. */
+    /** Changes by the administration: only the fields that arrive with a value. */
     public void updateFromAdministration(String name, String newLastName, String newTelephone, String newEmail) {
         if (name != null) firstName = name;
         if (newLastName != null) lastName = newLastName;
@@ -126,7 +126,7 @@ public class User {
         if (newEmail != null) email = newEmail;
     }
 
-    /** "Elimina" la cuenta sin romper el historial: borra los datos personales. */
+    /** "Deletes" the account without breaking the history: erases the personal data. */
     public void anonymize() {
         firstName = "Cuenta";
         lastName = "eliminada";

@@ -35,9 +35,9 @@ public class RegisterRequest {
     @Size(max = 30, message = "El número de documento no puede exceder 30 caracteres")
     @com.fasterxml.jackson.annotation.JsonProperty("numeroDocumento") private String documentNumber;
 
-    /** DD/MM/AAAA, como lo escriben los formularios. */
+    /** DD/MM/YYYY, as the forms write it. */
     @com.fasterxml.jackson.annotation.JsonProperty("fechaNacimiento") private String birthDate;
 
-    /** Casilla "Acepto los términos y la política de privacidad". */
+    /** "Acepto los términos y la política de privacidad" checkbox. */
     @com.fasterxml.jackson.annotation.JsonProperty("aceptaTerminos") private Boolean acceptsTerms;
 }

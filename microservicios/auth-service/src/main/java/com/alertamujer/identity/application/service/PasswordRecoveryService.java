@@ -19,7 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/** Recuperación de contraseña con un código de 6 dígitos enviado al correo (web y app móvil). */
+/** Password recovery with a 6-digit code sent by email (web and mobile app). */
 @Service
 public class PasswordRecoveryService implements RecoverPasswordUseCase {
 

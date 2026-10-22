@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de la moderación, sin Spring ni base de datos. */
+/** Moderation rules, without Spring or a database. */
 class ModerationTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);

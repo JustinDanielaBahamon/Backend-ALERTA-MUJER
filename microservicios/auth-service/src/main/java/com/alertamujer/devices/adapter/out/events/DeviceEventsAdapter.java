@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de salida: evento de Spring que Auth Service reenvía por HTTP a Alert Service. */
+/** Output adapter: Spring event that Auth Service forwards over HTTP to Alert Service. */
 @Component
 class DeviceEventsAdapter implements DeviceEventsPort {
 

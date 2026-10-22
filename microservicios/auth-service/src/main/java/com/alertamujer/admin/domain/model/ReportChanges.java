@@ -1,5 +1,5 @@
 package com.alertamujer.admin.domain.model;
 
-/** Cambios sobre un caso de moderación; un campo null no se toca. */
+/** Changes to a moderation case; a null field is left untouched. */
 public record ReportChanges(String reason, String description, String severity, String status, String resolutionNotes) {
 }

@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** Datos, foto y contraseña de la persona en sesión. */
+/** Data, photo and password of the signed-in person. */
 @Service
 public class MyAccountService implements MyAccountUseCase {
 
@@ -53,7 +53,7 @@ public class MyAccountService implements MyAccountUseCase {
     public UserWithPhoto update(Long userId, UserChanges changes) {
         User user = existing(userId);
         changes = distinct(user, changes);
-        // La foto se valida antes de guardar nada: "" o null la quitan
+        // The photo is validated before saving anything: "" or null removes it
         if (changes.profilePhoto() != null) {
             String valid = PhotoDataUri.validate(changes.profilePhoto().orElse(null));
             profiles.ofUser(userId).ifPresent(p -> {
@@ -66,8 +66,8 @@ public class MyAccountService implements MyAccountUseCase {
     }
 
     /**
-     * El teléfono y el documento identifican a una sola persona (así se registró): al cambiarlos o al
-     * completarlos (cuentas creadas con Google) no pueden ser los de otra cuenta.
+     * The phone and the document identify a single person (that is how she registered): when changing or
+     * completing them (accounts created with Google) they cannot be those of another account.
      */
     private UserChanges distinct(User user, UserChanges c) {
         Optional<String> telephone = c.telephone() == null ? null : c.telephone().map(User::cleanPhone);
@@ -114,7 +114,7 @@ public class MyAccountService implements MyAccountUseCase {
             throw new IllegalArgumentException(
                     "Las cuentas de administración se eliminan desde el panel, con la aprobación de otra administradora");
         }
-        // Mismo borrado que aprueba la administración: datos personales fuera, sesión cerrada y aviso a los demás servicios
+        // Same deletion the administration approves: personal data removed, session closed and the other services notified
         administration.anonymize(userId);
     }
 

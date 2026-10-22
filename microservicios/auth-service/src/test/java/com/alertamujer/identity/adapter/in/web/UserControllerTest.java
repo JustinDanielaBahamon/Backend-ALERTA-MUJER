@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Traducción del PUT /api/users/me (claves ausentes, con null o con valor) a los cambios del dominio. */
+/** Translation of PUT /api/users/me (missing keys, null or with a value) to the domain changes. */
 class UserControllerTest {
 
     @Test

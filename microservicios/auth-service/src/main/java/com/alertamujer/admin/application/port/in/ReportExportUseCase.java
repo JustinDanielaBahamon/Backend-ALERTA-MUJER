@@ -5,7 +5,7 @@ import com.alertamujer.admin.domain.model.ReportExportChanges;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Informes de alertas del panel: se guardan con un nombre y sus alertas y se exportan a PDF o Excel. */
+/** Panel alert reports: saved with a name and their alerts and exported to PDF or Excel. */
 public interface ReportExportUseCase {
 
     List<AlertReportView> listAll();
@@ -20,7 +20,7 @@ public interface ReportExportUseCase {
 
     void delete(Long id);
 
-    /** Archivo del informe con sus alertas (pdf o csv); suma una exportación a su contador. */
+    /** Report file with its alerts (pdf or csv); adds one export to its counter. */
     byte[] export(Long id, boolean pdf);
 
     record AlertReportView(Long id, String name, String city, String status, String userLabel, String event,

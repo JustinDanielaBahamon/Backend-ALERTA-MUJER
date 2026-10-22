@@ -4,15 +4,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/** Datos de la petición HTTP en curso que se guardan en la auditoría. */
+/** Data of the current HTTP request that is stored in the audit. */
 public final class RequestInfo {
 
     private RequestInfo() {}
 
     /**
-     * IP del cliente. Detrás del proxy de Render, Tomcat ya la resolvió desde X-Forwarded-For
-     * (server.forward-headers-strategy=native) tomando la que agregó el proxy, no la que el cliente
-     * pudiera inventar en la cabecera. Solo IPv4/IPv6 de hasta 45 caracteres.
+     * Client IP. Behind the Render proxy, Tomcat already resolved it from X-Forwarded-For
+     * (server.forward-headers-strategy=native) taking the one the proxy added, not one the client
+     * could invent in the header. Only IPv4/IPv6 up to 45 characters.
      */
     public static String ip() {
         HttpServletRequest request = current();
@@ -21,7 +21,7 @@ public final class RequestInfo {
         return ip != null && ip.matches("[0-9a-fA-F.:]{2,45}") ? ip : null;
     }
 
-    /** Navegador y sistema en pocas palabras (p. ej. "Chrome · Windows"), a partir del User-Agent. */
+    /** Browser and system in a few words (e.g. "Chrome · Windows"), from the User-Agent. */
     public static String device() {
         HttpServletRequest request = current();
         String ua = request == null ? null : request.getHeader("User-Agent");
@@ -29,8 +29,8 @@ public final class RequestInfo {
     }
 
     /**
-     * Desde dónde llega la petición: "App móvil · Android" o "Panel web · Chrome · Linux".
-     * La app (React Native) usa okhttp en Android; cualquier navegador se toma como el panel web.
+     * Where the request comes from: "App móvil · Android" or "Panel web · Chrome · Linux".
+     * The app (React Native) uses okhttp on Android; any browser is taken as the web panel.
      */
     public static String source() {
         HttpServletRequest request = current();

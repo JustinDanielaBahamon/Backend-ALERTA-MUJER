@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Bloqueos con motivo y eliminación de cuentas con aprobación de una segunda administradora. */
+/** Blocks with a reason and account deletion approved by a second admin. */
 @Service
 public class AccountModerationService implements AccountModerationUseCase {
 
@@ -54,7 +54,7 @@ public class AccountModerationService implements AccountModerationUseCase {
         String detail = ModerationText.explanation(block.description(), "Explica por qué se bloquea la cuenta" + MIN);
         String evidence = PhotoDataUri.validate(block.evidence());
         existing(userId);
-        // identity impide que una administradora se bloquee a sí misma
+        // identity prevents an admin from blocking herself
         accounts.update(userId, new UserAccountChanges("blocked", null, null, null, null), adminId);
         UserReport reportCase = cases.save(UserReport.block(userId, adminId, reason, detail, evidence, LocalDateTime.now()));
         actions.save(ModerationAction.of(reportCase.getId(), adminId, ModerationAction.BLOCK, detail));
@@ -66,7 +66,7 @@ public class AccountModerationService implements AccountModerationUseCase {
         String detail = ModerationText.explanation(note, "Explica por qué se desbloquea la cuenta" + MIN);
         existing(userId);
         accounts.update(userId, new UserAccountChanges("active", null, null, null, null), adminId);
-        // Se anota en el último caso de la usuaria; si no tiene (bloqueo anterior a este registro), se crea uno
+        // Noted on the user's last case; if she has none (block older than this record), one is created
         UserReport reportCase = cases.ofUser(userId).stream()
                 .max(Comparator.comparing(UserReport::getCreatedAt))
                 .orElseGet(() -> cases.save(UserReport.unblockWithoutCase(userId, adminId, detail, LocalDateTime.now())));
@@ -91,7 +91,7 @@ public class AccountModerationService implements AccountModerationUseCase {
         return Stream.concat(fromActions, fromRequests).sorted(Comparator.comparing(HistoryItem::date).reversed()).toList();
     }
 
-    // ── Eliminación con dos administradoras ────────────────────────
+    // ── Deletion with two admins ────────────────────────
 
     @Override
     @Transactional

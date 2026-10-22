@@ -8,8 +8,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
- * Adaptador de salida: eventos de Spring. AdminSessionEvent lo audita el módulo admin; el de
- * recuperación se reenvía por HTTP a Alert Service, que envía el correo.
+ * Output adapter: Spring events. AdminSessionEvent is audited by the admin module; the
+ * recovery one is forwarded over HTTP to Alert Service, which sends the email.
  */
 @Component
 class IdentityEventsAdapter implements IdentityEventsPort {

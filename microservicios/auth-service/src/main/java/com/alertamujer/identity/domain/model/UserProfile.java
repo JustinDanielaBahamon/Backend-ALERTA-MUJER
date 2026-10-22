@@ -3,13 +3,13 @@ package com.alertamujer.identity.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Perfil de la usuaria: a él pertenecen sus alertas, contactos y ubicaciones; guarda la foto.
+ * User profile: her alerts, contacts and locations belong to it; it stores the photo.
  */
 public class UserProfile {
 
     private Long id;
     private Long userId;
-    /** Foto de perfil como data URI (ver FotoDataUri) o null. */
+    /** Profile photo as a data URI (see PhotoDataUri) or null. */
     private String profilePhotoUrl;
     private Boolean tutorialCompleted = false;
     private LocalDateTime tutorialSeenAt;

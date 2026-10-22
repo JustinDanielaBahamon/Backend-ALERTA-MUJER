@@ -8,9 +8,9 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 /**
- * Envía un evento de dominio a otro microservicio (POST /internal/events/{Evento}). Reemplaza al
- * evento en memoria del monolito cuando quien lo escucha vive en otro servicio. Sin broker de
- * mensajería: si el otro servicio no responde, el envío se registra en el log y no frena al emisor.
+ * Sends a domain event to another microservice (POST /internal/events/{Event}). Replaces the
+ * in-memory monolith event when the listener lives in another service. No message broker:
+ * if the other service does not answer, the send is logged and does not block the sender.
  */
 public class RemoteEvents {
 

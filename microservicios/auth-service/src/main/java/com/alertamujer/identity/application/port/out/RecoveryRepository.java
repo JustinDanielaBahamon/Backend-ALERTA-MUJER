@@ -4,7 +4,7 @@ import com.alertamujer.identity.domain.model.RecoveryRequest;
 
 import java.util.List;
 
-/** Puerto de salida: las solicitudes de recuperación de contraseña. */
+/** Output port: password recovery requests. */
 public interface RecoveryRepository {
 
     RecoveryRequest save(RecoveryRequest deletionRequest);
