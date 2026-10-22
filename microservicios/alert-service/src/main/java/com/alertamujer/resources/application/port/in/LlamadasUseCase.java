@@ -9,7 +9,7 @@ import java.util.Optional;
 /** Registro de las llamadas de la usuaria a los recursos de ayuda. */
 public interface LlamadasUseCase {
 
-    List<ResourceCall> todas();
+    List<ResourceCall> all();
 
     /** Vacío si no existe o es de otra usuaria. */
     Optional<ResourceCall> una(Long id, Long userId);
@@ -22,7 +22,7 @@ public interface LlamadasUseCase {
 
     ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String status, Long userId);
 
-    ResourceCall actualizar(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId);
+    ResourceCall update(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId);
 
     void delete(Long id, Long userId);
 }

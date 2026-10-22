@@ -33,26 +33,26 @@ import static org.mockito.Mockito.*;
 class AdministracionAlertasServiceTest {
 
     @Mock private AlertaRepositorio repository;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
     @Mock private EventosAlertaPort events;
     @Mock private UbicacionRepositorio ubicaciones;
     @Mock private DestinatariosAlertaUseCase destinatarios;
 
     @InjectMocks private AdministracionAlertasService service;
 
-    private static Alert alert(Long id, Long perfil, LocalDateTime inicio) {
+    private static Alert alert(Long id, Long profile, LocalDateTime start) {
         Alert a = new Alert();
         a.setId(id);
-        a.setUserProfileId(perfil);
-        a.setStartedAt(inicio);
+        a.setUserProfileId(profile);
+        a.setStartedAt(start);
         return a;
     }
 
     @Test
     void listar_agregaLaUsuariaYOrdenaDeLaMasReciente() {
-        LocalDateTime ahora = LocalDateTime.now();
-        when(repository.todas()).thenReturn(List.of(alert(1L, 10L, ahora.minusDays(1)), alert(2L, 20L, ahora)));
-        when(identidad.usersByProfile()).thenReturn(Map.of(10L, new UserSummary(1L, "Ana", "Gómez", "ana@test.com", null, 1L, null)));
+        LocalDateTime now = LocalDateTime.now();
+        when(repository.all()).thenReturn(List.of(alert(1L, 10L, now.minusDays(1)), alert(2L, 20L, now)));
+        when(identity.usersByProfile()).thenReturn(Map.of(10L, new UserSummary(1L, "Ana", "Gómez", "ana@test.com", null, 1L, null)));
 
         List<AdminAlertView> vistas = service.listAll();
 
@@ -69,7 +69,7 @@ class AdministracionAlertasServiceTest {
         when(repository.find(1L)).thenReturn(Optional.of(activa));
         when(repository.save(activa)).thenReturn(activa);
 
-        Alert resultado = service.cambiarEstado(1L, "resolved");
+        Alert resultado = service.changeStatus(1L, "resolved");
 
         assertEquals("resolved", resultado.getStatus());
         assertNotNull(resultado.getEndedAt());
@@ -81,8 +81,8 @@ class AdministracionAlertasServiceTest {
         when(repository.find(1L)).thenReturn(Optional.of(alert(1L, 10L, LocalDateTime.now())));
         when(repository.find(9L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> service.cambiarEstado(1L, "borrada"));
-        assertThrows(ResourceNotFoundException.class, () -> service.cambiarEstado(9L, "resolved"));
+        assertThrows(IllegalArgumentException.class, () -> service.changeStatus(1L, "borrada"));
+        assertThrows(ResourceNotFoundException.class, () -> service.changeStatus(9L, "resolved"));
         verify(repository, never()).save(any());
         verifyNoInteractions(events);
     }
@@ -105,7 +105,7 @@ class AdministracionAlertasServiceTest {
         when(destinatarios.contactosDe(alert)).thenReturn(List.of(new ContactoNotificado(9L, "Eva Ruiz", "Madre",
                 List.of(new CanalEnvio("email", "eva@correo.com", "sent", LocalDateTime.of(2026, 10, 20, 10, 0), null)))));
 
-        DetalleAdmin d = service.detalle(5L);
+        DetalleAdmin d = service.detail(5L);
 
         assertTrue(d.ubicacionVisible());
         assertEquals(3, d.puntos());
@@ -125,7 +125,7 @@ class AdministracionAlertasServiceTest {
         when(repository.find(6L)).thenReturn(Optional.of(alert));
         when(destinatarios.contactosDe(alert)).thenReturn(List.of());
 
-        DetalleAdmin d = service.detalle(6L);
+        DetalleAdmin d = service.detail(6L);
 
         assertFalse(d.ubicacionVisible());
         assertNull(d.ultimaUbicacion());

@@ -11,5 +11,5 @@ interface AlertContactJpaRepository extends JpaRepository<AlertContactJpaEntity,
     List<AlertContactJpaEntity> findByAlertId(Long alertId);
 
     @Query("select distinct ac.alertId from AlertContactJpaEntity ac where ac.channel = 'email' and lower(ac.destination) = lower(:correo)")
-    List<Long> findAlertIdsNotifiedTo(@Param("correo") String correo);
+    List<Long> findAlertIdsNotifiedTo(@Param("correo") String email);
 }

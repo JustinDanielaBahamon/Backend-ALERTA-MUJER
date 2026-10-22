@@ -13,48 +13,48 @@ public class AccountDeletionRequest {
     private Long requestedBy;
     private String reason;
     /** pending | approved | rejected */
-    private String status = PENDIENTE;
+    private String status = PENDING;
     private Long decidedBy;
     private String decisionNote;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime decidedAt;
 
-    public static final String PENDIENTE = "pending";
-    private static final int MAXIMO_NOTA = 500;
+    public static final String PENDING = "pending";
+    private static final int MAX_NOTE = 500;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static AccountDeletionRequest nueva(Long userId, Long adminId, String motivo) {
+    public static AccountDeletionRequest newOne(Long userId, Long adminId, String reason) {
         if (userId.equals(adminId)) throw new IllegalArgumentException("No puedes eliminar tu propia cuenta");
         AccountDeletionRequest s = new AccountDeletionRequest();
         s.userId = userId;
         s.requestedBy = adminId;
-        s.reason = motivo;
+        s.reason = reason;
         return s;
     }
 
     /** Solo la aprueba una administradora distinta de la que la pidió. */
-    public void aprobar(Long adminId, String nota, LocalDateTime ahora) {
-        verificarPendiente();
+    public void approve(Long adminId, String note, LocalDateTime now) {
+        verifyPending();
         if (requestedBy.equals(adminId)) throw new IllegalArgumentException("La aprobación debe hacerla otra administradora");
-        decidir("approved", adminId, nota, ahora);
+        decide("approved", adminId, note, now);
     }
 
     /** Rechazar o, si es quien la pidió, cancelar la solicitud. */
-    public void rechazar(Long adminId, String nota, LocalDateTime ahora) {
-        decidir("rejected", adminId, nota, ahora);
+    public void reject(Long adminId, String note, LocalDateTime now) {
+        decide("rejected", adminId, note, now);
     }
 
-    public void verificarPendiente() {
-        if (!PENDIENTE.equals(status)) throw new IllegalArgumentException("Esta solicitud ya fue decidida");
+    public void verifyPending() {
+        if (!PENDING.equals(status)) throw new IllegalArgumentException("Esta solicitud ya fue decidida");
     }
 
-    private void decidir(String newStatus, Long adminId, String nota, LocalDateTime ahora) {
-        verificarPendiente();
+    private void decide(String newStatus, Long adminId, String note, LocalDateTime now) {
+        verifyPending();
         status = newStatus;
         decidedBy = adminId;
-        decisionNote = nota == null || nota.isBlank() ? null : TextoModeracion.recortar(nota.trim(), MAXIMO_NOTA);
-        decidedAt = ahora;
+        decisionNote = note == null || note.isBlank() ? null : ModerationText.truncate(note.trim(), MAX_NOTE);
+        decidedAt = now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

@@ -17,45 +17,45 @@ import java.util.List;
 public class RecorridosService implements RecorridosUseCase {
 
     private final RecorridoRepositorio repository;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
 
-    public RecorridosService(RecorridoRepositorio repository, IdentityPort identidad) {
+    public RecorridosService(RecorridoRepositorio repository, IdentityPort identity) {
         this.repository = repository;
-        this.identidad = identidad;
+        this.identity = identity;
     }
 
     @Override
-    public List<SavedRoute> mios(Long userId) {
-        return repository.ofUser(identidad.perfilRequerido(userId));
+    public List<SavedRoute> mine(Long userId) {
+        return repository.ofUser(identity.perfilRequerido(userId));
     }
 
     @Override
     @Transactional
-    public SavedRoute create(NuevoRecorrido nuevo, Long userId) {
-        SavedRoute.validate(nuevo.name(), nuevo.points());
-        Long perfil = identidad.perfilRequerido(userId);
-        SavedRoute.verificarCupo(repository.contar(perfil));
+    public SavedRoute create(NuevoRecorrido created, Long userId) {
+        SavedRoute.validate(created.name(), created.points());
+        Long profile = identity.perfilRequerido(userId);
+        SavedRoute.verificarCupo(repository.count(profile));
 
         SavedRoute r = new SavedRoute();
-        r.setUserProfileId(perfil);
-        r.setName(nuevo.name().trim());
-        r.setStartLabel(nuevo.startLabel());
-        r.setEndLabel(nuevo.endLabel());
-        r.setCity(nuevo.city());
-        r.setDepartment(nuevo.department());
-        r.setCountry(nuevo.country());
-        r.setDistanceKm(nuevo.distanceKm());
-        r.setEstimatedMinutes(nuevo.estimatedMinutes());
-        r.setPoints(nuevo.points());
-        r.setIsManual(nuevo.isManual() == null || nuevo.isManual());
-        r.estrellaInicial(repository.contarEstrella(perfil));
+        r.setUserProfileId(profile);
+        r.setName(created.name().trim());
+        r.setStartLabel(created.startLabel());
+        r.setEndLabel(created.endLabel());
+        r.setCity(created.city());
+        r.setDepartment(created.department());
+        r.setCountry(created.country());
+        r.setDistanceKm(created.distanceKm());
+        r.setEstimatedMinutes(created.estimatedMinutes());
+        r.setPoints(created.points());
+        r.setIsManual(created.isManual() == null || created.isManual());
+        r.estrellaInicial(repository.contarEstrella(profile));
         return repository.save(r);
     }
 
     @Override
     @Transactional
-    public SavedRoute actualizar(Long id, String name, Boolean estrella, Long userId) {
-        SavedRoute r = propio(id, userId);
+    public SavedRoute update(Long id, String name, Boolean estrella, Long userId) {
+        SavedRoute r = own(id, userId);
         r.renombrar(name);
         if (estrella != null && !estrella.equals(r.getIsStarred())) {
             r.marcarEstrella(estrella, repository.contarEstrella(r.getUserProfileId()));
@@ -66,12 +66,12 @@ public class RecorridosService implements RecorridosUseCase {
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
-        repository.delete(propio(id, userId).getId());
+        repository.delete(own(id, userId).getId());
     }
 
-    private SavedRoute propio(Long id, Long userId) {
+    private SavedRoute own(Long id, Long userId) {
         SavedRoute r = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("SavedRoute", id));
-        if (!r.esDe(identidad.perfilRequerido(userId))) {
+        if (!r.esDe(identity.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes modificar recorridos de otro usuario");
         }
         return r;

@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.port.in;
 
-import com.alertamujer.admin.domain.model.FiltroAuditoria;
+import com.alertamujer.admin.domain.model.AuditFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,13 +8,13 @@ import java.util.List;
 /** Auditoría del panel: cambios registrados por los triggers y eventos de sesión de las cuentas admin. */
 public interface AuditoriaUseCase {
 
-    AuditPage listAll(FiltroAuditoria filter, int pagina, int size);
+    AuditPage listAll(AuditFilter filter, int page, int size);
 
     /** CSV (";" y BOM UTF-8, para Excel en español) con los registros que cumplen el filtro. */
-    byte[] exportar(FiltroAuditoria filter);
+    byte[] export(AuditFilter filter);
 
     /** Cuentas de administración, para filtrar por responsable. */
-    List<AuditActor> responsables();
+    List<AuditActor> actors();
 
     record AuditPage(List<AuditLogView> items, long total, int page, int size) {}
 

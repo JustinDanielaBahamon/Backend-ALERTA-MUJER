@@ -19,11 +19,11 @@ final class AlertEmailTemplate {
      * @param mapsUrl enlace de respaldo a Google Maps con la última ubicación conocida (puede ser null)
      * @param logoUrl dirección pública del logo (EmailLayout.logoUrl)
      */
-    static EmailMessage construir(String para, String nombreContacto, String nombreUsuaria, LocalDateTime inicio,
+    static EmailMessage construir(String para, String nombreContacto, String nombreUsuaria, LocalDateTime start,
                                   String seguimientoUrl, String mapsUrl, String emergencyNumber, String logoUrl) {
         String quien = nombreUsuaria == null || nombreUsuaria.isBlank() ? "Una persona" : nombreUsuaria;
-        String hora = inicio == null ? "hace un momento"
-                : "a las " + hora(inicio);
+        String hora = start == null ? "hace un momento"
+                : "a las " + hora(start);
         String saludo = nombreContacto == null || nombreContacto.isBlank() ? "Hola" : "Hola, " + nombreContacto;
         String asunto = "🚨 " + quien + " activó una alerta de emergencia";
 
@@ -35,12 +35,12 @@ final class AlertEmailTemplate {
                 + EmailLayout.boton(seguimientoUrl, "Ver dónde está ahora")
                 + (mapsUrl == null ? "" : "<p style=\"font-size:14px;text-align:center\">¿La página tarda en cargar? "
                         + "Abre su última ubicación en <a href=\"" + HtmlUtils.htmlEscape(mapsUrl)
-                        + "\" style=\"color:" + EmailLayout.VIOLETA + "\">Google Maps</a>.</p>")
+                        + "\" style=\"color:" + EmailLayout.VIOLET + "\">Google Maps</a>.</p>")
                 + EmailLayout.destacado("Si crees que está en peligro inmediato, llama al <strong>"
                         + HtmlUtils.htmlEscape(emergencyNumber) + "</strong>.")
-                + EmailLayout.nota("El enlace es personal y deja de funcionar 2 horas después de que termine la alerta. "
+                + EmailLayout.note("El enlace es personal y deja de funcionar 2 horas después de que termine la alerta. "
                         + "No lo compartas en redes sociales.");
-        String html = EmailLayout.pagina(logoUrl, quien + " activó una alerta. Toca para ver dónde está.",
+        String html = EmailLayout.page(logoUrl, quien + " activó una alerta. Toca para ver dónde está.",
                 "🚨 " + quien + " necesita ayuda", body,
                 "Recibes este correo porque " + HtmlUtils.htmlEscape(quien) + " te registró como contacto de emergencia.");
 
@@ -73,7 +73,7 @@ final class AlertEmailTemplate {
                 + "<p>" + HtmlUtils.htmlEscape(frase) + "</p>"
                 + EmailLayout.destacado("Si aún no sabes de ella o crees que sigue en peligro, comunícate con ella "
                         + "o llama al <strong>" + HtmlUtils.htmlEscape(emergencyNumber) + "</strong>.");
-        String html = EmailLayout.pagina(logoUrl, frase, "Alerta terminada", body,
+        String html = EmailLayout.page(logoUrl, frase, "Alerta terminada", body,
                 "Recibes este correo porque eres contacto de emergencia de " + HtmlUtils.htmlEscape(quien) + ".");
         String text = saludo + ":\n\n" + frase + "\n\nSi aún no sabes de ella o crees que sigue en peligro, "
                 + "comunícate con ella o llama al " + emergencyNumber + ".";

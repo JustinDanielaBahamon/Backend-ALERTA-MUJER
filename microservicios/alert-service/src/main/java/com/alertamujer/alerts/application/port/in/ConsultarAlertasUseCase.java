@@ -15,14 +15,14 @@ public interface ConsultarAlertasUseCase {
 
     List<Alert> findMany(Collection<Long> ids);
 
-    List<Alert> todas();
+    List<Alert> all();
 
     /** Número de alertas por user_profile.id. */
-    Map<Long, Long> conteoPorPerfil();
+    Map<Long, Long> countByProfile();
 
     long cuantasActivas();
 
-    List<Long> idsDelPerfil(Long perfil);
+    List<Long> idsDelPerfil(Long profile);
 
     /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
     Set<Long> keepEvidence(Collection<Long> ids);

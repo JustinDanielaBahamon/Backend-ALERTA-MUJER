@@ -29,14 +29,14 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
 
     private final AlertaRepositorio repository;
     private final DestinatariosService destinatarios;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final EventosAlertaPort events;
 
     public AlertasService(AlertaRepositorio repository, DestinatariosService destinatarios,
-                          IdentityPort identidad, EventosAlertaPort events) {
+                          IdentityPort identity, EventosAlertaPort events) {
         this.repository = repository;
         this.destinatarios = destinatarios;
-        this.identidad = identidad;
+        this.identity = identity;
         this.events = events;
     }
 
@@ -51,64 +51,64 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
 
     @Override
     public Optional<Alert> una(Long id, Long userId) {
-        Long perfil = identidad.profileOf(userId).orElse(null);
-        if (perfil == null) return Optional.empty();
-        return repository.find(id).filter(a -> a.esDe(perfil));
+        Long profile = identity.profileOf(userId).orElse(null);
+        if (profile == null) return Optional.empty();
+        return repository.find(id).filter(a -> a.esDe(profile));
     }
 
     @Override
-    public List<Alert> deUsuaria(Long idPedido, Long userId) {
-        Long propio = profileOf(userId);
-        UserSummary current = identidad.usuaria(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
+    public List<Alert> ofUser(Long idPedido, Long userId) {
+        Long own = profileOf(userId);
+        UserSummary current = identity.user(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
         // users.id y user_profile.id no coinciden necesariamente (en producción son distintos)
-        if (idPedido.equals(userId) || idPedido.equals(propio)) {
-            return repository.ofUser(propio);
+        if (idPedido.equals(userId) || idPedido.equals(own)) {
+            return repository.ofUser(own);
         }
         if (!current.admin()) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
         // Para la administración el id se interpreta como users.id y, si no existe, como user_profile.id
-        return repository.ofUser(identidad.profileOf(idPedido).orElse(idPedido));
+        return repository.ofUser(identity.profileOf(idPedido).orElse(idPedido));
     }
 
     @Override
     @Transactional
-    public Alert activar(NuevaAlerta nueva, Long userId) {
+    public Alert activar(NuevaAlerta newOne, Long userId) {
         // La dueña sale del JWT; nunca se confía en un perfil que llegue en el body (evita IDOR)
-        Long perfil = profileOf(userId);
-        Optional<Alert> enCurso = repository.enCurso(perfil);
+        Long profile = profileOf(userId);
+        Optional<Alert> enCurso = repository.enCurso(profile);
         if (enCurso.isPresent()) return enCurso.get();
 
         Alert alert = new Alert();
-        alert.setUserProfileId(perfil);
-        alert.setDeviceId(nueva.deviceId());
-        if (nueva.alertType() != null) alert.setAlertType(nueva.alertType());
-        alert.setActivationMethod(nueva.activationMethod());
-        if (nueva.status() != null) alert.setStatus(nueva.status());
-        alert.setMessage(nueva.message());
-        alert.setLatitude(nueva.latitude());
-        alert.setLongitude(nueva.longitude());
-        if (nueva.startedAt() != null) alert.setStartedAt(nueva.startedAt());
+        alert.setUserProfileId(profile);
+        alert.setDeviceId(newOne.deviceId());
+        if (newOne.alertType() != null) alert.setAlertType(newOne.alertType());
+        alert.setActivationMethod(newOne.activationMethod());
+        if (newOne.status() != null) alert.setStatus(newOne.status());
+        alert.setMessage(newOne.message());
+        alert.setLatitude(newOne.latitude());
+        alert.setLongitude(newOne.longitude());
+        if (newOne.startedAt() != null) alert.setStartedAt(newOne.startedAt());
 
-        Alert creada = repository.save(alert);
-        destinatarios.registrar(creada, nueva.contactIds());
-        return creada;
+        Alert created = repository.save(alert);
+        destinatarios.registrar(created, newOne.contactIds());
+        return created;
     }
 
     @Override
     @Transactional
-    public Alert actualizar(Long id, CambiosAlerta cambios, Long userId) {
-        Alert alert = propia(id, userId, "No puedes modificar alertas de otro usuario");
-        LocalDateTime ahora = LocalDateTime.now();
+    public Alert update(Long id, CambiosAlerta changes, Long userId) {
+        Alert alert = own(id, userId, "No puedes modificar alertas de otro usuario");
+        LocalDateTime now = LocalDateTime.now();
         // Al terminar una alerta activa se avisa a los contactos que la recibieron
-        if (alert.actualizar(cambios, ahora)) events.alertaTerminada(alert, ahora);
+        if (alert.update(changes, now)) events.alertaTerminada(alert, now);
         return repository.save(alert);
     }
 
     @Override
     @Transactional
     public Alert conservarEvidencias(Long id, boolean conservar, Long userId) {
-        Alert alert = propia(id, userId, "No puedes modificar alertas de otro usuario");
+        Alert alert = own(id, userId, "No puedes modificar alertas de otro usuario");
         alert.conservarEvidencias(conservar, repository.kept(alert.getUserProfileId()));
         return repository.save(alert);
     }
@@ -116,7 +116,7 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
-        propia(id, userId, "No puedes eliminar alertas de otro usuario");
+        own(id, userId, "No puedes eliminar alertas de otro usuario");
         repository.delete(id);
     }
 
@@ -133,25 +133,25 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
     }
 
     @Override
-    public List<Alert> todas() {
-        return repository.todas();
+    public List<Alert> all() {
+        return repository.all();
     }
 
     @Override
-    public Map<Long, Long> conteoPorPerfil() {
-        return repository.todas().stream()
+    public Map<Long, Long> countByProfile() {
+        return repository.all().stream()
                 .filter(a -> a.getUserProfileId() != null)
                 .collect(Collectors.groupingBy(Alert::getUserProfileId, Collectors.counting()));
     }
 
     @Override
     public long cuantasActivas() {
-        return repository.activas().size();
+        return repository.active().size();
     }
 
     @Override
-    public List<Long> idsDelPerfil(Long perfil) {
-        return repository.ofUser(perfil).stream().map(Alert::getId).toList();
+    public List<Long> idsDelPerfil(Long profile) {
+        return repository.ofUser(profile).stream().map(Alert::getId).toList();
     }
 
     @Override
@@ -166,10 +166,10 @@ public class AlertasService implements GestionarAlertasUseCase, ConsultarAlertas
     // ── Apoyo ───────────────────────────────────────────────────────
 
     private Long profileOf(Long userId) {
-        return identidad.profileOf(userId).orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identity.profileOf(userId).orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
     }
 
-    private Alert propia(Long id, Long userId, String mensajeAjena) {
+    private Alert own(Long id, Long userId, String mensajeAjena) {
         Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         if (!alert.esDe(profileOf(userId))) throw new AccessDeniedException(mensajeAjena);
         return alert;

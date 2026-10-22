@@ -19,12 +19,12 @@ public class ChatAlertaService implements ChatAlertaUseCase {
 
     private final MensajeRepositorio mensajes;
     private final AlertaRepositorio alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
 
-    public ChatAlertaService(MensajeRepositorio mensajes, AlertaRepositorio alerts, IdentityPort identidad) {
+    public ChatAlertaService(MensajeRepositorio mensajes, AlertaRepositorio alerts, IdentityPort identity) {
         this.mensajes = mensajes;
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ChatAlertaService implements ChatAlertaUseCase {
     @Transactional
     public AlertMessage enviarDeLaDuena(Long alertId, Long userId, String text) {
         Alert alert = ownAlert(alertId, userId);
-        String name = identidad.usuaria(userId).map(UserSummary::firstName).orElse(null);
+        String name = identity.user(userId).map(UserSummary::firstName).orElse(null);
         return save(alert, AlertMessage.DE_LA_DUENA, name, text);
     }
 
@@ -54,13 +54,13 @@ public class ChatAlertaService implements ChatAlertaUseCase {
     }
 
     private AlertMessage save(Alert alert, String type, String name, String text) {
-        return mensajes.save(AlertMessage.escribir(alert, type, name, text, mensajes.contar(alert.getId())));
+        return mensajes.save(AlertMessage.escribir(alert, type, name, text, mensajes.count(alert.getId())));
     }
 
     private Alert ownAlert(Long alertId, Long userId) {
         Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
         // Una alerta ajena se responde igual que una inexistente
-        if (!alert.esDe(identidad.profileOf(userId).orElse(null))) throw new ResourceNotFoundException("Alert", alertId);
+        if (!alert.esDe(identity.profileOf(userId).orElse(null))) throw new ResourceNotFoundException("Alert", alertId);
         return alert;
     }
 }

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public interface AvisarContactosUseCase {
 
     /** Deja el resultado de cada envío en la alerta (sent / failed). */
-    void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime inicio);
+    void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime start);
 
     /** Aviso de cortesía: no cambia el estado de los envíos y un fallo solo se registra en el log. */
     void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime fin);

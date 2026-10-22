@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 public interface VistasRepositorio {
 
     /** Registra (o renueva) la visita de ese visitante a la alerta. */
-    void registrar(Long alertId, String visitante, LocalDateTime ahora);
+    void registrar(Long alertId, String visitante, LocalDateTime now);
 
     /** total: visitantes distintos; viendoAhora: los que la abrieron desde "recientes". */
-    Conteo contar(Long alertId, LocalDateTime recientes);
+    Conteo count(Long alertId, LocalDateTime recientes);
 
     record Conteo(int total, int viendoAhora) {}
 }

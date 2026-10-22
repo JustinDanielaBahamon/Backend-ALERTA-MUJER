@@ -28,7 +28,7 @@ class EventosAlertaAdapter implements EventosAlertaPort {
     }
 
     @Override
-    public void alertaTerminada(Alert alert, LocalDateTime cuando) {
-        publisher.publishEvent(new AlertEndedEvent(alert.getId(), alert.getUserProfileId(), alert.getStatus(), cuando));
+    public void alertaTerminada(Alert alert, LocalDateTime when) {
+        publisher.publishEvent(new AlertEndedEvent(alert.getId(), alert.getUserProfileId(), alert.getStatus(), when));
     }
 }

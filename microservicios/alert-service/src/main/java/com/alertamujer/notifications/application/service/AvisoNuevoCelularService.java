@@ -22,9 +22,9 @@ public class AvisoNuevoCelularService implements AvisarNuevoCelularUseCase {
     }
 
     @Override
-    public void avisar(List<String> tokensOtrosCelulares, String phone) {
+    public void avisar(List<String> otherPhoneTokens, String phone) {
         try {
-            push.send(tokensOtrosCelulares, Map.of("tipo", "NUEVO_CELULAR", "celular", phone));
+            push.send(otherPhoneTokens, Map.of("tipo", "NUEVO_CELULAR", "celular", phone));
         } catch (RuntimeException e) {
             log.warn("No se pudo avisar del nuevo celular: {}", e.getMessage());
         }

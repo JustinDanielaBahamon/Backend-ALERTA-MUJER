@@ -2,12 +2,12 @@ package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.application.port.in.InformesUseCase;
 import com.alertamujer.admin.application.port.out.AlertsPort;
-import com.alertamujer.admin.application.port.out.ExportadorInformesPort;
-import com.alertamujer.admin.application.port.out.InformeRepositorio;
-import com.alertamujer.admin.application.port.out.UsuariasPort;
-import com.alertamujer.admin.application.port.out.ZonasPort;
+import com.alertamujer.admin.application.port.out.ReportExporterPort;
+import com.alertamujer.admin.application.port.out.ReportExportRepository;
+import com.alertamujer.admin.application.port.out.UsersPort;
+import com.alertamujer.admin.application.port.out.ZonesPort;
 import com.alertamujer.admin.domain.model.AlertReport;
-import com.alertamujer.admin.domain.model.CambiosInforme;
+import com.alertamujer.admin.domain.model.ReportExportChanges;
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -23,57 +23,57 @@ import java.util.Map;
 @Service
 public class InformesService implements InformesUseCase {
 
-    private final InformeRepositorio repository;
+    private final ReportExportRepository repository;
     private final AlertsPort alerts;
-    private final UsuariasPort usuarias;
-    private final ZonasPort zonas;
-    private final ExportadorInformesPort exportador;
+    private final UsersPort users;
+    private final ZonesPort zones;
+    private final ReportExporterPort exporter;
 
-    public InformesService(InformeRepositorio repository, AlertsPort alerts, UsuariasPort usuarias, ZonasPort zonas,
-                           ExportadorInformesPort exportador) {
+    public InformesService(ReportExportRepository repository, AlertsPort alerts, UsersPort users, ZonesPort zones,
+                           ReportExporterPort exporter) {
         this.repository = repository;
         this.alerts = alerts;
-        this.usuarias = usuarias;
-        this.zonas = zonas;
-        this.exportador = exportador;
+        this.users = users;
+        this.zones = zones;
+        this.exporter = exporter;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AlertReportView> listAll() {
-        List<AdminAlertView> todas = alerts.todas();
-        Map<Long, UserSummary> nombres = usuarias.porId();
-        return repository.todos().stream()
+        List<AdminAlertView> all = alerts.all();
+        Map<Long, UserSummary> names = users.byId();
+        return repository.all().stream()
                 .sorted(Comparator.comparing(AlertReport::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(r -> view(r, nombres.get(r.getCreatedByUserId()), alertasDe(r, todas).size()))
+                .map(r -> view(r, names.get(r.getCreatedByUserId()), alertsOf(r, all).size()))
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public AlertReportView obtener(Long id) {
-        return view(existente(id));
+    public AlertReportView get(Long id) {
+        return view(existing(id));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ReportStats stats() {
-        List<AlertReport> informes = repository.todos();
-        long exportaciones = informes.stream().mapToLong(r -> r.getExportCount() == null ? 0 : r.getExportCount()).sum();
-        return new ReportStats(informes.size(), alerts.todas().size(), zonas.activas(), exportaciones);
+        List<AlertReport> informes = repository.all();
+        long exports = informes.stream().mapToLong(r -> r.getExportCount() == null ? 0 : r.getExportCount()).sum();
+        return new ReportStats(informes.size(), alerts.all().size(), zones.active(), exports);
     }
 
     @Override
     @Transactional
-    public AlertReportView create(CambiosInforme cambios, Long adminUserId) {
-        return view(repository.save(AlertReport.nuevo(cambios, adminUserId)));
+    public AlertReportView create(ReportExportChanges changes, Long adminUserId) {
+        return view(repository.save(AlertReport.created(changes, adminUserId)));
     }
 
     @Override
     @Transactional
-    public AlertReportView actualizar(Long id, CambiosInforme cambios) {
-        AlertReport r = existente(id);
-        r.aplicar(cambios);
+    public AlertReportView update(Long id, ReportExportChanges changes) {
+        AlertReport r = existing(id);
+        r.apply(changes);
         r.setUpdatedAt(LocalDateTime.now());
         return view(repository.save(r));
     }
@@ -81,39 +81,39 @@ public class InformesService implements InformesUseCase {
     @Override
     @Transactional
     public void delete(Long id) {
-        repository.delete(existente(id).getId());
+        repository.delete(existing(id).getId());
     }
 
     @Override
     @Transactional
-    public byte[] exportar(Long id, boolean pdf) {
-        AlertReport r = existente(id);
-        AlertReportView informe = view(r);
-        List<AdminAlertView> incluidas = alertasDe(r, alerts.todas());
-        byte[] file = pdf ? exportador.pdf(informe, incluidas) : exportador.csv(informe, incluidas);
-        r.registrarExportacion();
+    public byte[] export(Long id, boolean pdf) {
+        AlertReport r = existing(id);
+        AlertReportView report = view(r);
+        List<AdminAlertView> included = alertsOf(r, alerts.all());
+        byte[] file = pdf ? exporter.pdf(report, included) : exporter.csv(report, included);
+        r.recordExport();
         repository.save(r);
         return file;
     }
 
     /** Alertas que cubre el informe: las elegidas o, si no hay, las que cumplen sus filtros. */
-    static List<AdminAlertView> alertasDe(AlertReport r, List<AdminAlertView> todas) {
-        return todas.stream().filter(a -> r.incluye(a.id(), a.startedAt(), a.status())).toList();
+    static List<AdminAlertView> alertsOf(AlertReport r, List<AdminAlertView> all) {
+        return all.stream().filter(a -> r.includes(a.id(), a.startedAt(), a.status())).toList();
     }
 
-    private AlertReport existente(Long id) {
+    private AlertReport existing(Long id) {
         return repository.find(id).orElseThrow(() -> new ResourceNotFoundException("AlertReport", id));
     }
 
     private AlertReportView view(AlertReport r) {
-        UserSummary creadora = r.getCreatedByUserId() == null ? null : usuarias.find(r.getCreatedByUserId()).orElse(null);
-        return view(r, creadora, alertasDe(r, alerts.todas()).size());
+        UserSummary creator = r.getCreatedByUserId() == null ? null : users.find(r.getCreatedByUserId()).orElse(null);
+        return view(r, creator, alertsOf(r, alerts.all()).size());
     }
 
-    private static AlertReportView view(AlertReport r, UserSummary creadora, int cantidadAlertas) {
+    private static AlertReportView view(AlertReport r, UserSummary creator, int alertCount) {
         return new AlertReportView(r.getId(), r.getName(), r.getCity(), r.getStatus(), r.getUserLabel(), r.getEvent(),
-                r.getDescription(), r.getFormat(), r.idsElegidos().stream().sorted().toList(), r.getFromDate(), r.getToDate(),
-                r.getAlertStatus(), cantidadAlertas, r.getExportCount(), creadora == null ? null : creadora.fullName(),
+                r.getDescription(), r.getFormat(), r.chosenIds().stream().sorted().toList(), r.getFromDate(), r.getToDate(),
+                r.getAlertStatus(), alertCount, r.getExportCount(), creator == null ? null : creator.fullName(),
                 r.getCreatedAt(), r.getUpdatedAt());
     }
 }

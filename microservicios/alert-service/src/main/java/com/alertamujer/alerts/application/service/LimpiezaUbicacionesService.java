@@ -29,10 +29,10 @@ public class LimpiezaUbicacionesService implements LimpiarUbicacionesUseCase {
     }
 
     @Override
-    public int clear(LocalDateTime ahora) {
+    public int clear(LocalDateTime now) {
         int borradas = AuditSource.runAs("Tarea automática · Limpieza del historial de ubicaciones", () ->
-                repository.borrarSinAlertaAntesDe(ahora.minusDays(diasSinAlerta))
-                        + repository.borrarDeAlertasAntesDe(ahora.minusDays(diasDeAlertas)));
+                repository.borrarSinAlertaAntesDe(now.minusDays(diasSinAlerta))
+                        + repository.borrarDeAlertasAntesDe(now.minusDays(diasDeAlertas)));
         if (borradas > 0) log.info("Ubicaciones antiguas eliminadas: {}", borradas);
         return borradas;
     }

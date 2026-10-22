@@ -19,17 +19,17 @@ public class LimiteMensajesContacto {
     private final Map<String, Deque<LocalDateTime>> enviosPorEnlace = new ConcurrentHashMap<>();
 
     /** Registra un envío del enlace o lanza IllegalArgumentException si supera el límite. */
-    public void registrar(String claveEnlace, LocalDateTime ahora) {
+    public void registrar(String claveEnlace, LocalDateTime now) {
         Deque<LocalDateTime> envios = enviosPorEnlace.computeIfAbsent(claveEnlace, k -> new ArrayDeque<>());
         synchronized (envios) {
-            while (!envios.isEmpty() && envios.peekFirst().isBefore(ahora.minusMinutes(MINUTOS_VENTANA))) envios.pollFirst();
-            if (!envios.isEmpty() && envios.peekLast().isAfter(ahora.minusSeconds(SEGUNDOS_ENTRE_MENSAJES))) {
+            while (!envios.isEmpty() && envios.peekFirst().isBefore(now.minusMinutes(MINUTOS_VENTANA))) envios.pollFirst();
+            if (!envios.isEmpty() && envios.peekLast().isAfter(now.minusSeconds(SEGUNDOS_ENTRE_MENSAJES))) {
                 throw new IllegalArgumentException("Espera un momento antes de enviar otro mensaje");
             }
             if (envios.size() >= MAXIMO_EN_VENTANA) {
                 throw new IllegalArgumentException("Enviaste muchos mensajes seguidos. Espera unos minutos");
             }
-            envios.addLast(ahora);
+            envios.addLast(now);
         }
     }
 }

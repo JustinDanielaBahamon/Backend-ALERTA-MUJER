@@ -18,28 +18,28 @@ class RecorridoPersistenceAdapter implements RecorridoRepositorio {
     }
 
     @Override
-    public List<SavedRoute> ofUser(Long perfil) {
-        return jpa.findByUserProfileIdOrderByCreatedAtDesc(perfil).stream().map(RecorridoPersistenceAdapter::aDominio).toList();
+    public List<SavedRoute> ofUser(Long profile) {
+        return jpa.findByUserProfileIdOrderByCreatedAtDesc(profile).stream().map(RecorridoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<SavedRoute> find(Long id) {
-        return jpa.findById(id).map(RecorridoPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(RecorridoPersistenceAdapter::toDomain);
     }
 
     @Override
-    public long contar(Long perfil) {
-        return jpa.countByUserProfileId(perfil);
+    public long count(Long profile) {
+        return jpa.countByUserProfileId(profile);
     }
 
     @Override
-    public long contarEstrella(Long perfil) {
-        return jpa.countByUserProfileIdAndIsStarredTrue(perfil);
+    public long contarEstrella(Long profile) {
+        return jpa.countByUserProfileIdAndIsStarredTrue(profile);
     }
 
     @Override
     public SavedRoute save(SavedRoute recorrido) {
-        return aDominio(jpa.save(aFila(recorrido)));
+        return toDomain(jpa.save(toRow(recorrido)));
     }
 
     @Override
@@ -47,7 +47,7 @@ class RecorridoPersistenceAdapter implements RecorridoRepositorio {
         jpa.deleteById(id);
     }
 
-    static SavedRoute aDominio(SavedRouteJpaEntity f) {
+    static SavedRoute toDomain(SavedRouteJpaEntity f) {
         SavedRoute d = new SavedRoute();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -67,7 +67,7 @@ class RecorridoPersistenceAdapter implements RecorridoRepositorio {
         return d;
     }
 
-    static SavedRouteJpaEntity aFila(SavedRoute d) {
+    static SavedRouteJpaEntity toRow(SavedRoute d) {
         SavedRouteJpaEntity f = new SavedRouteJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

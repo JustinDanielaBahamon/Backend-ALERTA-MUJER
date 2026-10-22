@@ -39,8 +39,8 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
     }
 
     @Override
-    public int clear(LocalDateTime ahora) {
-        List<Evidence> viejas = repository.savedBefore(ahora.minusDays(days));
+    public int clear(LocalDateTime now) {
+        List<Evidence> viejas = repository.savedBefore(now.minusDays(days));
         if (viejas.isEmpty()) return 0;
         Set<Long> kept = alerts.keepEvidence(
                 viejas.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));

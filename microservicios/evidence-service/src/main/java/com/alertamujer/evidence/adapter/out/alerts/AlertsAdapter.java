@@ -35,7 +35,7 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
-    public Map<Long, AlertSummary> todas() {
+    public Map<Long, AlertSummary> all() {
         return alertsApi.alertsById();
     }
 

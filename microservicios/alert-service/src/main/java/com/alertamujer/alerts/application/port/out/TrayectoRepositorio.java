@@ -13,11 +13,11 @@ public interface TrayectoRepositorio {
 
     Optional<SafeTrip> find(Long id);
 
-    Optional<SafeTrip> activoDe(Long perfil);
+    Optional<SafeTrip> activoDe(Long profile);
 
     /** Activos cuya hora de llegada es anterior a este momento (para avisar o alertar). */
     List<SafeTrip> activosQueLleganAntesDe(LocalDateTime momento);
 
     /** Trayectos iniciados por la usuaria desde ese momento (límite diario). */
-    long iniciadosDesde(Long perfil, LocalDateTime desde);
+    long iniciadosDesde(Long profile, LocalDateTime desde);
 }

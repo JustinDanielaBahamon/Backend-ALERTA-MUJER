@@ -17,7 +17,7 @@ class ZoneTest {
 
     @Test
     void unaZonaNuevaTieneRiesgoMedioYEstaActiva() {
-        Zone z = Zone.nueva(data(null, null));
+        Zone z = Zone.newOne(data(null, null));
 
         assertEquals("medium", z.getRiskLevel());
         assertTrue(z.activa());
@@ -26,8 +26,8 @@ class ZoneTest {
 
     @Test
     void editarReemplazaLosDatos() {
-        Zone z = Zone.nueva(data("high", true));
-        z.reemplazar(data("low", false));
+        Zone z = Zone.newOne(data("high", true));
+        z.replace(data("low", false));
 
         assertEquals("low", z.getRiskLevel());
         assertFalse(z.activa());
@@ -35,17 +35,17 @@ class ZoneTest {
 
     @Test
     void unReportePerteneceASuAutoraYSeRevisa() {
-        LocalDateTime ahora = LocalDateTime.of(2026, 10, 20, 10, 0);
-        ZoneReport r = ZoneReport.nuevo(10L, 5L, "insegura", "Sin luz");
+        LocalDateTime now = LocalDateTime.of(2026, 10, 20, 10, 0);
+        ZoneReport r = ZoneReport.created(10L, 5L, "insegura", "Sin luz");
 
         assertEquals("pending", r.getStatus());
         assertTrue(r.esDe(10L));
         assertFalse(r.esDe(20L));
-        r.aprobar(2, ahora);
+        r.approve(2, now);
         assertEquals("approved", r.getStatus());
         assertEquals(2, r.getReviewedByAdminId());
-        assertEquals(ahora, r.getReviewedAt());
-        r.rechazar(3, ahora);
+        assertEquals(now, r.getReviewedAt());
+        r.reject(3, now);
         assertEquals("rejected", r.getStatus());
     }
 }

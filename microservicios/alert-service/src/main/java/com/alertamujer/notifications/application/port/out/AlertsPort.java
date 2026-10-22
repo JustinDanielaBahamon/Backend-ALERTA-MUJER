@@ -23,7 +23,7 @@ public interface AlertsPort {
     void registrarEntrega(Long destinatarioId, String status, String error);
 
     /** Alertas en las que se avisó a este correo como contacto de emergencia. */
-    List<Long> avisadasA(String correo);
+    List<Long> avisadasA(String email);
 
     List<LocationPoint> recorrido(Long alertId);
 

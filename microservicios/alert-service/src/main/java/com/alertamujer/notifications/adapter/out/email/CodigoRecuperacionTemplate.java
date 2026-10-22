@@ -14,12 +14,12 @@ final class CodigoRecuperacionTemplate {
         String body = "<p>" + HtmlUtils.htmlEscape(saludo) + ":</p>"
                 + "<p>Pediste recuperar la contraseña de tu cuenta de AlertaMujer. Escribe este código en la web o en la app:</p>"
                 + "<p style=\"text-align:center;font-size:34px;letter-spacing:10px;font-weight:bold;color:"
-                + EmailLayout.VIOLETA + ";background:" + EmailLayout.VIOLETA_CLARO
+                + EmailLayout.VIOLET + ";background:" + EmailLayout.VIOLETA_CLARO
                 + ";border-radius:14px;padding:16px 0;margin:24px 0\">" + HtmlUtils.htmlEscape(code) + "</p>"
                 + "<p>El código vence en " + validityMinutes + " minutos.</p>"
-                + EmailLayout.nota("Si no fuiste tú, ignora este correo: tu contraseña no cambia. "
+                + EmailLayout.note("Si no fuiste tú, ignora este correo: tu contraseña no cambia. "
                         + "Nunca compartas este código con nadie.");
-        String html = EmailLayout.pagina(logoUrl, "Tu código vence en " + validityMinutes + " minutos.",
+        String html = EmailLayout.page(logoUrl, "Tu código vence en " + validityMinutes + " minutos.",
                 "Recuperar contraseña", body, "Recibes este correo porque se pidió recuperar la contraseña de tu cuenta.");
         String text = saludo + ":\n\nTu código para recuperar la contraseña de AlertaMujer es " + code
                 + ".\nVence en " + validityMinutes + " minutos.\n\nSi no fuiste tú, ignora este correo.";

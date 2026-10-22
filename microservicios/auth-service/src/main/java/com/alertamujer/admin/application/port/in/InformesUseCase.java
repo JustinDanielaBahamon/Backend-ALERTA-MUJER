@@ -1,6 +1,6 @@
 package com.alertamujer.admin.application.port.in;
 
-import com.alertamujer.admin.domain.model.CambiosInforme;
+import com.alertamujer.admin.domain.model.ReportExportChanges;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,18 +10,18 @@ public interface InformesUseCase {
 
     List<AlertReportView> listAll();
 
-    AlertReportView obtener(Long id);
+    AlertReportView get(Long id);
 
     ReportStats stats();
 
-    AlertReportView create(CambiosInforme cambios, Long adminUserId);
+    AlertReportView create(ReportExportChanges changes, Long adminUserId);
 
-    AlertReportView actualizar(Long id, CambiosInforme cambios);
+    AlertReportView update(Long id, ReportExportChanges changes);
 
     void delete(Long id);
 
     /** Archivo del informe con sus alertas (pdf o csv); suma una exportación a su contador. */
-    byte[] exportar(Long id, boolean pdf);
+    byte[] export(Long id, boolean pdf);
 
     record AlertReportView(Long id, String name, String city, String status, String userLabel, String event,
                            String description, String format, List<Long> alertIds, LocalDateTime fromDate,

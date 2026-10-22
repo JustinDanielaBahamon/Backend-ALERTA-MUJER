@@ -9,13 +9,13 @@ import java.util.Optional;
 /** Puerto de salida: los contactos de emergencia. */
 public interface ContactoRepositorio {
 
-    List<EmergencyContact> todos();
+    List<EmergencyContact> all();
 
     Optional<EmergencyContact> find(Long id);
 
     List<EmergencyContact> buscarVarios(Collection<Long> ids);
 
-    List<EmergencyContact> ofUser(Long perfil);
+    List<EmergencyContact> ofUser(Long profile);
 
     EmergencyContact save(EmergencyContact contacto);
 

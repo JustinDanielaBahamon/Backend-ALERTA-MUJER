@@ -25,7 +25,7 @@ public class ResourceCallController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ResourceCallResponse>> getAllCalls() {
-        return ResponseEntity.ok(vistas(llamadas.todas()));
+        return ResponseEntity.ok(vistas(llamadas.all()));
     }
 
     @GetMapping("/{id}")
@@ -67,7 +67,7 @@ public class ResourceCallController {
     @PutMapping("/{id}")
     public ResponseEntity<ResourceCallResponse> updateCall(@PathVariable Long id, @RequestBody ResourceCallRequest r,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(ResourceCallResponse.of(llamadas.actualizar(id, r.status(), r.endedAt(), r.durationSeconds(), currentUserId)));
+        return ResponseEntity.ok(ResourceCallResponse.of(llamadas.update(id, r.status(), r.endedAt(), r.durationSeconds(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")

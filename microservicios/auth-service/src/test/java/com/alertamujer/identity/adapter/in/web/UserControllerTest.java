@@ -1,6 +1,6 @@
 package com.alertamujer.identity.adapter.in.web;
 
-import com.alertamujer.identity.domain.model.CambiosUsuaria;
+import com.alertamujer.identity.domain.model.UserChanges;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserControllerTest {
 
     @Test
-    void distingueLaClaveAusenteDeLaEnviadaConNull() {
+    void distinguishesAMissingKeyFromOneSentAsNull() {
         Map<String, Object> body = new HashMap<>();
         body.put("firstName", "Ana");
         body.put("telephone", null);
         body.put("birthdate", "1990-01-02");
 
-        CambiosUsuaria c = UserController.cambios(body);
+        UserChanges c = UserController.changes(body);
 
         assertEquals(Optional.of("Ana"), c.firstName());
         assertEquals(Optional.empty(), c.telephone());
@@ -30,7 +30,7 @@ class UserControllerTest {
     }
 
     @Test
-    void unaFechaConOtroFormatoSeIgnora() {
-        assertNull(UserController.cambios(Map.of("birthdate", "02/01/1990")).birthdate());
+    void aDateInAnotherFormatIsIgnored() {
+        assertNull(UserController.changes(Map.of("birthdate", "02/01/1990")).birthdate());
     }
 }

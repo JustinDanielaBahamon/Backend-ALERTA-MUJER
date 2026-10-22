@@ -17,7 +17,7 @@ public class Alert {
     private String alertType = "main";
     private String activationMethod;
     /** active | resolved | cancelled | expired */
-    private String status = ACTIVA;
+    private String status = ACTIVE;
     private String message;
     private BigDecimal latitude;
     private BigDecimal longitude;
@@ -28,9 +28,9 @@ public class Alert {
     /** true = sus evidencias no se borran a los 60 días (lo marca la usuaria). */
     private boolean keepEvidence = false;
 
-    public static final String ACTIVA = "active";
+    public static final String ACTIVE = "active";
     /** Estados que la administración puede asignar. */
-    public static final Set<String> ESTADOS = Set.of(ACTIVA, "resolved", "cancelled", "expired");
+    public static final Set<String> STATUSES = Set.of(ACTIVE, "resolved", "cancelled", "expired");
     /** Cuántas alertas puede conservar cada usuaria (pruebas para una denuncia sin llenar la nube). */
     public static final int MAX_ALERTAS_CONSERVADAS = 5;
 
@@ -44,11 +44,11 @@ public class Alert {
     }
 
     public boolean estaActiva() {
-        return ACTIVA.equals(status);
+        return ACTIVE.equals(status);
     }
 
-    public boolean esDe(Long perfil) {
-        return perfil != null && Objects.equals(userProfileId, perfil);
+    public boolean esDe(Long profile) {
+        return profile != null && Objects.equals(userProfileId, profile);
     }
 
     /** La alerta ya no está en curso: sus envíos pendientes no van a llegar. */
@@ -58,7 +58,7 @@ public class Alert {
     }
 
     /** Sigue activa desde antes del límite (superó la duración máxima). */
-    public boolean vencida(LocalDateTime limite) {
+    public boolean expired(LocalDateTime limite) {
         return estaActiva() && startedAt != null && startedAt.isBefore(limite);
     }
 
@@ -66,16 +66,16 @@ public class Alert {
      * Cambios de la dueña: solo se aplican los campos enviados. Devuelve true si con ellos terminó
      * una alerta activa (hay que avisar a los contactos que la recibieron).
      */
-    public boolean actualizar(CambiosAlerta cambios, LocalDateTime ahora) {
+    public boolean update(CambiosAlerta changes, LocalDateTime now) {
         String anterior = status;
-        if (cambios.alertType() != null) alertType = cambios.alertType();
-        if (cambios.activationMethod() != null) activationMethod = cambios.activationMethod();
-        if (cambios.status() != null) status = cambios.status();
-        if (cambios.message() != null) message = cambios.message();
-        if (cambios.endedAt() != null) endedAt = cambios.endedAt();
-        if (cambios.cancelledAt() != null) cancelledAt = cambios.cancelledAt();
-        if (!ACTIVA.equals(anterior) || !esEstadoFinal(status)) return false;
-        marcarCierre(ahora);
+        if (changes.alertType() != null) alertType = changes.alertType();
+        if (changes.activationMethod() != null) activationMethod = changes.activationMethod();
+        if (changes.status() != null) status = changes.status();
+        if (changes.message() != null) message = changes.message();
+        if (changes.endedAt() != null) endedAt = changes.endedAt();
+        if (changes.cancelledAt() != null) cancelledAt = changes.cancelledAt();
+        if (!ACTIVE.equals(anterior) || !esEstadoFinal(status)) return false;
+        marcarCierre(now);
         return true;
     }
 
@@ -83,20 +83,20 @@ public class Alert {
      * Cambio de estado desde la administración: "resolved" guarda la hora de cierre y "cancelled" la
      * de cancelación. Devuelve true si terminó una alerta activa.
      */
-    public boolean cambiarEstado(String newStatus, LocalDateTime ahora) {
-        if (newStatus == null || !ESTADOS.contains(newStatus)) {
+    public boolean changeStatus(String newStatus, LocalDateTime now) {
+        if (newStatus == null || !STATUSES.contains(newStatus)) {
             throw new IllegalArgumentException("Estado no válido: " + newStatus);
         }
         String anterior = status;
         status = newStatus;
-        marcarCierre(ahora);
-        return ACTIVA.equals(anterior) && esEstadoFinal(newStatus);
+        marcarCierre(now);
+        return ACTIVE.equals(anterior) && esEstadoFinal(newStatus);
     }
 
     /** Superó la duración máxima configurada. */
-    public void expirar(LocalDateTime ahora) {
+    public void expire(LocalDateTime now) {
         status = "expired";
-        endedAt = ahora;
+        endedAt = now;
     }
 
     /**
@@ -111,9 +111,9 @@ public class Alert {
         keepEvidence = conservar;
     }
 
-    private void marcarCierre(LocalDateTime ahora) {
-        if ("resolved".equals(status) && endedAt == null) endedAt = ahora;
-        if ("cancelled".equals(status) && cancelledAt == null) cancelledAt = ahora;
+    private void marcarCierre(LocalDateTime now) {
+        if ("resolved".equals(status) && endedAt == null) endedAt = now;
+        if ("cancelled".equals(status) && cancelledAt == null) cancelledAt = now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

@@ -21,31 +21,31 @@ public class PedidoUbicacionService implements PedirUbicacionUseCase {
 
     static final long SEGUNDOS_ENTRE_PEDIDOS = 20;
 
-    private final CelularesPort celulares;
+    private final CelularesPort phones;
     private final PushPort push;
     private final Clock clock;
     private final Map<Long, Instant> ultimoPedido = new ConcurrentHashMap<>();
 
     @Autowired
-    public PedidoUbicacionService(CelularesPort celulares, PushPort push) {
-        this(celulares, push, Clock.systemUTC());
+    public PedidoUbicacionService(CelularesPort phones, PushPort push) {
+        this(phones, push, Clock.systemUTC());
     }
 
-    PedidoUbicacionService(CelularesPort celulares, PushPort push, Clock clock) {
-        this.celulares = celulares;
+    PedidoUbicacionService(CelularesPort phones, PushPort push, Clock clock) {
+        this.phones = phones;
         this.push = push;
         this.clock = clock;
     }
 
     @Override
     public Resultado perform(Long userId) {
-        Instant ahora = clock.instant();
+        Instant now = clock.instant();
         Instant anterior = ultimoPedido.get(userId);
-        if (anterior != null && anterior.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(ahora)) {
+        if (anterior != null && anterior.plusSeconds(SEGUNDOS_ENTRE_PEDIDOS).isAfter(now)) {
             throw new IllegalStateException("Ya se pidió la ubicación hace un momento. Espera unos segundos.");
         }
         // Solo celulares: un navegador no tiene GPS ni puede responder
-        List<String> tokens = celulares.tokensDeCelulares(userId);
+        List<String> tokens = phones.phoneTokens(userId);
         if (tokens.isEmpty()) {
             throw new IllegalStateException("Tu celular no tiene la app con notificaciones activas. Abre AlertaMujer en el celular e inicia sesión.");
         }
@@ -53,7 +53,7 @@ public class PedidoUbicacionService implements PedirUbicacionUseCase {
         if (fallidos.size() == tokens.size()) {
             throw new IllegalStateException("No se pudo contactar al celular. Intenta de nuevo en un momento.");
         }
-        ultimoPedido.put(userId, ahora);
-        return new Resultado(tokens.size() - fallidos.size(), ahora);
+        ultimoPedido.put(userId, now);
+        return new Resultado(tokens.size() - fallidos.size(), now);
     }
 }

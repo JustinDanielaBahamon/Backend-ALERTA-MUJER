@@ -22,8 +22,8 @@ class EvidenceAdministrationServiceTest {
 
     private final EvidenceRepository repository = mock(EvidenceRepository.class);
     private final AlertsPort alerts = mock(AlertsPort.class);
-    private final IdentityPort identidad = mock(IdentityPort.class);
-    private final EvidenceAdministrationService service = new EvidenceAdministrationService(repository, alerts, identidad);
+    private final IdentityPort identity = mock(IdentityPort.class);
+    private final EvidenceAdministrationService service = new EvidenceAdministrationService(repository, alerts, identity);
 
     private Evidence evidence(Long id, String review, long tamanio) {
         Evidence e = new Evidence();
@@ -39,9 +39,9 @@ class EvidenceAdministrationServiceTest {
     void listAllAddsUserAndAlert() {
         AlertSummary alert = new AlertSummary(5L, 10L, "main", "panic_button", "active", null, null, null, null, null, null);
         UserSummary u = new UserSummary(1L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
-        when(repository.todas()).thenReturn(List.of(evidence(1L, "pending", 100)));
-        when(alerts.todas()).thenReturn(Map.of(5L, alert));
-        when(identidad.usersByProfile()).thenReturn(Map.of(10L, u));
+        when(repository.all()).thenReturn(List.of(evidence(1L, "pending", 100)));
+        when(alerts.all()).thenReturn(Map.of(5L, alert));
+        when(identity.usersByProfile()).thenReturn(Map.of(10L, u));
 
         AdminEvidence view = service.listAll().get(0);
 
@@ -51,7 +51,7 @@ class EvidenceAdministrationServiceTest {
 
     @Test
     void statsCountsByReviewAndSumsSizes() {
-        when(repository.todas()).thenReturn(List.of(
+        when(repository.all()).thenReturn(List.of(
                 evidence(1L, "verified", 100), evidence(2L, "rejected", 50), evidence(3L, "pending", 25)));
 
         Stats stats = service.stats();

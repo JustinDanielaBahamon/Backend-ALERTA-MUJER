@@ -8,12 +8,12 @@ import java.util.Optional;
 /** Puerto de salida: las llamadas a los recursos. */
 public interface LlamadaRepositorio {
 
-    List<ResourceCall> todas();
+    List<ResourceCall> all();
 
     Optional<ResourceCall> find(Long id);
 
     /** De la más reciente a la más antigua. */
-    List<ResourceCall> dePerfil(Long perfil);
+    List<ResourceCall> dePerfil(Long profile);
 
     List<ResourceCall> deRecurso(Long recursoId);
 

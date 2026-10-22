@@ -26,39 +26,39 @@ public class SystemConfiguration {
     /** Lo pone un trigger de la base. */
     private LocalDateTime updatedAt;
 
-    public static final String CLAVE = "SYSTEM";
-    public static final int DURACION_MINIMA = 30;
-    public static final int DURACION_MAXIMA = 1440;
-    public static final int MAXIMO_CONTACTOS = 20;
+    public static final String KEY = "SYSTEM";
+    public static final int MIN_DURATION = 30;
+    public static final int MAX_DURATION = 1440;
+    public static final int MAX_CONTACTS = 20;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Aplica los cambios enviados (null = sin cambio) validando cada valor; minAppVersion "" la quita. */
-    public void actualizar(CambiosAjustes c, Long adminUserId, LocalDateTime ahora) {
+    public void update(SettingsChanges c, Long adminUserId, LocalDateTime now) {
         if (c.sosMaxDurationMinutes() != null) {
-            int minutos = c.sosMaxDurationMinutes();
-            if (minutos < DURACION_MINIMA || minutos > DURACION_MAXIMA) {
+            int minutes = c.sosMaxDurationMinutes();
+            if (minutes < MIN_DURATION || minutes > MAX_DURATION) {
                 throw new IllegalArgumentException("La duración de una alerta debe estar entre "
-                        + DURACION_MINIMA + " y " + DURACION_MAXIMA + " minutos");
+                        + MIN_DURATION + " y " + MAX_DURATION + " minutos");
             }
-            sosMaxDurationMinutes = minutos;
+            sosMaxDurationMinutes = minutes;
         }
         if (c.emergencyPhoneNumber() != null) {
-            String numero = c.emergencyPhoneNumber().trim();
-            if (!numero.matches("\\+?\\d{3,15}")) throw new IllegalArgumentException("Número de emergencia no válido");
-            emergencyPhoneNumber = numero;
+            String number = c.emergencyPhoneNumber().trim();
+            if (!number.matches("\\+?\\d{3,15}")) throw new IllegalArgumentException("Número de emergencia no válido");
+            emergencyPhoneNumber = number;
         }
         if (c.supportEmail() != null) {
-            String correo = c.supportEmail().trim();
-            if (!correo.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) throw new IllegalArgumentException("Correo de soporte no válido");
-            adminEmail = correo;
+            String email = c.supportEmail().trim();
+            if (!email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) throw new IllegalArgumentException("Correo de soporte no válido");
+            adminEmail = email;
         }
         if (c.maxEmergencyContacts() != null) {
-            int maximo = c.maxEmergencyContacts();
-            if (maximo < 1 || maximo > MAXIMO_CONTACTOS) {
-                throw new IllegalArgumentException("El límite de contactos debe estar entre 1 y " + MAXIMO_CONTACTOS);
+            int max = c.maxEmergencyContacts();
+            if (max < 1 || max > MAX_CONTACTS) {
+                throw new IllegalArgumentException("El límite de contactos debe estar entre 1 y " + MAX_CONTACTS);
             }
-            maxEmergencyContacts = maximo;
+            maxEmergencyContacts = max;
         }
         if (c.minAppVersion() != null) {
             String version = c.minAppVersion().trim();
@@ -69,11 +69,11 @@ public class SystemConfiguration {
         }
         updatedByAdminId = adminUserId == null ? null : adminUserId.intValue();
         // El trigger de la base pone la misma hora; así se ve sin volver a leer la fila
-        updatedAt = ahora;
+        updatedAt = now;
     }
 
     /** Cuándo cambió por última vez (o cuándo se creó si nunca se editó). */
-    public LocalDateTime ultimaActualizacion() {
+    public LocalDateTime lastUpdate() {
         return updatedAt != null ? updatedAt : createdAt;
     }
 

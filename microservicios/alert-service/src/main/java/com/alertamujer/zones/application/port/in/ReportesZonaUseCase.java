@@ -8,10 +8,10 @@ import java.util.Optional;
 /** Reportes de las usuarias sobre las zonas y su revisión por la administración. */
 public interface ReportesZonaUseCase {
 
-    List<ZoneReport> todos();
+    List<ZoneReport> all();
 
     /** Vacío si no existe o es de otra usuaria. */
-    Optional<ZoneReport> uno(Long id, Long userId);
+    Optional<ZoneReport> one(Long id, Long userId);
 
     List<ZoneReport> deZona(Long zoneId);
 
@@ -19,15 +19,15 @@ public interface ReportesZonaUseCase {
      * Reportes de una usuaria: se acepta su id de usuaria o de perfil; los de otra persona solo los ve
      * la administración.
      */
-    List<ZoneReport> deUsuaria(Long idPedido, Long userId, boolean admin);
+    List<ZoneReport> ofUser(Long idPedido, Long userId, boolean admin);
 
-    List<ZoneReport> conEstado(String status);
+    List<ZoneReport> withStatus(String status);
 
     ZoneReport create(Long zoneId, String clasificacion, String comentario, Long userId);
 
-    ZoneReport aprobar(Long id, Integer adminId);
+    ZoneReport approve(Long id, Integer adminId);
 
-    ZoneReport rechazar(Long id, Integer adminId);
+    ZoneReport reject(Long id, Integer adminId);
 
     void delete(Long id, Long userId);
 }

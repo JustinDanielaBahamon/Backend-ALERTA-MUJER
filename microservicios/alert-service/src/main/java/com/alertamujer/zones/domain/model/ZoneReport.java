@@ -22,31 +22,31 @@ public class ZoneReport {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** La autora sale del token, nunca del body. */
-    public static ZoneReport nuevo(Long perfil, Long zoneId, String classification, String comment) {
+    public static ZoneReport created(Long profile, Long zoneId, String classification, String comment) {
         ZoneReport r = new ZoneReport();
-        r.userProfileId = perfil;
+        r.userProfileId = profile;
         r.zoneId = zoneId;
         r.classification = classification;
         r.comment = comment;
         return r;
     }
 
-    public boolean esDe(Long perfil) {
-        return perfil != null && Objects.equals(userProfileId, perfil);
+    public boolean esDe(Long profile) {
+        return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    public void aprobar(Integer adminId, LocalDateTime ahora) {
-        revisar("approved", adminId, ahora);
+    public void approve(Integer adminId, LocalDateTime now) {
+        revisar("approved", adminId, now);
     }
 
-    public void rechazar(Integer adminId, LocalDateTime ahora) {
-        revisar("rejected", adminId, ahora);
+    public void reject(Integer adminId, LocalDateTime now) {
+        revisar("rejected", adminId, now);
     }
 
-    private void revisar(String newStatus, Integer adminId, LocalDateTime ahora) {
+    private void revisar(String newStatus, Integer adminId, LocalDateTime now) {
         status = newStatus;
         reviewedByAdminId = adminId;
-        reviewedAt = ahora;
+        reviewedAt = now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

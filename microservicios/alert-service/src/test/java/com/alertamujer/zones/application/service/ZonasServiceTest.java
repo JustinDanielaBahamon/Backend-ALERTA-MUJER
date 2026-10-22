@@ -22,7 +22,7 @@ class ZonasServiceTest {
         Zone activa = new Zone();
         Zone inactiva = new Zone();
         inactiva.setIsActive(false);
-        when(repository.todas()).thenReturn(List.of(activa, inactiva));
+        when(repository.all()).thenReturn(List.of(activa, inactiva));
 
         assertEquals(1, service.contarActivas());
     }
@@ -31,7 +31,7 @@ class ZonasServiceTest {
     void editarUnaZonaInexistenteResponde404() {
         when(repository.find(9L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.reemplazar(9L,
+        assertThrows(ResourceNotFoundException.class, () -> service.replace(9L,
                 new DatosZona(null, "x", "risk", null, null, null, "x", null, null, null, null)));
     }
 }

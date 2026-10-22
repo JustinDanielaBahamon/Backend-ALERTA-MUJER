@@ -9,9 +9,9 @@ import java.util.Optional;
 /** Recursos de ayuda: los ve cualquier usuaria con sesión y los edita la administración. */
 public interface RecursosUseCase {
 
-    List<EmergencyResource> todos();
+    List<EmergencyResource> all();
 
-    Optional<EmergencyResource> uno(Long id);
+    Optional<EmergencyResource> one(Long id);
 
     List<EmergencyResource> deCiudad(String ciudad);
 
@@ -19,7 +19,7 @@ public interface RecursosUseCase {
 
     EmergencyResource create(DatosRecurso data);
 
-    EmergencyResource reemplazar(Long id, DatosRecurso data);
+    EmergencyResource replace(Long id, DatosRecurso data);
 
     void delete(Long id);
 }

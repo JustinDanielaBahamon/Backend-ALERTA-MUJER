@@ -20,8 +20,8 @@ public class LogEmailSender implements EmailSender {
         return "log";
     }
 
-    static String ocultar(String correo) {
-        int arroba = correo == null ? -1 : correo.indexOf('@');
-        return arroba <= 1 ? "***" : correo.charAt(0) + "***" + correo.substring(arroba);
+    static String ocultar(String email) {
+        int arroba = email == null ? -1 : email.indexOf('@');
+        return arroba <= 1 ? "***" : email.charAt(0) + "***" + email.substring(arroba);
     }
 }

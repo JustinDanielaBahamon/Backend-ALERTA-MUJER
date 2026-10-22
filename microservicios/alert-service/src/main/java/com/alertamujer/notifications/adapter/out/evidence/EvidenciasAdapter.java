@@ -32,7 +32,7 @@ class EvidenciasAdapter implements EvidenciasPort {
 
     private final EvidenceApi evidenceApi;
     // Pocas consultas a la vez: si están todas ocupadas (servicio dormido), no se encolan más
-    private final ExecutorService consultas = new ThreadPoolExecutor(1, 4, 60, TimeUnit.SECONDS,
+    private final ExecutorService queries = new ThreadPoolExecutor(1, 4, 60, TimeUnit.SECONDS,
             new SynchronousQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
     EvidenciasAdapter(EvidenceApi evidenceApi) {
@@ -42,7 +42,7 @@ class EvidenciasAdapter implements EvidenciasPort {
     @Override
     public List<EvidenceSummary> deAlerta(Long alertId) {
         CompletableFuture<List<EvidenceSummary>> list =
-                CompletableFuture.supplyAsync(() -> evidenceApi.alertEvidence(alertId), consultas);
+                CompletableFuture.supplyAsync(() -> evidenceApi.alertEvidence(alertId), queries);
         try {
             return list.get(ESPERA_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

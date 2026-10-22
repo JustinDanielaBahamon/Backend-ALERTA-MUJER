@@ -15,13 +15,13 @@ public interface AdministrarAlertasUseCase {
     List<AdminAlertView> listAll();
 
     /** Cambia el estado de cualquier alerta, por ejemplo a "resolved" (atendida). */
-    Alert cambiarEstado(Long id, String status);
+    Alert changeStatus(Long id, String status);
 
     /**
      * Detalle para el panel: última ubicación (solo de alertas activas o atendidas, auditoría S2) y
      * estado de envío a cada contacto, sin su nombre ni su correo.
      */
-    DetalleAdmin detalle(Long id);
+    DetalleAdmin detail(Long id);
 
     record UltimaUbicacion(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, LocalDateTime recordedAt) {}
 

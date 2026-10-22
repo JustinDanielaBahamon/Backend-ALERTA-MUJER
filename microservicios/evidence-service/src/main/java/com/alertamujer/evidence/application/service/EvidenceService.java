@@ -30,16 +30,16 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
     private final EvidenceRepository repository;
     private final EvidenceStorage storage;
     private final AlertsPort alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final long maxSizeBytes;
 
     public EvidenceService(EvidenceRepository repository, EvidenceStorage storage,
-                             AlertsPort alerts, IdentityPort identidad,
+                             AlertsPort alerts, IdentityPort identity,
                              @Value("${evidence.max-size-bytes}") long maxSizeBytes) {
         this.repository = repository;
         this.storage = storage;
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
         this.maxSizeBytes = maxSizeBytes;
     }
 
@@ -81,23 +81,23 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
 
     @Override
     public List<EvidenceWithAlert> ofUser(Long userId) {
-        List<Long> ids = alerts.idsOfUser(identidad.profileOf(userId));
+        List<Long> ids = alerts.idsOfUser(identity.profileOf(userId));
         List<Evidence> evidences = repository.ofAlerts(ids);
-        Map<Long, AlertSummary> porId = alerts.findMany(
+        Map<Long, AlertSummary> byId = alerts.findMany(
                 evidences.stream().map(Evidence::getAlertId).collect(Collectors.toSet()));
-        return evidences.stream().map(e -> new EvidenceWithAlert(e, porId.get(e.getAlertId()))).toList();
+        return evidences.stream().map(e -> new EvidenceWithAlert(e, byId.get(e.getAlertId()))).toList();
     }
 
     @Override
     public Evidence una(Long id, Long userId) {
-        Evidence e = existente(id);
+        Evidence e = existing(id);
         ownAlert(e.getAlertId(), userId);
         return e;
     }
 
     @Override
     public EvidenceWithContent file(Long id, Long userId, boolean admin) {
-        Evidence e = admin ? existente(id) : una(id, userId);
+        Evidence e = admin ? existing(id) : una(id, userId);
         if (!e.hasFile()) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
         Resource content = storage.load(e.getStorageKey());
         if (!content.exists()) throw new ResourceNotFoundException("Archivo de la evidencia " + id);
@@ -117,7 +117,7 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
     @Override
     @Transactional
     public void delete(Long id, Long userId, boolean admin) {
-        Evidence e = admin ? existente(id) : una(id, userId);
+        Evidence e = admin ? existing(id) : una(id, userId);
         repository.delete(e);
         storage.delete(e.getStorageKey());
     }
@@ -143,13 +143,13 @@ public class EvidenceService implements UploadEvidenceUseCase, QueryEvidenceUseC
 
     // ── Apoyo ───────────────────────────────────────────────────────
 
-    private Evidence existente(Long id) {
+    private Evidence existing(Long id) {
         return repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Evidence", id));
     }
 
     private AlertSummary ownAlert(Long alertId, Long userId) {
         AlertSummary alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        if (!alert.userProfileId().equals(identidad.profileOf(userId))) {
+        if (!alert.userProfileId().equals(identity.profileOf(userId))) {
             throw new AccessDeniedException("No puedes acceder a evidencias de alertas de otro usuario");
         }
         return alert;

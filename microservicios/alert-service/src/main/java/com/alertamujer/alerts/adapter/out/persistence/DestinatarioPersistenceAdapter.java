@@ -19,30 +19,30 @@ class DestinatarioPersistenceAdapter implements DestinatarioRepositorio {
 
     @Override
     public void guardarTodos(List<AlertContact> destinatarios) {
-        jpa.saveAll(destinatarios.stream().map(DestinatarioPersistenceAdapter::aFila).toList());
+        jpa.saveAll(destinatarios.stream().map(DestinatarioPersistenceAdapter::toRow).toList());
     }
 
     @Override
     public AlertContact save(AlertContact destinatario) {
-        return aDominio(jpa.save(aFila(destinatario)));
+        return toDomain(jpa.save(toRow(destinatario)));
     }
 
     @Override
     public Optional<AlertContact> find(Long id) {
-        return jpa.findById(id).map(DestinatarioPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(DestinatarioPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<AlertContact> ofAlert(Long alertId) {
-        return jpa.findByAlertId(alertId).stream().map(DestinatarioPersistenceAdapter::aDominio).toList();
+        return jpa.findByAlertId(alertId).stream().map(DestinatarioPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<Long> alertasAvisadasA(String correo) {
-        return jpa.findAlertIdsNotifiedTo(correo);
+    public List<Long> alertasAvisadasA(String email) {
+        return jpa.findAlertIdsNotifiedTo(email);
     }
 
-    static AlertContact aDominio(AlertContactJpaEntity f) {
+    static AlertContact toDomain(AlertContactJpaEntity f) {
         AlertContact d = new AlertContact();
         d.setId(f.getId());
         d.setAlertId(f.getAlertId());
@@ -58,7 +58,7 @@ class DestinatarioPersistenceAdapter implements DestinatarioRepositorio {
         return d;
     }
 
-    static AlertContactJpaEntity aFila(AlertContact d) {
+    static AlertContactJpaEntity toRow(AlertContact d) {
         AlertContactJpaEntity f = new AlertContactJpaEntity();
         f.setId(d.getId());
         f.setAlertId(d.getAlertId());

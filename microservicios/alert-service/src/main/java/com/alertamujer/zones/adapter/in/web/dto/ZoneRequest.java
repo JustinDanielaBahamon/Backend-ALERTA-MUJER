@@ -10,7 +10,7 @@ public record ZoneRequest(Integer createdByAdminId, String name, String zoneType
                           String address, String city, BigDecimal latitude, BigDecimal longitude, BigDecimal radiusMeters,
                           @JsonProperty("isActive") Boolean isActive) {
 
-    public DatosZona aDatos() {
+    public DatosZona toData() {
         return new DatosZona(createdByAdminId, name, zoneType, riskLevel, description, address, city, latitude, longitude,
                 radiusMeters, isActive);
     }

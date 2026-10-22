@@ -30,14 +30,14 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
 
     private final DestinatarioRepositorio repository;
     private final ContactoRepositorio contactos;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final EventosAlertaPort events;
 
     public DestinatariosService(DestinatarioRepositorio repository, ContactoRepositorio contactos,
-                                IdentityPort identidad, EventosAlertaPort events) {
+                                IdentityPort identity, EventosAlertaPort events) {
         this.repository = repository;
         this.contactos = contactos;
-        this.identidad = identidad;
+        this.identity = identity;
         this.events = events;
     }
 
@@ -56,16 +56,16 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
                 throw new IllegalArgumentException("Alguno de los contactos elegidos no existe");
             }
         }
-        List<AlertContact> registros = new ArrayList<>();
+        List<AlertContact> records = new ArrayList<>();
         for (EmergencyContact contacto : avisados) {
-            String correo = contacto.correoParaAvisar();
-            if (correo.isEmpty()) continue;
-            registros.add(AlertContact.nuevo(alert.getId(), contacto.getId(), AlertContact.CANAL_CORREO, correo));
-            if (identidad.tieneCuenta(correo)) {
-                registros.add(AlertContact.nuevo(alert.getId(), contacto.getId(), AlertContact.CANAL_PUSH, "App Alerta Mujer"));
+            String email = contacto.correoParaAvisar();
+            if (email.isEmpty()) continue;
+            records.add(AlertContact.created(alert.getId(), contacto.getId(), AlertContact.CANAL_CORREO, email));
+            if (identity.tieneCuenta(email)) {
+                records.add(AlertContact.created(alert.getId(), contacto.getId(), AlertContact.CANAL_PUSH, "App Alerta Mujer"));
             }
         }
-        repository.guardarTodos(registros);
+        repository.guardarTodos(records);
         // Los avisos salen después de confirmar la transacción (módulo de notificaciones)
         events.alertaActivada(alert);
     }
@@ -73,8 +73,8 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
     @Override
     public List<ContactoNotificado> contactosDe(Alert alert) {
         boolean terminada = alert.terminada();
-        Map<Long, EmergencyContact> porId = new LinkedHashMap<>();
-        contactos.ofUser(alert.getUserProfileId()).forEach(c -> porId.put(c.getId(), c));
+        Map<Long, EmergencyContact> byId = new LinkedHashMap<>();
+        contactos.ofUser(alert.getUserProfileId()).forEach(c -> byId.put(c.getId(), c));
 
         Map<Long, List<CanalEnvio>> canales = new LinkedHashMap<>();
         for (AlertContact d : repository.ofAlert(alert.getId())) {
@@ -84,7 +84,7 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
         }
         List<ContactoNotificado> resultado = new ArrayList<>();
         canales.forEach((contactoId, list) -> {
-            EmergencyContact c = porId.get(contactoId);
+            EmergencyContact c = byId.get(contactoId);
             resultado.add(new ContactoNotificado(contactoId,
                     c != null ? c.getContactName() : contactoId == null ? "Contacto eliminado" : "Contacto",
                     c != null ? c.getRelationship() : null,
@@ -96,13 +96,13 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
     @Override
     public List<AlertRecipient> destinatarios(Long alertId) {
         List<AlertContact> envios = repository.ofAlert(alertId);
-        Map<Long, String> nombres = contactos.buscarVarios(envios.stream()
+        Map<Long, String> names = contactos.buscarVarios(envios.stream()
                         .map(AlertContact::getEmergencyContactId).filter(Objects::nonNull).collect(Collectors.toSet()))
                 .stream()
                 .collect(Collectors.toMap(EmergencyContact::getId,
                         c -> c.getContactName() == null ? "" : c.getContactName(), (a, b) -> a));
         return envios.stream()
-                .map(e -> new AlertRecipient(e.getId(), e.getEmergencyContactId(), nombres.get(e.getEmergencyContactId()),
+                .map(e -> new AlertRecipient(e.getId(), e.getEmergencyContactId(), names.get(e.getEmergencyContactId()),
                         e.getChannel(), e.getDestination()))
                 .toList();
     }
@@ -117,8 +117,8 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
     }
 
     @Override
-    public List<Long> alertasAvisadasA(String correo) {
-        if (correo == null || correo.isBlank()) return List.of();
-        return repository.alertasAvisadasA(correo.trim());
+    public List<Long> alertasAvisadasA(String email) {
+        if (email == null || email.isBlank()) return List.of();
+        return repository.alertasAvisadasA(email.trim());
     }
 }

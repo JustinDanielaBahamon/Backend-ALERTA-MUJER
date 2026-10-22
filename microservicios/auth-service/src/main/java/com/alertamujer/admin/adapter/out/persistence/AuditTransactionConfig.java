@@ -36,7 +36,7 @@ public class AuditTransactionConfig {
         @Override
         protected void doBegin(Object transaction, TransactionDefinition definition) {
             super.doBegin(transaction, definition);
-            Long userId = usuarioActual();
+            Long userId = currentUser();
             String ip = RequestInfo.ip();
             String source = AuditSource.current() != null ? AuditSource.current() : RequestInfo.source();
             if (userId == null && ip == null && source == null) return;
@@ -55,7 +55,7 @@ public class AuditTransactionConfig {
         }
 
         /** El filtro JWT deja como principal el id de users (Long). */
-        private static Long usuarioActual() {
+        private static Long currentUser() {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             return auth != null && auth.getPrincipal() instanceof Long id ? id : null;
         }

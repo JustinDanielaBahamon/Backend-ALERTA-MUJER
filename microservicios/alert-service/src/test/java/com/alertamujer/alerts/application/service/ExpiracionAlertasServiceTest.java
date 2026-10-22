@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ExpiracionAlertasServiceTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Mock private AlertaRepositorio repository;
     @Mock private AjustesPort ajustes;
@@ -28,28 +28,28 @@ class ExpiracionAlertasServiceTest {
 
     @InjectMocks private ExpiracionAlertasService service;
 
-    private static Alert alert(LocalDateTime inicio) {
+    private static Alert alert(LocalDateTime start) {
         Alert a = new Alert();
-        a.setStartedAt(inicio);
+        a.setStartedAt(start);
         return a;
     }
 
     @Test
     void expiraSoloLasQuePasanLaDuracionMaximaYAvisa() {
-        Alert vieja = alert(AHORA.minusMinutes(31));
-        Alert reciente = alert(AHORA.minusMinutes(10));
+        Alert vieja = alert(NOW.minusMinutes(31));
+        Alert recent = alert(NOW.minusMinutes(10));
         when(ajustes.maxAlertDurationMinutes()).thenReturn(30);
-        when(repository.activas()).thenReturn(List.of(vieja, reciente));
+        when(repository.active()).thenReturn(List.of(vieja, recent));
 
-        assertEquals(1, service.revisar(AHORA));
+        assertEquals(1, service.revisar(NOW));
 
         assertEquals("expired", vieja.getStatus());
-        assertEquals(AHORA, vieja.getEndedAt());
-        assertEquals("active", reciente.getStatus());
-        verify(repository).guardarTodas(List.of(vieja));
-        verify(events).alertaTerminada(vieja, AHORA);
+        assertEquals(NOW, vieja.getEndedAt());
+        assertEquals("active", recent.getStatus());
+        verify(repository).saveAll(List.of(vieja));
+        verify(events).alertaTerminada(vieja, NOW);
         verifyNoMoreInteractions(events);
-        assertEquals(AHORA, service.ultimaRevision());
+        assertEquals(NOW, service.ultimaRevision());
         assertEquals(1, service.expiradasUltimaRevision());
     }
 
@@ -57,21 +57,21 @@ class ExpiracionAlertasServiceTest {
     void sinConfiguracionNoExpiraNada() {
         when(ajustes.maxAlertDurationMinutes()).thenReturn(0);
 
-        assertEquals(0, service.revisar(AHORA));
+        assertEquals(0, service.revisar(NOW));
         verifyNoInteractions(repository, events);
     }
 
     @Test
     void laRevisionRegistraElOrigenDeLaTareaParaLaAuditoria() {
         when(ajustes.maxAlertDurationMinutes()).thenReturn(30);
-        when(repository.activas()).thenReturn(List.of());
+        when(repository.active()).thenReturn(List.of());
         String[] source = new String[1];
-        when(repository.guardarTodas(List.of())).thenAnswer(inv -> {
+        when(repository.saveAll(List.of())).thenAnswer(inv -> {
             source[0] = AuditSource.current();
             return List.of();
         });
 
-        service.revisar(AHORA);
+        service.revisar(NOW);
 
         assertEquals("Tarea automática · Expiración de alertas", source[0]);
         assertNull(AuditSource.current());

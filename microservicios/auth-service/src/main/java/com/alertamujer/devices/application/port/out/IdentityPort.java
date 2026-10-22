@@ -9,15 +9,15 @@ import java.util.Optional;
 public interface IdentityPort {
 
     /** account.id de la persona (users.id), si tiene cuenta. */
-    Optional<Long> cuentaDe(Long userId);
+    Optional<Long> accountOf(Long userId);
 
     /** Como cuentaDe, pero falla con ResourceNotFoundException si no tiene cuenta. */
-    Long cuentaRequerida(Long userId);
+    Long requiredAccount(Long userId);
 
     /** users.id de la dueña del perfil. */
-    Optional<Long> userOfProfile(Long perfil);
+    Optional<Long> userOfProfile(Long profile);
 
-    Optional<UserSummary> duenaDeCuenta(Long accountId);
+    Optional<UserSummary> accountOwner(Long accountId);
 
-    Map<Long, UserSummary> duenasPorCuenta();
+    Map<Long, UserSummary> ownersByAccount();
 }

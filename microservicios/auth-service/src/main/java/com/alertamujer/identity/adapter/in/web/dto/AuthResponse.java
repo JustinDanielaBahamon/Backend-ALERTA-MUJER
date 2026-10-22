@@ -1,6 +1,6 @@
 package com.alertamujer.identity.adapter.in.web.dto;
 
-import com.alertamujer.identity.application.port.in.Sesion;
+import com.alertamujer.identity.application.port.in.Session;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +15,7 @@ public class AuthResponse {
     private String refreshToken;
     private UserResponse user;
 
-    public static AuthResponse of(Sesion s) {
-        return new AuthResponse(s.token(), s.refreshToken(), UserResponse.of(s.usuaria(), null));
+    public static AuthResponse of(Session s) {
+        return new AuthResponse(s.token(), s.refreshToken(), UserResponse.of(s.user(), null));
     }
 }

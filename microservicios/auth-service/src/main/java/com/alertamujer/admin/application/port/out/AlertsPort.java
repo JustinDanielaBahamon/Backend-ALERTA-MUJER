@@ -10,12 +10,12 @@ import java.util.Map;
 public interface AlertsPort {
 
     /** Número de alertas por user_profile.id. */
-    Map<Long, Long> conteoPorPerfil();
+    Map<Long, Long> countByProfile();
 
     /** Todas las alertas con su usuaria, de la más reciente a la más antigua. */
-    List<AdminAlertView> todas();
+    List<AdminAlertView> all();
 
-    long activas();
+    long active();
 
-    ExpirationStatus ultimaExpiracion();
+    ExpirationStatus lastExpiration();
 }

@@ -18,33 +18,33 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
     }
 
     @Override
-    public List<ZoneReport> todos() {
-        return jpa.findAll().stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
+    public List<ZoneReport> all() {
+        return jpa.findAll().stream().map(ReporteZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<ZoneReport> find(Long id) {
-        return jpa.findById(id).map(ReporteZonaPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(ReporteZonaPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<ZoneReport> deZona(Long zoneId) {
-        return jpa.findByZoneId(zoneId).stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
+        return jpa.findByZoneId(zoneId).stream().map(ReporteZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<ZoneReport> dePerfil(Long perfil) {
-        return jpa.findByUserProfileId(perfil).stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
+    public List<ZoneReport> dePerfil(Long profile) {
+        return jpa.findByUserProfileId(profile).stream().map(ReporteZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<ZoneReport> conEstado(String status) {
-        return jpa.findByStatus(status).stream().map(ReporteZonaPersistenceAdapter::aDominio).toList();
+    public List<ZoneReport> withStatus(String status) {
+        return jpa.findByStatus(status).stream().map(ReporteZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public ZoneReport save(ZoneReport reporte) {
-        return aDominio(jpa.save(aFila(reporte)));
+    public ZoneReport save(ZoneReport userReport) {
+        return toDomain(jpa.save(toRow(userReport)));
     }
 
     @Override
@@ -52,7 +52,7 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
         jpa.deleteById(id);
     }
 
-    static ZoneReport aDominio(ZoneReportJpaEntity f) {
+    static ZoneReport toDomain(ZoneReportJpaEntity f) {
         ZoneReport d = new ZoneReport();
         d.setId(f.getId());
         d.setZoneId(f.getZoneId());
@@ -66,7 +66,7 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
         return d;
     }
 
-    static ZoneReportJpaEntity aFila(ZoneReport d) {
+    static ZoneReportJpaEntity toRow(ZoneReport d) {
         ZoneReportJpaEntity f = new ZoneReportJpaEntity();
         f.setId(d.getId());
         f.setZoneId(d.getZoneId());

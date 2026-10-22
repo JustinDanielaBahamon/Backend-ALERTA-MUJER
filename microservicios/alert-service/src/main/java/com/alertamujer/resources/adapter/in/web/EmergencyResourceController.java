@@ -22,12 +22,12 @@ public class EmergencyResourceController {
 
     @GetMapping
     public ResponseEntity<List<EmergencyResourceResponse>> getAllResources() {
-        return ResponseEntity.ok(recursos.todos().stream().map(EmergencyResourceResponse::of).toList());
+        return ResponseEntity.ok(recursos.all().stream().map(EmergencyResourceResponse::of).toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmergencyResourceResponse> getResourceById(@PathVariable Long id) {
-        return recursos.uno(id).map(r -> ResponseEntity.ok(EmergencyResourceResponse.of(r)))
+        return recursos.one(id).map(r -> ResponseEntity.ok(EmergencyResourceResponse.of(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -44,13 +44,13 @@ public class EmergencyResourceController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmergencyResourceResponse> createResource(@RequestBody EmergencyResourceRequest request) {
-        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.create(request.aDatos())));
+        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.create(request.toData())));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmergencyResourceResponse> updateResource(@PathVariable Long id, @RequestBody EmergencyResourceRequest request) {
-        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.reemplazar(id, request.aDatos())));
+        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.replace(id, request.toData())));
     }
 
     @DeleteMapping("/{id}")

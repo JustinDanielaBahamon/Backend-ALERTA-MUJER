@@ -6,13 +6,13 @@ import java.util.Optional;
 public interface IdentityPort {
 
     /** Nombre completo de la dueña del perfil (para los correos). */
-    Optional<String> nombreCompletoDelPerfil(Long perfil);
+    Optional<String> nombreCompletoDelPerfil(Long profile);
 
     /** Solo el nombre de pila: el seguimiento puede reenviarse. */
-    Optional<String> nombreDePilaDelPerfil(Long perfil);
+    Optional<String> nombreDePilaDelPerfil(Long profile);
 
     /** users.id de la persona con ese correo, si tiene cuenta. */
-    Optional<Long> usuariaConCorreo(String correo);
+    Optional<Long> usuariaConCorreo(String email);
 
     Optional<String> correoDe(Long userId);
 

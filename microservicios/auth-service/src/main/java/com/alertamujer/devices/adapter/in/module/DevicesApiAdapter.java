@@ -1,7 +1,7 @@
 package com.alertamujer.devices.adapter.in.module;
 
 import com.alertamujer.devices.api.DevicesApi;
-import com.alertamujer.devices.application.port.in.ConsultarDispositivosUseCase;
+import com.alertamujer.devices.application.port.in.QueryDevicesUseCase;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,34 +10,34 @@ import java.util.List;
 @Component
 class DevicesApiAdapter implements DevicesApi {
 
-    private final ConsultarDispositivosUseCase consultas;
+    private final QueryDevicesUseCase queries;
 
-    DevicesApiAdapter(ConsultarDispositivosUseCase consultas) {
-        this.consultas = consultas;
+    DevicesApiAdapter(QueryDevicesUseCase queries) {
+        this.queries = queries;
     }
 
     @Override
     public List<String> pushTokensOfProfile(Long userProfileId) {
-        return consultas.tokensDelPerfil(userProfileId);
+        return queries.profileTokens(userProfileId);
     }
 
     @Override
     public List<String> pushTokensOfUser(Long userId) {
-        return consultas.tokensDeUsuaria(userId);
+        return queries.userTokens(userId);
     }
 
     @Override
     public List<String> phonePushTokensOfUser(Long userId) {
-        return consultas.tokensDeCelulares(userId);
+        return queries.phoneTokens(userId);
     }
 
     @Override
     public boolean isMostRecentPhone(Long userId, Long deviceId) {
-        return consultas.esElCelularMasReciente(userId, deviceId);
+        return queries.isTheNewestPhone(userId, deviceId);
     }
 
     @Override
     public long countDevices() {
-        return consultas.contar();
+        return queries.count();
     }
 }

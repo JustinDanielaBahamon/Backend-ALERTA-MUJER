@@ -20,31 +20,31 @@ class TrayectoPersistenceAdapter implements TrayectoRepositorio {
 
     @Override
     public SafeTrip save(SafeTrip trayecto) {
-        return aDominio(jpa.save(aFila(trayecto)));
+        return toDomain(jpa.save(toRow(trayecto)));
     }
 
     @Override
     public Optional<SafeTrip> find(Long id) {
-        return jpa.findById(id).map(TrayectoPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(TrayectoPersistenceAdapter::toDomain);
     }
 
     @Override
-    public Optional<SafeTrip> activoDe(Long perfil) {
-        return jpa.findFirstByUserProfileIdAndStatus(perfil, SafeTrip.ACTIVO).map(TrayectoPersistenceAdapter::aDominio);
+    public Optional<SafeTrip> activoDe(Long profile) {
+        return jpa.findFirstByUserProfileIdAndStatus(profile, SafeTrip.ACTIVO).map(TrayectoPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<SafeTrip> activosQueLleganAntesDe(LocalDateTime momento) {
         return jpa.findByStatusAndExpectedArrivalBefore(SafeTrip.ACTIVO, momento).stream()
-                .map(TrayectoPersistenceAdapter::aDominio).toList();
+                .map(TrayectoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public long iniciadosDesde(Long perfil, LocalDateTime desde) {
-        return jpa.countByUserProfileIdAndCreatedAtAfter(perfil, desde);
+    public long iniciadosDesde(Long profile, LocalDateTime desde) {
+        return jpa.countByUserProfileIdAndCreatedAtAfter(profile, desde);
     }
 
-    static SafeTrip aDominio(SafeTripJpaEntity f) {
+    static SafeTrip toDomain(SafeTripJpaEntity f) {
         SafeTrip d = new SafeTrip();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -63,7 +63,7 @@ class TrayectoPersistenceAdapter implements TrayectoRepositorio {
         return d;
     }
 
-    static SafeTripJpaEntity aFila(SafeTrip d) {
+    static SafeTripJpaEntity toRow(SafeTrip d) {
         SafeTripJpaEntity f = new SafeTripJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

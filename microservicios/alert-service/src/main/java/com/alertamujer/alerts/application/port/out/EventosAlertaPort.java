@@ -14,5 +14,5 @@ public interface EventosAlertaPort {
     void alertaActivada(Alert alert);
 
     /** Terminó una alerta activa (atendida, cancelada o expirada). */
-    void alertaTerminada(Alert alert, LocalDateTime cuando);
+    void alertaTerminada(Alert alert, LocalDateTime when);
 }

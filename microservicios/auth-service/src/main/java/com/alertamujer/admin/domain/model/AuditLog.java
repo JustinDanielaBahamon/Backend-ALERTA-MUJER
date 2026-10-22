@@ -19,20 +19,20 @@ public class AuditLog {
     private String source;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public static final String TIPO_SESION = "SESSION";
-    private static final int MAXIMO_DESCRIPCION = 500;
+    public static final String SESSION_TYPE = "SESSION";
+    private static final int MAX_DESCRIPTION = 500;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Evento de sesión de una administradora; el detalle se completa con el dispositivo. */
-    public static AuditLog eventoDeSesion(Long accountId, String accion, String detalle, String device, String ip,
+    public static AuditLog sessionEvent(Long accountId, String action, String detail, String device, String ip,
                                           String source) {
         AuditLog r = new AuditLog();
         r.accountId = accountId;
-        r.action = accion;
-        r.entityType = TIPO_SESION;
-        String text = detalle == null ? device : device == null ? detalle : detalle + " · " + device;
-        r.description = text == null ? null : text.length() > MAXIMO_DESCRIPCION ? text.substring(0, MAXIMO_DESCRIPCION) : text;
+        r.action = action;
+        r.entityType = SESSION_TYPE;
+        String text = detail == null ? device : device == null ? detail : detail + " · " + device;
+        r.description = text == null ? null : text.length() > MAX_DESCRIPTION ? text.substring(0, MAX_DESCRIPTION) : text;
         r.ipAddress = ip;
         r.source = source;
         return r;

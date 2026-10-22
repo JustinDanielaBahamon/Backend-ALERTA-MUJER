@@ -21,7 +21,7 @@ class ModerationActionJpaEntity {
     private Long userReportId;
 
     @Column(name = "admin_perfil_id", nullable = false)
-    private Integer adminPerfilId;
+    private Integer adminProfileId;
 
     @Column(name = "action_type", nullable = false)
     private String actionType;

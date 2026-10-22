@@ -25,10 +25,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RateLimitFilter implements Filter {
 
-    static final int MAX_INTENTOS = 5;
-    static final long VENTANA_MS = 60_000;
-    private static final int MAX_ENTRADAS = 10_000;
-    private static final Set<String> RUTAS = Set.of(
+    static final int MAX_ATTEMPTS = 5;
+    static final long WINDOW_MS = 60_000;
+    private static final int MAX_ENTRIES = 10_000;
+    private static final Set<String> PATHS = Set.of(
             "/api/auth/login", "/api/auth/google", "/api/auth/register",
             "/api/auth/forgot-password", "/api/auth/verify-reset-code", "/api/auth/reset-password");
 
@@ -41,23 +41,23 @@ public class RateLimitFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String path = httpRequest.getRequestURI();
-        if ("POST".equalsIgnoreCase(httpRequest.getMethod()) && RUTAS.contains(path)) {
+        if ("POST".equalsIgnoreCase(httpRequest.getMethod()) && PATHS.contains(path)) {
             long currentTime = System.currentTimeMillis();
-            if (requestCounts.size() > MAX_ENTRADAS) {
-                requestCounts.values().removeIf(c -> currentTime - c.timestamp > VENTANA_MS);
+            if (requestCounts.size() > MAX_ENTRIES) {
+                requestCounts.values().removeIf(c -> currentTime - c.timestamp > WINDOW_MS);
             }
             RequestCounter counter = requestCounts.computeIfAbsent(httpRequest.getRemoteAddr() + "|" + path,
                     k -> new RequestCounter(currentTime, new AtomicInteger(0)));
 
             synchronized (counter) {
-                if (currentTime - counter.timestamp > VENTANA_MS) {
+                if (currentTime - counter.timestamp > WINDOW_MS) {
                     counter.timestamp = currentTime;
                     counter.count.set(0);
                 }
 
-                if (counter.count.incrementAndGet() > MAX_INTENTOS) {
+                if (counter.count.incrementAndGet() > MAX_ATTEMPTS) {
                     httpResponse.setStatus(429); // Too Many Requests
-                    httpResponse.setHeader("Retry-After", String.valueOf(VENTANA_MS / 1000));
+                    httpResponse.setHeader("Retry-After", String.valueOf(WINDOW_MS / 1000));
                     httpResponse.setContentType("application/json;charset=UTF-8");
                     httpResponse.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() +
                         "\",\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"Demasiados intentos. Espera un minuto e inténtalo de nuevo.\"}");

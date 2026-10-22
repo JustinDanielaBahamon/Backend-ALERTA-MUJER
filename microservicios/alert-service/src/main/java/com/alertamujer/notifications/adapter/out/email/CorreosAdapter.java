@@ -20,9 +20,9 @@ class CorreosAdapter implements CorreosPort {
     }
 
     @Override
-    public void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime inicio,
+    public void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime start,
                               String seguimientoUrl, String mapsUrl, String emergencyNumber) {
-        send(AlertEmailTemplate.construir(para, nombreContacto, nombreUsuaria, inicio, seguimientoUrl, mapsUrl,
+        send(AlertEmailTemplate.construir(para, nombreContacto, nombreUsuaria, start, seguimientoUrl, mapsUrl,
                 emergencyNumber, logoUrl));
     }
 
@@ -33,7 +33,7 @@ class CorreosAdapter implements CorreosPort {
     }
 
     @Override
-    public void codigoRecuperacion(String para, String name, String code, int validityMinutes) {
+    public void recoveryCode(String para, String name, String code, int validityMinutes) {
         send(CodigoRecuperacionTemplate.construir(para, name, code, validityMinutes, logoUrl));
     }
 

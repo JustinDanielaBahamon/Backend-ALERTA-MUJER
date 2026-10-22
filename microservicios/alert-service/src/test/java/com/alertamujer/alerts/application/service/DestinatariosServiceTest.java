@@ -31,7 +31,7 @@ class DestinatariosServiceTest {
 
     @Mock private DestinatarioRepositorio repository;
     @Mock private ContactoRepositorio contactos;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
     @Mock private EventosAlertaPort events;
 
     @InjectMocks private DestinatariosService service;
@@ -44,11 +44,11 @@ class DestinatariosServiceTest {
         return a;
     }
 
-    private static EmergencyContact contacto(Long id, String name, String correo) {
+    private static EmergencyContact contacto(Long id, String name, String email) {
         EmergencyContact c = new EmergencyContact();
         c.setId(id);
         c.setContactName(name);
-        c.setEmail(correo);
+        c.setEmail(email);
         return c;
     }
 
@@ -59,21 +59,21 @@ class DestinatariosServiceTest {
                 contacto(1L, "Con app", "app@correo.com"),
                 contacto(2L, "Solo correo", "otra@correo.com"),
                 contacto(3L, "Sin correo", null)));
-        when(identidad.tieneCuenta(anyString())).thenReturn(false);
-        when(identidad.tieneCuenta("app@correo.com")).thenReturn(true);
+        when(identity.tieneCuenta(anyString())).thenReturn(false);
+        when(identity.tieneCuenta("app@correo.com")).thenReturn(true);
         Alert activa = alert("active");
 
         service.registrar(activa, null);
 
         ArgumentCaptor<List<AlertContact>> captor = ArgumentCaptor.forClass(List.class);
         verify(repository).guardarTodos(captor.capture());
-        List<AlertContact> registros = captor.getValue();
-        assertEquals(3, registros.size());
-        assertEquals("email", registros.get(0).getChannel());
-        assertEquals("push", registros.get(1).getChannel());
-        assertEquals(1L, registros.get(1).getEmergencyContactId());
-        assertEquals(2L, registros.get(2).getEmergencyContactId());
-        assertEquals("pending", registros.get(2).getStatus());
+        List<AlertContact> records = captor.getValue();
+        assertEquals(3, records.size());
+        assertEquals("email", records.get(0).getChannel());
+        assertEquals("push", records.get(1).getChannel());
+        assertEquals(1L, records.get(1).getEmergencyContactId());
+        assertEquals(2L, records.get(2).getEmergencyContactId());
+        assertEquals("pending", records.get(2).getStatus());
         verify(events).alertaActivada(activa);
     }
 
@@ -104,10 +104,10 @@ class DestinatariosServiceTest {
         EmergencyContact eva = contacto(1L, "Eva", "eva@correo.com");
         eva.setRelationship("Hermana");
         when(contactos.ofUser(10L)).thenReturn(List.of(eva));
-        AlertContact correo = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
-        AlertContact borrado = AlertContact.nuevo(5L, null, "email", "vieja@correo.com");
+        AlertContact email = AlertContact.created(5L, 1L, "email", "eva@correo.com");
+        AlertContact borrado = AlertContact.created(5L, null, "email", "vieja@correo.com");
         borrado.setStatus("failed");
-        when(repository.ofAlert(5L)).thenReturn(List.of(correo, borrado));
+        when(repository.ofAlert(5L)).thenReturn(List.of(email, borrado));
 
         List<ContactoNotificado> resultado = service.contactosDe(alert("cancelled"));
 
@@ -121,7 +121,7 @@ class DestinatariosServiceTest {
 
     @Test
     void destinatarios_incluyenElNombreDelContacto() {
-        AlertContact envio = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
+        AlertContact envio = AlertContact.created(5L, 1L, "email", "eva@correo.com");
         envio.setId(40L);
         when(repository.ofAlert(5L)).thenReturn(List.of(envio));
         when(contactos.buscarVarios(Set.of(1L))).thenReturn(List.of(contacto(1L, "Eva", "eva@correo.com")));
@@ -131,7 +131,7 @@ class DestinatariosServiceTest {
 
     @Test
     void registrarEntrega_guardaElResultado() {
-        AlertContact envio = AlertContact.nuevo(5L, 1L, "email", "eva@correo.com");
+        AlertContact envio = AlertContact.created(5L, 1L, "email", "eva@correo.com");
         when(repository.find(40L)).thenReturn(Optional.of(envio));
 
         service.registrarEntrega(40L, "sent", null);
@@ -153,7 +153,7 @@ class DestinatariosServiceTest {
     @Test
     void contactosDe_unaAlertaActivaMuestraElEstadoReal() {
         when(contactos.ofUser(10L)).thenReturn(List.of());
-        AlertContact envio = AlertContact.nuevo(5L, 1L, "push", "App");
+        AlertContact envio = AlertContact.created(5L, 1L, "push", "App");
         envio.setSentAt(LocalDateTime.now());
         when(repository.ofAlert(5L)).thenReturn(List.of(envio));
 

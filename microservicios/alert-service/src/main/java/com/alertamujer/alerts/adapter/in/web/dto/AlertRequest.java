@@ -19,7 +19,7 @@ public record AlertRequest(Long deviceId, String alertType, String activationMet
         return new NuevaAlerta(deviceId, alertType, activationMethod, status, message, latitude, longitude, startedAt, contactIds);
     }
 
-    public CambiosAlerta aCambios() {
+    public CambiosAlerta toChanges() {
         return new CambiosAlerta(alertType, activationMethod, status, message, endedAt, cancelledAt);
     }
 }

@@ -17,23 +17,23 @@ import static org.mockito.Mockito.*;
 
 class PedidoUbicacionServiceTest {
 
-    private final CelularesPort celulares = mock(CelularesPort.class);
+    private final CelularesPort phones = mock(CelularesPort.class);
     private final PushPort push = mock(PushPort.class);
-    private final PedidoUbicacionService service = new PedidoUbicacionService(celulares, push,
+    private final PedidoUbicacionService service = new PedidoUbicacionService(phones, push,
             Clock.fixed(Instant.parse("2026-10-16T15:00:00Z"), ZoneOffset.UTC));
 
     @Test
     void mandaUnPushSilencioso() {
-        when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
+        when(phones.phoneTokens(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of());
 
-        assertEquals(1, service.perform(1L).celulares());
+        assertEquals(1, service.perform(1L).phones());
         verify(push).enviarDatos(List.of("t1"), Map.of("tipo", "PEDIR_UBICACION"));
     }
 
     @Test
     void sinCelularConNotificacionesAvisa() {
-        when(celulares.tokensDeCelulares(1L)).thenReturn(List.of());
+        when(phones.phoneTokens(1L)).thenReturn(List.of());
 
         assertThrows(IllegalStateException.class, () -> service.perform(1L));
         verifyNoInteractions(push);
@@ -41,7 +41,7 @@ class PedidoUbicacionServiceTest {
 
     @Test
     void siNoLlegaANingunCelularAvisa() {
-        when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
+        when(phones.phoneTokens(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of("t1"));
 
         assertThrows(IllegalStateException.class, () -> service.perform(1L));
@@ -49,7 +49,7 @@ class PedidoUbicacionServiceTest {
 
     @Test
     void noRepiteElPedidoEnPocosSegundos() {
-        when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("t1"));
+        when(phones.phoneTokens(1L)).thenReturn(List.of("t1"));
         when(push.enviarDatos(anyList(), anyMap())).thenReturn(List.of());
 
         service.perform(1L);

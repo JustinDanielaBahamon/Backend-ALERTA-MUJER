@@ -27,16 +27,16 @@ import java.util.Map;
 public class AlertController {
 
     private final GestionarAlertasUseCase alerts;
-    private final AdministrarAlertasUseCase administracion;
+    private final AdministrarAlertasUseCase administration;
     private final DestinatariosAlertaUseCase destinatarios;
     private final ChatAlertaUseCase chat;
     private final UbicacionesUseCase ubicaciones;
 
-    public AlertController(GestionarAlertasUseCase alerts, AdministrarAlertasUseCase administracion,
+    public AlertController(GestionarAlertasUseCase alerts, AdministrarAlertasUseCase administration,
                            DestinatariosAlertaUseCase destinatarios, ChatAlertaUseCase chat,
                            UbicacionesUseCase ubicaciones) {
         this.alerts = alerts;
-        this.administracion = administracion;
+        this.administration = administration;
         this.destinatarios = destinatarios;
         this.chat = chat;
         this.ubicaciones = ubicaciones;
@@ -54,21 +54,21 @@ public class AlertController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminAlertView>> getAllAlerts() {
-        return ResponseEntity.ok(administracion.listAll());
+        return ResponseEntity.ok(administration.listAll());
     }
 
     /** Detalle del panel: última ubicación y estado de envío a cada contacto (sin sus datos). */
     @GetMapping("/{id}/admin-detail")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdministrarAlertasUseCase.DetalleAdmin> getAdminDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(administracion.detalle(id));
+        return ResponseEntity.ok(administration.detail(id));
     }
 
     /** Cambia el estado de una alerta de cualquier usuaria, por ejemplo a "resolved" (atendida). */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AlertResponse> changeAlertStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(AlertResponse.of(administracion.cambiarEstado(id, body.get("status"))));
+        return ResponseEntity.ok(AlertResponse.of(administration.changeStatus(id, body.get("status"))));
     }
 
     @GetMapping("/me")
@@ -86,7 +86,7 @@ public class AlertController {
     @GetMapping("/user/{userProfileId}")
     public ResponseEntity<List<AlertResponse>> getAlertsByUser(@PathVariable Long userProfileId,
                                                                @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(alerts.deUsuaria(userProfileId, currentUserId).stream().map(AlertResponse::of).toList());
+        return ResponseEntity.ok(alerts.ofUser(userProfileId, currentUserId).stream().map(AlertResponse::of).toList());
     }
 
     @PostMapping
@@ -130,7 +130,7 @@ public class AlertController {
     @PutMapping("/{id}")
     public ResponseEntity<AlertResponse> updateAlert(@PathVariable Long id, @RequestBody AlertRequest request,
                                                      @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(AlertResponse.of(alerts.actualizar(id, request.aCambios(), currentUserId)));
+        return ResponseEntity.ok(AlertResponse.of(alerts.update(id, request.toChanges(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")

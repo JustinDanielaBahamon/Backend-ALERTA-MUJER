@@ -18,28 +18,28 @@ class ZonaPersistenceAdapter implements ZonaRepositorio {
     }
 
     @Override
-    public List<Zone> todas() {
-        return jpa.findAll().stream().map(ZonaPersistenceAdapter::aDominio).toList();
+    public List<Zone> all() {
+        return jpa.findAll().stream().map(ZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<Zone> find(Long id) {
-        return jpa.findById(id).map(ZonaPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(ZonaPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<Zone> deCiudad(String ciudad) {
-        return jpa.findByCity(ciudad).stream().map(ZonaPersistenceAdapter::aDominio).toList();
+        return jpa.findByCity(ciudad).stream().map(ZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<Zone> deTipo(String type) {
-        return jpa.findByZoneType(type).stream().map(ZonaPersistenceAdapter::aDominio).toList();
+        return jpa.findByZoneType(type).stream().map(ZonaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Zone save(Zone zona) {
-        return aDominio(jpa.save(aFila(zona)));
+        return toDomain(jpa.save(toRow(zona)));
     }
 
     @Override
@@ -47,7 +47,7 @@ class ZonaPersistenceAdapter implements ZonaRepositorio {
         jpa.deleteById(id);
     }
 
-    static Zone aDominio(ZoneJpaEntity f) {
+    static Zone toDomain(ZoneJpaEntity f) {
         Zone d = new Zone();
         d.setId(f.getId());
         d.setCreatedByAdminId(f.getCreatedByAdminId());
@@ -66,7 +66,7 @@ class ZonaPersistenceAdapter implements ZonaRepositorio {
         return d;
     }
 
-    static ZoneJpaEntity aFila(Zone d) {
+    static ZoneJpaEntity toRow(Zone d) {
         ZoneJpaEntity f = new ZoneJpaEntity();
         f.setId(d.getId());
         f.setCreatedByAdminId(d.getCreatedByAdminId());

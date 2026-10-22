@@ -29,7 +29,7 @@ class AvisosSimplesServiceTest {
         PushPort push = mock(PushPort.class);
         when(push.send(anyList(), anyMap())).thenThrow(new IllegalStateException("FCM caído"));
         CorreosPort correos = mock(CorreosPort.class);
-        doThrow(new CorreoNoEnviadoException("Sin proveedor")).when(correos).codigoRecuperacion(any(), any(), any(), anyInt());
+        doThrow(new CorreoNoEnviadoException("Sin proveedor")).when(correos).recoveryCode(any(), any(), any(), anyInt());
 
         assertDoesNotThrow(() -> new AvisoNuevoCelularService(push).avisar(List.of("t1"), "Moto G"));
         assertDoesNotThrow(() -> new CodigoRecuperacionService(correos).send("ana@correo.com", "Ana", "123456", 15));

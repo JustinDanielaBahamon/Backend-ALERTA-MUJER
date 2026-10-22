@@ -17,5 +17,5 @@ public interface DestinatarioRepositorio {
     List<AlertContact> ofAlert(Long alertId);
 
     /** Alertas en las que se avisó a este correo (el contacto que tiene cuenta en la app). */
-    List<Long> alertasAvisadasA(String correo);
+    List<Long> alertasAvisadasA(String email);
 }

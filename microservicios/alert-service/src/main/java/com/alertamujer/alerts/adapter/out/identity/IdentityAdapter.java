@@ -29,7 +29,7 @@ class IdentityAdapter implements IdentityPort {
     }
 
     @Override
-    public Optional<UserSummary> usuaria(Long userId) {
+    public Optional<UserSummary> user(Long userId) {
         return identityApi.findUser(userId);
     }
 
@@ -39,12 +39,12 @@ class IdentityAdapter implements IdentityPort {
     }
 
     @Override
-    public boolean tieneCuenta(String correo) {
-        return identityApi.findUserByEmail(correo).isPresent();
+    public boolean tieneCuenta(String email) {
+        return identityApi.findUserByEmail(email).isPresent();
     }
 
     @Override
-    public Optional<Long> usuariaPorCorreo(String correo) {
-        return identityApi.findUserByEmail(correo).map(UserSummary::id);
+    public Optional<Long> usuariaPorCorreo(String email) {
+        return identityApi.findUserByEmail(email).map(UserSummary::id);
     }
 }

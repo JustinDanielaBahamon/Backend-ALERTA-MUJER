@@ -18,7 +18,7 @@ public class AlertMessage {
     public static final String DE_LA_DUENA = "owner";
     public static final String DE_CONTACTO = "contact";
     public static final int MAXIMO_LARGO = 500;
-    public static final int MAXIMO_NOMBRE = 60;
+    public static final int MAX_NAME = 60;
     public static final int MAXIMO_POR_ALERTA = 500;
 
     // ── Reglas ──────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ public class AlertMessage {
     private static String nombreLimpio(String name, String porDefecto) {
         String n = name == null ? "" : name.trim();
         if (n.isEmpty()) return porDefecto;
-        return n.length() > MAXIMO_NOMBRE ? n.substring(0, MAXIMO_NOMBRE) : n;
+        return n.length() > MAX_NAME ? n.substring(0, MAX_NAME) : n;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

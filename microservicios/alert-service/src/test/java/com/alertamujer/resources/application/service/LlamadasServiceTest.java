@@ -21,13 +21,13 @@ class LlamadasServiceTest {
 
     private final LlamadaRepositorio repository = mock(LlamadaRepositorio.class);
     private final RecursoRepositorio recursos = mock(RecursoRepositorio.class);
-    private final IdentityPort identidad = mock(IdentityPort.class);
-    private final LlamadasService service = new LlamadasService(repository, recursos, identidad);
+    private final IdentityPort identity = mock(IdentityPort.class);
+    private final LlamadasService service = new LlamadasService(repository, recursos, identity);
 
     @BeforeEach
     void setUp() {
-        when(identidad.perfilRequerido(1L)).thenReturn(10L);
-        when(identidad.perfilRequerido(2L)).thenReturn(20L);
+        when(identity.perfilRequerido(1L)).thenReturn(10L);
+        when(identity.perfilRequerido(2L)).thenReturn(20L);
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
@@ -53,9 +53,9 @@ class LlamadasServiceTest {
 
         assertTrue(service.una(3L, 1L).isPresent());
         assertTrue(service.una(3L, 2L).isEmpty());
-        assertThrows(AccessDeniedException.class, () -> service.actualizar(3L, "failed", null, null, 2L));
+        assertThrows(AccessDeniedException.class, () -> service.update(3L, "failed", null, null, 2L));
         assertThrows(AccessDeniedException.class, () -> service.delete(3L, 2L));
-        assertEquals("completed", service.actualizar(3L, "completed", LocalDateTime.now(), 30, 1L).getStatus());
+        assertEquals("completed", service.update(3L, "completed", LocalDateTime.now(), 30, 1L).getStatus());
         verify(repository, never()).delete(any());
     }
 }

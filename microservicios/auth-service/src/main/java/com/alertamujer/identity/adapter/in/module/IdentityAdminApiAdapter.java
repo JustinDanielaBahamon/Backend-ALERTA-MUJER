@@ -3,10 +3,10 @@ package com.alertamujer.identity.adapter.in.module;
 import com.alertamujer.identity.api.IdentityAdminApi;
 import com.alertamujer.identity.api.UserAccountChanges;
 import com.alertamujer.identity.api.UserAccountView;
-import com.alertamujer.identity.application.port.in.AdministrarCuentasUseCase;
-import com.alertamujer.identity.application.port.in.AdministrarCuentasUseCase.CuentaDeUsuaria;
+import com.alertamujer.identity.application.port.in.ManageAccountsUseCase;
+import com.alertamujer.identity.application.port.in.ManageAccountsUseCase.UserAccount;
 import com.alertamujer.identity.domain.model.Account;
-import com.alertamujer.identity.domain.model.CambiosCuenta;
+import com.alertamujer.identity.domain.model.AccountChanges;
 import com.alertamujer.identity.domain.model.User;
 import org.springframework.stereotype.Component;
 
@@ -16,32 +16,32 @@ import java.util.List;
 @Component
 class IdentityAdminApiAdapter implements IdentityAdminApi {
 
-    private final AdministrarCuentasUseCase cuentas;
+    private final ManageAccountsUseCase accounts;
 
-    IdentityAdminApiAdapter(AdministrarCuentasUseCase cuentas) {
-        this.cuentas = cuentas;
+    IdentityAdminApiAdapter(ManageAccountsUseCase accounts) {
+        this.accounts = accounts;
     }
 
     @Override
     public List<UserAccountView> listUserAccounts() {
-        return cuentas.listAll().stream().map(IdentityAdminApiAdapter::view).toList();
+        return accounts.listAll().stream().map(IdentityAdminApiAdapter::view).toList();
     }
 
     @Override
     public UserAccountView updateUserAccount(Long userId, UserAccountChanges c, Long actingUserId) {
-        return view(cuentas.actualizar(userId,
-                new CambiosCuenta(c.accountStatus(), c.firstName(), c.lastName(), c.telephone(), c.email()), actingUserId));
+        return view(accounts.update(userId,
+                new AccountChanges(c.accountStatus(), c.firstName(), c.lastName(), c.telephone(), c.email()), actingUserId));
     }
 
     @Override
     public void anonymizeAccount(Long userId) {
-        cuentas.anonimizar(userId);
+        accounts.anonymize(userId);
     }
 
-    static UserAccountView view(CuentaDeUsuaria cu) {
-        User u = cu.usuaria();
-        Account a = cu.cuenta();
-        return new UserAccountView(u.getId(), cu.perfilId(), u.getFirstName(), u.getLastName(), u.getEmail(),
+    static UserAccountView view(UserAccount cu) {
+        User u = cu.user();
+        Account a = cu.account();
+        return new UserAccountView(u.getId(), cu.profileId(), u.getFirstName(), u.getLastName(), u.getEmail(),
                 u.getTelephone(), u.getRoleName(), a != null ? a.getStatus() : null, u.getCreatedAt(),
                 a != null ? a.getLastAccess() : null);
     }

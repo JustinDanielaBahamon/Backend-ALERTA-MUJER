@@ -9,5 +9,5 @@ public interface CelularesPort {
     boolean esElMasReciente(Long userId, Long deviceId);
 
     /** Tokens push solo de celulares (sin navegadores web). */
-    List<String> tokensDeCelulares(Long userId);
+    List<String> phoneTokens(Long userId);
 }

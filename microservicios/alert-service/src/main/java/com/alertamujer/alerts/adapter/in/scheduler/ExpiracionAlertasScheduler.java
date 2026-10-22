@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Component
 class ExpiracionAlertasScheduler {
 
-    private final ExpirarAlertasUseCase expirar;
+    private final ExpirarAlertasUseCase expire;
 
-    ExpiracionAlertasScheduler(ExpirarAlertasUseCase expirar) {
-        this.expirar = expirar;
+    ExpiracionAlertasScheduler(ExpirarAlertasUseCase expire) {
+        this.expire = expire;
     }
 
     @Scheduled(fixedDelayString = "${alerts.expiration.check-ms:60000}", initialDelay = 30000)
     void revisar() {
-        expirar.revisar(LocalDateTime.now());
+        expire.revisar(LocalDateTime.now());
     }
 }

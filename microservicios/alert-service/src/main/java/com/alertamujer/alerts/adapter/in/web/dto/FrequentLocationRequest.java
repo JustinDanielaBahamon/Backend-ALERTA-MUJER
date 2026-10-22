@@ -10,7 +10,7 @@ public record FrequentLocationRequest(String name, String address, String city, 
                                       BigDecimal longitude, String notes, String riskLevel,
                                       @JsonProperty("isActive") Boolean isActive) {
 
-    public DatosLugar aDatos() {
+    public DatosLugar toData() {
         return new DatosLugar(name, address, city, latitude, longitude, notes, riskLevel, isActive);
     }
 }

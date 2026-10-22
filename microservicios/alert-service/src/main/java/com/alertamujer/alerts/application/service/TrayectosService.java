@@ -41,62 +41,62 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
     private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("h:mm a");
 
     private final TrayectoRepositorio trayectos;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final GestionarAlertasUseCase alerts;
     private final UbicacionRepositorio ubicaciones;
-    private final CelularesPort celulares;
+    private final CelularesPort phones;
     private final PushPort push;
 
-    public TrayectosService(TrayectoRepositorio trayectos, IdentityPort identidad, GestionarAlertasUseCase alerts,
-                            UbicacionRepositorio ubicaciones, CelularesPort celulares, PushPort push) {
+    public TrayectosService(TrayectoRepositorio trayectos, IdentityPort identity, GestionarAlertasUseCase alerts,
+                            UbicacionRepositorio ubicaciones, CelularesPort phones, PushPort push) {
         this.trayectos = trayectos;
-        this.identidad = identidad;
+        this.identity = identity;
         this.alerts = alerts;
         this.ubicaciones = ubicaciones;
-        this.celulares = celulares;
+        this.phones = phones;
         this.push = push;
     }
 
     @Override
     @Transactional
-    public SafeTrip iniciar(NuevoTrayecto nuevo, Long userId) {
-        Long perfil = identidad.perfilRequerido(userId);
-        if (trayectos.activoDe(perfil).isPresent()) {
+    public SafeTrip iniciar(NuevoTrayecto created, Long userId) {
+        Long profile = identity.perfilRequerido(userId);
+        if (trayectos.activoDe(profile).isPresent()) {
             throw new ConflictException("Ya tienes un trayecto en curso: confirma tu llegada o cancélalo primero");
         }
-        LocalDateTime ahora = LocalDateTime.now();
-        if (trayectos.iniciadosDesde(perfil, ahora.minusHours(24)) >= MAXIMO_POR_DIA) {
+        LocalDateTime now = LocalDateTime.now();
+        if (trayectos.iniciadosDesde(profile, now.minusHours(24)) >= MAXIMO_POR_DIA) {
             throw new IllegalArgumentException("Llegaste al máximo de " + MAXIMO_POR_DIA + " trayectos por día");
         }
-        return trayectos.save(SafeTrip.nuevo(perfil, userId, nuevo.deviceId(), nuevo.target(), nuevo.minutos(),
-                nuevo.latitude(), nuevo.longitude(), ahora));
+        return trayectos.save(SafeTrip.created(profile, userId, created.deviceId(), created.target(), created.minutes(),
+                created.latitude(), created.longitude(), now));
     }
 
     @Override
     public Optional<SafeTrip> activo(Long userId) {
-        return identidad.profileOf(userId).flatMap(trayectos::activoDe);
+        return identity.profileOf(userId).flatMap(trayectos::activoDe);
     }
 
     @Override
     @Transactional
     public SafeTrip llegue(Long id, Long userId) {
-        SafeTrip t = propio(id, userId);
+        SafeTrip t = own(id, userId);
         t.llegar(LocalDateTime.now());
         return trayectos.save(t);
     }
 
     @Override
     @Transactional
-    public SafeTrip extender(Long id, int minutos, Long userId) {
-        SafeTrip t = propio(id, userId);
-        t.extender(minutos);
+    public SafeTrip extender(Long id, int minutes, Long userId) {
+        SafeTrip t = own(id, userId);
+        t.extender(minutes);
         return trayectos.save(t);
     }
 
     @Override
     @Transactional
     public SafeTrip cancelar(Long id, Long userId) {
-        SafeTrip t = propio(id, userId);
+        SafeTrip t = own(id, userId);
         t.cancelar(LocalDateTime.now());
         return trayectos.save(t);
     }
@@ -105,15 +105,15 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
 
     @Override
     @Transactional
-    public int revisar(LocalDateTime ahora) {
+    public int revisar(LocalDateTime now) {
         int alertadas = 0;
-        for (SafeTrip t : trayectos.activosQueLleganAntesDe(ahora.plus(SafeTrip.AVISO_PREVIO))) {
+        for (SafeTrip t : trayectos.activosQueLleganAntesDe(now.plus(SafeTrip.AVISO_PREVIO))) {
             try {
-                if (t.vencido(ahora)) {
-                    alertar(t, ahora);
+                if (t.vencido(now)) {
+                    alertar(t, now);
                     alertadas++;
-                } else if (t.porVencer(ahora)) {
-                    preguntarSiLlego(t, ahora);
+                } else if (t.porVencer(now)) {
+                    preguntarSiLlego(t, now);
                 }
             } catch (RuntimeException e) {
                 // Un trayecto con problemas no debe impedir revisar los demás
@@ -123,41 +123,41 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
         return alertadas;
     }
 
-    private void alertar(SafeTrip t, LocalDateTime ahora) {
+    private void alertar(SafeTrip t, LocalDateTime now) {
         Optional<LocationLog> ultima = ubicaciones.ultima(t.getUserProfileId());
         String message = "No confirmó que llegó a " + t.getDestination() + ". Salió a las "
                 + HORA.format(ColombiaTime.of(t.getStartedAt())) + " y debía llegar a las "
                 + HORA.format(ColombiaTime.of(t.getExpectedArrival())) + "."
-                + ultima.map(l -> " Última ubicación hace " + minutosDesde(l.getRecordedAt(), ahora) + " min.").orElse("");
+                + ultima.map(l -> " Última ubicación hace " + minutosDesde(l.getRecordedAt(), now) + " min.").orElse("");
         Alert alert = alerts.activar(new NuevaAlerta(t.getDeviceId(), "main", "timer", "active", message,
                 ultima.map(LocationLog::getLatitude).orElse(t.getDestinationLatitude()),
                 ultima.map(LocationLog::getLongitude).orElse(t.getDestinationLongitude()),
                 null, null), t.getUserId());
-        t.marcarAlertado(alert.getId(), ahora);
+        t.marcarAlertado(alert.getId(), now);
         trayectos.save(t);
         log.info("Trayecto {} sin confirmar: alerta {} activada", t.getId(), alert.getId());
     }
 
-    private void preguntarSiLlego(SafeTrip t, LocalDateTime ahora) {
-        List<String> tokens = celulares.tokensDeCelulares(t.getUserId());
+    private void preguntarSiLlego(SafeTrip t, LocalDateTime now) {
+        List<String> tokens = phones.phoneTokens(t.getUserId());
         if (!tokens.isEmpty()) {
             push.enviarDatos(tokens, Map.of(
                     "tipo", "TRAYECTO_POR_VENCER",
                     "trayectoId", String.valueOf(t.getId()),
                     "destino", t.getDestination(),
-                    "minutos", String.valueOf(Math.max(0, Duration.between(ahora, t.getExpectedArrival()).toMinutes()))));
+                    "minutos", String.valueOf(Math.max(0, Duration.between(now, t.getExpectedArrival()).toMinutes()))));
         }
         t.marcarRecordatorio();
         trayectos.save(t);
     }
 
-    private static long minutosDesde(LocalDateTime momento, LocalDateTime ahora) {
-        return Math.max(0, Duration.between(momento, ahora).toMinutes());
+    private static long minutosDesde(LocalDateTime momento, LocalDateTime now) {
+        return Math.max(0, Duration.between(momento, now).toMinutes());
     }
 
-    private SafeTrip propio(Long id, Long userId) {
-        Long perfil = identidad.perfilRequerido(userId);
-        return trayectos.find(id).filter(t -> t.esDe(perfil))
+    private SafeTrip own(Long id, Long userId) {
+        Long profile = identity.perfilRequerido(userId);
+        return trayectos.find(id).filter(t -> t.esDe(profile))
                 .orElseThrow(() -> new ResourceNotFoundException("Trayecto", id));
     }
 }

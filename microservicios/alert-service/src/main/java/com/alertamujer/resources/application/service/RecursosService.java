@@ -22,12 +22,12 @@ public class RecursosService implements RecursosUseCase {
     }
 
     @Override
-    public List<EmergencyResource> todos() {
-        return repository.todos();
+    public List<EmergencyResource> all() {
+        return repository.all();
     }
 
     @Override
-    public Optional<EmergencyResource> uno(Long id) {
+    public Optional<EmergencyResource> one(Long id) {
         return repository.find(id);
     }
 
@@ -44,14 +44,14 @@ public class RecursosService implements RecursosUseCase {
     @Override
     @Transactional
     public EmergencyResource create(DatosRecurso data) {
-        return repository.save(EmergencyResource.nuevo(data));
+        return repository.save(EmergencyResource.created(data));
     }
 
     @Override
     @Transactional
-    public EmergencyResource reemplazar(Long id, DatosRecurso data) {
+    public EmergencyResource replace(Long id, DatosRecurso data) {
         EmergencyResource r = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", id));
-        r.reemplazar(data);
+        r.replace(data);
         return repository.save(r);
     }
 

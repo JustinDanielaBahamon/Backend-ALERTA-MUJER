@@ -27,17 +27,17 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
 
     private final EnlaceRepositorio enlaces;
     private final AlertsPort alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final AjustesPort ajustes;
     private final EvidenciasPort evidences;
     private final VistasRepositorio vistas;
     private final LimiteMensajesContacto limite = new LimiteMensajesContacto();
 
-    public SeguimientoPublicoService(EnlaceRepositorio enlaces, AlertsPort alerts, IdentityPort identidad,
+    public SeguimientoPublicoService(EnlaceRepositorio enlaces, AlertsPort alerts, IdentityPort identity,
                                      AjustesPort ajustes, EvidenciasPort evidences, VistasRepositorio vistas) {
         this.enlaces = enlaces;
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
         this.ajustes = ajustes;
         this.evidences = evidences;
         this.vistas = vistas;
@@ -53,22 +53,22 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public TrackingView consultar(String code, LocalDateTime ahora) {
-        return view(alertaVigente(code, ahora));
+    public TrackingView consultar(String code, LocalDateTime now) {
+        return view(alertaVigente(code, now));
     }
 
     @Override
     @Transactional
-    public TrackingView consultar(String code, String visitante, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(code, ahora);
+    public TrackingView consultar(String code, String visitante, LocalDateTime now) {
+        AlertSummary alert = alertaVigente(code, now);
         if (visitante != null && visitante.matches("[A-Za-z0-9_-]{8,64}")) {
-            vistas.registrar(alert.id(), visitante, ahora);
+            vistas.registrar(alert.id(), visitante, now);
         }
         return view(alert);
     }
 
     private TrackingView view(AlertSummary alert) {
-        String name = identidad.nombreDePilaDelPerfil(alert.userProfileId()).orElse("");
+        String name = identity.nombreDePilaDelPerfil(alert.userProfileId()).orElse("");
         List<LocationPoint> recorrido = new ArrayList<>(alerts.recorrido(alert.id()));
         if (recorrido.isEmpty() && alert.latitude() != null && alert.longitude() != null) {
             recorrido.add(new LocationPoint(alert.latitude(), alert.longitude(), null, alert.startedAt()));
@@ -83,32 +83,32 @@ public class SeguimientoPublicoService implements SeguimientoPublicoUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public EvidenceFile evidence(String code, Long evidenciaId, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(code, ahora);
+    public EvidenceFile evidence(String code, Long evidenciaId, LocalDateTime now) {
+        AlertSummary alert = alertaVigente(code, now);
         return evidences.file(alert.id(), evidenciaId)
                 .orElseThrow(() -> new ResourceNotFoundException("La evidencia no existe"));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AlertMessageView> mensajes(String code, Long afterId, LocalDateTime ahora) {
-        return alerts.mensajes(alertaVigente(code, ahora).id(), afterId);
+    public List<AlertMessageView> mensajes(String code, Long afterId, LocalDateTime now) {
+        return alerts.mensajes(alertaVigente(code, now).id(), afterId);
     }
 
     @Override
     @Transactional
-    public AlertMessageView enviarMensaje(String code, String name, String text, LocalDateTime ahora) {
-        AlertSummary alert = alertaVigente(code, ahora);
-        limite.registrar(TrackingLink.hash(code), ahora);
+    public AlertMessageView enviarMensaje(String code, String name, String text, LocalDateTime now) {
+        AlertSummary alert = alertaVigente(code, now);
+        limite.registrar(TrackingLink.hash(code), now);
         return alerts.mensajeDeContacto(alert.id(), name, text);
     }
 
-    private AlertSummary alertaVigente(String code, LocalDateTime ahora) {
+    private AlertSummary alertaVigente(String code, LocalDateTime now) {
         if (!TrackingLink.formatoPosible(code)) throw noDisponible();
         TrackingLink enlace = enlaces.porHash(TrackingLink.hash(code)).orElseThrow(SeguimientoPublicoService::noDisponible);
         if (enlace.revocado()) throw noDisponible();
         AlertSummary alert = alerts.find(enlace.getAlertId()).orElseThrow(SeguimientoPublicoService::noDisponible);
-        if (!TrackingLink.seguimientoVigente(alert.status(), fin(alert), ahora)) throw noDisponible();
+        if (!TrackingLink.seguimientoVigente(alert.status(), fin(alert), now)) throw noDisponible();
         return alert;
     }
 

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class RecorridosServiceTest {
 
     @Mock private RecorridoRepositorio repository;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
 
     @InjectMocks private RecorridosService service;
 
@@ -33,20 +33,20 @@ class RecorridosServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(identidad.perfilRequerido(1L)).thenReturn(10L);
+        lenient().when(identity.perfilRequerido(1L)).thenReturn(10L);
     }
 
-    private static NuevoRecorrido nuevo() {
+    private static NuevoRecorrido created() {
         return new NuevoRecorrido(" Casa ", "A", "B", "Bogotá", null, null, null, null, PUNTOS, null);
     }
 
     @Test
     void crear_esEstrellaMientrasHayaCupo() {
-        when(repository.contar(10L)).thenReturn(1L);
+        when(repository.count(10L)).thenReturn(1L);
         when(repository.contarEstrella(10L)).thenReturn(1L);
         when(repository.save(any(SavedRoute.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        SavedRoute r = service.create(nuevo(), 1L);
+        SavedRoute r = service.create(created(), 1L);
 
         assertEquals("Casa", r.getName());
         assertEquals(10L, r.getUserProfileId());
@@ -56,9 +56,9 @@ class RecorridosServiceTest {
 
     @Test
     void crear_conLos4OcupadosSeRechaza() {
-        when(repository.contar(10L)).thenReturn(4L);
+        when(repository.count(10L)).thenReturn(4L);
 
-        assertThrows(ConflictException.class, () -> service.create(nuevo(), 1L));
+        assertThrows(ConflictException.class, () -> service.create(created(), 1L));
         verify(repository, never()).save(any());
     }
 
@@ -69,7 +69,7 @@ class RecorridosServiceTest {
         ajeno.setUserProfileId(20L);
         when(repository.find(3L)).thenReturn(Optional.of(ajeno));
 
-        assertThrows(AccessDeniedException.class, () -> service.actualizar(3L, "Otro", null, 1L));
+        assertThrows(AccessDeniedException.class, () -> service.update(3L, "Otro", null, 1L));
         assertThrows(AccessDeniedException.class, () -> service.delete(3L, 1L));
         verify(repository, never()).delete(any());
     }

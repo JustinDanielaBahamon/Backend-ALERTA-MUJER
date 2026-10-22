@@ -6,5 +6,5 @@ import java.time.LocalDateTime;
 public interface RevisarTrayectosUseCase {
 
     /** Devuelve cuántas alertas activó. */
-    int revisar(LocalDateTime ahora);
+    int revisar(LocalDateTime now);
 }

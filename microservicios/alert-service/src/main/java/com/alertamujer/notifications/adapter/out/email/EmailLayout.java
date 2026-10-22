@@ -9,10 +9,10 @@ import org.springframework.web.util.HtmlUtils;
  */
 final class EmailLayout {
 
-    static final String VIOLETA = "#7B1DB2";
+    static final String VIOLET = "#7B1DB2";
     static final String VIOLETA_OSCURO = "#2B0C3B";
     static final String VIOLETA_CLARO = "#F4EEFB";
-    private static final String TEXTO = "#2D1B3D";
+    private static final String TEXT = "#2D1B3D";
     private static final String TEXTO_SUAVE = "#6E5A80";
 
     private EmailLayout() {}
@@ -27,7 +27,7 @@ final class EmailLayout {
      * @param cuerpo  HTML ya escapado
      * @param pie     HTML ya escapado con el motivo por el que llega el correo
      */
-    static String pagina(String logoUrl, String resumen, String titulo, String body, String pie) {
+    static String page(String logoUrl, String summary, String title, String body, String pie) {
         return """
                 <!doctype html>
                 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -53,8 +53,8 @@ final class EmailLayout {
                   </td></tr>
                 </table>
                 </body></html>
-                """.formatted(HtmlUtils.htmlEscape(resumen), HtmlUtils.htmlEscape(logoUrl), HtmlUtils.htmlEscape(titulo),
-                body, VIOLETA_CLARO, VIOLETA_OSCURO, TEXTO, VIOLETA, TEXTO_SUAVE, pie);
+                """.formatted(HtmlUtils.htmlEscape(summary), HtmlUtils.htmlEscape(logoUrl), HtmlUtils.htmlEscape(title),
+                body, VIOLETA_CLARO, VIOLETA_OSCURO, TEXT, VIOLET, TEXTO_SUAVE, pie);
     }
 
     /** Botón grande (un enlace con estilo de botón: los correos no tienen botones de verdad). */
@@ -63,16 +63,16 @@ final class EmailLayout {
                 <p style="text-align:center;margin:26px 0">
                   <a href="%s" style="background:%s;color:#FFFFFF;padding:15px 28px;border-radius:30px;
                      text-decoration:none;font-weight:bold;font-size:16px;display:inline-block">%s</a>
-                </p>""".formatted(HtmlUtils.htmlEscape(url), VIOLETA, HtmlUtils.htmlEscape(text));
+                </p>""".formatted(HtmlUtils.htmlEscape(url), VIOLET, HtmlUtils.htmlEscape(text));
     }
 
     /** Recuadro destacado (p. ej. el número de emergencias). */
     static String destacado(String html) {
-        return "<p style=\"background:" + VIOLETA_CLARO + ";border-left:4px solid " + VIOLETA
+        return "<p style=\"background:" + VIOLETA_CLARO + ";border-left:4px solid " + VIOLET
                 + ";border-radius:10px;padding:12px 14px;margin:18px 0\">" + html + "</p>";
     }
 
-    static String nota(String html) {
+    static String note(String html) {
         return "<p style=\"font-size:12px;color:" + TEXTO_SUAVE + ";margin:16px 0 0\">" + html + "</p>";
     }
 }

@@ -9,13 +9,13 @@ import java.util.Optional;
 public interface RecorridoRepositorio {
 
     /** Los más nuevos primero. */
-    List<SavedRoute> ofUser(Long perfil);
+    List<SavedRoute> ofUser(Long profile);
 
     Optional<SavedRoute> find(Long id);
 
-    long contar(Long perfil);
+    long count(Long profile);
 
-    long contarEstrella(Long perfil);
+    long contarEstrella(Long profile);
 
     SavedRoute save(SavedRoute recorrido);
 

@@ -12,7 +12,7 @@ public interface UbicacionesUseCase {
      * Guarda la ubicación. Con varios celulares, la del día a día solo se guarda si viene del que
      * la usuaria usó más recientemente (vacío si se descarta); la de una alerta se guarda siempre.
      */
-    Optional<LocationLog> save(NuevaUbicacion nueva, Long userId);
+    Optional<LocationLog> save(NuevaUbicacion newOne, Long userId);
 
     List<LocationLog> recientes(Long userId, int limite);
 

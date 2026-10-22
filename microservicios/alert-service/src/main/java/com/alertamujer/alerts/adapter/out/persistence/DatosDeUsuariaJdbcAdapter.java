@@ -24,22 +24,22 @@ class DatosDeUsuariaJdbcAdapter implements DatosDeUsuariaRepositorio {
     @Override
     @Transactional
     public int borrarDe(Long p) {
-        int filas = 0;
-        filas += jdbc.update("DELETE FROM alert.safe_trip WHERE user_profile_id = ?", p);
-        filas += jdbc.update("DELETE FROM alert.location_log WHERE user_profile_id = ?", p);
-        filas += jdbc.update("DELETE FROM alert.saved_route WHERE user_profile_id = ?", p);
-        filas += jdbc.update("DELETE FROM alert.frequent_location WHERE user_profile_id = ?", p);
-        filas += jdbc.update("DELETE FROM alert.alert_message WHERE alert_id IN " + SUS_ALERTAS, p);
-        filas += jdbc.update("DELETE FROM notification.tracking_link WHERE alert_id IN " + SUS_ALERTAS, p);
-        filas += jdbc.update("DELETE FROM notification.tracking_view WHERE alert_id IN " + SUS_ALERTAS, p);
+        int rows = 0;
+        rows += jdbc.update("DELETE FROM alert.safe_trip WHERE user_profile_id = ?", p);
+        rows += jdbc.update("DELETE FROM alert.location_log WHERE user_profile_id = ?", p);
+        rows += jdbc.update("DELETE FROM alert.saved_route WHERE user_profile_id = ?", p);
+        rows += jdbc.update("DELETE FROM alert.frequent_location WHERE user_profile_id = ?", p);
+        rows += jdbc.update("DELETE FROM alert.alert_message WHERE alert_id IN " + SUS_ALERTAS, p);
+        rows += jdbc.update("DELETE FROM notification.tracking_link WHERE alert_id IN " + SUS_ALERTAS, p);
+        rows += jdbc.update("DELETE FROM notification.tracking_view WHERE alert_id IN " + SUS_ALERTAS, p);
         // Los envíos quedan en el historial sin el correo ni el token de cada contacto
-        filas += jdbc.update("UPDATE alert.alert_contact SET destination = '(eliminado)', error_message = NULL "
+        rows += jdbc.update("UPDATE alert.alert_contact SET destination = '(eliminado)', error_message = NULL "
                 + "WHERE alert_id IN " + SUS_ALERTAS, p);
         // La llave foránea de alert_contact deja el envío sin contacto (ON DELETE SET NULL)
-        filas += jdbc.update("DELETE FROM alert.emergency_contact WHERE user_profile_id = ?", p);
-        filas += jdbc.update("DELETE FROM resource.resource_call WHERE user_profile_id = ?", p);
-        filas += jdbc.update("UPDATE alert.alert SET message = NULL, latitude = NULL, longitude = NULL, "
+        rows += jdbc.update("DELETE FROM alert.emergency_contact WHERE user_profile_id = ?", p);
+        rows += jdbc.update("DELETE FROM resource.resource_call WHERE user_profile_id = ?", p);
+        rows += jdbc.update("UPDATE alert.alert SET message = NULL, latitude = NULL, longitude = NULL, "
                 + "keep_evidence = false WHERE user_profile_id = ?", p);
-        return filas;
+        return rows;
     }
 }

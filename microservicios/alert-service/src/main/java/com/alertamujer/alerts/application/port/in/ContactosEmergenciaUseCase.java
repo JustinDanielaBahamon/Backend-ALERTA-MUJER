@@ -11,14 +11,14 @@ import java.util.Optional;
 public interface ContactosEmergenciaUseCase {
 
     /** Vacío si no existe o es de otra usuaria. */
-    Optional<EmergencyContact> uno(Long id, Long userId);
+    Optional<EmergencyContact> one(Long id, Long userId);
 
     /** Solo los propios: idPedido puede ser el users.id o el user_profile.id de la usuaria (S2: la administración no los ve). */
-    List<EmergencyContact> deUsuaria(Long idPedido, Long userId);
+    List<EmergencyContact> ofUser(Long idPedido, Long userId);
 
     EmergencyContact create(DatosContacto data, Long userId);
 
-    EmergencyContact actualizar(Long id, DatosContacto data, Long userId);
+    EmergencyContact update(Long id, DatosContacto data, Long userId);
 
     void delete(Long id, Long userId);
 

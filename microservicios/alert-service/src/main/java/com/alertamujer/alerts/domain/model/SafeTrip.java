@@ -43,24 +43,24 @@ public class SafeTrip {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static SafeTrip nuevo(Long perfil, Long userId, Long deviceId, String target, int minutos,
-                                 BigDecimal lat, BigDecimal lng, LocalDateTime ahora) {
+    public static SafeTrip created(Long profile, Long userId, Long deviceId, String target, int minutes,
+                                 BigDecimal lat, BigDecimal lng, LocalDateTime now) {
         if (target == null || target.isBlank()) throw new IllegalArgumentException("Escribe a dónde vas");
-        if (minutos < MINUTOS_MINIMOS || minutos > MINUTOS_MAXIMOS) {
+        if (minutes < MINUTOS_MINIMOS || minutes > MINUTOS_MAXIMOS) {
             throw new IllegalArgumentException("El tiempo de llegada debe estar entre " + MINUTOS_MINIMOS + " y "
                     + MINUTOS_MAXIMOS + " minutos");
         }
         if (deviceId == null) throw new IllegalArgumentException("Falta el celular desde el que sales");
         SafeTrip t = new SafeTrip();
-        t.userProfileId = perfil;
+        t.userProfileId = profile;
         t.userId = userId;
         t.deviceId = deviceId;
         String limpio = target.trim();
         t.destination = limpio.length() > MAXIMO_DESTINO ? limpio.substring(0, MAXIMO_DESTINO) : limpio;
         t.destinationLatitude = lat;
         t.destinationLongitude = lng;
-        t.startedAt = ahora;
-        t.expectedArrival = ahora.plusMinutes(minutos);
+        t.startedAt = now;
+        t.expectedArrival = now.plusMinutes(minutes);
         return t;
     }
 
@@ -69,38 +69,38 @@ public class SafeTrip {
     }
 
     /** Pasó la hora de llegada (más el margen) sin que confirmara. */
-    public boolean vencido(LocalDateTime ahora) {
-        return activo() && ahora.isAfter(expectedArrival.plus(GRACIA));
+    public boolean vencido(LocalDateTime now) {
+        return activo() && now.isAfter(expectedArrival.plus(GRACIA));
     }
 
     /** Toca preguntarle si ya llegó (una sola vez). */
-    public boolean porVencer(LocalDateTime ahora) {
-        return activo() && !reminderSent && !ahora.isBefore(expectedArrival.minus(AVISO_PREVIO));
+    public boolean porVencer(LocalDateTime now) {
+        return activo() && !reminderSent && !now.isBefore(expectedArrival.minus(AVISO_PREVIO));
     }
 
-    public void llegar(LocalDateTime ahora) {
+    public void llegar(LocalDateTime now) {
         exigirActivo();
         status = LLEGO;
-        endedAt = ahora;
+        endedAt = now;
     }
 
-    public void cancelar(LocalDateTime ahora) {
+    public void cancelar(LocalDateTime now) {
         exigirActivo();
         status = CANCELADO;
-        endedAt = ahora;
+        endedAt = now;
     }
 
     /** Más tiempo: hasta EXTENSION_MAXIMA cada vez y DURACION_TOTAL_MAXIMA en total. */
-    public void extender(int minutos) {
+    public void extender(int minutes) {
         exigirActivo();
-        if (minutos < 1 || minutos > EXTENSION_MAXIMA) {
+        if (minutes < 1 || minutes > EXTENSION_MAXIMA) {
             throw new IllegalArgumentException("Puedes agregar entre 1 y " + EXTENSION_MAXIMA + " minutos");
         }
-        LocalDateTime nueva = expectedArrival.plusMinutes(minutos);
-        if (Duration.between(startedAt, nueva).toMinutes() > DURACION_TOTAL_MAXIMA) {
+        LocalDateTime newOne = expectedArrival.plusMinutes(minutes);
+        if (Duration.between(startedAt, newOne).toMinutes() > DURACION_TOTAL_MAXIMA) {
             throw new IllegalArgumentException("Un trayecto no puede durar más de " + DURACION_TOTAL_MAXIMA / 60 + " horas");
         }
-        expectedArrival = nueva;
+        expectedArrival = newOne;
         reminderSent = false; // se le vuelve a preguntar antes de la nueva hora
     }
 
@@ -108,14 +108,14 @@ public class SafeTrip {
         reminderSent = true;
     }
 
-    public void marcarAlertado(Long alert, LocalDateTime ahora) {
+    public void marcarAlertado(Long alert, LocalDateTime now) {
         status = ALERTADO;
         alertId = alert;
-        endedAt = ahora;
+        endedAt = now;
     }
 
-    public boolean esDe(Long perfil) {
-        return perfil != null && perfil.equals(userProfileId);
+    public boolean esDe(Long profile) {
+        return profile != null && profile.equals(userProfileId);
     }
 
     private void exigirActivo() {

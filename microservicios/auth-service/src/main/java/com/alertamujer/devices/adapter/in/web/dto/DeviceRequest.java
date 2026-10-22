@@ -1,6 +1,6 @@
 package com.alertamujer.devices.adapter.in.web.dto;
 
-import com.alertamujer.devices.domain.model.DatosDispositivo;
+import com.alertamujer.devices.domain.model.DeviceData;
 
 import java.time.LocalDateTime;
 
@@ -9,8 +9,8 @@ public record DeviceRequest(String deviceUuid, String brand, String model, Strin
                             String osVersion, String appVersion, String gpsStatus, String status,
                             LocalDateTime lastAccess, String fcmToken, String permissions) {
 
-    public DatosDispositivo aDatos() {
-        return new DatosDispositivo(deviceUuid, brand, model, deviceName, osName, osVersion, appVersion, gpsStatus,
+    public DeviceData toData() {
+        return new DeviceData(deviceUuid, brand, model, deviceName, osName, osVersion, appVersion, gpsStatus,
                 status, lastAccess, fcmToken, permissions);
     }
 }

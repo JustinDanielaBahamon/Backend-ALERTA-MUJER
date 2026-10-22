@@ -10,8 +10,8 @@ class SafeTripTest {
 
     private static final LocalDateTime SALIDA = LocalDateTime.of(2026, 10, 21, 20, 0);
 
-    private SafeTrip trayecto(int minutos) {
-        return SafeTrip.nuevo(10L, 1L, 2L, "  Casa  ", minutos, null, null, SALIDA);
+    private SafeTrip trayecto(int minutes) {
+        return SafeTrip.created(10L, 1L, 2L, "  Casa  ", minutes, null, null, SALIDA);
     }
 
     @Test
@@ -22,7 +22,7 @@ class SafeTripTest {
         assertTrue(t.activo());
         assertThrows(IllegalArgumentException.class, () -> trayecto(4));
         assertThrows(IllegalArgumentException.class, () -> trayecto(241));
-        assertThrows(IllegalArgumentException.class, () -> SafeTrip.nuevo(10L, 1L, 2L, " ", 30, null, null, SALIDA));
+        assertThrows(IllegalArgumentException.class, () -> SafeTrip.created(10L, 1L, 2L, " ", 30, null, null, SALIDA));
     }
 
     @Test

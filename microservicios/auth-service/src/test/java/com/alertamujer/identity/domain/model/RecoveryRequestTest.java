@@ -8,40 +8,40 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RecoveryRequestTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Test
-    void guardaSoloElHashYValeQuinceMinutos() {
-        RecoveryRequest r = RecoveryRequest.nueva(4L, "123456", "1.2.3.4", AHORA);
+    void storesOnlyTheHashAndLastsFifteenMinutes() {
+        RecoveryRequest r = RecoveryRequest.newOne(4L, "123456", "1.2.3.4", NOW);
 
         assertNotEquals("123456", r.getTokenHash());
         assertEquals(64, r.getTokenHash().length());
         assertTrue(r.coincide("123456"));
         assertFalse(r.coincide("654321"));
-        assertFalse(r.vencida(AHORA.plusMinutes(14)));
-        assertTrue(r.vencida(AHORA.plusMinutes(16)));
+        assertFalse(r.expired(NOW.plusMinutes(14)));
+        assertTrue(r.expired(NOW.plusMinutes(16)));
         assertEquals("pending", r.getStatus());
     }
 
     @Test
-    void elMismoCodigoEnOtraCuentaDaOtroHash() {
+    void theSameCodeOnAnotherAccountGivesAnotherHash() {
         assertNotEquals(RecoveryRequest.hash(1L, "123456"), RecoveryRequest.hash(2L, "123456"));
     }
 
     @Test
-    void alQuintoFalloElCodigoDejaDeServir() {
-        RecoveryRequest r = RecoveryRequest.nueva(4L, "123456", null, AHORA);
-        for (int i = 0; i < RecoveryRequest.MAX_INTENTOS - 1; i++) r.registrarFallo();
+    void theCodeStopsWorkingAfterTheFifthFailure() {
+        RecoveryRequest r = RecoveryRequest.newOne(4L, "123456", null, NOW);
+        for (int i = 0; i < RecoveryRequest.MAX_ATTEMPTS - 1; i++) r.recordFailure();
         assertEquals("pending", r.getStatus());
 
-        r.registrarFallo();
+        r.recordFailure();
         assertEquals("expired", r.getStatus());
     }
 
     @Test
-    void esRecienteDuranteUnMinuto() {
-        RecoveryRequest r = RecoveryRequest.nueva(4L, "123456", null, AHORA);
-        assertTrue(r.reciente(AHORA.plusSeconds(30)));
-        assertFalse(r.reciente(AHORA.plusSeconds(61)));
+    void isRecentForOneMinute() {
+        RecoveryRequest r = RecoveryRequest.newOne(4L, "123456", null, NOW);
+        assertTrue(r.recent(NOW.plusSeconds(30)));
+        assertFalse(r.recent(NOW.plusSeconds(61)));
     }
 }

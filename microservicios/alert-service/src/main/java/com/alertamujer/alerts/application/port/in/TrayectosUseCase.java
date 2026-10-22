@@ -9,15 +9,15 @@ import java.util.Optional;
 public interface TrayectosUseCase {
 
     /** Solo puede haber uno activo: si ya hay otro, falla (IllegalStateException). */
-    SafeTrip iniciar(NuevoTrayecto nuevo, Long userId);
+    SafeTrip iniciar(NuevoTrayecto created, Long userId);
 
     Optional<SafeTrip> activo(Long userId);
 
     SafeTrip llegue(Long id, Long userId);
 
-    SafeTrip extender(Long id, int minutos, Long userId);
+    SafeTrip extender(Long id, int minutes, Long userId);
 
     SafeTrip cancelar(Long id, Long userId);
 
-    record NuevoTrayecto(String target, int minutos, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}
+    record NuevoTrayecto(String target, int minutes, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}
 }

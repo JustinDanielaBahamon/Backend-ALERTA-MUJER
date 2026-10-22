@@ -20,24 +20,24 @@ class UbicacionPersistenceAdapter implements UbicacionRepositorio {
     }
 
     @Override
-    public LocationLog save(LocationLog ubicacion) {
-        return aDominio(jpa.save(aFila(ubicacion)));
+    public LocationLog save(LocationLog location) {
+        return toDomain(jpa.save(toRow(location)));
     }
 
     @Override
-    public List<LocationLog> recientes(Long perfil, int cuantas) {
-        return jpa.findByUserProfileIdOrderByRecordedAtDesc(perfil, PageRequest.of(0, cuantas)).stream()
-                .map(UbicacionPersistenceAdapter::aDominio).toList();
+    public List<LocationLog> recientes(Long profile, int cuantas) {
+        return jpa.findByUserProfileIdOrderByRecordedAtDesc(profile, PageRequest.of(0, cuantas)).stream()
+                .map(UbicacionPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public Optional<LocationLog> ultima(Long perfil) {
-        return jpa.findFirstByUserProfileIdOrderByRecordedAtDesc(perfil).map(UbicacionPersistenceAdapter::aDominio);
+    public Optional<LocationLog> ultima(Long profile) {
+        return jpa.findFirstByUserProfileIdOrderByRecordedAtDesc(profile).map(UbicacionPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<LocationLog> ofAlert(Long alertId) {
-        return jpa.findByAlertIdOrderByRecordedAtAsc(alertId).stream().map(UbicacionPersistenceAdapter::aDominio).toList();
+        return jpa.findByAlertIdOrderByRecordedAtAsc(alertId).stream().map(UbicacionPersistenceAdapter::toDomain).toList();
     }
 
     @Override
@@ -50,7 +50,7 @@ class UbicacionPersistenceAdapter implements UbicacionRepositorio {
         return jpa.borrarDeAlertasAntesDe(date);
     }
 
-    static LocationLog aDominio(LocationLogJpaEntity f) {
+    static LocationLog toDomain(LocationLogJpaEntity f) {
         LocationLog d = new LocationLog();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -62,7 +62,7 @@ class UbicacionPersistenceAdapter implements UbicacionRepositorio {
         return d;
     }
 
-    static LocationLogJpaEntity aFila(LocationLog d) {
+    static LocationLogJpaEntity toRow(LocationLog d) {
         LocationLogJpaEntity f = new LocationLogJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

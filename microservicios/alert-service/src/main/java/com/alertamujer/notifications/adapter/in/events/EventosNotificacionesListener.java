@@ -25,14 +25,14 @@ class EventosNotificacionesListener {
     private static final Logger log = LoggerFactory.getLogger(EventosNotificacionesListener.class);
 
     private final AvisarContactosUseCase avisos;
-    private final AvisarNuevoCelularUseCase nuevoCelular;
-    private final EnviarCodigoRecuperacionUseCase codigoRecuperacion;
+    private final AvisarNuevoCelularUseCase newPhone;
+    private final EnviarCodigoRecuperacionUseCase recoveryCode;
 
-    EventosNotificacionesListener(AvisarContactosUseCase avisos, AvisarNuevoCelularUseCase nuevoCelular,
-                                  EnviarCodigoRecuperacionUseCase codigoRecuperacion) {
+    EventosNotificacionesListener(AvisarContactosUseCase avisos, AvisarNuevoCelularUseCase newPhone,
+                                  EnviarCodigoRecuperacionUseCase recoveryCode) {
         this.avisos = avisos;
-        this.nuevoCelular = nuevoCelular;
-        this.codigoRecuperacion = codigoRecuperacion;
+        this.newPhone = newPhone;
+        this.recoveryCode = recoveryCode;
     }
 
     @Async
@@ -58,12 +58,12 @@ class EventosNotificacionesListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void alEntrarDesdeOtroCelular(NewPhoneSignedInEvent e) {
-        nuevoCelular.avisar(e.otherTokens(), e.phone());
+        newPhone.avisar(e.otherTokens(), e.phone());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void alPedirRecuperacion(PasswordRecoveryRequestedEvent e) {
-        codigoRecuperacion.send(e.email(), e.name(), e.code(), e.validityMinutes());
+        recoveryCode.send(e.email(), e.name(), e.code(), e.validityMinutes());
     }
 }

@@ -39,17 +39,17 @@ public class AlertReportController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AlertReportView> get(@PathVariable Long id) {
-        return ResponseEntity.ok(informes.obtener(id));
+        return ResponseEntity.ok(informes.get(id));
     }
 
     @PostMapping
     public ResponseEntity<AlertReportView> create(@RequestBody AlertReportRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(informes.create(request.aCambios(), currentUserId));
+        return ResponseEntity.ok(informes.create(request.toChanges(), currentUserId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<AlertReportView> update(@PathVariable Long id, @RequestBody AlertReportRequest request) {
-        return ResponseEntity.ok(informes.actualizar(id, request.aCambios()));
+        return ResponseEntity.ok(informes.update(id, request.toChanges()));
     }
 
     @DeleteMapping("/{id}")
@@ -63,7 +63,7 @@ public class AlertReportController {
     public ResponseEntity<byte[]> export(@PathVariable Long id, @RequestParam(defaultValue = "pdf") String format) {
         boolean pdf = "pdf".equalsIgnoreCase(format);
         if (!pdf && !"csv".equalsIgnoreCase(format)) throw new IllegalArgumentException("Formato no válido: " + format);
-        byte[] file = informes.exportar(id, pdf);
+        byte[] file = informes.export(id, pdf);
         return ResponseEntity.ok()
                 .contentType(pdf ? MediaType.APPLICATION_PDF : new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()

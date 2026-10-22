@@ -15,13 +15,13 @@ public class Account {
     private String status = "active";
     private LocalDateTime lastAccess;
 
-    public static final Set<String> ESTADOS = Set.of("active", "inactive", "blocked", "pending");
-    public static final int MINIMO_CONTRASENA = 8;
-    public static final int MAXIMO_CONTRASENA = 100;
+    public static final Set<String> STATUSES = Set.of("active", "inactive", "blocked", "pending");
+    public static final int MIN_PASSWORD = 8;
+    public static final int MAX_PASSWORD = 100;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static Account nueva(Long userId, String passwordHash) {
+    public static Account newOne(Long userId, String passwordHash) {
         Account a = new Account();
         a.userId = userId;
         a.passwordHash = passwordHash;
@@ -29,40 +29,40 @@ public class Account {
     }
 
     /** Longitud permitida para una contraseña nueva. */
-    public static void validarContrasenaNueva(String contrasena) {
-        if (contrasena == null || contrasena.length() < MINIMO_CONTRASENA || contrasena.length() > MAXIMO_CONTRASENA) {
+    public static void validateNewPassword(String password) {
+        if (password == null || password.length() < MIN_PASSWORD || password.length() > MAX_PASSWORD) {
             throw new IllegalArgumentException("La contraseña debe tener al menos 8 caracteres");
         }
     }
 
-    public boolean bloqueada() {
+    public boolean blocked() {
         return "blocked".equals(status);
     }
 
     /** Una cuenta bloqueada o inactiva no puede seguir renovando su sesión. */
-    public boolean puedeRenovarSesion() {
-        return !bloqueada() && !"inactive".equals(status);
+    public boolean canRefreshSession() {
+        return !blocked() && !"inactive".equals(status);
     }
 
-    public void registrarAcceso(LocalDateTime ahora) {
-        lastAccess = ahora;
+    public void recordAccess(LocalDateTime now) {
+        lastAccess = now;
     }
 
-    public void cambiarContrasena(String nuevoHash) {
-        passwordHash = nuevoHash;
+    public void changePassword(String newHash) {
+        passwordHash = newHash;
     }
 
-    public void cambiarEstado(String newStatus) {
-        if (!ESTADOS.contains(newStatus)) {
+    public void changeStatus(String newStatus) {
+        if (!STATUSES.contains(newStatus)) {
             throw new IllegalArgumentException("Invalid account status. Must be one of: active, inactive, blocked, pending");
         }
         status = newStatus;
     }
 
     /** Cuenta eliminada: inactiva y con una contraseña que nadie conoce. */
-    public void desactivar(String hashInutilizable) {
+    public void deactivate(String unusableHash) {
         status = "inactive";
-        passwordHash = hashInutilizable;
+        passwordHash = unusableHash;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

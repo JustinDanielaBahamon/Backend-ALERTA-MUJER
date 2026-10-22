@@ -20,48 +20,48 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
 
     @Override
     public Alert save(Alert alert) {
-        return aDominio(jpa.save(aFila(alert)));
+        return toDomain(jpa.save(toRow(alert)));
     }
 
     @Override
-    public List<Alert> guardarTodas(List<Alert> alerts) {
-        return jpa.saveAll(alerts.stream().map(AlertaPersistenceAdapter::aFila).toList()).stream()
-                .map(AlertaPersistenceAdapter::aDominio).toList();
+    public List<Alert> saveAll(List<Alert> alerts) {
+        return jpa.saveAll(alerts.stream().map(AlertaPersistenceAdapter::toRow).toList()).stream()
+                .map(AlertaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<Alert> find(Long id) {
-        return jpa.findById(id).map(AlertaPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(AlertaPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<Alert> findMany(Collection<Long> ids) {
-        return jpa.findAllById(ids).stream().map(AlertaPersistenceAdapter::aDominio).toList();
+        return jpa.findAllById(ids).stream().map(AlertaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<Alert> todas() {
-        return jpa.findAll().stream().map(AlertaPersistenceAdapter::aDominio).toList();
+    public List<Alert> all() {
+        return jpa.findAll().stream().map(AlertaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<Alert> ofUser(Long perfil) {
-        return jpa.findByUserProfileId(perfil).stream().map(AlertaPersistenceAdapter::aDominio).toList();
+    public List<Alert> ofUser(Long profile) {
+        return jpa.findByUserProfileId(profile).stream().map(AlertaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<Alert> activas() {
-        return jpa.findByStatus(Alert.ACTIVA).stream().map(AlertaPersistenceAdapter::aDominio).toList();
+    public List<Alert> active() {
+        return jpa.findByStatus(Alert.ACTIVE).stream().map(AlertaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public Optional<Alert> enCurso(Long perfil) {
-        return jpa.findFirstByUserProfileIdAndStatusOrderByStartedAtDesc(perfil, Alert.ACTIVA).map(AlertaPersistenceAdapter::aDominio);
+    public Optional<Alert> enCurso(Long profile) {
+        return jpa.findFirstByUserProfileIdAndStatusOrderByStartedAtDesc(profile, Alert.ACTIVE).map(AlertaPersistenceAdapter::toDomain);
     }
 
     @Override
-    public long kept(Long perfil) {
-        return jpa.countByUserProfileIdAndKeepEvidenceTrue(perfil);
+    public long kept(Long profile) {
+        return jpa.countByUserProfileIdAndKeepEvidenceTrue(profile);
     }
 
     @Override
@@ -69,7 +69,7 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
         jpa.deleteById(id);
     }
 
-    static Alert aDominio(AlertJpaEntity f) {
+    static Alert toDomain(AlertJpaEntity f) {
         Alert d = new Alert();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -88,7 +88,7 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
         return d;
     }
 
-    static AlertJpaEntity aFila(Alert d) {
+    static AlertJpaEntity toRow(Alert d) {
         AlertJpaEntity f = new AlertJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

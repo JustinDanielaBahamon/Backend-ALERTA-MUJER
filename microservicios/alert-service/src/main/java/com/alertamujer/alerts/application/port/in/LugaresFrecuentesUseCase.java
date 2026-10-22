@@ -10,11 +10,11 @@ public interface LugaresFrecuentesUseCase {
 
     List<FrequentLocation> activosDe(Long userId);
 
-    FrequentLocation uno(Long id, Long userId);
+    FrequentLocation one(Long id, Long userId);
 
     FrequentLocation create(DatosLugar data, Long userId);
 
-    FrequentLocation actualizar(Long id, DatosLugar data, Long userId);
+    FrequentLocation update(Long id, DatosLugar data, Long userId);
 
     void delete(Long id, Long userId);
 }

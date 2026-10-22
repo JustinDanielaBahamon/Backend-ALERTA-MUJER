@@ -10,7 +10,7 @@ public interface MensajeRepositorio {
     /** Mensajes posteriores a afterId (0 = todos), del más antiguo al más nuevo. */
     List<AlertMessage> posteriores(Long alertId, long afterId);
 
-    long contar(Long alertId);
+    long count(Long alertId);
 
     AlertMessage save(AlertMessage message);
 }

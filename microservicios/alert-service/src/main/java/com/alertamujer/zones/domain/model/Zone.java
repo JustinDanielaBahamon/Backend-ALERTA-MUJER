@@ -28,17 +28,17 @@ public class Zone {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static Zone nueva(DatosZona d) {
+    public static Zone newOne(DatosZona d) {
         Zone z = new Zone();
         z.createdByAdminId = d.createdByAdminId();
-        z.reemplazar(d);
+        z.replace(d);
         if (d.riskLevel() == null) z.riskLevel = "medium";
         if (d.isActive() == null) z.isActive = true;
         return z;
     }
 
     /** Edición desde el panel: reemplaza todos los datos de la zona. */
-    public void reemplazar(DatosZona d) {
+    public void replace(DatosZona d) {
         name = d.name();
         zoneType = d.zoneType();
         riskLevel = d.riskLevel();

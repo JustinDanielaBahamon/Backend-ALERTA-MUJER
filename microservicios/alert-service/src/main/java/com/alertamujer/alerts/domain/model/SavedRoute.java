@@ -64,8 +64,8 @@ public class SavedRoute {
         isStarred = estrellas < MAX_STARRED;
     }
 
-    public boolean esDe(Long perfil) {
-        return perfil != null && Objects.equals(userProfileId, perfil);
+    public boolean esDe(Long profile) {
+        return profile != null && Objects.equals(userProfileId, profile);
     }
 
     public void renombrar(String name) {

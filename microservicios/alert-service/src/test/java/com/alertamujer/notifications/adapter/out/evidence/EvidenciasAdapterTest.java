@@ -32,10 +32,10 @@ class EvidenciasAdapterTest {
             return List.of();
         });
 
-        long inicio = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         List<EvidenceSummary> list = adapter.deAlerta(5L);
 
         assertTrue(list.isEmpty());
-        assertTrue(System.currentTimeMillis() - inicio < EvidenciasAdapter.ESPERA_MS + 1500, "responde a los ~4 s");
+        assertTrue(System.currentTimeMillis() - start < EvidenciasAdapter.ESPERA_MS + 1500, "responde a los ~4 s");
     }
 }

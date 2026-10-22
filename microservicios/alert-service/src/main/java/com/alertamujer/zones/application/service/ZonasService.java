@@ -22,8 +22,8 @@ public class ZonasService implements ZonasUseCase {
     }
 
     @Override
-    public List<Zone> todas() {
-        return repository.todas();
+    public List<Zone> all() {
+        return repository.all();
     }
 
     @Override
@@ -44,14 +44,14 @@ public class ZonasService implements ZonasUseCase {
     @Override
     @Transactional
     public Zone create(DatosZona data) {
-        return repository.save(Zone.nueva(data));
+        return repository.save(Zone.newOne(data));
     }
 
     @Override
     @Transactional
-    public Zone reemplazar(Long id, DatosZona data) {
+    public Zone replace(Long id, DatosZona data) {
         Zone zona = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Zone", id));
-        zona.reemplazar(data);
+        zona.replace(data);
         return repository.save(zona);
     }
 
@@ -64,6 +64,6 @@ public class ZonasService implements ZonasUseCase {
     @Override
     @Transactional(readOnly = true)
     public long contarActivas() {
-        return repository.todas().stream().filter(Zone::activa).count();
+        return repository.all().stream().filter(Zone::activa).count();
     }
 }

@@ -18,15 +18,15 @@ class EnlacePersistenceAdapter implements EnlaceRepositorio {
 
     @Override
     public TrackingLink save(TrackingLink enlace) {
-        return aDominio(jpa.save(aFila(enlace)));
+        return toDomain(jpa.save(toRow(enlace)));
     }
 
     @Override
     public Optional<TrackingLink> porHash(String tokenHash) {
-        return jpa.findByTokenHash(tokenHash).map(EnlacePersistenceAdapter::aDominio);
+        return jpa.findByTokenHash(tokenHash).map(EnlacePersistenceAdapter::toDomain);
     }
 
-    static TrackingLink aDominio(TrackingLinkJpaEntity f) {
+    static TrackingLink toDomain(TrackingLinkJpaEntity f) {
         TrackingLink d = new TrackingLink();
         d.setId(f.getId());
         d.setAlertId(f.getAlertId());
@@ -36,7 +36,7 @@ class EnlacePersistenceAdapter implements EnlaceRepositorio {
         return d;
     }
 
-    static TrackingLinkJpaEntity aFila(TrackingLink d) {
+    static TrackingLinkJpaEntity toRow(TrackingLink d) {
         TrackingLinkJpaEntity f = new TrackingLinkJpaEntity();
         f.setId(d.getId());
         f.setAlertId(d.getAlertId());

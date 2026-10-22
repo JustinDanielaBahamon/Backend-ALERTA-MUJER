@@ -9,19 +9,19 @@ import java.time.LocalDateTime;
 public interface CorreosPort {
 
     /** Aviso al contacto de que la usuaria activó una alerta. mapsUrl puede ser null. */
-    void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime inicio,
+    void avisoDeAlerta(String para, String nombreContacto, String nombreUsuaria, LocalDateTime start,
                        String seguimientoUrl, String mapsUrl, String emergencyNumber);
 
     /** Aviso de que la alerta terminó. estado: resolved, cancelled o expired. */
     void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String status, LocalDateTime fin,
                      String emergencyNumber);
 
-    void codigoRecuperacion(String para, String name, String code, int validityMinutes);
+    void recoveryCode(String para, String name, String code, int validityMinutes);
 
     /** El proveedor rechazó el correo o no hay proveedor configurado. */
     class CorreoNoEnviadoException extends RuntimeException {
-        public CorreoNoEnviadoException(String motivo) {
-            super(motivo);
+        public CorreoNoEnviadoException(String reason) {
+            super(reason);
         }
     }
 }

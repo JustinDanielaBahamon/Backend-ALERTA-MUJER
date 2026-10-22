@@ -25,7 +25,7 @@ class ChatAlertaServiceTest {
 
     @Mock private MensajeRepositorio mensajes;
     @Mock private AlertaRepositorio alerts;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
 
     @InjectMocks private ChatAlertaService service;
 
@@ -40,8 +40,8 @@ class ChatAlertaServiceTest {
     @Test
     void laDuenaEscribeEnSuAlertaActivaConSuNombre() {
         when(alerts.find(5L)).thenReturn(Optional.of(alert("active")));
-        when(identidad.profileOf(1L)).thenReturn(Optional.of(10L));
-        when(identidad.usuaria(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", "Gómez", "ana@test.com", null, 1L, null)));
+        when(identity.profileOf(1L)).thenReturn(Optional.of(10L));
+        when(identity.user(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", "Gómez", "ana@test.com", null, 1L, null)));
         when(mensajes.save(any(AlertMessage.class))).thenAnswer(inv -> inv.getArgument(0));
 
         AlertMessage m = service.enviarDeLaDuena(5L, 1L, "Estoy bien");
@@ -54,7 +54,7 @@ class ChatAlertaServiceTest {
     @Test
     void unaAlertaAjenaSeRespondeComoInexistente() {
         when(alerts.find(5L)).thenReturn(Optional.of(alert("active")));
-        when(identidad.profileOf(2L)).thenReturn(Optional.of(20L));
+        when(identity.profileOf(2L)).thenReturn(Optional.of(20L));
 
         assertThrows(ResourceNotFoundException.class, () -> service.mensajesDeLaDuena(5L, 2L, 0L));
         assertThrows(ResourceNotFoundException.class, () -> service.enviarDeLaDuena(5L, 2L, "Hola"));

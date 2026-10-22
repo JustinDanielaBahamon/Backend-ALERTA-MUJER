@@ -9,7 +9,7 @@ import java.util.Optional;
 /** Zonas del mapa: las ve cualquier usuaria con sesión y las edita la administración. */
 public interface ZonasUseCase {
 
-    List<Zone> todas();
+    List<Zone> all();
 
     Optional<Zone> una(Long id);
 
@@ -19,7 +19,7 @@ public interface ZonasUseCase {
 
     Zone create(DatosZona data);
 
-    Zone reemplazar(Long id, DatosZona data);
+    Zone replace(Long id, DatosZona data);
 
     void delete(Long id);
 

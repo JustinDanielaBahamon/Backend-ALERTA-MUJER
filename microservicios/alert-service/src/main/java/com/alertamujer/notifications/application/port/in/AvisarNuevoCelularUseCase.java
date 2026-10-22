@@ -5,5 +5,5 @@ import java.util.List;
 /** Avisa a los otros celulares de la usuaria que se entró a su cuenta desde un celular nuevo. */
 public interface AvisarNuevoCelularUseCase {
 
-    void avisar(List<String> tokensOtrosCelulares, String phone);
+    void avisar(List<String> otherPhoneTokens, String phone);
 }

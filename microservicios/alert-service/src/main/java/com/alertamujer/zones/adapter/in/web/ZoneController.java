@@ -14,48 +14,48 @@ import java.util.List;
 @RequestMapping("/api/zones")
 public class ZoneController {
 
-    private final ZonasUseCase zonas;
+    private final ZonasUseCase zones;
 
-    public ZoneController(ZonasUseCase zonas) {
-        this.zonas = zonas;
+    public ZoneController(ZonasUseCase zones) {
+        this.zones = zones;
     }
 
     @GetMapping
     public ResponseEntity<List<ZoneResponse>> getAllZones() {
-        return ResponseEntity.ok(zonas.todas().stream().map(ZoneResponse::of).toList());
+        return ResponseEntity.ok(zones.all().stream().map(ZoneResponse::of).toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ZoneResponse> getZoneById(@PathVariable Long id) {
-        return zonas.una(id).map(z -> ResponseEntity.ok(ZoneResponse.of(z))).orElse(ResponseEntity.notFound().build());
+        return zones.una(id).map(z -> ResponseEntity.ok(ZoneResponse.of(z))).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/city/{city}")
     public ResponseEntity<List<ZoneResponse>> getZonesByCity(@PathVariable String city) {
-        return ResponseEntity.ok(zonas.deCiudad(city).stream().map(ZoneResponse::of).toList());
+        return ResponseEntity.ok(zones.deCiudad(city).stream().map(ZoneResponse::of).toList());
     }
 
     @GetMapping("/type/{type}")
     public ResponseEntity<List<ZoneResponse>> getZonesByType(@PathVariable String type) {
-        return ResponseEntity.ok(zonas.deTipo(type).stream().map(ZoneResponse::of).toList());
+        return ResponseEntity.ok(zones.deTipo(type).stream().map(ZoneResponse::of).toList());
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneResponse> createZone(@RequestBody ZoneRequest request) {
-        return ResponseEntity.ok(ZoneResponse.of(zonas.create(request.aDatos())));
+        return ResponseEntity.ok(ZoneResponse.of(zones.create(request.toData())));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneResponse> updateZone(@PathVariable Long id, @RequestBody ZoneRequest request) {
-        return ResponseEntity.ok(ZoneResponse.of(zonas.reemplazar(id, request.aDatos())));
+        return ResponseEntity.ok(ZoneResponse.of(zones.replace(id, request.toData())));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteZone(@PathVariable Long id) {
-        zonas.delete(id);
+        zones.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

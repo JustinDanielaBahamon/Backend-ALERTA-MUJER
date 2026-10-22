@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public interface ExpirarAlertasUseCase {
 
     /** Revisión automática: expira las vencidas y recuerda el resultado para el panel. */
-    int revisar(LocalDateTime ahora);
+    int revisar(LocalDateTime now);
 
     /** Última revisión automática (null si aún no corrió). */
     LocalDateTime ultimaRevision();

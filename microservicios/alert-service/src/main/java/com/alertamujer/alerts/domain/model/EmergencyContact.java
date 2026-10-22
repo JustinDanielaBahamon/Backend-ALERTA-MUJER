@@ -23,9 +23,9 @@ public class EmergencyContact {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static EmergencyContact nuevo(Long perfil, DatosContacto data) {
+    public static EmergencyContact created(Long profile, DatosContacto data) {
         EmergencyContact c = new EmergencyContact();
-        c.userProfileId = perfil;
+        c.userProfileId = profile;
         c.contactName = data.contactName();
         c.telephone = data.telephone();
         c.email = data.email();
@@ -34,12 +34,12 @@ public class EmergencyContact {
         return c;
     }
 
-    public boolean esDe(Long perfil) {
-        return perfil != null && Objects.equals(userProfileId, perfil);
+    public boolean esDe(Long profile) {
+        return profile != null && Objects.equals(userProfileId, profile);
     }
 
     /** Solo se cambian los campos enviados: un PUT con datos parciales no debe borrar el resto. */
-    public void actualizar(DatosContacto data) {
+    public void update(DatosContacto data) {
         if (data.contactName() != null) contactName = data.contactName();
         if (data.telephone() != null) telephone = data.telephone();
         if (data.email() != null) email = data.email().isBlank() ? null : data.email().trim();

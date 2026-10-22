@@ -18,23 +18,23 @@ class LugarFrecuentePersistenceAdapter implements LugarFrecuenteRepositorio {
     }
 
     @Override
-    public List<FrequentLocation> todos() {
-        return jpa.findAll().stream().map(LugarFrecuentePersistenceAdapter::aDominio).toList();
+    public List<FrequentLocation> all() {
+        return jpa.findAll().stream().map(LugarFrecuentePersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<FrequentLocation> activosDeLaUsuaria(Long perfil) {
-        return jpa.findByUserProfileIdAndIsActiveTrue(perfil).stream().map(LugarFrecuentePersistenceAdapter::aDominio).toList();
+    public List<FrequentLocation> activosDeLaUsuaria(Long profile) {
+        return jpa.findByUserProfileIdAndIsActiveTrue(profile).stream().map(LugarFrecuentePersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<FrequentLocation> find(Long id) {
-        return jpa.findById(id).map(LugarFrecuentePersistenceAdapter::aDominio);
+        return jpa.findById(id).map(LugarFrecuentePersistenceAdapter::toDomain);
     }
 
     @Override
     public FrequentLocation save(FrequentLocation lugar) {
-        return aDominio(jpa.save(aFila(lugar)));
+        return toDomain(jpa.save(toRow(lugar)));
     }
 
     @Override
@@ -42,7 +42,7 @@ class LugarFrecuentePersistenceAdapter implements LugarFrecuenteRepositorio {
         jpa.deleteById(id);
     }
 
-    static FrequentLocation aDominio(FrequentLocationJpaEntity f) {
+    static FrequentLocation toDomain(FrequentLocationJpaEntity f) {
         FrequentLocation d = new FrequentLocation();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -59,7 +59,7 @@ class LugarFrecuentePersistenceAdapter implements LugarFrecuenteRepositorio {
         return d;
     }
 
-    static FrequentLocationJpaEntity aFila(FrequentLocation d) {
+    static FrequentLocationJpaEntity toRow(FrequentLocation d) {
         FrequentLocationJpaEntity f = new FrequentLocationJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

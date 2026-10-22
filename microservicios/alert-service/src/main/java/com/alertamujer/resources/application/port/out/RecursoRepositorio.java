@@ -8,7 +8,7 @@ import java.util.Optional;
 /** Puerto de salida: los recursos de ayuda. */
 public interface RecursoRepositorio {
 
-    List<EmergencyResource> todos();
+    List<EmergencyResource> all();
 
     Optional<EmergencyResource> find(Long id);
 

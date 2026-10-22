@@ -18,11 +18,11 @@ public class DeviceSession {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    public static final String ACTIVA = "active";
+    public static final String ACTIVE = "active";
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public void revocar() {
+    public void revoke() {
         status = "revoked";
     }
 

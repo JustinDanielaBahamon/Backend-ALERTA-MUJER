@@ -1,9 +1,9 @@
 package com.alertamujer.identity.adapter.in.web;
 
 import com.alertamujer.identity.adapter.in.web.dto.UserResponse;
-import com.alertamujer.identity.application.port.in.MiCuentaUseCase;
-import com.alertamujer.identity.application.port.in.MiCuentaUseCase.UsuariaConFoto;
-import com.alertamujer.identity.domain.model.CambiosUsuaria;
+import com.alertamujer.identity.application.port.in.MyAccountUseCase;
+import com.alertamujer.identity.application.port.in.MyAccountUseCase.UserWithPhoto;
+import com.alertamujer.identity.domain.model.UserChanges;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -17,26 +17,26 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final MiCuentaUseCase miCuenta;
+    private final MyAccountUseCase myAccount;
 
-    public UserController(MiCuentaUseCase miCuenta) {
-        this.miCuenta = miCuenta;
+    public UserController(MyAccountUseCase myAccount) {
+        this.myAccount = myAccount;
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(Authentication authentication) {
-        return ResponseEntity.ok(response(miCuenta.mia((Long) authentication.getPrincipal())));
+        return ResponseEntity.ok(response(myAccount.mia((Long) authentication.getPrincipal())));
     }
 
     /** Cambios parciales: solo las claves enviadas; una clave con null o "" borra el dato. */
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateMe(Authentication authentication, @RequestBody Map<String, Object> updates) {
-        return ResponseEntity.ok(response(miCuenta.actualizar((Long) authentication.getPrincipal(), cambios(updates))));
+        return ResponseEntity.ok(response(myAccount.update((Long) authentication.getPrincipal(), changes(updates))));
     }
 
     @PutMapping("/me/password")
     public ResponseEntity<Void> changePassword(Authentication authentication, @RequestBody ChangePasswordRequest request) {
-        miCuenta.cambiarContrasena((Long) authentication.getPrincipal(), request.currentPassword(), request.newPassword());
+        myAccount.changePassword((Long) authentication.getPrincipal(), request.currentPassword(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
 
@@ -45,18 +45,18 @@ public class UserController {
     /** La usuaria elimina su cuenta: hay que enviar {"confirmation": "ELIMINAR"}. */
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMe(Authentication authentication, @RequestBody DeleteAccountRequest request) {
-        miCuenta.eliminarMiCuenta((Long) authentication.getPrincipal(), request.confirmation());
+        myAccount.deleteMyAccount((Long) authentication.getPrincipal(), request.confirmation());
         return ResponseEntity.noContent().build();
     }
 
     public record DeleteAccountRequest(String confirmation) {}
 
-    private static UserResponse response(UsuariaConFoto u) {
-        return UserResponse.of(u.usuaria(), u.photo());
+    private static UserResponse response(UserWithPhoto u) {
+        return UserResponse.of(u.user(), u.photo());
     }
 
-    static CambiosUsuaria cambios(Map<String, Object> updates) {
-        return new CambiosUsuaria(text(updates, "firstName"), text(updates, "lastName"), text(updates, "telephone"),
+    static UserChanges changes(Map<String, Object> updates) {
+        return new UserChanges(text(updates, "firstName"), text(updates, "lastName"), text(updates, "telephone"),
                 text(updates, "documentNumber"), text(updates, "documentType"), date(updates.get("birthdate")),
                 text(updates, "profilePhoto"));
     }

@@ -19,20 +19,20 @@ class MensajePersistenceAdapter implements MensajeRepositorio {
     @Override
     public List<AlertMessage> posteriores(Long alertId, long afterId) {
         return jpa.findByAlertIdAndIdGreaterThanOrderByIdAsc(alertId, afterId).stream()
-                .map(MensajePersistenceAdapter::aDominio).toList();
+                .map(MensajePersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public long contar(Long alertId) {
+    public long count(Long alertId) {
         return jpa.countByAlertId(alertId);
     }
 
     @Override
     public AlertMessage save(AlertMessage message) {
-        return aDominio(jpa.save(aFila(message)));
+        return toDomain(jpa.save(toRow(message)));
     }
 
-    static AlertMessage aDominio(AlertMessageJpaEntity f) {
+    static AlertMessage toDomain(AlertMessageJpaEntity f) {
         AlertMessage d = new AlertMessage();
         d.setId(f.getId());
         d.setAlertId(f.getAlertId());
@@ -43,7 +43,7 @@ class MensajePersistenceAdapter implements MensajeRepositorio {
         return d;
     }
 
-    static AlertMessageJpaEntity aFila(AlertMessage d) {
+    static AlertMessageJpaEntity toRow(AlertMessage d) {
         AlertMessageJpaEntity f = new AlertMessageJpaEntity();
         f.setId(d.getId());
         f.setAlertId(d.getAlertId());

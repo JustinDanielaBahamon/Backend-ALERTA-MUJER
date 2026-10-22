@@ -29,7 +29,7 @@ public class EmergencyContactController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EmergencyContactResponse> getContactById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return contactos.uno(id, currentUserId)
+        return contactos.one(id, currentUserId)
                 .map(c -> ResponseEntity.ok(EmergencyContactResponse.of(c)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -37,20 +37,20 @@ public class EmergencyContactController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<EmergencyContactResponse>> getContactsByUser(@PathVariable Long userId,
                                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(contactos.deUsuaria(userId, currentUserId).stream()
+        return ResponseEntity.ok(contactos.ofUser(userId, currentUserId).stream()
                 .map(EmergencyContactResponse::of).toList());
     }
 
     @PostMapping
     public ResponseEntity<EmergencyContactResponse> createContact(@RequestBody EmergencyContactRequest request,
                                                                   @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.create(request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.create(request.toData(), currentUserId)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<EmergencyContactResponse> updateContact(@PathVariable Long id, @RequestBody EmergencyContactRequest request,
                                                                   @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.actualizar(id, request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.update(id, request.toData(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")

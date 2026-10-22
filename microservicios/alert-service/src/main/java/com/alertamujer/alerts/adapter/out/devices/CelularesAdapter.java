@@ -22,7 +22,7 @@ class CelularesAdapter implements CelularesPort {
     }
 
     @Override
-    public List<String> tokensDeCelulares(Long userId) {
+    public List<String> phoneTokens(Long userId) {
         return devicesApi.phonePushTokensOfUser(userId);
     }
 }

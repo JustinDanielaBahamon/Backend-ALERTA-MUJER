@@ -1,6 +1,6 @@
 package com.alertamujer.devices.adapter.in.web.dto;
 
-import com.alertamujer.devices.application.port.in.AdministrarDispositivosUseCase.DispositivoConDuena;
+import com.alertamujer.devices.application.port.in.ManageDevicesUseCase.DeviceWithOwner;
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.identity.api.UserSummary;
 
@@ -15,13 +15,13 @@ public record AdminDeviceView(Long id, Long accountId, Long userId, String owner
                               /** JSON de permisos que informa la app ({"ubicacion":true,...}). */
                               String permissions, LocalDateTime permissionsUpdatedAt) {
 
-    public static AdminDeviceView of(DispositivoConDuena dc) {
+    public static AdminDeviceView of(DeviceWithOwner dc) {
         Device d = dc.device();
         UserSummary u = dc.owner();
         return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.id() : null,
                 u == null ? null : u.fullName(), u != null ? u.email() : null, u != null ? u.telephone() : null,
                 d.getDeviceUuid(), d.getBrand(), d.getModel(), d.getOsName(), d.getOsVersion(),
                 d.getAppVersion(), d.getGpsStatus(), d.getStatus(), d.getLastAccess(), d.getCreatedAt(),
-                d.tieneTokenPush(), d.getDeviceName(), d.getPermissions(), d.getPermissionsUpdatedAt());
+                d.hasPushToken(), d.getDeviceName(), d.getPermissions(), d.getPermissionsUpdatedAt());
     }
 }

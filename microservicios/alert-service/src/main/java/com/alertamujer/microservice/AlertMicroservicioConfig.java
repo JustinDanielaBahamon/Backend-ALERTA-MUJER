@@ -27,7 +27,7 @@ import java.util.List;
 public class AlertMicroservicioConfig {
 
     @Bean
-    ExposedContracts contratosExpuestos() {
+    ExposedContracts exposedContracts() {
         return new ExposedContracts(List.of(AlertsApi.class, ZonesApi.class));
     }
 

@@ -10,10 +10,10 @@ import java.util.List;
 public interface AlertasRecibidasUseCase {
 
     /** Las de los últimos 30 días, de la más reciente a la más antigua. */
-    List<ReceivedAlert> recibidas(Long userId, LocalDateTime ahora);
+    List<ReceivedAlert> recibidas(Long userId, LocalDateTime now);
 
     /** Código de seguimiento de una alerta recibida, solo si el seguimiento sigue vigente. */
-    String enlaceSeguimiento(Long userId, Long alertId, LocalDateTime ahora);
+    String enlaceSeguimiento(Long userId, Long alertId, LocalDateTime now);
 
     /** Lo que ve el contacto: solo el nombre de pila de quien activó la alerta. */
     record ReceivedAlert(Long alertId, String firstName, String status, boolean active,

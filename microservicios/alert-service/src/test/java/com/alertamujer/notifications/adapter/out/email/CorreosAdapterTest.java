@@ -44,7 +44,7 @@ class CorreosAdapterTest {
 
     @Test
     void elCodigoNoVaEnElAsunto() {
-        correos.codigoRecuperacion("a@b.co", "Ana", "123456", 15);
+        correos.recoveryCode("a@b.co", "Ana", "123456", 15);
 
         EmailMessage m = enviado();
         assertFalse(m.subject().contains("123456"));
@@ -56,7 +56,7 @@ class CorreosAdapterTest {
         doThrow(new EmailSender.EmailException("Rechazado")).when(sender).send(any());
 
         CorreoNoEnviadoException e = assertThrows(CorreoNoEnviadoException.class,
-                () -> correos.codigoRecuperacion("a@b.co", "Ana", "123456", 15));
+                () -> correos.recoveryCode("a@b.co", "Ana", "123456", 15));
         assertEquals("Rechazado", e.getMessage());
     }
 }

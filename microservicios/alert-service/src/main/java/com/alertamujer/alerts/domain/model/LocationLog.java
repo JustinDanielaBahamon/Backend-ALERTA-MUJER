@@ -22,13 +22,13 @@ public class LocationLog {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static LocationLog nuevo(Long perfil, BigDecimal latitud, BigDecimal longitud, BigDecimal precision) {
+    public static LocationLog created(Long profile, BigDecimal latitud, BigDecimal longitud, BigDecimal precision) {
         if (latitud == null || longitud == null
                 || latitud.abs().compareTo(MAX_LATITUD) > 0 || longitud.abs().compareTo(MAX_LONGITUD) > 0) {
             throw new IllegalArgumentException("Coordenadas inválidas");
         }
         LocationLog l = new LocationLog();
-        l.userProfileId = perfil;
+        l.userProfileId = profile;
         l.latitude = latitud;
         l.longitude = longitud;
         l.accuracy = precision;
@@ -40,8 +40,8 @@ public class LocationLog {
     }
 
     /** Puntos en cola sin conexión: se respeta su hora si es de las últimas 24 h y no del futuro. */
-    public void registrarHora(LocalDateTime enviada, LocalDateTime ahora) {
-        recordedAt = enviada != null && enviada.isAfter(ahora.minusHours(24)) && !enviada.isAfter(ahora) ? enviada : ahora;
+    public void registrarHora(LocalDateTime enviada, LocalDateTime now) {
+        recordedAt = enviada != null && enviada.isAfter(now.minusHours(24)) && !enviada.isAfter(now) ? enviada : now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

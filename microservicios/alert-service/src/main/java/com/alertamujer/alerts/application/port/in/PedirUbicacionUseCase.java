@@ -11,5 +11,5 @@ public interface PedirUbicacionUseCase {
     /** @throws IllegalStateException si no tiene un celular con notificaciones o pidió hace muy poco */
     Resultado perform(Long userId);
 
-    record Resultado(int celulares, Instant solicitadoEn) {}
+    record Resultado(int phones, Instant solicitadoEn) {}
 }

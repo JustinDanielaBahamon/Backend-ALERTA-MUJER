@@ -31,10 +31,10 @@ import static org.mockito.Mockito.*;
 class TrayectosServiceTest {
 
     @Mock private TrayectoRepositorio trayectos;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
     @Mock private GestionarAlertasUseCase alerts;
     @Mock private UbicacionRepositorio ubicaciones;
-    @Mock private CelularesPort celulares;
+    @Mock private CelularesPort phones;
     @Mock private PushPort push;
 
     @InjectMocks private TrayectosService service;
@@ -43,12 +43,12 @@ class TrayectosServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(identidad.perfilRequerido(1L)).thenReturn(10L);
+        lenient().when(identity.perfilRequerido(1L)).thenReturn(10L);
         lenient().when(trayectos.save(any(SafeTrip.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
-    private static SafeTrip trayecto(int minutos) {
-        SafeTrip t = SafeTrip.nuevo(10L, 1L, 2L, "Casa", minutos, null, null, SALIDA);
+    private static SafeTrip trayecto(int minutes) {
+        SafeTrip t = SafeTrip.created(10L, 1L, 2L, "Casa", minutes, null, null, SALIDA);
         t.setId(7L);
         return t;
     }
@@ -72,7 +72,7 @@ class TrayectosServiceTest {
     @Test
     void soloLaDuenaConfirmaOCancela() {
         when(trayectos.find(7L)).thenReturn(Optional.of(trayecto(30)));
-        when(identidad.perfilRequerido(99L)).thenReturn(99L);
+        when(identity.perfilRequerido(99L)).thenReturn(99L);
 
         assertThrows(ResourceNotFoundException.class, () -> service.llegue(7L, 99L));
         assertEquals(SafeTrip.LLEGO, service.llegue(7L, 1L).getStatus());
@@ -87,17 +87,17 @@ class TrayectosServiceTest {
         ultima.setLongitude(new BigDecimal("-75.28"));
         ultima.setRecordedAt(SALIDA.plusMinutes(25));
         when(ubicaciones.ultima(10L)).thenReturn(Optional.of(ultima));
-        Alert creada = new Alert();
-        creada.setId(55L);
-        when(alerts.activar(any(NuevaAlerta.class), eq(1L))).thenReturn(creada);
+        Alert created = new Alert();
+        created.setId(55L);
+        when(alerts.activar(any(NuevaAlerta.class), eq(1L))).thenReturn(created);
 
         assertEquals(1, service.revisar(SALIDA.plusMinutes(33)));
 
-        ArgumentCaptor<NuevaAlerta> nueva = ArgumentCaptor.forClass(NuevaAlerta.class);
-        verify(alerts).activar(nueva.capture(), eq(1L));
-        assertEquals("timer", nueva.getValue().activationMethod());
-        assertEquals(new BigDecimal("2.93"), nueva.getValue().latitude());
-        assertTrue(nueva.getValue().message().contains("Casa"));
+        ArgumentCaptor<NuevaAlerta> newOne = ArgumentCaptor.forClass(NuevaAlerta.class);
+        verify(alerts).activar(newOne.capture(), eq(1L));
+        assertEquals("timer", newOne.getValue().activationMethod());
+        assertEquals(new BigDecimal("2.93"), newOne.getValue().latitude());
+        assertTrue(newOne.getValue().message().contains("Casa"));
         assertEquals(SafeTrip.ALERTADO, t.getStatus());
         assertEquals(55L, t.getAlertId());
     }
@@ -106,7 +106,7 @@ class TrayectosServiceTest {
     void revisar_preguntaSiLlegoAntesDeLaHora() {
         SafeTrip t = trayecto(30);
         when(trayectos.activosQueLleganAntesDe(any())).thenReturn(List.of(t));
-        when(celulares.tokensDeCelulares(1L)).thenReturn(List.of("token"));
+        when(phones.phoneTokens(1L)).thenReturn(List.of("token"));
 
         assertEquals(0, service.revisar(SALIDA.plusMinutes(26)));
 
@@ -122,9 +122,9 @@ class TrayectosServiceTest {
         bueno.setId(8L);
         when(trayectos.activosQueLleganAntesDe(any())).thenReturn(List.of(malo, bueno));
         when(ubicaciones.ultima(10L)).thenReturn(Optional.empty());
-        Alert creada = new Alert();
-        creada.setId(56L);
-        when(alerts.activar(any(), eq(1L))).thenThrow(new RuntimeException("caída")).thenReturn(creada);
+        Alert created = new Alert();
+        created.setId(56L);
+        when(alerts.activar(any(), eq(1L))).thenThrow(new RuntimeException("caída")).thenReturn(created);
 
         assertEquals(1, service.revisar(SALIDA.plusMinutes(40)));
         assertEquals(SafeTrip.ALERTADO, bueno.getStatus());

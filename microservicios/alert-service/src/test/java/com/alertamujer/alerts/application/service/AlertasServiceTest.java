@@ -33,7 +33,7 @@ class AlertasServiceTest {
 
     @Mock private AlertaRepositorio repository;
     @Mock private DestinatariosService destinatarios;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
     @Mock private EventosAlertaPort events;
 
     @InjectMocks private AlertasService service;
@@ -50,18 +50,18 @@ class AlertasServiceTest {
         alert.setStartedAt(LocalDateTime.now());
     }
 
-    private void perfil(Long userId, Long perfil) {
-        when(identidad.profileOf(userId)).thenReturn(Optional.of(perfil));
+    private void profile(Long userId, Long profile) {
+        when(identity.profileOf(userId)).thenReturn(Optional.of(profile));
     }
 
-    private static NuevaAlerta nueva(List<Long> contactIds) {
+    private static NuevaAlerta newOne(List<Long> contactIds) {
         return new NuevaAlerta(1L, null, "panic_button", null, null, BigDecimal.valueOf(4.6), BigDecimal.valueOf(-74.1),
                 null, contactIds);
     }
 
     @Test
     void activar_laDuenaSaleDelTokenYSeAvisaALosContactos() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.enCurso(10L)).thenReturn(Optional.empty());
         when(repository.save(any(Alert.class))).thenAnswer(inv -> {
             Alert a = inv.getArgument(0);
@@ -69,21 +69,21 @@ class AlertasServiceTest {
             return a;
         });
 
-        Alert creada = service.activar(nueva(List.of(3L)), 1L);
+        Alert created = service.activar(newOne(List.of(3L)), 1L);
 
-        assertEquals(10L, creada.getUserProfileId());
-        assertEquals("main", creada.getAlertType());
-        assertEquals("active", creada.getStatus());
-        assertEquals(BigDecimal.valueOf(4.6), creada.getLatitude());
-        verify(destinatarios).registrar(creada, List.of(3L));
+        assertEquals(10L, created.getUserProfileId());
+        assertEquals("main", created.getAlertType());
+        assertEquals("active", created.getStatus());
+        assertEquals(BigDecimal.valueOf(4.6), created.getLatitude());
+        verify(destinatarios).registrar(created, List.of(3L));
     }
 
     @Test
     void activar_conUnaAlertaEnCursoLaDevuelveSinAvisarOtraVez() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.enCurso(10L)).thenReturn(Optional.of(alert));
 
-        assertSame(alert, service.activar(nueva(null), 1L));
+        assertSame(alert, service.activar(newOne(null), 1L));
 
         verify(repository, never()).save(any());
         verifyNoInteractions(destinatarios);
@@ -91,19 +91,19 @@ class AlertasServiceTest {
 
     @Test
     void activar_sinPerfilFalla() {
-        when(identidad.profileOf(1L)).thenReturn(Optional.empty());
+        when(identity.profileOf(1L)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.activar(nueva(null), 1L));
+        assertThrows(ResourceNotFoundException.class, () -> service.activar(newOne(null), 1L));
         verifyNoInteractions(repository);
     }
 
     @Test
     void actualizar_alTerminarLaAlertaAvisaALosContactos() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
         when(repository.save(alert)).thenReturn(alert);
 
-        Alert resultado = service.actualizar(1L, new CambiosAlerta(null, null, "resolved", null, null, null), 1L);
+        Alert resultado = service.update(1L, new CambiosAlerta(null, null, "resolved", null, null, null), 1L);
 
         assertEquals("resolved", resultado.getStatus());
         assertNotNull(resultado.getEndedAt());
@@ -112,22 +112,22 @@ class AlertasServiceTest {
 
     @Test
     void actualizar_sinCambioDeEstadoNoAvisa() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
         when(repository.save(alert)).thenReturn(alert);
 
-        service.actualizar(1L, new CambiosAlerta(null, null, null, "Voy en taxi", null, null), 1L);
+        service.update(1L, new CambiosAlerta(null, null, null, "Voy en taxi", null, null), 1L);
 
         verifyNoInteractions(events);
     }
 
     @Test
     void actualizarOEliminarUnaAlertaAjenaSeRechaza() {
-        perfil(2L, 20L);
+        profile(2L, 20L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
 
         assertThrows(AccessDeniedException.class,
-                () -> service.actualizar(1L, new CambiosAlerta(null, null, "cancelled", null, null, null), 2L));
+                () -> service.update(1L, new CambiosAlerta(null, null, "cancelled", null, null, null), 2L));
         assertThrows(AccessDeniedException.class, () -> service.delete(1L, 2L));
         verify(repository, never()).save(any());
         verify(repository, never()).delete(any());
@@ -135,7 +135,7 @@ class AlertasServiceTest {
 
     @Test
     void eliminar_laDuenaBorraSuAlerta() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
 
         service.delete(1L, 1L);
@@ -145,8 +145,8 @@ class AlertasServiceTest {
 
     @Test
     void una_soloDevuelveLasPropias() {
-        perfil(1L, 10L);
-        perfil(2L, 20L);
+        profile(1L, 10L);
+        profile(2L, 20L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
 
         assertTrue(service.una(1L, 1L).isPresent());
@@ -155,32 +155,32 @@ class AlertasServiceTest {
 
     @Test
     void deUsuaria_aceptaElIdDeUsuariaOElDePerfilPropio() {
-        perfil(1L, 10L);
-        when(identidad.usuaria(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", null, "ana@test.com", null, 1L, null)));
+        profile(1L, 10L);
+        when(identity.user(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", null, "ana@test.com", null, 1L, null)));
         when(repository.ofUser(10L)).thenReturn(List.of(alert));
 
-        assertEquals(1, service.deUsuaria(1L, 1L).size());
-        assertEquals(1, service.deUsuaria(10L, 1L).size());
+        assertEquals(1, service.ofUser(1L, 1L).size());
+        assertEquals(1, service.ofUser(10L, 1L).size());
     }
 
     @Test
     void deUsuaria_otraUsuariaSoloLaVeLaAdministracion() {
-        perfil(1L, 10L);
-        when(identidad.usuaria(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", null, "ana@test.com", null, 1L, null)));
+        profile(1L, 10L);
+        when(identity.user(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", null, "ana@test.com", null, 1L, null)));
 
-        assertThrows(AccessDeniedException.class, () -> service.deUsuaria(5L, 1L));
+        assertThrows(AccessDeniedException.class, () -> service.ofUser(5L, 1L));
 
-        perfil(2L, 30L);
-        perfil(5L, 50L);
-        when(identidad.usuaria(2L)).thenReturn(Optional.of(new UserSummary(2L, "Admin", null, "admin@test.com", null, UserSummary.ADMIN_ROLE, null)));
+        profile(2L, 30L);
+        profile(5L, 50L);
+        when(identity.user(2L)).thenReturn(Optional.of(new UserSummary(2L, "Admin", null, "admin@test.com", null, UserSummary.ADMIN_ROLE, null)));
         when(repository.ofUser(50L)).thenReturn(List.of(alert));
 
-        assertEquals(List.of(alert), service.deUsuaria(5L, 2L));
+        assertEquals(List.of(alert), service.ofUser(5L, 2L));
     }
 
     @Test
     void conservarEvidencias_cuentaLasQueYaConserva() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.find(1L)).thenReturn(Optional.of(alert));
         when(repository.kept(10L)).thenReturn((long) Alert.MAX_ALERTAS_CONSERVADAS);
 
@@ -193,17 +193,17 @@ class AlertasServiceTest {
 
     @Test
     void consultas_paraOtrosModulos() {
-        Alert otra = new Alert();
-        otra.setId(2L);
-        otra.setUserProfileId(10L);
-        otra.setKeepEvidence(true);
+        Alert other = new Alert();
+        other.setId(2L);
+        other.setUserProfileId(10L);
+        other.setKeepEvidence(true);
         Alert ajena = new Alert();
         ajena.setId(3L);
         ajena.setUserProfileId(20L);
-        when(repository.todas()).thenReturn(List.of(alert, otra, ajena));
-        when(repository.findMany(Set.of(1L, 2L))).thenReturn(List.of(alert, otra));
+        when(repository.all()).thenReturn(List.of(alert, other, ajena));
+        when(repository.findMany(Set.of(1L, 2L))).thenReturn(List.of(alert, other));
 
-        assertEquals(2L, service.conteoPorPerfil().get(10L));
+        assertEquals(2L, service.countByProfile().get(10L));
         assertEquals(Set.of(2L), service.keepEvidence(Set.of(1L, 2L)));
         assertEquals(Set.of(), service.keepEvidence(Set.of()));
         assertTrue(service.find(null).isEmpty());
@@ -211,7 +211,7 @@ class AlertasServiceTest {
 
     @Test
     void mias_deLaMasRecienteALaMasAntigua() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         Alert vieja = new Alert();
         vieja.setStartedAt(LocalDateTime.now().minusDays(1));
         when(repository.ofUser(10L)).thenReturn(List.of(vieja, alert));
@@ -221,11 +221,11 @@ class AlertasServiceTest {
 
     @Test
     void activar_noConfiaEnLaFechaDeCreacionSiNoLlega() {
-        perfil(1L, 10L);
+        profile(1L, 10L);
         when(repository.enCurso(10L)).thenReturn(Optional.empty());
         when(repository.save(any(Alert.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        service.activar(nueva(null), 1L);
+        service.activar(newOne(null), 1L);
 
         ArgumentCaptor<Alert> captor = ArgumentCaptor.forClass(Alert.class);
         verify(repository).save(captor.capture());

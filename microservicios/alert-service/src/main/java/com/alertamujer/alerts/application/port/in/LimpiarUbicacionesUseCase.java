@@ -9,5 +9,5 @@ import java.time.LocalDateTime;
 public interface LimpiarUbicacionesUseCase {
 
     /** Devuelve cuántas ubicaciones se borraron. */
-    int clear(LocalDateTime ahora);
+    int clear(LocalDateTime now);
 }

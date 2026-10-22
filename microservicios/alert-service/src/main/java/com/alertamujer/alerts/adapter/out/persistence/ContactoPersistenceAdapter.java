@@ -19,29 +19,29 @@ class ContactoPersistenceAdapter implements ContactoRepositorio {
     }
 
     @Override
-    public List<EmergencyContact> todos() {
-        return jpa.findAll().stream().map(ContactoPersistenceAdapter::aDominio).toList();
+    public List<EmergencyContact> all() {
+        return jpa.findAll().stream().map(ContactoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<EmergencyContact> find(Long id) {
-        return jpa.findById(id).map(ContactoPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(ContactoPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<EmergencyContact> buscarVarios(Collection<Long> ids) {
         if (ids.isEmpty()) return List.of();
-        return jpa.findAllById(ids).stream().map(ContactoPersistenceAdapter::aDominio).toList();
+        return jpa.findAllById(ids).stream().map(ContactoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public List<EmergencyContact> ofUser(Long perfil) {
-        return jpa.findByUserProfileId(perfil).stream().map(ContactoPersistenceAdapter::aDominio).toList();
+    public List<EmergencyContact> ofUser(Long profile) {
+        return jpa.findByUserProfileId(profile).stream().map(ContactoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public EmergencyContact save(EmergencyContact contacto) {
-        return aDominio(jpa.save(aFila(contacto)));
+        return toDomain(jpa.save(toRow(contacto)));
     }
 
     @Override
@@ -49,7 +49,7 @@ class ContactoPersistenceAdapter implements ContactoRepositorio {
         jpa.deleteById(id);
     }
 
-    static EmergencyContact aDominio(EmergencyContactJpaEntity f) {
+    static EmergencyContact toDomain(EmergencyContactJpaEntity f) {
         EmergencyContact d = new EmergencyContact();
         d.setId(f.getId());
         d.setUserProfileId(f.getUserProfileId());
@@ -63,7 +63,7 @@ class ContactoPersistenceAdapter implements ContactoRepositorio {
         return d;
     }
 
-    static EmergencyContactJpaEntity aFila(EmergencyContact d) {
+    static EmergencyContactJpaEntity toRow(EmergencyContact d) {
         EmergencyContactJpaEntity f = new EmergencyContactJpaEntity();
         f.setId(d.getId());
         f.setUserProfileId(d.getUserProfileId());

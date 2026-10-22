@@ -20,8 +20,8 @@ class RateLimitFilterTest {
     }
 
     @Test
-    void bloqueaDespuesDelLimitePorIpYRuta() throws Exception {
-        for (int i = 0; i < RateLimitFilter.MAX_INTENTOS; i++) assertEquals(200, post("/api/auth/login", "1.1.1.1"));
+    void blocksAfterTheLimitPerIpAndPath() throws Exception {
+        for (int i = 0; i < RateLimitFilter.MAX_ATTEMPTS; i++) assertEquals(200, post("/api/auth/login", "1.1.1.1"));
         assertEquals(429, post("/api/auth/login", "1.1.1.1"));
         // Otra IP y otra ruta llevan su propio conteo
         assertEquals(200, post("/api/auth/login", "2.2.2.2"));
@@ -29,15 +29,15 @@ class RateLimitFilterTest {
     }
 
     @Test
-    void cubreRegistroYRecuperacion() throws Exception {
-        for (int i = 0; i < RateLimitFilter.MAX_INTENTOS; i++) post("/api/auth/register", "3.3.3.3");
+    void coversRegistrationAndRecovery() throws Exception {
+        for (int i = 0; i < RateLimitFilter.MAX_ATTEMPTS; i++) post("/api/auth/register", "3.3.3.3");
         assertEquals(429, post("/api/auth/register", "3.3.3.3"));
-        for (int i = 0; i < RateLimitFilter.MAX_INTENTOS; i++) post("/api/auth/forgot-password", "3.3.3.3");
+        for (int i = 0; i < RateLimitFilter.MAX_ATTEMPTS; i++) post("/api/auth/forgot-password", "3.3.3.3");
         assertEquals(429, post("/api/auth/forgot-password", "3.3.3.3"));
     }
 
     @Test
-    void noLimitaOtrasRutas() throws Exception {
+    void doesNotLimitOtherPaths() throws Exception {
         for (int i = 0; i < 10; i++) assertEquals(200, post("/api/alerts", "4.4.4.4"));
     }
 }

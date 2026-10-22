@@ -17,7 +17,7 @@ public interface AlertsPort {
 
     Map<Long, AlertSummary> findMany(Collection<Long> alertIds);
 
-    Map<Long, AlertSummary> todas();
+    Map<Long, AlertSummary> all();
 
     /** Alert ids of a user (user_profile.id). */
     java.util.List<Long> idsOfUser(Long userProfileId);

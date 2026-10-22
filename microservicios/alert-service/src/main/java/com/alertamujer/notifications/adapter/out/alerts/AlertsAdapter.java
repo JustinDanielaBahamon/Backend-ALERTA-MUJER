@@ -43,8 +43,8 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
-    public List<Long> avisadasA(String correo) {
-        return alertsApi.alertsNotifiedTo(correo);
+    public List<Long> avisadasA(String email) {
+        return alertsApi.alertsNotifiedTo(email);
     }
 
     @Override

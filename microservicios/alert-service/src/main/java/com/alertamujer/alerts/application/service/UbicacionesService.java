@@ -24,50 +24,50 @@ public class UbicacionesService implements UbicacionesUseCase {
 
     private final UbicacionRepositorio repository;
     private final AlertaRepositorio alerts;
-    private final IdentityPort identidad;
-    private final CelularesPort celulares;
+    private final IdentityPort identity;
+    private final CelularesPort phones;
 
     public UbicacionesService(UbicacionRepositorio repository, AlertaRepositorio alerts,
-                              IdentityPort identidad, CelularesPort celulares) {
+                              IdentityPort identity, CelularesPort phones) {
         this.repository = repository;
         this.alerts = alerts;
-        this.identidad = identidad;
-        this.celulares = celulares;
+        this.identity = identity;
+        this.phones = phones;
     }
 
     @Override
-    public Optional<LocationLog> save(NuevaUbicacion nueva, Long userId) {
-        Long perfil = identidad.perfilRequerido(userId);
-        LocationLog ubicacion = LocationLog.nuevo(perfil, nueva.latitude(), nueva.longitude(), nueva.accuracy());
+    public Optional<LocationLog> save(NuevaUbicacion newOne, Long userId) {
+        Long profile = identity.perfilRequerido(userId);
+        LocationLog location = LocationLog.created(profile, newOne.latitude(), newOne.longitude(), newOne.accuracy());
         // Solo se asocia a la alerta si es de la misma usuaria
-        if (nueva.alertId() != null) {
-            alerts.find(nueva.alertId()).filter(a -> a.esDe(perfil)).ifPresent(a -> ubicacion.setAlertId(a.getId()));
+        if (newOne.alertId() != null) {
+            alerts.find(newOne.alertId()).filter(a -> a.esDe(profile)).ifPresent(a -> location.setAlertId(a.getId()));
         }
-        if (!ubicacion.esDeAlerta() && !celulares.esElMasReciente(userId, nueva.deviceId())) {
+        if (!location.esDeAlerta() && !phones.esElMasReciente(userId, newOne.deviceId())) {
             return Optional.empty();
         }
-        ubicacion.registrarHora(nueva.recordedAt(), LocalDateTime.now());
-        return Optional.of(repository.save(ubicacion));
+        location.registrarHora(newOne.recordedAt(), LocalDateTime.now());
+        return Optional.of(repository.save(location));
     }
 
     @Override
     public List<LocationLog> recientes(Long userId, int limite) {
-        return repository.recientes(identidad.perfilRequerido(userId), Math.max(1, Math.min(limite, MAXIMO_LIMITE)));
+        return repository.recientes(identity.perfilRequerido(userId), Math.max(1, Math.min(limite, MAXIMO_LIMITE)));
     }
 
     @Override
     public Optional<LocationLog> ultima(Long userId) {
-        return repository.ultima(identidad.perfilRequerido(userId));
+        return repository.ultima(identity.perfilRequerido(userId));
     }
 
     @Override
     public List<LocationLog> ofAlert(Long alertId, Long userId, boolean admin) {
         Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        boolean propia = alert.esDe(identidad.perfilRequerido(userId));
+        boolean own = alert.esDe(identity.perfilRequerido(userId));
         // La administración solo ve el recorrido de alertas activas o atendidas (auditoría S2):
         // las canceladas o vencidas pudieron ser una falsa alarma y no se revisan
         boolean administracionPuede = admin && (alert.estaActiva() || "resolved".equals(alert.getStatus()));
-        if (!propia && !administracionPuede) {
+        if (!own && !administracionPuede) {
             throw new AccessDeniedException("No puedes ver ubicaciones de esta alerta");
         }
         return repository.ofAlert(alertId);

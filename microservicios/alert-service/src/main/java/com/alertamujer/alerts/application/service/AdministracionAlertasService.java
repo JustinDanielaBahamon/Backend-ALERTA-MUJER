@@ -25,15 +25,15 @@ import java.util.Map;
 public class AdministracionAlertasService implements AdministrarAlertasUseCase {
 
     private final AlertaRepositorio repository;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final EventosAlertaPort events;
     private final UbicacionRepositorio ubicaciones;
     private final DestinatariosAlertaUseCase destinatarios;
 
-    public AdministracionAlertasService(AlertaRepositorio repository, IdentityPort identidad, EventosAlertaPort events,
+    public AdministracionAlertasService(AlertaRepositorio repository, IdentityPort identity, EventosAlertaPort events,
                                         UbicacionRepositorio ubicaciones, DestinatariosAlertaUseCase destinatarios) {
         this.repository = repository;
-        this.identidad = identidad;
+        this.identity = identity;
         this.events = events;
         this.ubicaciones = ubicaciones;
         this.destinatarios = destinatarios;
@@ -42,8 +42,8 @@ public class AdministracionAlertasService implements AdministrarAlertasUseCase {
     @Override
     @Transactional(readOnly = true)
     public List<AdminAlertView> listAll() {
-        Map<Long, UserSummary> byProfile = identidad.usersByProfile();
-        return repository.todas().stream()
+        Map<Long, UserSummary> byProfile = identity.usersByProfile();
+        return repository.all().stream()
                 .sorted(Comparator.comparing(Alert::getStartedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(a -> {
                     UserSummary u = byProfile.get(a.getUserProfileId());
@@ -58,16 +58,16 @@ public class AdministracionAlertasService implements AdministrarAlertasUseCase {
 
     @Override
     @Transactional
-    public Alert cambiarEstado(Long id, String status) {
+    public Alert changeStatus(Long id, String status) {
         Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
-        LocalDateTime ahora = LocalDateTime.now();
-        if (alert.cambiarEstado(status, ahora)) events.alertaTerminada(alert, ahora);
+        LocalDateTime now = LocalDateTime.now();
+        if (alert.changeStatus(status, now)) events.alertaTerminada(alert, now);
         return repository.save(alert);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public DetalleAdmin detalle(Long id) {
+    public DetalleAdmin detail(Long id) {
         Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         boolean visible = alert.estaActiva() || "resolved".equals(alert.getStatus());
         List<LocationLog> puntos = visible ? ubicaciones.ofAlert(id) : List.of();

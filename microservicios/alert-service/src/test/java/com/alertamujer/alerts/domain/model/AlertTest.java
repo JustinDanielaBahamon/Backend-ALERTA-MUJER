@@ -9,13 +9,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Reglas de la alerta, sin Spring ni base de datos. */
 class AlertTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     private static Alert activa() {
         Alert a = new Alert();
         a.setId(1L);
         a.setUserProfileId(10L);
-        a.setStartedAt(AHORA.minusMinutes(5));
+        a.setStartedAt(NOW.minusMinutes(5));
         return a;
     }
 
@@ -44,10 +44,10 @@ class AlertTest {
     void cancelarUnaAlertaActivaGuardaLaHoraYAvisaQueTermino() {
         Alert a = activa();
 
-        assertTrue(a.actualizar(status("cancelled"), AHORA));
+        assertTrue(a.update(status("cancelled"), NOW));
 
         assertEquals("cancelled", a.getStatus());
-        assertEquals(AHORA, a.getCancelledAt());
+        assertEquals(NOW, a.getCancelledAt());
         assertNull(a.getEndedAt());
         assertTrue(a.terminada());
     }
@@ -55,9 +55,9 @@ class AlertTest {
     @Test
     void resolverRespetaLaHoraQueEnvioLaApp() {
         Alert a = activa();
-        LocalDateTime enviada = AHORA.minusMinutes(1);
+        LocalDateTime enviada = NOW.minusMinutes(1);
 
-        assertTrue(a.actualizar(new CambiosAlerta(null, null, "resolved", null, enviada, null), AHORA));
+        assertTrue(a.update(new CambiosAlerta(null, null, "resolved", null, enviada, null), NOW));
 
         assertEquals(enviada, a.getEndedAt());
     }
@@ -67,7 +67,7 @@ class AlertTest {
         Alert a = activa();
         a.setMessage("Ayuda");
 
-        assertFalse(a.actualizar(new CambiosAlerta("silent", null, null, null, null, null), AHORA));
+        assertFalse(a.update(new CambiosAlerta("silent", null, null, null, null, null), NOW));
 
         assertEquals("silent", a.getAlertType());
         assertEquals("Ayuda", a.getMessage());
@@ -77,36 +77,36 @@ class AlertTest {
     @Test
     void terminarUnaAlertaYaTerminadaNoVuelveAAvisar() {
         Alert a = activa();
-        a.actualizar(status("cancelled"), AHORA);
+        a.update(status("cancelled"), NOW);
 
-        assertFalse(a.actualizar(status("resolved"), AHORA.plusMinutes(1)));
+        assertFalse(a.update(status("resolved"), NOW.plusMinutes(1)));
     }
 
     @Test
-    void laAdministracionSoloAsignaEstadosConocidos() {
+    void theAdministrationOnlyAssignsKnownStatuses() {
         Alert a = activa();
 
-        assertThrows(IllegalArgumentException.class, () -> a.cambiarEstado("borrada", AHORA));
-        assertThrows(IllegalArgumentException.class, () -> a.cambiarEstado(null, AHORA));
-        assertTrue(a.cambiarEstado("resolved", AHORA));
-        assertEquals(AHORA, a.getEndedAt());
-        assertFalse(a.cambiarEstado("cancelled", AHORA));
-        assertEquals(AHORA, a.getCancelledAt());
+        assertThrows(IllegalArgumentException.class, () -> a.changeStatus("borrada", NOW));
+        assertThrows(IllegalArgumentException.class, () -> a.changeStatus(null, NOW));
+        assertTrue(a.changeStatus("resolved", NOW));
+        assertEquals(NOW, a.getEndedAt());
+        assertFalse(a.changeStatus("cancelled", NOW));
+        assertEquals(NOW, a.getCancelledAt());
     }
 
     @Test
     void venceSoloLaActivaQueSuperaElLimite() {
         Alert vieja = activa();
-        vieja.setStartedAt(AHORA.minusMinutes(31));
-        Alert reciente = activa();
+        vieja.setStartedAt(NOW.minusMinutes(31));
+        Alert recent = activa();
 
-        assertTrue(vieja.vencida(AHORA.minusMinutes(30)));
-        assertFalse(reciente.vencida(AHORA.minusMinutes(30)));
+        assertTrue(vieja.expired(NOW.minusMinutes(30)));
+        assertFalse(recent.expired(NOW.minusMinutes(30)));
 
-        vieja.expirar(AHORA);
+        vieja.expire(NOW);
         assertEquals("expired", vieja.getStatus());
-        assertEquals(AHORA, vieja.getEndedAt());
-        assertFalse(vieja.vencida(AHORA.minusMinutes(30)));
+        assertEquals(NOW, vieja.getEndedAt());
+        assertFalse(vieja.expired(NOW.minusMinutes(30)));
     }
 
     @Test

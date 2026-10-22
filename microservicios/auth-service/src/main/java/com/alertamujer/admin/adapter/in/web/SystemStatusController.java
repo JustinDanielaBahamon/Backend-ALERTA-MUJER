@@ -1,7 +1,7 @@
 package com.alertamujer.admin.adapter.in.web;
 
-import com.alertamujer.admin.application.port.in.EstadoSistemaUseCase;
-import com.alertamujer.admin.application.port.in.EstadoSistemaUseCase.SystemStatus;
+import com.alertamujer.admin.application.port.in.SystemStatusUseCase;
+import com.alertamujer.admin.application.port.in.SystemStatusUseCase.SystemStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SystemStatusController {
 
-    private final EstadoSistemaUseCase estadoSistema;
+    private final SystemStatusUseCase systemStatus;
 
-    public SystemStatusController(EstadoSistemaUseCase estadoSistema) {
-        this.estadoSistema = estadoSistema;
+    public SystemStatusController(SystemStatusUseCase systemStatus) {
+        this.systemStatus = systemStatus;
     }
 
     @GetMapping("/api/admin/system-status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SystemStatus> systemStatus() {
-        return ResponseEntity.ok(estadoSistema.status());
+        return ResponseEntity.ok(systemStatus.status());
     }
 }

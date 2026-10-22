@@ -8,9 +8,9 @@ import java.util.Optional;
 /** Puerto de salida: los lugares frecuentes. */
 public interface LugarFrecuenteRepositorio {
 
-    List<FrequentLocation> todos();
+    List<FrequentLocation> all();
 
-    List<FrequentLocation> activosDeLaUsuaria(Long perfil);
+    List<FrequentLocation> activosDeLaUsuaria(Long profile);
 
     Optional<FrequentLocation> find(Long id);
 

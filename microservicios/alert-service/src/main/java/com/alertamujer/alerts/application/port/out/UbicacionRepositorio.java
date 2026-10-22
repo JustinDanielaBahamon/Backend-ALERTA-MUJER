@@ -9,12 +9,12 @@ import java.util.Optional;
 /** Puerto de salida: el historial de ubicaciones. */
 public interface UbicacionRepositorio {
 
-    LocationLog save(LocationLog ubicacion);
+    LocationLog save(LocationLog location);
 
     /** Las más recientes primero. */
-    List<LocationLog> recientes(Long perfil, int cuantas);
+    List<LocationLog> recientes(Long profile, int cuantas);
 
-    Optional<LocationLog> ultima(Long perfil);
+    Optional<LocationLog> ultima(Long profile);
 
     /** Recorrido de una alerta, del primer punto al último. */
     List<LocationLog> ofAlert(Long alertId);

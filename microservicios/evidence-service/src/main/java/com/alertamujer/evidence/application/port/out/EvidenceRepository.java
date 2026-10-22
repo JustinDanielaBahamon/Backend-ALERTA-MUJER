@@ -14,7 +14,7 @@ public interface EvidenceRepository {
 
     Optional<Evidence> find(Long id);
 
-    List<Evidence> todas();
+    List<Evidence> all();
 
     /** Evidence of those alerts, newest first. */
     List<Evidence> ofAlerts(Collection<Long> alertIds);

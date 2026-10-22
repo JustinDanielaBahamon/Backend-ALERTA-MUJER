@@ -35,19 +35,19 @@ public class FrequentLocationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<FrequentLocationResponse> getById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.uno(id, currentUserId)));
+        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.one(id, currentUserId)));
     }
 
     @PostMapping
     public ResponseEntity<FrequentLocationResponse> create(@RequestBody FrequentLocationRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.create(request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.create(request.toData(), currentUserId)));
     }
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<FrequentLocationResponse> update(@PathVariable Long id, @RequestBody FrequentLocationRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.actualizar(id, request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.update(id, request.toData(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")

@@ -27,12 +27,12 @@ public class ZoneReportController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ZoneReportResponse>> getAllReports() {
-        return ResponseEntity.ok(vistas(reportes.todos()));
+        return ResponseEntity.ok(vistas(reportes.all()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ZoneReportResponse> getReportById(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        return reportes.uno(id, currentUserId).map(r -> ResponseEntity.ok(ZoneReportResponse.of(r)))
+        return reportes.one(id, currentUserId).map(r -> ResponseEntity.ok(ZoneReportResponse.of(r)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -46,13 +46,13 @@ public class ZoneReportController {
     public ResponseEntity<List<ZoneReportResponse>> getMyReports(@PathVariable Long userProfileId,
                                                                  @AuthenticationPrincipal Long currentUserId,
                                                                  Authentication authentication) {
-        return ResponseEntity.ok(vistas(reportes.deUsuaria(userProfileId, currentUserId, esAdmin(authentication))));
+        return ResponseEntity.ok(vistas(reportes.ofUser(userProfileId, currentUserId, esAdmin(authentication))));
     }
 
     @GetMapping("/status/{status}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ZoneReportResponse>> getReportsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(vistas(reportes.conEstado(status)));
+        return ResponseEntity.ok(vistas(reportes.withStatus(status)));
     }
 
     @PostMapping
@@ -65,13 +65,13 @@ public class ZoneReportController {
     @PutMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneReportResponse> approveReport(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
-        return ResponseEntity.ok(ZoneReportResponse.of(reportes.aprobar(id, request.get("adminId"))));
+        return ResponseEntity.ok(ZoneReportResponse.of(reportes.approve(id, request.get("adminId"))));
     }
 
     @PutMapping("/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneReportResponse> rejectReport(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
-        return ResponseEntity.ok(ZoneReportResponse.of(reportes.rechazar(id, request.get("adminId"))));
+        return ResponseEntity.ok(ZoneReportResponse.of(reportes.reject(id, request.get("adminId"))));
     }
 
     @DeleteMapping("/{id}")

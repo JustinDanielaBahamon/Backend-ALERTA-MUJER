@@ -11,24 +11,24 @@ public interface AlertaRepositorio {
 
     Alert save(Alert alert);
 
-    List<Alert> guardarTodas(List<Alert> alerts);
+    List<Alert> saveAll(List<Alert> alerts);
 
     Optional<Alert> find(Long id);
 
     /** Las que no existen se omiten. */
     List<Alert> findMany(Collection<Long> ids);
 
-    List<Alert> todas();
+    List<Alert> all();
 
-    List<Alert> ofUser(Long perfil);
+    List<Alert> ofUser(Long profile);
 
-    List<Alert> activas();
+    List<Alert> active();
 
     /** La alerta activa más reciente de la usuaria. */
-    Optional<Alert> enCurso(Long perfil);
+    Optional<Alert> enCurso(Long profile);
 
     /** Alertas de la usuaria marcadas para conservar sus evidencias. */
-    long kept(Long perfil);
+    long kept(Long profile);
 
     void delete(Long id);
 }

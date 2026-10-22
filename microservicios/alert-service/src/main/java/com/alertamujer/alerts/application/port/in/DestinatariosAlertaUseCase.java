@@ -19,7 +19,7 @@ public interface DestinatariosAlertaUseCase {
     void registrarEntrega(Long destinatarioId, String status, String error);
 
     /** Alertas en las que se avisó a este correo. */
-    List<Long> alertasAvisadasA(String correo);
+    List<Long> alertasAvisadasA(String email);
 
     record CanalEnvio(String channel, String destination, String status,
                       LocalDateTime sentAt, LocalDateTime deliveredAt) {}

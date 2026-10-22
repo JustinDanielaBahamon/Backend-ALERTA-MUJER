@@ -22,30 +22,30 @@ import java.util.Optional;
 public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
 
     private final ContactoRepositorio repository;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final AjustesPort ajustes;
-    private final CelularesPort celulares;
+    private final CelularesPort phones;
 
-    public ContactosEmergenciaService(ContactoRepositorio repository, IdentityPort identidad, AjustesPort ajustes,
-                                      CelularesPort celulares) {
+    public ContactosEmergenciaService(ContactoRepositorio repository, IdentityPort identity, AjustesPort ajustes,
+                                      CelularesPort phones) {
         this.repository = repository;
-        this.identidad = identidad;
+        this.identity = identity;
         this.ajustes = ajustes;
-        this.celulares = celulares;
+        this.phones = phones;
     }
 
     @Override
-    public Optional<EmergencyContact> uno(Long id, Long userId) {
-        Long perfil = identidad.profileOf(userId).orElse(null);
-        if (perfil == null) return Optional.empty();
-        return repository.find(id).filter(c -> c.esDe(perfil));
+    public Optional<EmergencyContact> one(Long id, Long userId) {
+        Long profile = identity.profileOf(userId).orElse(null);
+        if (profile == null) return Optional.empty();
+        return repository.find(id).filter(c -> c.esDe(profile));
     }
 
     @Override
-    public List<EmergencyContact> deUsuaria(Long idPedido, Long userId) {
-        Long propio = profileOf(userId);
-        if (idPedido.equals(userId) || idPedido.equals(propio)) {
-            return repository.ofUser(propio);
+    public List<EmergencyContact> ofUser(Long idPedido, Long userId) {
+        Long own = profileOf(userId);
+        if (idPedido.equals(userId) || idPedido.equals(own)) {
+            return repository.ofUser(own);
         }
         // Los contactos son datos de terceros: ni la administración los consulta (auditoría S2)
         throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
@@ -55,26 +55,26 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     @Transactional
     public EmergencyContact create(DatosContacto data, Long userId) {
         // La dueña sale del JWT, nunca del body (evita IDOR)
-        Long perfil = profileOf(userId);
-        int maximo = ajustes.maxContacts();
-        if (repository.ofUser(perfil).size() >= maximo) {
-            throw new IllegalArgumentException("Puedes tener como máximo " + maximo + " contactos de emergencia");
+        Long profile = profileOf(userId);
+        int max = ajustes.maxContacts();
+        if (repository.ofUser(profile).size() >= max) {
+            throw new IllegalArgumentException("Puedes tener como máximo " + max + " contactos de emergencia");
         }
-        return repository.save(EmergencyContact.nuevo(perfil, data));
+        return repository.save(EmergencyContact.created(profile, data));
     }
 
     @Override
     @Transactional
-    public EmergencyContact actualizar(Long id, DatosContacto data, Long userId) {
-        EmergencyContact contacto = propio(id, userId, "No puedes modificar contactos de otro usuario");
-        contacto.actualizar(data);
+    public EmergencyContact update(Long id, DatosContacto data, Long userId) {
+        EmergencyContact contacto = own(id, userId, "No puedes modificar contactos de otro usuario");
+        contacto.update(data);
         return repository.save(contacto);
     }
 
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
-        propio(id, userId, "No puedes eliminar contactos de otro usuario");
+        own(id, userId, "No puedes eliminar contactos de otro usuario");
         repository.delete(id);
     }
 
@@ -82,22 +82,22 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     public Map<Long, String> estadoApp(Long userId) {
         Map<Long, String> estados = new LinkedHashMap<>();
         for (EmergencyContact c : repository.ofUser(profileOf(userId))) {
-            String correo = c.getEmail();
-            Optional<Long> cuenta = correo == null || correo.isBlank()
+            String email = c.getEmail();
+            Optional<Long> account = email == null || email.isBlank()
                     ? Optional.empty()
-                    : identidad.usuariaPorCorreo(correo.trim());
-            estados.put(c.getId(), cuenta
-                    .map(id -> celulares.tokensDeCelulares(id).isEmpty() ? SIN_CELULAR : CON_APP)
+                    : identity.usuariaPorCorreo(email.trim());
+            estados.put(c.getId(), account
+                    .map(id -> phones.phoneTokens(id).isEmpty() ? SIN_CELULAR : CON_APP)
                     .orElse(SIN_CUENTA));
         }
         return estados;
     }
 
     private Long profileOf(Long userId) {
-        return identidad.profileOf(userId).orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
+        return identity.profileOf(userId).orElseThrow(() -> new ResourceNotFoundException("UserProfile for user", userId));
     }
 
-    private EmergencyContact propio(Long id, Long userId, String mensajeAjeno) {
+    private EmergencyContact own(Long id, Long userId, String mensajeAjeno) {
         EmergencyContact contacto = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("EmergencyContact", id));
         if (!contacto.esDe(profileOf(userId))) throw new AccessDeniedException(mensajeAjeno);
         return contacto;

@@ -3,9 +3,9 @@ package com.alertamujer.admin.adapter.in.web;
 import com.alertamujer.admin.adapter.in.web.dto.AdminUserDto;
 import com.alertamujer.admin.adapter.in.web.dto.UpdateUserRequest;
 import com.alertamujer.admin.adapter.in.web.dto.UserReportRequest;
-import com.alertamujer.admin.application.port.in.GestionUsuariasUseCase;
-import com.alertamujer.admin.application.port.in.ReportesUsuariaUseCase;
-import com.alertamujer.admin.application.port.in.ReportesUsuariaUseCase.UserReportView;
+import com.alertamujer.admin.application.port.in.ManageUsersUseCase;
+import com.alertamujer.admin.application.port.in.UserReportsUseCase;
+import com.alertamujer.admin.application.port.in.UserReportsUseCase.UserReportView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,23 +19,23 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final GestionUsuariasUseCase usuarias;
-    private final ReportesUsuariaUseCase reportes;
+    private final ManageUsersUseCase users;
+    private final UserReportsUseCase reportes;
 
-    public AdminController(GestionUsuariasUseCase usuarias, ReportesUsuariaUseCase reportes) {
-        this.usuarias = usuarias;
+    public AdminController(ManageUsersUseCase users, UserReportsUseCase reportes) {
+        this.users = users;
         this.reportes = reportes;
     }
 
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDto>> getAllUsers() {
-        return ResponseEntity.ok(usuarias.listAll().stream().map(AdminUserDto::of).toList());
+        return ResponseEntity.ok(users.listAll().stream().map(AdminUserDto::of).toList());
     }
 
     @PatchMapping("/users/{id}")
     public ResponseEntity<AdminUserDto> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request,
                                                    @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(AdminUserDto.of(usuarias.actualizar(id, request.aCambios(), currentUserId)));
+        return ResponseEntity.ok(AdminUserDto.of(users.update(id, request.toChanges(), currentUserId)));
     }
 
     // ── Reportes de usuarias (moderación) ──────────────────────────
@@ -52,7 +52,7 @@ public class AdminController {
 
     @GetMapping("/user-reports/{id}")
     public ResponseEntity<UserReportView> getUserReport(@PathVariable Long id) {
-        return ResponseEntity.ok(reportes.obtener(id));
+        return ResponseEntity.ok(reportes.get(id));
     }
 
     @PostMapping("/user-reports")
@@ -64,7 +64,7 @@ public class AdminController {
     @PutMapping("/user-reports/{id}")
     public ResponseEntity<UserReportView> updateUserReport(@PathVariable Long id, @RequestBody UserReportRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(reportes.actualizar(id, request.aCambios(), currentUserId));
+        return ResponseEntity.ok(reportes.update(id, request.toChanges(), currentUserId));
     }
 
     @DeleteMapping("/user-reports/{id}")

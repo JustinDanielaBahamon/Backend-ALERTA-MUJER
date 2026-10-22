@@ -37,17 +37,17 @@ public class Device {
 
     /** osName con el que se registra el panel web (recibe notificaciones del navegador). */
     public static final String OS_WEB = "web";
-    public static final Set<String> ESTADOS = Set.of("active", "inactive", "blocked", "lost");
+    public static final Set<String> STATUSES = Set.of("active", "inactive", "blocked", "lost");
 
     // Solo un objeto plano de nombres cortos con true/false: lo muestra la web, no se guarda otra cosa
-    private static final Pattern PERMISOS =
+    private static final Pattern PERMISSIONS =
             Pattern.compile("^\\{(\"[a-zA-Z]{1,30}\":(true|false)(,\"[a-zA-Z]{1,30}\":(true|false))*)?}$");
-    private static final int MAXIMO_PERMISOS = 400;
+    private static final int MAX_PERMISSIONS = 400;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Dispositivo nuevo de la cuenta; la última conexión es ahora. */
-    public static Device nuevo(Long accountId, DatosDispositivo d, LocalDateTime ahora) {
+    public static Device created(Long accountId, DeviceData d, LocalDateTime now) {
         Device n = new Device();
         n.accountId = accountId;
         n.deviceUuid = d.deviceUuid();
@@ -61,14 +61,14 @@ public class Device {
         if (d.status() != null) n.status = d.status();
         n.fcmToken = d.fcmToken();
         n.permissions = d.permissions();
-        n.lastAccess = ahora;
+        n.lastAccess = now;
         return n;
     }
 
     /** Solo acepta un JSON plano de nombres cortos con true/false; lo devuelve sin espacios. */
-    public static String validarPermisos(String permisos) {
-        String value = permisos.replaceAll("\\s", "");
-        if (value.length() > MAXIMO_PERMISOS || !PERMISOS.matcher(value).matches()) {
+    public static String validatePermissions(String permissions) {
+        String value = permissions.replaceAll("\\s", "");
+        if (value.length() > MAX_PERMISSIONS || !PERMISSIONS.matcher(value).matches()) {
             throw new IllegalArgumentException("Permisos del celular no válidos");
         }
         return value;
@@ -78,11 +78,11 @@ public class Device {
      * true si el dispositivo es el celular de la cuenta usado más recientemente, o si no se sabe
      * (sin id o desconocido): así una app antigua no pierde sus ubicaciones.
      */
-    public static boolean esElCelularMasReciente(List<Device> deLaCuenta, Long deviceId) {
+    public static boolean isTheNewestPhone(List<Device> ofTheAccount, Long deviceId) {
         if (deviceId == null) return true;
-        List<Device> celulares = deLaCuenta.stream().filter(Device::esCelular).toList();
-        if (celulares.stream().noneMatch(d -> d.id.equals(deviceId))) return true;
-        return celulares.stream()
+        List<Device> phones = ofTheAccount.stream().filter(Device::isPhone).toList();
+        if (phones.stream().noneMatch(d -> d.id.equals(deviceId))) return true;
+        return phones.stream()
                 .max(Comparator.comparing(Device::getLastAccess, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .map(d -> d.id.equals(deviceId))
                 .orElse(true);
@@ -92,37 +92,37 @@ public class Device {
      * true si los datos describen este mismo celular: misma marca, modelo, nombre y sistema. Reinstalar
      * la app o borrar sus datos cambia el identificador guardado, pero el celular sigue siendo el mismo.
      */
-    public boolean esMismoCelular(DatosDispositivo d) {
-        if (!esCelular() || d.brand() == null || d.model() == null || OS_WEB.equalsIgnoreCase(d.osName())) return false;
-        return igual(brand, d.brand()) && igual(model, d.model()) && igual(deviceName, d.deviceName())
-                && igual(osName, d.osName());
+    public boolean isSamePhone(DeviceData d) {
+        if (!isPhone() || d.brand() == null || d.model() == null || OS_WEB.equalsIgnoreCase(d.osName())) return false;
+        return same(brand, d.brand()) && same(model, d.model()) && same(deviceName, d.deviceName())
+                && same(osName, d.osName());
     }
 
-    private static boolean igual(String a, String b) {
+    private static boolean same(String a, String b) {
         return (a == null ? "" : a.trim()).equalsIgnoreCase(b == null ? "" : b.trim());
     }
 
-    public boolean esCelular() {
+    public boolean isPhone() {
         return !OS_WEB.equalsIgnoreCase(osName);
     }
 
-    public boolean esDe(Long cuenta) {
-        return cuenta != null && Objects.equals(accountId, cuenta);
+    public boolean esDe(Long account) {
+        return account != null && Objects.equals(accountId, account);
     }
 
-    public boolean tieneTokenPush() {
+    public boolean hasPushToken() {
         return fcmToken != null && !fcmToken.isBlank();
     }
 
     /** Cómo se nombra el celular en el aviso "entraron desde otro celular". */
-    public String nombreParaAviso() {
+    public String nameForNotice() {
         if (deviceName != null && !deviceName.isBlank()) return deviceName;
-        String marcaModelo = ((brand == null ? "" : brand) + " " + (model == null ? "" : model)).trim();
-        return marcaModelo.isEmpty() ? "otro celular" : marcaModelo;
+        String brandModel = ((brand == null ? "" : brand) + " " + (model == null ? "" : model)).trim();
+        return brandModel.isEmpty() ? "otro celular" : brandModel;
     }
 
     /** PUT completo: reemplaza los datos; el token push solo si llega uno. */
-    public void reemplazar(DatosDispositivo d) {
+    public void replace(DeviceData d) {
         deviceUuid = d.deviceUuid();
         brand = d.brand();
         model = d.model();
@@ -139,32 +139,32 @@ public class Device {
      * La app lo informa al abrirse: actualiza los datos que lleguen (sin borrar los que no envía),
      * los permisos y la última conexión.
      */
-    public void registrarUso(DatosDispositivo d, LocalDateTime ahora) {
-        if (d.brand() != null) brand = recortar(d.brand(), 50);
-        if (d.model() != null) model = recortar(d.model(), 100);
-        if (d.deviceName() != null) deviceName = recortar(d.deviceName(), 100);
-        if (d.osName() != null) osName = recortar(d.osName(), 30);
-        if (d.osVersion() != null) osVersion = recortar(d.osVersion(), 30);
-        if (d.appVersion() != null) appVersion = recortar(d.appVersion(), 30);
+    public void registrarUso(DeviceData d, LocalDateTime now) {
+        if (d.brand() != null) brand = truncate(d.brand(), 50);
+        if (d.model() != null) model = truncate(d.model(), 100);
+        if (d.deviceName() != null) deviceName = truncate(d.deviceName(), 100);
+        if (d.osName() != null) osName = truncate(d.osName(), 30);
+        if (d.osVersion() != null) osVersion = truncate(d.osVersion(), 30);
+        if (d.appVersion() != null) appVersion = truncate(d.appVersion(), 30);
         if (d.gpsStatus() != null) gpsStatus = d.gpsStatus();
         if (d.permissions() != null) {
-            permissions = validarPermisos(d.permissions());
-            permissionsUpdatedAt = ahora;
+            permissions = validatePermissions(d.permissions());
+            permissionsUpdatedAt = now;
         }
-        lastAccess = ahora;
+        lastAccess = now;
     }
 
-    public void cambiarTokenPush(String token) {
+    public void changePushToken(String token) {
         fcmToken = token;
     }
 
     /** Cambio de estado desde la administración. */
-    public void cambiarEstado(String newStatus) {
-        if (newStatus == null || !ESTADOS.contains(newStatus)) throw new IllegalArgumentException("Estado no válido: " + newStatus);
+    public void changeStatus(String newStatus) {
+        if (newStatus == null || !STATUSES.contains(newStatus)) throw new IllegalArgumentException("Estado no válido: " + newStatus);
         status = newStatus;
     }
 
-    private static String recortar(String value, int max) {
+    private static String truncate(String value, int max) {
         String v = value.trim();
         return v.length() > max ? v.substring(0, max) : v;
     }

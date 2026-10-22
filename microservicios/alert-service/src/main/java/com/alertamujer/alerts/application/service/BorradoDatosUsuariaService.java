@@ -25,7 +25,7 @@ public class BorradoDatosUsuariaService implements BorrarDatosDeUsuariaUseCase {
     @Override
     public void borrarDatosDe(Long userProfileId) {
         if (userProfileId == null) return;
-        int filas = data.borrarDe(userProfileId);
-        log.info("Cuenta eliminada: datos del perfil {} borrados ({} filas)", userProfileId, filas);
+        int rows = data.borrarDe(userProfileId);
+        log.info("Cuenta eliminada: datos del perfil {} borrados ({} filas)", userProfileId, rows);
     }
 }

@@ -33,7 +33,7 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     static final String CANAL_PUSH = "push";
 
     private final AlertsPort alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final DispositivosPort dispositivos;
     private final AjustesPort ajustes;
     private final SeguimientoPublicoUseCase seguimiento;
@@ -41,11 +41,11 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     private final PushPort push;
     private final String webBaseUrl;
 
-    public AvisosAlertaService(AlertsPort alerts, IdentityPort identidad, DispositivosPort dispositivos,
+    public AvisosAlertaService(AlertsPort alerts, IdentityPort identity, DispositivosPort dispositivos,
                                AjustesPort ajustes, SeguimientoPublicoUseCase seguimiento, CorreosPort correos,
                                PushPort push, @Value("${notifications.web-base-url:http://localhost:4200}") String webBaseUrl) {
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
         this.dispositivos = dispositivos;
         this.ajustes = ajustes;
         this.seguimiento = seguimiento;
@@ -55,18 +55,18 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     }
 
     @Override
-    public void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime inicio) {
+    public void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime start) {
         List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
         AlertSummary alert = alerts.find(alertId).orElse(null);
-        String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
+        String name = identity.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
         Map<Long, String> correoPorContacto = correosPorContacto(envios);
         // Un enlace por alerta: lo usan el correo (página web) y el push (pantalla de la app)
         String code = seguimiento.crearEnlace(alertId);
         String url = webBaseUrl + "/seguimiento/" + code;
         for (AlertRecipient envio : envios) {
             if (CANAL_CORREO.equals(envio.channel())) {
-                enviarCorreo(envio, name, inicio, alert, url);
+                enviarCorreo(envio, name, start, alert, url);
             } else if (CANAL_PUSH.equals(envio.channel())) {
                 enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), name, alertId, code);
             }
@@ -77,7 +77,7 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     public void alertaTerminada(Long alertId, Long perfilUsuaria, String status, LocalDateTime fin) {
         List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
-        String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
+        String name = identity.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
         Map<Long, String> correoPorContacto = correosPorContacto(envios);
         for (AlertRecipient envio : envios) {
             try {
@@ -104,11 +104,11 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         return "https://www.google.com/maps/search/?api=1&query=" + lat.toPlainString() + "," + lng.toPlainString();
     }
 
-    private void enviarCorreo(AlertRecipient envio, String name, LocalDateTime inicio, AlertSummary alert, String url) {
+    private void enviarCorreo(AlertRecipient envio, String name, LocalDateTime start, AlertSummary alert, String url) {
         String maps = alert != null && alert.latitude() != null && alert.longitude() != null
                 ? googleMaps(alert.latitude(), alert.longitude()) : null;
         try {
-            correos.avisoDeAlerta(envio.destination(), envio.contactName(), name, inicio, url, maps, ajustes.emergencyNumber());
+            correos.avisoDeAlerta(envio.destination(), envio.contactName(), name, start, url, maps, ajustes.emergencyNumber());
             alerts.registrarEntrega(envio.id(), "sent", null);
         } catch (CorreoNoEnviadoException e) {
             alerts.registrarEntrega(envio.id(), "failed", e.getMessage());
@@ -140,7 +140,7 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
                 .collect(Collectors.toMap(AlertRecipient::emergencyContactId, AlertRecipient::destination, (a, b) -> a));
     }
 
-    private List<String> tokensDelContacto(String correo) {
-        return identidad.usuariaConCorreo(correo).map(dispositivos::tokensDe).orElse(List.of());
+    private List<String> tokensDelContacto(String email) {
+        return identity.usuariaConCorreo(email).map(dispositivos::tokensDe).orElse(List.of());
     }
 }

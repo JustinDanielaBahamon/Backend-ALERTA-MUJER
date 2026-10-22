@@ -10,6 +10,6 @@ public record SettingsView(Integer sosMaxDurationMinutes, String emergencyPhoneN
 
     public static SettingsView of(SystemConfiguration c) {
         return new SettingsView(c.getSosMaxDurationMinutes(), c.getEmergencyPhoneNumber(), c.getAdminEmail(),
-                c.getMaxEmergencyContacts(), c.getMinAppVersion(), c.ultimaActualizacion());
+                c.getMaxEmergencyContacts(), c.getMinAppVersion(), c.lastUpdate());
     }
 }

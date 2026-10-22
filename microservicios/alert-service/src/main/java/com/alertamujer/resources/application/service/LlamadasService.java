@@ -21,28 +21,28 @@ public class LlamadasService implements LlamadasUseCase {
 
     private final LlamadaRepositorio repository;
     private final RecursoRepositorio recursos;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
 
-    public LlamadasService(LlamadaRepositorio repository, RecursoRepositorio recursos, IdentityPort identidad) {
+    public LlamadasService(LlamadaRepositorio repository, RecursoRepositorio recursos, IdentityPort identity) {
         this.repository = repository;
         this.recursos = recursos;
-        this.identidad = identidad;
+        this.identity = identity;
     }
 
     @Override
-    public List<ResourceCall> todas() {
-        return repository.todas();
+    public List<ResourceCall> all() {
+        return repository.all();
     }
 
     @Override
     public Optional<ResourceCall> una(Long id, Long userId) {
-        Long perfil = identidad.perfilRequerido(userId);
-        return repository.find(id).filter(c -> c.esDe(perfil));
+        Long profile = identity.perfilRequerido(userId);
+        return repository.find(id).filter(c -> c.esDe(profile));
     }
 
     @Override
     public List<ResourceCall> mias(Long userId) {
-        return repository.dePerfil(identidad.perfilRequerido(userId));
+        return repository.dePerfil(identity.perfilRequerido(userId));
     }
 
     @Override
@@ -61,27 +61,27 @@ public class LlamadasService implements LlamadasUseCase {
         if (recursoId == null) throw new IllegalArgumentException("Indica a qué recurso se llamó");
         EmergencyResource recurso = recursos.find(recursoId)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", recursoId));
-        return repository.save(ResourceCall.nueva(identidad.perfilRequerido(userId), recurso, alertId, deviceId,
+        return repository.save(ResourceCall.newOne(identity.perfilRequerido(userId), recurso, alertId, deviceId,
                 telefonoMarcado, status, LocalDateTime.now()));
     }
 
     @Override
     @Transactional
-    public ResourceCall actualizar(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId) {
-        ResourceCall c = propia(id, userId);
-        c.actualizar(status, fin, duracionSegundos);
+    public ResourceCall update(Long id, String status, LocalDateTime fin, Integer duracionSegundos, Long userId) {
+        ResourceCall c = own(id, userId);
+        c.update(status, fin, duracionSegundos);
         return repository.save(c);
     }
 
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
-        repository.delete(propia(id, userId).getId());
+        repository.delete(own(id, userId).getId());
     }
 
-    private ResourceCall propia(Long id, Long userId) {
+    private ResourceCall own(Long id, Long userId) {
         ResourceCall c = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("ResourceCall", id));
-        if (!c.esDe(identidad.perfilRequerido(userId))) {
+        if (!c.esDe(identity.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes acceder a llamadas de otro usuario");
         }
         return c;

@@ -10,7 +10,7 @@ class AlertContactTest {
 
     @Test
     void unEnvioNuevoQuedaPendiente() {
-        AlertContact d = AlertContact.nuevo(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
+        AlertContact d = AlertContact.created(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
 
         assertEquals("pending", d.getStatus());
         assertEquals(0, d.getAttempts());
@@ -18,28 +18,28 @@ class AlertContactTest {
 
     @Test
     void registraCadaIntentoYCortaElError() {
-        LocalDateTime ahora = LocalDateTime.of(2026, 10, 20, 10, 0);
-        AlertContact d = AlertContact.nuevo(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
+        LocalDateTime now = LocalDateTime.of(2026, 10, 20, 10, 0);
+        AlertContact d = AlertContact.created(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
 
-        d.registrarIntento("failed", "x".repeat(800), ahora);
+        d.registrarIntento("failed", "x".repeat(800), now);
         assertEquals(1, d.getAttempts());
         assertEquals(500, d.getErrorMessage().length());
         assertNull(d.getSentAt());
 
-        d.registrarIntento("sent", null, ahora);
+        d.registrarIntento("sent", null, now);
         assertEquals(2, d.getAttempts());
-        assertEquals(ahora, d.getSentAt());
+        assertEquals(now, d.getSentAt());
         assertNull(d.getErrorMessage());
     }
 
     @Test
     void unEnvioAbiertoDeUnaAlertaTerminadaSeVeComoVencido() {
-        AlertContact pendiente = AlertContact.nuevo(5L, 1L, AlertContact.CANAL_PUSH, "App");
-        AlertContact fallido = AlertContact.nuevo(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
+        AlertContact pending = AlertContact.created(5L, 1L, AlertContact.CANAL_PUSH, "App");
+        AlertContact fallido = AlertContact.created(5L, 1L, AlertContact.CANAL_CORREO, "eva@correo.com");
         fallido.setStatus("failed");
 
-        assertEquals("pending", pendiente.estadoVisible(false));
-        assertEquals("expired", pendiente.estadoVisible(true));
+        assertEquals("pending", pending.estadoVisible(false));
+        assertEquals("expired", pending.estadoVisible(true));
         assertEquals("failed", fallido.estadoVisible(true));
     }
 }

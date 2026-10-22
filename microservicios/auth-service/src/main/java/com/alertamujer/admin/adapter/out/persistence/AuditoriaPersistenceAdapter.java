@@ -1,8 +1,8 @@
 package com.alertamujer.admin.adapter.out.persistence;
 
-import com.alertamujer.admin.application.port.out.AuditoriaRepositorio;
+import com.alertamujer.admin.application.port.out.AuditRepository;
 import com.alertamujer.admin.domain.model.AuditLog;
-import com.alertamujer.admin.domain.model.FiltroAuditoria;
+import com.alertamujer.admin.domain.model.AuditFilter;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +15,7 @@ import java.util.List;
 
 /** Adaptador de salida: la auditoría en PostgreSQL, con el filtro traducido a una consulta de JPA. */
 @Component
-class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
+class AuditoriaPersistenceAdapter implements AuditRepository {
 
     private final AuditLogJpaRepository jpa;
 
@@ -23,26 +23,26 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
         this.jpa = jpa;
     }
 
-    private static final Sort MAS_RECIENTES = Sort.by(Sort.Direction.DESC, "id");
+    private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "id");
 
     @Override
-    public Pagina pagina(FiltroAuditoria filter, int pagina, int size) {
-        Page<AuditLogJpaEntity> p = jpa.findAll(especificacion(filter), PageRequest.of(pagina, size, MAS_RECIENTES));
-        return new Pagina(p.getContent().stream().map(AuditoriaPersistenceAdapter::aDominio).toList(), p.getTotalElements(), p.getNumber());
+    public AuditLogPage page(AuditFilter filter, int page, int size) {
+        Page<AuditLogJpaEntity> p = jpa.findAll(specification(filter), PageRequest.of(page, size, NEWEST_FIRST));
+        return new AuditLogPage(p.getContent().stream().map(AuditoriaPersistenceAdapter::toDomain).toList(), p.getTotalElements(), p.getNumber());
     }
 
     @Override
-    public List<AuditLog> primeros(FiltroAuditoria filter, int maximo) {
-        return jpa.findAll(especificacion(filter), PageRequest.of(0, maximo, MAS_RECIENTES)).getContent().stream()
-                .map(AuditoriaPersistenceAdapter::aDominio).toList();
+    public List<AuditLog> first(AuditFilter filter, int max) {
+        return jpa.findAll(specification(filter), PageRequest.of(0, max, NEWEST_FIRST)).getContent().stream()
+                .map(AuditoriaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
-    public AuditLog save(AuditLog registro) {
-        return aDominio(jpa.save(aFila(registro)));
+    public AuditLog save(AuditLog record) {
+        return toDomain(jpa.save(toRow(record)));
     }
 
-    static Specification<AuditLogJpaEntity> especificacion(FiltroAuditoria f) {
+    static Specification<AuditLogJpaEntity> specification(AuditFilter f) {
         return (root, query, cb) -> {
             List<Predicate> p = new ArrayList<>();
             if (f.actorAccountId() != null) {
@@ -56,7 +56,7 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
         };
     }
 
-    static AuditLog aDominio(AuditLogJpaEntity f) {
+    static AuditLog toDomain(AuditLogJpaEntity f) {
         AuditLog d = new AuditLog();
         d.setId(f.getId());
         d.setAccountId(f.getAccountId());
@@ -70,7 +70,7 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
         return d;
     }
 
-    static AuditLogJpaEntity aFila(AuditLog d) {
+    static AuditLogJpaEntity toRow(AuditLog d) {
         AuditLogJpaEntity f = new AuditLogJpaEntity();
         f.setId(d.getId());
         f.setAccountId(d.getAccountId());

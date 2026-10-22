@@ -23,32 +23,32 @@ public class AlertasRecibidasService implements AlertasRecibidasUseCase {
     static final Duration RECIENTES = Duration.ofDays(30);
 
     private final AlertsPort alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
     private final SeguimientoPublicoUseCase seguimiento;
 
-    public AlertasRecibidasService(AlertsPort alerts, IdentityPort identidad, SeguimientoPublicoUseCase seguimiento) {
+    public AlertasRecibidasService(AlertsPort alerts, IdentityPort identity, SeguimientoPublicoUseCase seguimiento) {
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
         this.seguimiento = seguimiento;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ReceivedAlert> recibidas(Long userId, LocalDateTime ahora) {
-        String correo = identidad.correoDe(userId).orElse(null);
-        Long miPerfil = identidad.profileOf(userId).orElse(null);
-        return alerts.findMany(alerts.avisadasA(correo)).stream()
+    public List<ReceivedAlert> recibidas(Long userId, LocalDateTime now) {
+        String email = identity.correoDe(userId).orElse(null);
+        Long miPerfil = identity.profileOf(userId).orElse(null);
+        return alerts.findMany(alerts.avisadasA(email)).stream()
                 .filter(a -> !Objects.equals(a.userProfileId(), miPerfil)) // las propias no son "recibidas"
-                .filter(a -> a.startedAt() != null && a.startedAt().isAfter(ahora.minus(RECIENTES)))
+                .filter(a -> a.startedAt() != null && a.startedAt().isAfter(now.minus(RECIENTES)))
                 .sorted(Comparator.comparing(AlertSummary::startedAt).reversed())
-                .map(a -> view(a, ahora))
+                .map(a -> view(a, now))
                 .toList();
     }
 
     @Override
     @Transactional
-    public String enlaceSeguimiento(Long userId, Long alertId, LocalDateTime ahora) {
-        ReceivedAlert alert = recibidas(userId, ahora).stream()
+    public String enlaceSeguimiento(Long userId, Long alertId, LocalDateTime now) {
+        ReceivedAlert alert = recibidas(userId, now).stream()
                 .filter(a -> a.alertId().equals(alertId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("La alerta no existe"));
@@ -58,12 +58,12 @@ public class AlertasRecibidasService implements AlertasRecibidasUseCase {
         return seguimiento.crearEnlace(alertId);
     }
 
-    private ReceivedAlert view(AlertSummary a, LocalDateTime ahora) {
-        String name = identidad.nombreDePilaDelPerfil(a.userProfileId()).orElse("");
+    private ReceivedAlert view(AlertSummary a, LocalDateTime now) {
+        String name = identity.nombreDePilaDelPerfil(a.userProfileId()).orElse("");
         LocalDateTime fin = SeguimientoPublicoService.fin(a);
         boolean activa = "active".equals(a.status());
         // Aquí una alerta terminada sin hora de cierre ya no ofrece seguimiento
-        boolean disponible = activa || (fin != null && TrackingLink.seguimientoVigente(a.status(), fin, ahora));
+        boolean disponible = activa || (fin != null && TrackingLink.seguimientoVigente(a.status(), fin, now));
         return new ReceivedAlert(a.id(), name, a.status(), activa, a.startedAt(), fin, disponible);
     }
 }

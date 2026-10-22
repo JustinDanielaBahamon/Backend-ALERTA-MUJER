@@ -26,15 +26,15 @@ public class EmergencyResource {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static EmergencyResource nuevo(DatosRecurso d) {
+    public static EmergencyResource created(DatosRecurso d) {
         EmergencyResource r = new EmergencyResource();
-        r.reemplazar(d);
+        r.replace(d);
         if (d.isActive() == null) r.isActive = true;
         return r;
     }
 
     /** Edición desde el panel: reemplaza todos los datos del recurso. */
-    public void reemplazar(DatosRecurso d) {
+    public void replace(DatosRecurso d) {
         name = d.name();
         resourceType = d.resourceType();
         telephone = d.telephone();

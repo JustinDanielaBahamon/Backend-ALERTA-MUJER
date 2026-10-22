@@ -10,7 +10,7 @@ public record EmergencyResourceRequest(String name, String resourceType, String 
                                        String email, String address, String city, BigDecimal latitude,
                                        BigDecimal longitude, String description, @JsonProperty("isActive") Boolean isActive) {
 
-    public DatosRecurso aDatos() {
+    public DatosRecurso toData() {
         return new DatosRecurso(name, resourceType, telephone, secondaryTelephone, email, address, city, latitude, longitude,
                 description, isActive);
     }

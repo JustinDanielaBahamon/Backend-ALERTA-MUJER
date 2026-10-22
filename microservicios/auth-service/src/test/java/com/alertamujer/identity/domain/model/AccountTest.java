@@ -7,35 +7,35 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccountTest {
 
     @Test
-    void unaContrasenaNuevaTieneEntre8Y100Caracteres() {
-        assertThrows(IllegalArgumentException.class, () -> Account.validarContrasenaNueva(null));
-        assertThrows(IllegalArgumentException.class, () -> Account.validarContrasenaNueva("1234567"));
-        assertThrows(IllegalArgumentException.class, () -> Account.validarContrasenaNueva("x".repeat(101)));
-        assertDoesNotThrow(() -> Account.validarContrasenaNueva("12345678"));
+    void aNewPasswordHasBetween8And100Characters() {
+        assertThrows(IllegalArgumentException.class, () -> Account.validateNewPassword(null));
+        assertThrows(IllegalArgumentException.class, () -> Account.validateNewPassword("1234567"));
+        assertThrows(IllegalArgumentException.class, () -> Account.validateNewPassword("x".repeat(101)));
+        assertDoesNotThrow(() -> Account.validateNewPassword("12345678"));
     }
 
     @Test
-    void bloqueadaOInactivaNoRenuevaLaSesion() {
-        Account a = Account.nueva(1L, "hash");
-        assertTrue(a.puedeRenovarSesion());
+    void blockedOrInactiveDoesNotRefreshTheSession() {
+        Account a = Account.newOne(1L, "hash");
+        assertTrue(a.canRefreshSession());
 
-        a.cambiarEstado("blocked");
-        assertTrue(a.bloqueada());
-        assertFalse(a.puedeRenovarSesion());
+        a.changeStatus("blocked");
+        assertTrue(a.blocked());
+        assertFalse(a.canRefreshSession());
 
-        a.cambiarEstado("inactive");
-        assertFalse(a.puedeRenovarSesion());
+        a.changeStatus("inactive");
+        assertFalse(a.canRefreshSession());
     }
 
     @Test
-    void soloAceptaEstadosConocidos() {
-        assertThrows(IllegalArgumentException.class, () -> Account.nueva(1L, "hash").cambiarEstado("raro"));
+    void onlyAcceptsKnownStatuses() {
+        assertThrows(IllegalArgumentException.class, () -> Account.newOne(1L, "hash").changeStatus("raro"));
     }
 
     @Test
-    void desactivarCambiaLaContrasenaPorUnaInutilizable() {
-        Account a = Account.nueva(1L, "hash");
-        a.desactivar("otro");
+    void deactivateReplacesThePasswordWithAnUnusableOne() {
+        Account a = Account.newOne(1L, "hash");
+        a.deactivate("otro");
         assertEquals("inactive", a.getStatus());
         assertEquals("otro", a.getPasswordHash());
     }

@@ -55,9 +55,9 @@ public class TrackingLink {
     }
 
     /** El seguimiento de una alerta sigue disponible: activa, o terminada hace menos de 2 horas. */
-    public static boolean seguimientoVigente(String estadoAlerta, LocalDateTime fin, LocalDateTime ahora) {
-        if ("active".equals(estadoAlerta)) return true;
-        return fin == null || !fin.plus(VIGENCIA_TRAS_TERMINAR).isBefore(ahora);
+    public static boolean seguimientoVigente(String alertStatus, LocalDateTime fin, LocalDateTime now) {
+        if ("active".equals(alertStatus)) return true;
+        return fin == null || !fin.plus(VIGENCIA_TRAS_TERMINAR).isBefore(now);
     }
 
     public boolean revocado() {

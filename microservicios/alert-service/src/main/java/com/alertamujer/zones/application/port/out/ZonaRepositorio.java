@@ -8,7 +8,7 @@ import java.util.Optional;
 /** Puerto de salida: las zonas del mapa. */
 public interface ZonaRepositorio {
 
-    List<Zone> todas();
+    List<Zone> all();
 
     Optional<Zone> find(Long id);
 

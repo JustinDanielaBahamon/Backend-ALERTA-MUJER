@@ -27,17 +27,17 @@ public class RegisterRequest {
     private String password;
     
     @Size(max = 20, message = "El teléfono no puede exceder 20 caracteres")
-    private String telefono;
+    @com.fasterxml.jackson.annotation.JsonProperty("telefono") private String telephone;
 
     @Size(max = 30, message = "El tipo de documento no puede exceder 30 caracteres")
-    private String tipoDocumento;
+    @com.fasterxml.jackson.annotation.JsonProperty("tipoDocumento") private String documentType;
 
     @Size(max = 30, message = "El número de documento no puede exceder 30 caracteres")
-    private String numeroDocumento;
+    @com.fasterxml.jackson.annotation.JsonProperty("numeroDocumento") private String documentNumber;
 
     /** DD/MM/AAAA, como lo escriben los formularios. */
-    private String fechaNacimiento;
+    @com.fasterxml.jackson.annotation.JsonProperty("fechaNacimiento") private String birthDate;
 
     /** Casilla "Acepto los términos y la política de privacidad". */
-    private Boolean aceptaTerminos;
+    @com.fasterxml.jackson.annotation.JsonProperty("aceptaTerminos") private Boolean acceptsTerms;
 }

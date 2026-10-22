@@ -30,69 +30,69 @@ public class User {
     private String termsVersion;
 
     /** Versión vigente de los términos y la política de privacidad. Cambiarla al publicar otra. */
-    public static final String TERMINOS_VIGENTES = "2026-10";
+    public static final String CURRENT_TERMS = "2026-10";
 
-    public static final long ROL_USUARIA = 1L;
+    public static final long USER_ROLE = 1L;
     public static final long ADMIN_ROLE = 2L;
-    private static final int MAXIMO_NOMBRE = 100;
-    private static final DateTimeFormatter FECHA_FORMULARIO =
+    private static final int MAX_NAME = 100;
+    private static final DateTimeFormatter FORM_DATE =
             DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Usuaria nueva desde el formulario de registro (nombre completo en un solo campo). */
-    public static User nueva(String name, String email, String telefono, String tipoDocumento,
-                             String numeroDocumento, LocalDate nacimiento) {
+    public static User newOne(String name, String email, String telephone, String documentType,
+                             String documentNumber, LocalDate birth) {
         String[] partes = name.split(" ");
         User u = new User();
-        u.roleId = ROL_USUARIA;
+        u.roleId = USER_ROLE;
         u.firstName = partes[0];
         u.lastName = partes.length > 1 ? partes[1] : "";
         u.email = email;
-        u.telephone = limpiarTelefono(telefono);
-        u.documentType = vacioANull(tipoDocumento);
-        u.documentNumber = vacioANull(numeroDocumento);
-        u.birthdate = nacimiento;
+        u.telephone = cleanPhone(telephone);
+        u.documentType = emptyToNull(documentType);
+        u.documentNumber = emptyToNull(documentNumber);
+        u.birthdate = birth;
         return u;
     }
 
     /** Usuaria nueva que entra por primera vez con Google (sin teléfono ni documento). */
-    public static User desdeGoogle(String email, String name, String givenName, String familyName) {
+    public static User fromGoogle(String email, String name, String givenName, String familyName) {
         String firstName = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
-        String apellido = familyName != null ? familyName
+        String lastName = familyName != null ? familyName
                 : (name != null && name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "");
         if (firstName.isBlank()) firstName = email.substring(0, email.indexOf('@'));
         User u = new User();
-        u.roleId = ROL_USUARIA;
-        u.firstName = recortar(firstName);
-        u.lastName = recortar(apellido);
+        u.roleId = USER_ROLE;
+        u.firstName = truncate(firstName);
+        u.lastName = truncate(lastName);
         u.email = email;
         return u;
     }
 
     // "300 123-4567" y "3001234567" son el mismo número: se guarda sin espacios ni separadores
-    public static String limpiarTelefono(String telefono) {
-        return vacioANull(telefono == null ? null : telefono.replaceAll("[\\s().-]", ""));
+    public static String cleanPhone(String telephone) {
+        return emptyToNull(telephone == null ? null : telephone.replaceAll("[\\s().-]", ""));
     }
 
-    public static String vacioANull(String value) {
+    public static String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
     }
 
     /** Fecha DD/MM/AAAA como la escriben los formularios; null si falta o no es válida. */
-    public static LocalDate fechaDeFormulario(String ddMmAaaa) {
-        if (ddMmAaaa == null || ddMmAaaa.isBlank()) return null;
+    public static LocalDate formDate(String ddMmYyyy) {
+        if (ddMmYyyy == null || ddMmYyyy.isBlank()) return null;
         try {
-            return LocalDate.parse(ddMmAaaa.trim(), FECHA_FORMULARIO);
+            return LocalDate.parse(ddMmYyyy.trim(), FORM_DATE);
         } catch (DateTimeParseException e) {
             return null;
         }
     }
 
     /** Deja constancia de que aceptó los términos vigentes. */
-    public void aceptarTerminos(LocalDateTime cuando) {
-        termsAcceptedAt = cuando;
-        termsVersion = TERMINOS_VIGENTES;
+    public void acceptTerms(LocalDateTime when) {
+        termsAcceptedAt = when;
+        termsVersion = CURRENT_TERMS;
     }
 
     public boolean esAdmin() {
@@ -100,16 +100,16 @@ public class User {
     }
 
     /** Rol que viaja en el JWT. */
-    public String rolDelToken() {
+    public String roleOfToken() {
         return esAdmin() ? "admin" : "user";
     }
 
-    public String nombreCompleto() {
+    public String fullName() {
         return ((firstName == null ? "" : firstName) + " " + (lastName == null ? "" : lastName)).trim();
     }
 
     /** Cambios de la propia usuaria en su perfil: solo los campos enviados (Optional vacío = borrarlo). */
-    public void actualizarDatos(CambiosUsuaria c) {
+    public void updateData(UserChanges c) {
         if (c.firstName() != null) firstName = c.firstName().orElse(null);
         if (c.lastName() != null) lastName = c.lastName().orElse(null);
         if (c.telephone() != null) telephone = c.telephone().orElse(null);
@@ -119,15 +119,15 @@ public class User {
     }
 
     /** Cambios de la administración: solo los campos que llegan con valor. */
-    public void actualizarDesdeAdministracion(String name, String apellido, String telefono, String correo) {
+    public void updateFromAdministration(String name, String newLastName, String newTelephone, String newEmail) {
         if (name != null) firstName = name;
-        if (apellido != null) lastName = apellido;
-        if (telefono != null) telephone = telefono;
-        if (correo != null) email = correo;
+        if (newLastName != null) lastName = newLastName;
+        if (newTelephone != null) telephone = newTelephone;
+        if (newEmail != null) email = newEmail;
     }
 
     /** "Elimina" la cuenta sin romper el historial: borra los datos personales. */
-    public void anonimizar() {
+    public void anonymize() {
         firstName = "Cuenta";
         lastName = "eliminada";
         email = "eliminada-" + id + "@alertamujer.invalid";
@@ -137,8 +137,8 @@ public class User {
         birthdate = null;
     }
 
-    private static String recortar(String text) {
-        return text.length() > MAXIMO_NOMBRE ? text.substring(0, MAXIMO_NOMBRE) : text;
+    private static String truncate(String text) {
+        return text.length() > MAX_NAME ? text.substring(0, MAX_NAME) : text;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

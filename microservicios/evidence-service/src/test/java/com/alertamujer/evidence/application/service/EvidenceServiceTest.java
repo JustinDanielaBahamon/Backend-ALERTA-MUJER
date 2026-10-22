@@ -27,8 +27,8 @@ class EvidenceServiceTest {
     private final EvidenceRepository repository = mock(EvidenceRepository.class);
     private final EvidenceStorage storage = mock(EvidenceStorage.class);
     private final AlertsPort alerts = mock(AlertsPort.class);
-    private final IdentityPort identidad = mock(IdentityPort.class);
-    private final EvidenceService service = new EvidenceService(repository, storage, alerts, identidad, 1000);
+    private final IdentityPort identity = mock(IdentityPort.class);
+    private final EvidenceService service = new EvidenceService(repository, storage, alerts, identity, 1000);
 
     private Evidence evidence;
 
@@ -43,8 +43,8 @@ class EvidenceServiceTest {
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(alerts.find(9L)).thenReturn(Optional.of(
                 new AlertSummary(9L, 70L, "main", "panic_button", "active", null, null, null, null, null, null)));
-        when(identidad.profileOf(1L)).thenReturn(70L);
-        when(identidad.profileOf(2L)).thenReturn(71L);
+        when(identity.profileOf(1L)).thenReturn(70L);
+        when(identity.profileOf(2L)).thenReturn(71L);
     }
 
     private IncomingFile file(String type, long size) {

@@ -18,14 +18,14 @@ class VistasJdbcAdapter implements VistasRepositorio {
     }
 
     @Override
-    public void registrar(Long alertId, String visitante, LocalDateTime ahora) {
-        Timestamp t = Timestamp.valueOf(ahora);
+    public void registrar(Long alertId, String visitante, LocalDateTime now) {
+        Timestamp t = Timestamp.valueOf(now);
         jdbc.update("INSERT INTO notification.tracking_view (alert_id, visitor, first_seen, last_seen) VALUES (?, ?, ?, ?) "
                 + "ON CONFLICT (alert_id, visitor) DO UPDATE SET last_seen = EXCLUDED.last_seen", alertId, visitante, t, t);
     }
 
     @Override
-    public Conteo contar(Long alertId, LocalDateTime recientes) {
+    public Conteo count(Long alertId, LocalDateTime recientes) {
         return jdbc.queryForObject("SELECT count(*), count(*) FILTER (WHERE last_seen >= ?) "
                         + "FROM notification.tracking_view WHERE alert_id = ?",
                 (rs, n) -> new Conteo(rs.getInt(1), rs.getInt(2)), Timestamp.valueOf(recientes), alertId);

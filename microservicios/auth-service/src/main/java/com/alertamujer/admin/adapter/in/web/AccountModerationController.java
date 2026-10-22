@@ -1,10 +1,10 @@
 package com.alertamujer.admin.adapter.in.web;
 
-import com.alertamujer.admin.application.port.in.ModeracionCuentasUseCase;
-import com.alertamujer.admin.application.port.in.ModeracionCuentasUseCase.Bloqueo;
-import com.alertamujer.admin.application.port.in.ModeracionCuentasUseCase.HistorialItem;
-import com.alertamujer.admin.application.port.in.ModeracionCuentasUseCase.SolicitudView;
-import com.alertamujer.admin.application.port.in.ReportesUsuariaUseCase;
+import com.alertamujer.admin.application.port.in.AccountModerationUseCase;
+import com.alertamujer.admin.application.port.in.AccountModerationUseCase.Block;
+import com.alertamujer.admin.application.port.in.AccountModerationUseCase.HistoryItem;
+import com.alertamujer.admin.application.port.in.AccountModerationUseCase.DeletionRequestView;
+import com.alertamujer.admin.application.port.in.UserReportsUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,30 +19,30 @@ import java.util.Map;
 @PreAuthorize("hasRole('ADMIN')")
 public class AccountModerationController {
 
-    private final ModeracionCuentasUseCase moderacion;
-    private final ReportesUsuariaUseCase reportes;
+    private final AccountModerationUseCase moderation;
+    private final UserReportsUseCase reportes;
 
-    public AccountModerationController(ModeracionCuentasUseCase moderacion, ReportesUsuariaUseCase reportes) {
-        this.moderacion = moderacion;
+    public AccountModerationController(AccountModerationUseCase moderation, UserReportsUseCase reportes) {
+        this.moderation = moderation;
         this.reportes = reportes;
     }
 
     @PostMapping("/users/{id}/block")
-    public ResponseEntity<Void> block(@PathVariable Long id, @RequestBody Bloqueo body, @AuthenticationPrincipal Long adminId) {
-        moderacion.bloquear(id, body, adminId);
+    public ResponseEntity<Void> block(@PathVariable Long id, @RequestBody Block body, @AuthenticationPrincipal Long adminId) {
+        moderation.block(id, body, adminId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/users/{id}/unblock")
     public ResponseEntity<Void> unblock(@PathVariable Long id, @RequestBody Map<String, String> body,
                                         @AuthenticationPrincipal Long adminId) {
-        moderacion.desbloquear(id, body == null ? null : body.get("note"), adminId);
+        moderation.unblock(id, body == null ? null : body.get("note"), adminId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/users/{id}/moderation-history")
-    public ResponseEntity<List<HistorialItem>> history(@PathVariable Long id) {
-        return ResponseEntity.ok(moderacion.historial(id));
+    public ResponseEntity<List<HistoryItem>> history(@PathVariable Long id) {
+        return ResponseEntity.ok(moderation.history(id));
     }
 
     /** Captura adjunta a un caso de moderación (data URI). */
@@ -53,25 +53,25 @@ public class AccountModerationController {
     }
 
     @PostMapping("/users/{id}/deletion-requests")
-    public ResponseEntity<SolicitudView> requestDeletion(@PathVariable Long id, @RequestBody Map<String, String> body,
+    public ResponseEntity<DeletionRequestView> requestDeletion(@PathVariable Long id, @RequestBody Map<String, String> body,
                                                          @AuthenticationPrincipal Long adminId) {
-        return ResponseEntity.ok(moderacion.solicitarEliminacion(id, body == null ? null : body.get("reason"), adminId));
+        return ResponseEntity.ok(moderation.requestDeletion(id, body == null ? null : body.get("reason"), adminId));
     }
 
     @GetMapping("/deletion-requests")
-    public ResponseEntity<List<SolicitudView>> deletionRequests() {
-        return ResponseEntity.ok(moderacion.solicitudes());
+    public ResponseEntity<List<DeletionRequestView>> deletionRequests() {
+        return ResponseEntity.ok(moderation.solicitudes());
     }
 
     @PostMapping("/deletion-requests/{id}/approve")
-    public ResponseEntity<SolicitudView> approve(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body,
+    public ResponseEntity<DeletionRequestView> approve(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body,
                                                  @AuthenticationPrincipal Long adminId) {
-        return ResponseEntity.ok(moderacion.aprobar(id, body == null ? null : body.get("note"), adminId));
+        return ResponseEntity.ok(moderation.approve(id, body == null ? null : body.get("note"), adminId));
     }
 
     @PostMapping("/deletion-requests/{id}/reject")
-    public ResponseEntity<SolicitudView> reject(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body,
+    public ResponseEntity<DeletionRequestView> reject(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body,
                                                 @AuthenticationPrincipal Long adminId) {
-        return ResponseEntity.ok(moderacion.rechazar(id, body == null ? null : body.get("note"), adminId));
+        return ResponseEntity.ok(moderation.reject(id, body == null ? null : body.get("note"), adminId));
     }
 }

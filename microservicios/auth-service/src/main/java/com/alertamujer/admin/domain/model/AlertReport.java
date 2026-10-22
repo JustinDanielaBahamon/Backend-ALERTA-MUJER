@@ -32,32 +32,32 @@ public class AlertReport {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    public static final Set<String> ESTADOS = Set.of("pending", "attended", "closed");
-    public static final Set<String> FORMATOS = Set.of("PDF", "EXCEL");
-    public static final Set<String> ESTADOS_ALERTA = Set.of("active", "resolved", "cancelled", "expired");
+    public static final Set<String> STATUSES = Set.of("pending", "attended", "closed");
+    public static final Set<String> FORMATS = Set.of("PDF", "EXCEL");
+    public static final Set<String> ALERT_STATUSES = Set.of("active", "resolved", "cancelled", "expired");
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static AlertReport nuevo(CambiosInforme cambios, Long adminUserId) {
-        if (cambios.name() == null || cambios.name().isBlank()) {
+    public static AlertReport created(ReportExportChanges changes, Long adminUserId) {
+        if (changes.name() == null || changes.name().isBlank()) {
             throw new IllegalArgumentException("El nombre del informe es obligatorio");
         }
         AlertReport r = new AlertReport();
-        r.aplicar(cambios);
+        r.apply(changes);
         r.createdByUserId = adminUserId;
         return r;
     }
 
     /** Aplica los campos enviados validando estado, formato y filtro; "" en ciudad o filtro los quita. */
-    public void aplicar(CambiosInforme c) {
+    public void apply(ReportExportChanges c) {
         if (c.name() != null && !c.name().isBlank()) name = c.name().trim();
         if (c.city() != null) city = c.city().isBlank() ? null : c.city().trim();
         if (c.status() != null) {
-            if (!ESTADOS.contains(c.status())) throw new IllegalArgumentException("Estado no válido: " + c.status());
+            if (!STATUSES.contains(c.status())) throw new IllegalArgumentException("Estado no válido: " + c.status());
             status = c.status();
         }
         if (c.format() != null) {
-            if (!FORMATOS.contains(c.format())) throw new IllegalArgumentException("Formato no válido: " + c.format());
+            if (!FORMATS.contains(c.format())) throw new IllegalArgumentException("Formato no válido: " + c.format());
             format = c.format();
         }
         if (c.userLabel() != null) userLabel = c.userLabel().trim();
@@ -67,29 +67,29 @@ public class AlertReport {
         if (c.fromDate() != null) fromDate = c.fromDate();
         if (c.toDate() != null) toDate = c.toDate();
         if (c.alertStatus() != null) {
-            if (!c.alertStatus().isBlank() && !ESTADOS_ALERTA.contains(c.alertStatus())) {
+            if (!c.alertStatus().isBlank() && !ALERT_STATUSES.contains(c.alertStatus())) {
                 throw new IllegalArgumentException("Estado de alerta no válido: " + c.alertStatus());
             }
             alertStatus = c.alertStatus().isBlank() ? null : c.alertStatus();
         }
     }
 
-    public Set<Long> idsElegidos() {
+    public Set<Long> chosenIds() {
         if (alertIds == null || alertIds.isBlank()) return Set.of();
         return Arrays.stream(alertIds.split(",")).map(String::trim).filter(s -> !s.isEmpty())
                 .map(Long::valueOf).collect(Collectors.toSet());
     }
 
     /** La alerta entra en el informe: si hay alertas elegidas, solo esas; si no, las que cumplen los filtros. */
-    public boolean incluye(Long alertaId, LocalDateTime inicio, String estadoAlerta) {
-        Set<Long> ids = idsElegidos();
-        if (!ids.isEmpty()) return ids.contains(alertaId);
-        return (fromDate == null || (inicio != null && !inicio.isBefore(fromDate)))
-                && (toDate == null || (inicio != null && !inicio.isAfter(toDate)))
-                && (alertStatus == null || alertStatus.equals(estadoAlerta));
+    public boolean includes(Long alertId, LocalDateTime start, String status) {
+        Set<Long> ids = chosenIds();
+        if (!ids.isEmpty()) return ids.contains(alertId);
+        return (fromDate == null || (start != null && !start.isBefore(fromDate)))
+                && (toDate == null || (start != null && !start.isAfter(toDate)))
+                && (alertStatus == null || alertStatus.equals(status));
     }
 
-    public void registrarExportacion() {
+    public void recordExport() {
         exportCount = (exportCount == null ? 0 : exportCount) + 1;
     }
 

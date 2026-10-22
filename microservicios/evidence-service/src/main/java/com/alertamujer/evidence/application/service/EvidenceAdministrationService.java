@@ -21,20 +21,20 @@ public class EvidenceAdministrationService implements ManageEvidenceUseCase {
 
     private final EvidenceRepository repository;
     private final AlertsPort alerts;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
 
-    public EvidenceAdministrationService(EvidenceRepository repository, AlertsPort alerts, IdentityPort identidad) {
+    public EvidenceAdministrationService(EvidenceRepository repository, AlertsPort alerts, IdentityPort identity) {
         this.repository = repository;
         this.alerts = alerts;
-        this.identidad = identidad;
+        this.identity = identity;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<AdminEvidence> listAll() {
-        Map<Long, AlertSummary> byAlert = alerts.todas();
-        Map<Long, UserSummary> byProfile = identidad.usersByProfile();
-        return repository.todas().stream()
+        Map<Long, AlertSummary> byAlert = alerts.all();
+        Map<Long, UserSummary> byProfile = identity.usersByProfile();
+        return repository.all().stream()
                 .sorted(Comparator.comparing(Evidence::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(e -> {
                     AlertSummary a = byAlert.get(e.getAlertId());
@@ -46,11 +46,11 @@ public class EvidenceAdministrationService implements ManageEvidenceUseCase {
     @Override
     @Transactional(readOnly = true)
     public Stats stats() {
-        List<Evidence> todas = repository.todas();
-        long verificadas = todas.stream().filter(e -> "verified".equals(e.getReviewStatus())).count();
-        long rechazadas = todas.stream().filter(e -> "rejected".equals(e.getReviewStatus())).count();
-        long tamanio = todas.stream().mapToLong(e -> e.getSizeBytes() == null ? 0 : e.getSizeBytes()).sum();
-        return new Stats(todas.size(), verificadas, todas.size() - verificadas - rechazadas, rechazadas, tamanio);
+        List<Evidence> all = repository.all();
+        long verificadas = all.stream().filter(e -> "verified".equals(e.getReviewStatus())).count();
+        long rechazadas = all.stream().filter(e -> "rejected".equals(e.getReviewStatus())).count();
+        long tamanio = all.stream().mapToLong(e -> e.getSizeBytes() == null ? 0 : e.getSizeBytes()).sum();
+        return new Stats(all.size(), verificadas, all.size() - verificadas - rechazadas, rechazadas, tamanio);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class EvidenceAdministrationService implements ManageEvidenceUseCase {
         e.changeReview(review);
         e = repository.save(e);
         AlertSummary a = alerts.find(e.getAlertId()).orElse(null);
-        UserSummary u = a == null ? null : identidad.userOfProfile(a.userProfileId()).orElse(null);
+        UserSummary u = a == null ? null : identity.userOfProfile(a.userProfileId()).orElse(null);
         return new AdminEvidence(e, a, u);
     }
 }

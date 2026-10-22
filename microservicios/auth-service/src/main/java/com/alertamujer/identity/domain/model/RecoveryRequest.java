@@ -19,27 +19,27 @@ public class RecoveryRequest {
     private LocalDateTime expiresAt;
     private LocalDateTime usedAt;
     /** pending | replaced | expired | used */
-    private String status = PENDIENTE;
+    private String status = PENDING;
     private Long attempts = 0L;
     private String requestedIp;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    public static final String PENDIENTE = "pending";
-    public static final int MINUTOS_VALIDEZ = 15;
-    public static final int MAX_INTENTOS = 5;
-    public static final int SEGUNDOS_ENTRE_SOLICITUDES = 60;
+    public static final String PENDING = "pending";
+    public static final int VALIDITY_MINUTES = 15;
+    public static final int MAX_ATTEMPTS = 5;
+    public static final int SECONDS_BETWEEN_REQUESTS = 60;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static RecoveryRequest nueva(Long accountId, String code, String ip, LocalDateTime ahora) {
+    public static RecoveryRequest newOne(Long accountId, String code, String ip, LocalDateTime now) {
         RecoveryRequest r = new RecoveryRequest();
         r.accountId = accountId;
         r.method = "email";
         r.tokenHash = hash(accountId, code);
-        r.expiresAt = ahora.plusMinutes(MINUTOS_VALIDEZ);
+        r.expiresAt = now.plusMinutes(VALIDITY_MINUTES);
         r.requestedIp = ip;
-        r.createdAt = ahora;
+        r.createdAt = now;
         return r;
     }
 
@@ -55,12 +55,12 @@ public class RecoveryRequest {
     }
 
     /** Pedida hace menos de un minuto: evita que se usen los correos para molestar. */
-    public boolean reciente(LocalDateTime ahora) {
-        return createdAt != null && createdAt.isAfter(ahora.minusSeconds(SEGUNDOS_ENTRE_SOLICITUDES));
+    public boolean recent(LocalDateTime now) {
+        return createdAt != null && createdAt.isAfter(now.minusSeconds(SECONDS_BETWEEN_REQUESTS));
     }
 
-    public boolean vencida(LocalDateTime ahora) {
-        return expiresAt.isBefore(ahora);
+    public boolean expired(LocalDateTime now) {
+        return expiresAt.isBefore(now);
     }
 
     /** Compara en tiempo constante. */
@@ -69,23 +69,23 @@ public class RecoveryRequest {
                 tokenHash.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void reemplazar() {
+    public void replace() {
         status = "replaced";
     }
 
-    public void expirar() {
+    public void expire() {
         status = "expired";
     }
 
     /** Un código equivocado gasta un intento; al quinto el código deja de servir. */
-    public void registrarFallo() {
+    public void recordFailure() {
         attempts = attempts + 1;
-        if (attempts >= MAX_INTENTOS) status = "expired";
+        if (attempts >= MAX_ATTEMPTS) status = "expired";
     }
 
-    public void usar(LocalDateTime ahora) {
+    public void use(LocalDateTime now) {
         status = "used";
-        usedAt = ahora;
+        usedAt = now;
     }
 
     // ── Datos ───────────────────────────────────────────────────────

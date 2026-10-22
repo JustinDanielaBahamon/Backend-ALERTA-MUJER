@@ -9,25 +9,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FrequentLocationTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Test
     void unLugarNuevoEsActivoConRiesgoModerado() {
-        FrequentLocation l = FrequentLocation.nuevo(10L,
-                new DatosLugar("Casa", null, null, BigDecimal.ONE, BigDecimal.ONE, null, " ", null), AHORA);
+        FrequentLocation l = FrequentLocation.created(10L,
+                new DatosLugar("Casa", null, null, BigDecimal.ONE, BigDecimal.ONE, null, " ", null), NOW);
 
         assertEquals(10L, l.getUserProfileId());
         assertEquals(FrequentLocation.RIESGO_POR_DEFECTO, l.getRiskLevel());
         assertTrue(l.getIsActive());
-        assertEquals(AHORA, l.getCreatedAt());
+        assertEquals(NOW, l.getCreatedAt());
     }
 
     @Test
     void actualizarNoBorraLoQueNoSeEnvia() {
-        FrequentLocation l = FrequentLocation.nuevo(10L,
-                new DatosLugar("Casa", "Calle 1", "Bogotá", BigDecimal.ONE, BigDecimal.ONE, "Notas", "alta", true), AHORA);
+        FrequentLocation l = FrequentLocation.created(10L,
+                new DatosLugar("Casa", "Calle 1", "Bogotá", BigDecimal.ONE, BigDecimal.ONE, "Notas", "alta", true), NOW);
 
-        l.actualizar(new DatosLugar(null, null, null, null, null, null, null, false), AHORA.plusHours(1));
+        l.update(new DatosLugar(null, null, null, null, null, null, null, false), NOW.plusHours(1));
 
         assertEquals("Casa", l.getName());
         assertEquals("Calle 1", l.getAddress());
@@ -35,6 +35,6 @@ class FrequentLocationTest {
         assertEquals("Notas", l.getNotes());
         assertEquals("alta", l.getRiskLevel());
         assertFalse(l.getIsActive());
-        assertEquals(AHORA.plusHours(1), l.getUpdatedAt());
+        assertEquals(NOW.plusHours(1), l.getUpdatedAt());
     }
 }

@@ -3,8 +3,8 @@ package com.alertamujer.devices.adapter.in.web;
 import com.alertamujer.devices.adapter.in.web.dto.AdminDeviceView;
 import com.alertamujer.devices.adapter.in.web.dto.DeviceRequest;
 import com.alertamujer.devices.adapter.in.web.dto.DeviceResponse;
-import com.alertamujer.devices.application.port.in.AdministrarDispositivosUseCase;
-import com.alertamujer.devices.application.port.in.MisDispositivosUseCase;
+import com.alertamujer.devices.application.port.in.ManageDevicesUseCase;
+import com.alertamujer.devices.application.port.in.MyDevicesUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -19,23 +19,23 @@ import java.util.Map;
 @RequestMapping("/api/devices")
 public class DeviceController {
 
-    private final MisDispositivosUseCase misDispositivos;
-    private final AdministrarDispositivosUseCase administracion;
+    private final MyDevicesUseCase myDevices;
+    private final ManageDevicesUseCase administration;
 
-    public DeviceController(MisDispositivosUseCase misDispositivos, AdministrarDispositivosUseCase administracion) {
-        this.misDispositivos = misDispositivos;
-        this.administracion = administracion;
+    public DeviceController(MyDevicesUseCase myDevices, ManageDevicesUseCase administration) {
+        this.myDevices = myDevices;
+        this.administration = administration;
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminDeviceView>> getAllDevices() {
-        return ResponseEntity.ok(administracion.listAll().stream().map(AdminDeviceView::of).toList());
+        return ResponseEntity.ok(administration.listAll().stream().map(AdminDeviceView::of).toList());
     }
 
     @GetMapping("/user")
     public ResponseEntity<List<DeviceResponse>> getMyDevices(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(misDispositivos.mios(currentUserId).stream().map(DeviceResponse::of).toList());
+        return ResponseEntity.ok(myDevices.mine(currentUserId).stream().map(DeviceResponse::of).toList());
     }
 
     @GetMapping("/{id}")
@@ -43,34 +43,34 @@ public class DeviceController {
                                            Authentication authentication) {
         // La administradora ve cualquier dispositivo, con los datos de su dueña
         if (esAdmin(authentication)) {
-            return ResponseEntity.ok(AdminDeviceView.of(administracion.obtener(id)));
+            return ResponseEntity.ok(AdminDeviceView.of(administration.get(id)));
         }
-        return ResponseEntity.ok(DeviceResponse.of(misDispositivos.uno(id, currentUserId)));
+        return ResponseEntity.ok(DeviceResponse.of(myDevices.one(id, currentUserId)));
     }
 
     /** Cambia el estado de cualquier dispositivo: active, inactive, blocked o lost. */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminDeviceView> changeDeviceStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(AdminDeviceView.of(administracion.cambiarEstado(id, body.get("status"))));
+        return ResponseEntity.ok(AdminDeviceView.of(administration.changeStatus(id, body.get("status"))));
     }
 
     @PostMapping
     public ResponseEntity<DeviceResponse> createDevice(@RequestBody DeviceRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(DeviceResponse.of(misDispositivos.registrar(request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(DeviceResponse.of(myDevices.registrar(request.toData(), currentUserId)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<DeviceResponse> updateDevice(@PathVariable Long id, @RequestBody DeviceRequest request,
                                                        @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(DeviceResponse.of(misDispositivos.reemplazar(id, request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(DeviceResponse.of(myDevices.replace(id, request.toData(), currentUserId)));
     }
 
     /** La app informa los datos actuales del celular y su última conexión (solo la dueña). */
     @PutMapping("/{id}/info")
     public ResponseEntity<DeviceResponse> registrarUso(@PathVariable Long id, @RequestBody DeviceRequest request,
                                                        @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(DeviceResponse.of(misDispositivos.registrarUso(id, request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(DeviceResponse.of(myDevices.registrarUso(id, request.toData(), currentUserId)));
     }
 
     /**
@@ -84,7 +84,7 @@ public class DeviceController {
         if (token == null || token.isBlank() || token.length() > 255) {
             throw new IllegalArgumentException("Token push no válido");
         }
-        misDispositivos.cambiarTokenPush(id, token.trim(), currentUserId);
+        myDevices.changePushToken(id, token.trim(), currentUserId);
         return ResponseEntity.noContent().build();
     }
 
@@ -92,9 +92,9 @@ public class DeviceController {
     public ResponseEntity<Void> deleteDevice(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
                                              Authentication authentication) {
         if (esAdmin(authentication)) {
-            administracion.delete(id);
+            administration.delete(id);
         } else {
-            misDispositivos.delete(id, currentUserId);
+            myDevices.delete(id, currentUserId);
         }
         return ResponseEntity.noContent().build();
     }

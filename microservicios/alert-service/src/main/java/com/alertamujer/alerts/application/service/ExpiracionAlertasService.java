@@ -34,10 +34,10 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
     }
 
     @Override
-    public int revisar(LocalDateTime ahora) {
+    public int revisar(LocalDateTime now) {
         // guardarTodas abre la transacción dentro de AuditSource.con, así la auditoría registra el origen
-        int expiradas = AuditSource.runAs("Tarea automática · Expiración de alertas", () -> expirarVencidas(ahora));
-        ultimaRevision = ahora;
+        int expiradas = AuditSource.runAs("Tarea automática · Expiración de alertas", () -> expirarVencidas(now));
+        ultimaRevision = now;
         expiradasUltimaRevision = expiradas;
         if (expiradas > 0) log.info("Alertas expiradas por superar la duración máxima: {}", expiradas);
         return expiradas;
@@ -53,14 +53,14 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
         return expiradasUltimaRevision;
     }
 
-    int expirarVencidas(LocalDateTime ahora) {
-        int minutos = ajustes.maxAlertDurationMinutes();
-        if (minutos <= 0) return 0;
-        LocalDateTime limite = ahora.minusMinutes(minutos);
-        List<Alert> vencidas = repository.activas().stream().filter(a -> a.vencida(limite)).toList();
-        vencidas.forEach(a -> a.expirar(ahora));
-        repository.guardarTodas(vencidas);
-        vencidas.forEach(a -> events.alertaTerminada(a, ahora));
+    int expirarVencidas(LocalDateTime now) {
+        int minutes = ajustes.maxAlertDurationMinutes();
+        if (minutes <= 0) return 0;
+        LocalDateTime limite = now.minusMinutes(minutes);
+        List<Alert> vencidas = repository.active().stream().filter(a -> a.expired(limite)).toList();
+        vencidas.forEach(a -> a.expire(now));
+        repository.saveAll(vencidas);
+        vencidas.forEach(a -> events.alertaTerminada(a, now));
         return vencidas.size();
     }
 }

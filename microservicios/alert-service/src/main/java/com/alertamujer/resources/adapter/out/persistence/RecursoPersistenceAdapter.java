@@ -18,28 +18,28 @@ class RecursoPersistenceAdapter implements RecursoRepositorio {
     }
 
     @Override
-    public List<EmergencyResource> todos() {
-        return jpa.findAll().stream().map(RecursoPersistenceAdapter::aDominio).toList();
+    public List<EmergencyResource> all() {
+        return jpa.findAll().stream().map(RecursoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<EmergencyResource> find(Long id) {
-        return jpa.findById(id).map(RecursoPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(RecursoPersistenceAdapter::toDomain);
     }
 
     @Override
     public List<EmergencyResource> deCiudad(String ciudad) {
-        return jpa.findByCity(ciudad).stream().map(RecursoPersistenceAdapter::aDominio).toList();
+        return jpa.findByCity(ciudad).stream().map(RecursoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<EmergencyResource> deTipo(String type) {
-        return jpa.findByResourceType(type).stream().map(RecursoPersistenceAdapter::aDominio).toList();
+        return jpa.findByResourceType(type).stream().map(RecursoPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public EmergencyResource save(EmergencyResource recurso) {
-        return aDominio(jpa.save(aFila(recurso)));
+        return toDomain(jpa.save(toRow(recurso)));
     }
 
     @Override
@@ -47,7 +47,7 @@ class RecursoPersistenceAdapter implements RecursoRepositorio {
         jpa.deleteById(id);
     }
 
-    static EmergencyResource aDominio(EmergencyResourceJpaEntity f) {
+    static EmergencyResource toDomain(EmergencyResourceJpaEntity f) {
         EmergencyResource d = new EmergencyResource();
         d.setId(f.getId());
         d.setName(f.getName());
@@ -66,7 +66,7 @@ class RecursoPersistenceAdapter implements RecursoRepositorio {
         return d;
     }
 
-    static EmergencyResourceJpaEntity aFila(EmergencyResource d) {
+    static EmergencyResourceJpaEntity toRow(EmergencyResource d) {
         EmergencyResourceJpaEntity f = new EmergencyResourceJpaEntity();
         f.setId(d.getId());
         f.setName(d.getName());

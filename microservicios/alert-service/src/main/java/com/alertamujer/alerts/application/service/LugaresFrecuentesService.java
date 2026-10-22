@@ -18,22 +18,22 @@ import java.util.List;
 public class LugaresFrecuentesService implements LugaresFrecuentesUseCase {
 
     private final LugarFrecuenteRepositorio repository;
-    private final IdentityPort identidad;
+    private final IdentityPort identity;
 
-    public LugaresFrecuentesService(LugarFrecuenteRepositorio repository, IdentityPort identidad) {
+    public LugaresFrecuentesService(LugarFrecuenteRepositorio repository, IdentityPort identity) {
         this.repository = repository;
-        this.identidad = identidad;
+        this.identity = identity;
     }
 
     @Override
     public List<FrequentLocation> activosDe(Long userId) {
-        return repository.activosDeLaUsuaria(identidad.perfilRequerido(userId));
+        return repository.activosDeLaUsuaria(identity.perfilRequerido(userId));
     }
 
     @Override
-    public FrequentLocation uno(Long id, Long userId) {
+    public FrequentLocation one(Long id, Long userId) {
         FrequentLocation lugar = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("FrequentLocation", id));
-        if (!lugar.esDe(identidad.perfilRequerido(userId))) {
+        if (!lugar.esDe(identity.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes acceder a ubicaciones frecuentes de otro usuario");
         }
         return lugar;
@@ -43,20 +43,20 @@ public class LugaresFrecuentesService implements LugaresFrecuentesUseCase {
     @Transactional
     public FrequentLocation create(DatosLugar data, Long userId) {
         // La dueña sale del JWT; se ignora cualquier perfil del body (evita IDOR)
-        return repository.save(FrequentLocation.nuevo(identidad.perfilRequerido(userId), data, LocalDateTime.now()));
+        return repository.save(FrequentLocation.created(identity.perfilRequerido(userId), data, LocalDateTime.now()));
     }
 
     @Override
     @Transactional
-    public FrequentLocation actualizar(Long id, DatosLugar data, Long userId) {
-        FrequentLocation lugar = uno(id, userId);
-        lugar.actualizar(data, LocalDateTime.now());
+    public FrequentLocation update(Long id, DatosLugar data, Long userId) {
+        FrequentLocation lugar = one(id, userId);
+        lugar.update(data, LocalDateTime.now());
         return repository.save(lugar);
     }
 
     @Override
     @Transactional
     public void delete(Long id, Long userId) {
-        repository.delete(uno(id, userId).getId());
+        repository.delete(one(id, userId).getId());
     }
 }

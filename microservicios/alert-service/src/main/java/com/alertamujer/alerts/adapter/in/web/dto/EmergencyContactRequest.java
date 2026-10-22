@@ -6,7 +6,7 @@ import com.alertamujer.alerts.domain.model.DatosContacto;
 public record EmergencyContactRequest(String contactName, String telephone, String email, String relationship,
                                       String photo) {
 
-    public DatosContacto aDatos() {
+    public DatosContacto toData() {
         return new DatosContacto(contactName, telephone, email, relationship, photo);
     }
 }

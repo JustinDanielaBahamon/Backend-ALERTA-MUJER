@@ -7,12 +7,12 @@ import java.util.List;
 /** Recorridos guardados de la usuaria (compartidos entre web y móvil). */
 public interface RecorridosUseCase {
 
-    List<SavedRoute> mios(Long userId);
+    List<SavedRoute> mine(Long userId);
 
-    SavedRoute create(NuevoRecorrido nuevo, Long userId);
+    SavedRoute create(NuevoRecorrido created, Long userId);
 
     /** Renombrar y/o marcar o desmarcar estrella (null = sin cambio). */
-    SavedRoute actualizar(Long id, String name, Boolean estrella, Long userId);
+    SavedRoute update(Long id, String name, Boolean estrella, Long userId);
 
     void delete(Long id, Long userId);
 }

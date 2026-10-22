@@ -8,17 +8,17 @@ import java.util.Optional;
 /** Puerto de salida: los reportes de las usuarias sobre las zonas. */
 public interface ReporteZonaRepositorio {
 
-    List<ZoneReport> todos();
+    List<ZoneReport> all();
 
     Optional<ZoneReport> find(Long id);
 
     List<ZoneReport> deZona(Long zoneId);
 
-    List<ZoneReport> dePerfil(Long perfil);
+    List<ZoneReport> dePerfil(Long profile);
 
-    List<ZoneReport> conEstado(String status);
+    List<ZoneReport> withStatus(String status);
 
-    ZoneReport save(ZoneReport reporte);
+    ZoneReport save(ZoneReport userReport);
 
     void delete(Long id);
 }

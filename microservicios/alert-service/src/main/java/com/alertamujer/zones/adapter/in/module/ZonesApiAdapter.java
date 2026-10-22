@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 class ZonesApiAdapter implements ZonesApi {
 
-    private final ZonasUseCase zonas;
+    private final ZonasUseCase zones;
 
-    ZonesApiAdapter(ZonasUseCase zonas) {
-        this.zonas = zonas;
+    ZonesApiAdapter(ZonasUseCase zones) {
+        this.zones = zones;
     }
 
     @Override
     public long countActiveZones() {
-        return zonas.contarActivas();
+        return zones.contarActivas();
     }
 }

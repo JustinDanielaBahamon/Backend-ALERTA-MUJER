@@ -27,7 +27,7 @@ class AlertMessageTest {
     void sinNombreUsaUnoPorDefectoYCortaLosLargos() {
         assertEquals("Ella", AlertMessage.escribir(alert("active"), AlertMessage.DE_LA_DUENA, null, "Hola", 0).getSenderName());
         assertEquals("Contacto", AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "  ", "Hola", 0).getSenderName());
-        assertEquals(AlertMessage.MAXIMO_NOMBRE,
+        assertEquals(AlertMessage.MAX_NAME,
                 AlertMessage.escribir(alert("active"), AlertMessage.DE_CONTACTO, "x".repeat(100), "Hola", 0).getSenderName().length());
     }
 

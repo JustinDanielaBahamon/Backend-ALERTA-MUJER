@@ -24,13 +24,13 @@ class AvisosAlertaServiceTest {
     private static final LocalDateTime INICIO = LocalDateTime.of(2026, 10, 16, 15, 0);
 
     private final AlertsPort alerts = mock(AlertsPort.class);
-    private final IdentityPort identidad = mock(IdentityPort.class);
+    private final IdentityPort identity = mock(IdentityPort.class);
     private final DispositivosPort dispositivos = mock(DispositivosPort.class);
     private final AjustesPort ajustes = mock(AjustesPort.class);
     private final SeguimientoPublicoUseCase seguimiento = mock(SeguimientoPublicoUseCase.class);
     private final CorreosPort correos = mock(CorreosPort.class);
     private final PushPort push = mock(PushPort.class);
-    private final AvisosAlertaService service = new AvisosAlertaService(alerts, identidad, dispositivos, ajustes,
+    private final AvisosAlertaService service = new AvisosAlertaService(alerts, identity, dispositivos, ajustes,
             seguimiento, correos, push, "https://web.app/");
 
     private static final AlertRecipient CORREO = new AlertRecipient(100L, 1L, "Mamá", "email", "mama@correo.com");
@@ -38,7 +38,7 @@ class AvisosAlertaServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(identidad.nombreCompletoDelPerfil(10L)).thenReturn(Optional.of("Ana Gómez"));
+        when(identity.nombreCompletoDelPerfil(10L)).thenReturn(Optional.of("Ana Gómez"));
         when(ajustes.emergencyNumber()).thenReturn("123");
         when(seguimiento.crearEnlace(5L)).thenReturn("CODIGO");
         when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", "active", null,
@@ -70,7 +70,7 @@ class AvisosAlertaServiceTest {
     @Test
     void pushDeAltaPrioridadAlContactoConLaApp() {
         when(alerts.destinatarios(5L)).thenReturn(List.of(CORREO, PUSH));
-        when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
+        when(identity.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("token-mama"));
         when(push.send(anyList(), anyMap())).thenReturn(List.of());
 
@@ -85,12 +85,12 @@ class AvisosAlertaServiceTest {
     @Test
     void pushSinDispositivosOConTodosRechazadosQuedaFallido() {
         when(alerts.destinatarios(5L)).thenReturn(List.of(CORREO, PUSH));
-        when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.empty());
+        when(identity.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.empty());
 
         service.alertaActivada(5L, 10L, INICIO);
         verify(alerts).registrarEntrega(101L, "failed", "El contacto no tiene la app con notificaciones activas");
 
-        when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
+        when(identity.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("t1"));
         when(push.send(anyList(), anyMap())).thenReturn(List.of("t1"));
         service.alertaActivada(5L, 10L, INICIO);
@@ -110,7 +110,7 @@ class AvisosAlertaServiceTest {
     void alTerminarAvisaPorCorreoYPushSinTocarLosEnvios() {
         LocalDateTime fin = INICIO.plusMinutes(20);
         when(alerts.destinatarios(5L)).thenReturn(List.of(CORREO, PUSH));
-        when(identidad.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
+        when(identity.usuariaConCorreo("mama@correo.com")).thenReturn(Optional.of(7L));
         when(dispositivos.tokensDe(7L)).thenReturn(List.of("token-mama"));
         doThrow(new CorreoNoEnviadoException("Sin proveedor")).when(correos).finDeAlerta(any(), any(), any(), any(), any(), any());
 

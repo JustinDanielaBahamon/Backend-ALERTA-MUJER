@@ -1,6 +1,6 @@
 package com.alertamujer.admin.adapter.in.web.dto;
 
-import com.alertamujer.admin.domain.model.CambiosInforme;
+import com.alertamujer.admin.domain.model.ReportExportChanges;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,7 +10,7 @@ public record AlertReportRequest(String name, String city, String status, String
                                  String description, String format, List<Long> alertIds,
                                  LocalDateTime fromDate, LocalDateTime toDate, String alertStatus) {
 
-    public CambiosInforme aCambios() {
-        return new CambiosInforme(name, city, status, userLabel, event, description, format, alertIds, fromDate, toDate, alertStatus);
+    public ReportExportChanges toChanges() {
+        return new ReportExportChanges(name, city, status, userLabel, event, description, format, alertIds, fromDate, toDate, alertStatus);
     }
 }

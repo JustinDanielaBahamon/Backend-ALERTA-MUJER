@@ -18,33 +18,33 @@ class LlamadaPersistenceAdapter implements LlamadaRepositorio {
     }
 
     @Override
-    public List<ResourceCall> todas() {
-        return jpa.findAll().stream().map(LlamadaPersistenceAdapter::aDominio).toList();
+    public List<ResourceCall> all() {
+        return jpa.findAll().stream().map(LlamadaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public Optional<ResourceCall> find(Long id) {
-        return jpa.findById(id).map(LlamadaPersistenceAdapter::aDominio);
+        return jpa.findById(id).map(LlamadaPersistenceAdapter::toDomain);
     }
 
     @Override
-    public List<ResourceCall> dePerfil(Long perfil) {
-        return jpa.findByUserProfileIdOrderByStartedAtDesc(perfil).stream().map(LlamadaPersistenceAdapter::aDominio).toList();
+    public List<ResourceCall> dePerfil(Long profile) {
+        return jpa.findByUserProfileIdOrderByStartedAtDesc(profile).stream().map(LlamadaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<ResourceCall> deRecurso(Long recursoId) {
-        return jpa.findByEmergencyResourceId(recursoId).stream().map(LlamadaPersistenceAdapter::aDominio).toList();
+        return jpa.findByEmergencyResourceId(recursoId).stream().map(LlamadaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<ResourceCall> deAlerta(Long alertId) {
-        return jpa.findByAlertId(alertId).stream().map(LlamadaPersistenceAdapter::aDominio).toList();
+        return jpa.findByAlertId(alertId).stream().map(LlamadaPersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public ResourceCall save(ResourceCall llamada) {
-        return aDominio(jpa.save(aFila(llamada)));
+        return toDomain(jpa.save(toRow(llamada)));
     }
 
     @Override
@@ -52,7 +52,7 @@ class LlamadaPersistenceAdapter implements LlamadaRepositorio {
         jpa.deleteById(id);
     }
 
-    static ResourceCall aDominio(ResourceCallJpaEntity f) {
+    static ResourceCall toDomain(ResourceCallJpaEntity f) {
         ResourceCall d = new ResourceCall();
         d.setId(f.getId());
         d.setEmergencyResourceId(f.getEmergencyResourceId());
@@ -68,7 +68,7 @@ class LlamadaPersistenceAdapter implements LlamadaRepositorio {
         return d;
     }
 
-    static ResourceCallJpaEntity aFila(ResourceCall d) {
+    static ResourceCallJpaEntity toRow(ResourceCall d) {
         ResourceCallJpaEntity f = new ResourceCallJpaEntity();
         f.setId(d.getId());
         f.setEmergencyResourceId(d.getEmergencyResourceId());

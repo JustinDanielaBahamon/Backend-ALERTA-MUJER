@@ -32,19 +32,19 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 class AlertsApiAdapter implements AlertsApi {
 
-    private final ConsultarAlertasUseCase consultas;
-    private final AdministrarAlertasUseCase administracion;
-    private final ExpirarAlertasUseCase expiracion;
+    private final ConsultarAlertasUseCase queries;
+    private final AdministrarAlertasUseCase administration;
+    private final ExpirarAlertasUseCase expiration;
     private final DestinatariosAlertaUseCase destinatarios;
     private final ChatAlertaUseCase chat;
     private final UbicacionesUseCase ubicaciones;
 
-    AlertsApiAdapter(ConsultarAlertasUseCase consultas, AdministrarAlertasUseCase administracion,
-                     ExpirarAlertasUseCase expiracion, DestinatariosAlertaUseCase destinatarios,
+    AlertsApiAdapter(ConsultarAlertasUseCase queries, AdministrarAlertasUseCase administration,
+                     ExpirarAlertasUseCase expiration, DestinatariosAlertaUseCase destinatarios,
                      ChatAlertaUseCase chat, UbicacionesUseCase ubicaciones) {
-        this.consultas = consultas;
-        this.administracion = administracion;
-        this.expiracion = expiracion;
+        this.queries = queries;
+        this.administration = administration;
+        this.expiration = expiration;
         this.destinatarios = destinatarios;
         this.chat = chat;
         this.ubicaciones = ubicaciones;
@@ -52,37 +52,37 @@ class AlertsApiAdapter implements AlertsApi {
 
     @Override
     public Optional<AlertSummary> findAlert(Long alertId) {
-        return consultas.find(alertId).map(AlertsApiAdapter::resumen);
+        return queries.find(alertId).map(AlertsApiAdapter::summary);
     }
 
     @Override
     public Map<Long, AlertSummary> findAlerts(Collection<Long> alertIds) {
-        return porId(consultas.findMany(alertIds));
+        return byId(queries.findMany(alertIds));
     }
 
     @Override
     public Map<Long, AlertSummary> alertsById() {
-        return porId(consultas.todas());
+        return byId(queries.all());
     }
 
     @Override
     public List<AdminAlertView> adminAlertViews() {
-        return administracion.listAll();
+        return administration.listAll();
     }
 
     @Override
     public Map<Long, Long> alertCountByProfile() {
-        return consultas.conteoPorPerfil();
+        return queries.countByProfile();
     }
 
     @Override
     public long countActiveAlerts() {
-        return consultas.cuantasActivas();
+        return queries.cuantasActivas();
     }
 
     @Override
     public ExpirationStatus expirationStatus() {
-        return new ExpirationStatus(expiracion.ultimaRevision(), expiracion.expiradasUltimaRevision());
+        return new ExpirationStatus(expiration.ultimaRevision(), expiration.expiradasUltimaRevision());
     }
 
     @Override
@@ -121,22 +121,22 @@ class AlertsApiAdapter implements AlertsApi {
 
     @Override
     public List<Long> alertIdsOfProfile(Long userProfileId) {
-        return consultas.idsDelPerfil(userProfileId);
+        return queries.idsDelPerfil(userProfileId);
     }
 
     @Override
     public Set<Long> alertsKeepingEvidence(Collection<Long> alertIds) {
-        return consultas.keepEvidence(alertIds);
+        return queries.keepEvidence(alertIds);
     }
 
-    static AlertSummary resumen(Alert a) {
+    static AlertSummary summary(Alert a) {
         return new AlertSummary(a.getId(), a.getUserProfileId(), a.getAlertType(), a.getActivationMethod(),
                 a.getStatus(), a.getMessage(), a.getStartedAt(), a.getLatitude(), a.getLongitude(),
                 a.getEndedAt(), a.getCancelledAt());
     }
 
-    private static Map<Long, AlertSummary> porId(List<Alert> alerts) {
-        return alerts.stream().collect(Collectors.toMap(Alert::getId, AlertsApiAdapter::resumen, (a, b) -> a));
+    private static Map<Long, AlertSummary> byId(List<Alert> alerts) {
+        return alerts.stream().collect(Collectors.toMap(Alert::getId, AlertsApiAdapter::summary, (a, b) -> a));
     }
 
     private static AlertMessageView view(AlertMessage m) {

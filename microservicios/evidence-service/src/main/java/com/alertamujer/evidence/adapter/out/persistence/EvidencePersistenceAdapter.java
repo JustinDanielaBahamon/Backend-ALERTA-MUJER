@@ -21,33 +21,33 @@ class EvidencePersistenceAdapter implements EvidenceRepository {
 
     @Override
     public Evidence save(Evidence evidence) {
-        return aDominio(jpa.save(aFila(evidence)));
+        return toDomain(jpa.save(toRow(evidence)));
     }
 
     @Override
     public Optional<Evidence> find(Long id) {
-        return jpa.findById(id).map(EvidencePersistenceAdapter::aDominio);
+        return jpa.findById(id).map(EvidencePersistenceAdapter::toDomain);
     }
 
     @Override
-    public List<Evidence> todas() {
-        return jpa.findAll().stream().map(EvidencePersistenceAdapter::aDominio).toList();
+    public List<Evidence> all() {
+        return jpa.findAll().stream().map(EvidencePersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<Evidence> ofAlerts(Collection<Long> alertIds) {
         if (alertIds.isEmpty()) return List.of();
-        return jpa.findByAlertIdInOrderByCreatedAtDesc(alertIds).stream().map(EvidencePersistenceAdapter::aDominio).toList();
+        return jpa.findByAlertIdInOrderByCreatedAtDesc(alertIds).stream().map(EvidencePersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<Evidence> ofAlert(Long alertId) {
-        return jpa.findByAlertIdOrderByCreatedAtAsc(alertId).stream().map(EvidencePersistenceAdapter::aDominio).toList();
+        return jpa.findByAlertIdOrderByCreatedAtAsc(alertId).stream().map(EvidencePersistenceAdapter::toDomain).toList();
     }
 
     @Override
     public List<Evidence> savedBefore(LocalDateTime date) {
-        return jpa.findByCreatedAtBefore(date).stream().map(EvidencePersistenceAdapter::aDominio).toList();
+        return jpa.findByCreatedAtBefore(date).stream().map(EvidencePersistenceAdapter::toDomain).toList();
     }
 
     @Override
@@ -60,7 +60,7 @@ class EvidencePersistenceAdapter implements EvidenceRepository {
         jpa.deleteAllById(evidences.stream().map(Evidence::getId).toList());
     }
 
-    static Evidence aDominio(EvidenceJpaEntity f) {
+    static Evidence toDomain(EvidenceJpaEntity f) {
         Evidence e = new Evidence();
         e.setId(f.getId());
         e.setAlertId(f.getAlertId());
@@ -76,7 +76,7 @@ class EvidencePersistenceAdapter implements EvidenceRepository {
         return e;
     }
 
-    static EvidenceJpaEntity aFila(Evidence e) {
+    static EvidenceJpaEntity toRow(Evidence e) {
         EvidenceJpaEntity f = new EvidenceJpaEntity();
         f.setId(e.getId());
         f.setAlertId(e.getAlertId());

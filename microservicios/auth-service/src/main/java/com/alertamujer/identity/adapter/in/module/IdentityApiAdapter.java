@@ -2,7 +2,7 @@ package com.alertamujer.identity.adapter.in.module;
 
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.identity.api.UserSummary;
-import com.alertamujer.identity.application.port.in.ConsultarIdentidadUseCase;
+import com.alertamujer.identity.application.port.in.QueryIdentityUseCase;
 import com.alertamujer.identity.domain.model.User;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 @Component
 class IdentityApiAdapter implements IdentityApi {
 
-    private final ConsultarIdentidadUseCase consultas;
+    private final QueryIdentityUseCase queries;
 
-    IdentityApiAdapter(ConsultarIdentidadUseCase consultas) {
-        this.consultas = consultas;
+    IdentityApiAdapter(QueryIdentityUseCase queries) {
+        this.queries = queries;
     }
 
     @Override
@@ -31,55 +31,55 @@ class IdentityApiAdapter implements IdentityApi {
 
     @Override
     public Optional<Long> findProfileId(Long userId) {
-        return consultas.profileOf(userId);
+        return queries.profileOf(userId);
     }
 
     @Override
     public Long requireAccountId(Long userId) {
-        return consultas.cuentaDe(userId).orElseThrow(() -> new ResourceNotFoundException("Account for user", userId));
+        return queries.accountOf(userId).orElseThrow(() -> new ResourceNotFoundException("Account for user", userId));
     }
 
     @Override
     public Optional<UserSummary> findUser(Long userId) {
-        return consultas.usuaria(userId).map(IdentityApiAdapter::resumen);
+        return queries.user(userId).map(IdentityApiAdapter::summary);
     }
 
     @Override
     public Optional<UserSummary> findUserByEmail(String email) {
-        return consultas.porCorreo(email).map(IdentityApiAdapter::resumen);
+        return queries.byEmail(email).map(IdentityApiAdapter::summary);
     }
 
     @Override
     public Optional<UserSummary> findUserByProfileId(Long profileId) {
-        return consultas.byProfile(profileId).map(IdentityApiAdapter::resumen);
+        return queries.byProfile(profileId).map(IdentityApiAdapter::summary);
     }
 
     @Override
     public Optional<UserSummary> findUserByAccountId(Long accountId) {
-        return consultas.porCuenta(accountId).map(IdentityApiAdapter::resumen);
+        return queries.byAccount(accountId).map(IdentityApiAdapter::summary);
     }
 
     @Override
     public Map<Long, UserSummary> usersById() {
-        return resumenes(consultas.porId());
+        return summaries(queries.byId());
     }
 
     @Override
     public Map<Long, UserSummary> usersByProfileId() {
-        return resumenes(consultas.porIdDePerfil());
+        return summaries(queries.byProfileId());
     }
 
     @Override
     public Map<Long, UserSummary> usersByAccountId() {
-        return resumenes(consultas.porIdDeCuenta());
+        return summaries(queries.byAccountId());
     }
 
-    static UserSummary resumen(User u) {
+    static UserSummary summary(User u) {
         return new UserSummary(u.getId(), u.getFirstName(), u.getLastName(), u.getEmail(), u.getTelephone(),
                 u.getRoleId(), u.getCreatedAt());
     }
 
-    private static Map<Long, UserSummary> resumenes(Map<Long, User> porClave) {
-        return porClave.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> resumen(e.getValue())));
+    private static Map<Long, UserSummary> summaries(Map<Long, User> byKey) {
+        return byKey.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> summary(e.getValue())));
     }
 }

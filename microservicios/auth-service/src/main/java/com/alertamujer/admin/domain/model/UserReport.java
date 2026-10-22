@@ -25,29 +25,29 @@ public class UserReport {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    public static final Set<String> ESTADOS = Set.of("pending", "in_review", "reviewed", "resolved", "approved", "rejected");
-    public static final Set<String> CERRADOS = Set.of("reviewed", "resolved", "approved", "rejected");
-    public static final Set<String> GRAVEDADES = Set.of("low", "medium", "high", "critical");
+    public static final Set<String> STATUSES = Set.of("pending", "in_review", "reviewed", "resolved", "approved", "rejected");
+    public static final Set<String> CLOSED = Set.of("reviewed", "resolved", "approved", "rejected");
+    public static final Set<String> SEVERITIES = Set.of("low", "medium", "high", "critical");
 
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Reporte que crea la administración sobre una usuaria. */
-    public static UserReport reporte(Long reportadaId, Long adminId, String motivo, String descripcion, String gravedad) {
-        if (motivo == null || motivo.isBlank() || descripcion == null || descripcion.isBlank()) {
+    public static UserReport userReport(Long reportedId, Long adminId, String reason, String description, String severity) {
+        if (reason == null || reason.isBlank() || description == null || description.isBlank()) {
             throw new IllegalArgumentException("El motivo y la descripción son obligatorios");
         }
         UserReport r = new UserReport();
-        r.reportedUserId = reportadaId;
+        r.reportedUserId = reportedId;
         r.reporterUserId = adminId;
-        r.reason = motivo.trim();
-        r.description = descripcion.trim();
-        r.severity = validarGravedad(gravedad == null ? "medium" : gravedad);
+        r.reason = reason.trim();
+        r.description = description.trim();
+        r.severity = validateSeverity(severity == null ? "medium" : severity);
         return r;
     }
 
     /** Caso cerrado que deja un bloqueo hecho desde Gestión de usuarios. */
-    public static UserReport bloqueo(Long userId, Long adminId, String motivo, String detalle, String evidence, LocalDateTime ahora) {
-        UserReport r = cerrado(userId, adminId, motivo, detalle, ahora);
+    public static UserReport block(Long userId, Long adminId, String reason, String detail, String evidence, LocalDateTime now) {
+        UserReport r = closed(userId, adminId, reason, detail, now);
         r.severity = "high";
         r.resolutionNotes = "Cuenta bloqueada desde Gestión de usuarios";
         r.evidence = evidence;
@@ -55,45 +55,45 @@ public class UserReport {
     }
 
     /** Caso para anotar un desbloqueo cuando la usuaria no tiene ninguno (bloqueo anterior a este registro). */
-    public static UserReport desbloqueoSinCaso(Long userId, Long adminId, String detalle, LocalDateTime ahora) {
-        return cerrado(userId, adminId, "Desbloqueo", detalle, ahora);
+    public static UserReport unblockWithoutCase(Long userId, Long adminId, String detail, LocalDateTime now) {
+        return closed(userId, adminId, "Desbloqueo", detail, now);
     }
 
-    public static String validarGravedad(String gravedad) {
-        if (!GRAVEDADES.contains(gravedad)) throw new IllegalArgumentException("Gravedad no válida: " + gravedad);
-        return gravedad;
+    public static String validateSeverity(String severity) {
+        if (!SEVERITIES.contains(severity)) throw new IllegalArgumentException("Gravedad no válida: " + severity);
+        return severity;
     }
 
     /** Cambia los campos enviados; al cerrar el caso guarda quién y cuándo lo revisó. */
-    public void actualizar(CambiosReporte c, Long adminId, LocalDateTime ahora) {
+    public void update(ReportChanges c, Long adminId, LocalDateTime now) {
         if (c.reason() != null && !c.reason().isBlank()) reason = c.reason().trim();
         if (c.description() != null && !c.description().isBlank()) description = c.description().trim();
-        if (c.severity() != null) severity = validarGravedad(c.severity());
+        if (c.severity() != null) severity = validateSeverity(c.severity());
         if (c.resolutionNotes() != null) resolutionNotes = c.resolutionNotes().trim();
         if (c.status() != null) {
-            if (!ESTADOS.contains(c.status())) throw new IllegalArgumentException("Estado no válido: " + c.status());
+            if (!STATUSES.contains(c.status())) throw new IllegalArgumentException("Estado no válido: " + c.status());
             status = c.status();
-            if (CERRADOS.contains(c.status())) {
-                reviewedAt = ahora;
+            if (CLOSED.contains(c.status())) {
+                reviewedAt = now;
                 reviewedByAdminId = adminId == null ? null : adminId.intValue();
             }
         }
-        updatedAt = ahora;
+        updatedAt = now;
     }
 
-    public boolean tieneEvidencia() {
+    public boolean hasEvidence() {
         return evidence != null;
     }
 
-    private static UserReport cerrado(Long userId, Long adminId, String motivo, String detalle, LocalDateTime ahora) {
+    private static UserReport closed(Long userId, Long adminId, String reason, String detail, LocalDateTime now) {
         UserReport r = new UserReport();
         r.reportedUserId = userId;
         r.reporterUserId = adminId;
-        r.reason = motivo;
-        r.description = detalle;
+        r.reason = reason;
+        r.description = detail;
         r.status = "resolved";
         r.reviewedByAdminId = adminId.intValue();
-        r.reviewedAt = ahora;
+        r.reviewedAt = now;
         return r;
     }
 

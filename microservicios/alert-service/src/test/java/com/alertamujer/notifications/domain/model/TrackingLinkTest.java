@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Reglas del enlace de seguimiento, sin Spring ni base de datos. */
 class TrackingLinkTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     @Test
     void elCodigoEsAleatorioYSoloSeGuardaSuHash() {
@@ -34,9 +34,9 @@ class TrackingLinkTest {
 
     @Test
     void elSeguimientoValeHastaDosHorasDespuesDeTerminar() {
-        assertTrue(TrackingLink.seguimientoVigente("active", null, AHORA));
-        assertTrue(TrackingLink.seguimientoVigente("resolved", AHORA.minusMinutes(119), AHORA));
-        assertFalse(TrackingLink.seguimientoVigente("resolved", AHORA.minusMinutes(121), AHORA));
-        assertTrue(TrackingLink.seguimientoVigente("cancelled", null, AHORA));
+        assertTrue(TrackingLink.seguimientoVigente("active", null, NOW));
+        assertTrue(TrackingLink.seguimientoVigente("resolved", NOW.minusMinutes(119), NOW));
+        assertFalse(TrackingLink.seguimientoVigente("resolved", NOW.minusMinutes(121), NOW));
+        assertTrue(TrackingLink.seguimientoVigente("cancelled", null, NOW));
     }
 }

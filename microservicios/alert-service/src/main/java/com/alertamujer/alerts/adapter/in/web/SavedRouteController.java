@@ -26,7 +26,7 @@ public class SavedRouteController {
 
     @GetMapping("/me")
     public ResponseEntity<List<SavedRouteResponse>> getMine(@AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(recorridos.mios(currentUserId).stream().map(SavedRouteResponse::of).toList());
+        return ResponseEntity.ok(recorridos.mine(currentUserId).stream().map(SavedRouteResponse::of).toList());
     }
 
     @PostMapping
@@ -38,7 +38,7 @@ public class SavedRouteController {
     public ResponseEntity<SavedRouteResponse> update(@PathVariable Long id, @RequestBody SavedRouteUpdateRequest changes,
                                                      @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(SavedRouteResponse.of(
-                recorridos.actualizar(id, changes.name(), changes.isStarred(), currentUserId)));
+                recorridos.update(id, changes.name(), changes.isStarred(), currentUserId)));
     }
 
     @DeleteMapping("/{id}")

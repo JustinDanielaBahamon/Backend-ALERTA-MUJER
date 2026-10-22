@@ -27,9 +27,9 @@ import static org.mockito.Mockito.*;
 class ContactosEmergenciaServiceTest {
 
     @Mock private ContactoRepositorio repository;
-    @Mock private IdentityPort identidad;
+    @Mock private IdentityPort identity;
     @Mock private AjustesPort ajustes;
-    @Mock private CelularesPort celulares;
+    @Mock private CelularesPort phones;
 
     @InjectMocks private ContactosEmergenciaService service;
 
@@ -37,7 +37,7 @@ class ContactosEmergenciaServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(identidad.profileOf(1L)).thenReturn(Optional.of(10L));
+        lenient().when(identity.profileOf(1L)).thenReturn(Optional.of(10L));
     }
 
     @Test
@@ -56,17 +56,17 @@ class ContactosEmergenciaServiceTest {
     void estadoApp_distingueConAppSinCelularYSinCuenta() {
         when(repository.ofUser(10L)).thenReturn(List.of(
                 contacto(1L, "eva@correo.com"), contacto(2L, "ana@correo.com"), contacto(3L, "nadie@correo.com"), contacto(4L, null)));
-        when(identidad.usuariaPorCorreo("eva@correo.com")).thenReturn(Optional.of(50L));
-        when(identidad.usuariaPorCorreo("ana@correo.com")).thenReturn(Optional.of(60L));
-        when(identidad.usuariaPorCorreo("nadie@correo.com")).thenReturn(Optional.empty());
-        when(celulares.tokensDeCelulares(50L)).thenReturn(List.of("token"));
-        when(celulares.tokensDeCelulares(60L)).thenReturn(List.of());
+        when(identity.usuariaPorCorreo("eva@correo.com")).thenReturn(Optional.of(50L));
+        when(identity.usuariaPorCorreo("ana@correo.com")).thenReturn(Optional.of(60L));
+        when(identity.usuariaPorCorreo("nadie@correo.com")).thenReturn(Optional.empty());
+        when(phones.phoneTokens(50L)).thenReturn(List.of("token"));
+        when(phones.phoneTokens(60L)).thenReturn(List.of());
 
         assertEquals(Map.of(1L, "app", 2L, "account", 3L, "none", 4L, "none"), service.estadoApp(1L));
     }
 
-    private static EmergencyContact contacto(Long id, String correo) {
-        EmergencyContact c = EmergencyContact.nuevo(10L, new DatosContacto("X", "300", correo, null, null));
+    private static EmergencyContact contacto(Long id, String email) {
+        EmergencyContact c = EmergencyContact.created(10L, new DatosContacto("X", "300", email, null, null));
         c.setId(id);
         return c;
     }
@@ -92,11 +92,11 @@ class ContactosEmergenciaServiceTest {
 
     @Test
     void actualizarOEliminarUnContactoAjenoSeRechaza() {
-        EmergencyContact ajeno = EmergencyContact.nuevo(20L, EVA);
+        EmergencyContact ajeno = EmergencyContact.created(20L, EVA);
         ajeno.setId(3L);
         when(repository.find(3L)).thenReturn(Optional.of(ajeno));
 
-        assertThrows(AccessDeniedException.class, () -> service.actualizar(3L, EVA, 1L));
+        assertThrows(AccessDeniedException.class, () -> service.update(3L, EVA, 1L));
         assertThrows(AccessDeniedException.class, () -> service.delete(3L, 1L));
         verify(repository, never()).save(any());
         verify(repository, never()).delete(any());
@@ -105,18 +105,18 @@ class ContactosEmergenciaServiceTest {
     @Test
     void deUsuaria_losDeOtraUsuariaNoLosVeNadie() {
         // Ni siquiera la administración: son datos de terceros (auditoría S2)
-        assertThrows(AccessDeniedException.class, () -> service.deUsuaria(5L, 1L));
+        assertThrows(AccessDeniedException.class, () -> service.ofUser(5L, 1L));
         verify(repository, never()).ofUser(5L);
     }
 
     @Test
     void uno_soloDevuelveLosPropios() {
-        EmergencyContact propio = EmergencyContact.nuevo(10L, EVA);
-        EmergencyContact ajeno = EmergencyContact.nuevo(20L, EVA);
-        when(repository.find(1L)).thenReturn(Optional.of(propio));
+        EmergencyContact own = EmergencyContact.created(10L, EVA);
+        EmergencyContact ajeno = EmergencyContact.created(20L, EVA);
+        when(repository.find(1L)).thenReturn(Optional.of(own));
         when(repository.find(2L)).thenReturn(Optional.of(ajeno));
 
-        assertTrue(service.uno(1L, 1L).isPresent());
-        assertTrue(service.uno(2L, 1L).isEmpty());
+        assertTrue(service.one(1L, 1L).isPresent());
+        assertTrue(service.one(2L, 1L).isEmpty());
     }
 }

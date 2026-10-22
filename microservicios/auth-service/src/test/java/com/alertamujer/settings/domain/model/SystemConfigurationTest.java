@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Reglas de la configuración global, sin Spring ni base de datos. */
 class SystemConfigurationTest {
 
-    private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
 
     private static SystemConfiguration config() {
         SystemConfiguration c = new SystemConfiguration();
@@ -21,10 +21,10 @@ class SystemConfigurationTest {
     }
 
     @Test
-    void cambiaSoloLoEnviadoYRegistraQuienYCuando() {
+    void changesOnlyWhatWasSentAndRecordsWhoAndWhen() {
         SystemConfiguration c = config();
 
-        c.actualizar(new CambiosAjustes(60, " +57123 ", null, 8, null), 7L, AHORA);
+        c.update(new SettingsChanges(60, " +57123 ", null, 8, null), 7L, NOW);
 
         assertEquals(60, c.getSosMaxDurationMinutes());
         assertEquals("+57123", c.getEmergencyPhoneNumber());
@@ -32,32 +32,32 @@ class SystemConfigurationTest {
         assertEquals(8, c.getMaxEmergencyContacts());
         assertEquals("1.0.0", c.getMinAppVersion());
         assertEquals(7, c.getUpdatedByAdminId());
-        assertEquals(AHORA, c.ultimaActualizacion());
+        assertEquals(NOW, c.lastUpdate());
     }
 
     @Test
-    void unaVersionVaciaQuitaLaVersionMinima() {
+    void anEmptyVersionRemovesTheMinimumVersion() {
         SystemConfiguration c = config();
-        c.actualizar(new CambiosAjustes(null, null, null, null, " "), null, AHORA);
+        c.update(new SettingsChanges(null, null, null, null, " "), null, NOW);
         assertNull(c.getMinAppVersion());
     }
 
     @Test
-    void rechazaValoresFueraDeRango() {
+    void rejectsOutOfRangeValues() {
         SystemConfiguration c = config();
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(29, null, null, null, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(1441, null, null, null, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(null, "12", null, null, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(null, null, "nada", null, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(null, null, null, 0, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(null, null, null, 21, null), 1L, AHORA));
-        assertThrows(IllegalArgumentException.class, () -> c.actualizar(new CambiosAjustes(null, null, null, null, "v1"), 1L, AHORA));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(29, null, null, null, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(1441, null, null, null, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(null, "12", null, null, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(null, null, "nada", null, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(null, null, null, 0, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(null, null, null, 21, null), 1L, NOW));
+        assertThrows(IllegalArgumentException.class, () -> c.update(new SettingsChanges(null, null, null, null, "v1"), 1L, NOW));
         assertEquals(120, c.getSosMaxDurationMinutes());
     }
 
     @Test
-    void sinEdicionesLaUltimaActualizacionEsLaCreacion() {
+    void withoutEditsTheLastUpdateIsTheCreation() {
         SystemConfiguration c = config();
-        assertEquals(c.getCreatedAt(), c.ultimaActualizacion());
+        assertEquals(c.getCreatedAt(), c.lastUpdate());
     }
 }

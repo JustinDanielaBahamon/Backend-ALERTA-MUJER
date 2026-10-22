@@ -1,31 +1,31 @@
 package com.alertamujer.settings.adapter.in.module;
 
 import com.alertamujer.settings.api.SettingsApi;
-import com.alertamujer.settings.application.port.in.ConsultarAjustesUseCase;
+import com.alertamujer.settings.application.port.in.QuerySettingsUseCase;
 import org.springframework.stereotype.Component;
 
 /** Adaptador de entrada: el contrato SettingsApi para los otros módulos y para Alert Service (por /internal/rpc). */
 @Component
 class SettingsApiAdapter implements SettingsApi {
 
-    private final ConsultarAjustesUseCase consultas;
+    private final QuerySettingsUseCase queries;
 
-    SettingsApiAdapter(ConsultarAjustesUseCase consultas) {
-        this.consultas = consultas;
+    SettingsApiAdapter(QuerySettingsUseCase queries) {
+        this.queries = queries;
     }
 
     @Override
     public int maxAlertDurationMinutes() {
-        return consultas.maxAlertDurationMinutes();
+        return queries.maxAlertDurationMinutes();
     }
 
     @Override
     public String emergencyNumber() {
-        return consultas.emergencyNumber();
+        return queries.emergencyNumber();
     }
 
     @Override
     public int maxContacts() {
-        return consultas.maxContacts();
+        return queries.maxContacts();
     }
 }

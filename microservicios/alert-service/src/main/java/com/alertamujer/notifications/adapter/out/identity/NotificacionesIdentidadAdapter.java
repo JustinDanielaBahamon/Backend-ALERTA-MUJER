@@ -18,18 +18,18 @@ class NotificacionesIdentidadAdapter implements IdentityPort {
     }
 
     @Override
-    public Optional<String> nombreCompletoDelPerfil(Long perfil) {
-        return identityApi.findUserByProfileId(perfil).map(UserSummary::fullName);
+    public Optional<String> nombreCompletoDelPerfil(Long profile) {
+        return identityApi.findUserByProfileId(profile).map(UserSummary::fullName);
     }
 
     @Override
-    public Optional<String> nombreDePilaDelPerfil(Long perfil) {
-        return identityApi.findUserByProfileId(perfil).map(u -> u.firstName() == null ? "" : u.firstName().trim());
+    public Optional<String> nombreDePilaDelPerfil(Long profile) {
+        return identityApi.findUserByProfileId(profile).map(u -> u.firstName() == null ? "" : u.firstName().trim());
     }
 
     @Override
-    public Optional<Long> usuariaConCorreo(String correo) {
-        return identityApi.findUserByEmail(correo).map(UserSummary::id);
+    public Optional<Long> usuariaConCorreo(String email) {
+        return identityApi.findUserByEmail(email).map(UserSummary::id);
     }
 
     @Override
