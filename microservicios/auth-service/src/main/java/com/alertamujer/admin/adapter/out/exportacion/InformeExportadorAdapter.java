@@ -35,7 +35,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
     private static final Map<String, String> ESTADOS = Map.of(
             "active", "Activa", "resolved", "Atendida", "cancelled", "Cancelada", "expired", "Expirada");
     private static final Map<String, String> METODOS = Map.of(
-            "panic_button", "Botón de pánico", "contact", "Desde contactos", "suspicious_movement", "Movimiento sospechoso");
+            "panic_button", "Botón de pánico", "contact", "Desde contactos", "suspicious_movement", "Movimiento sospechoso",
+            "power_button", "Botón de encendido", "widget", "Widget");
     private static final String[] COLUMNAS = {
             "ID", "Inicio", "Fin", "Usuaria", "Correo", "Estado", "Activación", "Mensaje", "Latitud", "Longitud", "Duración"};
 
