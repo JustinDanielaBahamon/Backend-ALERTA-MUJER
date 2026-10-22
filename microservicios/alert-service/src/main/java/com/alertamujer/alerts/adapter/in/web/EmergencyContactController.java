@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /** Adaptador de entrada REST de los contactos de emergencia. */
 @RestController
@@ -18,6 +19,12 @@ public class EmergencyContactController {
 
     public EmergencyContactController(ContactosEmergenciaUseCase contactos) {
         this.contactos = contactos;
+    }
+
+    /** Va aparte de la lista: consulta Auth Service por cada contacto y no debe demorar la pantalla. */
+    @GetMapping("/app-status")
+    public ResponseEntity<Map<Long, String>> appStatus(@AuthenticationPrincipal Long currentUserId) {
+        return ResponseEntity.ok(contactos.estadoApp(currentUserId));
     }
 
     @GetMapping("/{id}")

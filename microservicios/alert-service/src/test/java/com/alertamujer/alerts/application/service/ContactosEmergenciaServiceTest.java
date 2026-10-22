@@ -1,6 +1,7 @@
 package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.application.port.out.AjustesPort;
+import com.alertamujer.alerts.application.port.out.CelularesPort;
 import com.alertamujer.alerts.application.port.out.ContactoRepositorio;
 import com.alertamujer.alerts.application.port.out.IdentidadPort;
 import com.alertamujer.alerts.domain.model.DatosContacto;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,6 +29,7 @@ class ContactosEmergenciaServiceTest {
     @Mock private ContactoRepositorio repositorio;
     @Mock private IdentidadPort identidad;
     @Mock private AjustesPort ajustes;
+    @Mock private CelularesPort celulares;
 
     @InjectMocks private ContactosEmergenciaService service;
 
@@ -47,6 +50,25 @@ class ContactosEmergenciaServiceTest {
 
         assertEquals(10L, creado.getUserProfileId());
         assertEquals("Eva", creado.getContactName());
+    }
+
+    @Test
+    void estadoApp_distingueConAppSinCelularYSinCuenta() {
+        when(repositorio.deLaUsuaria(10L)).thenReturn(List.of(
+                contacto(1L, "eva@correo.com"), contacto(2L, "ana@correo.com"), contacto(3L, "nadie@correo.com"), contacto(4L, null)));
+        when(identidad.usuariaPorCorreo("eva@correo.com")).thenReturn(Optional.of(50L));
+        when(identidad.usuariaPorCorreo("ana@correo.com")).thenReturn(Optional.of(60L));
+        when(identidad.usuariaPorCorreo("nadie@correo.com")).thenReturn(Optional.empty());
+        when(celulares.tokensDeCelulares(50L)).thenReturn(List.of("token"));
+        when(celulares.tokensDeCelulares(60L)).thenReturn(List.of());
+
+        assertEquals(Map.of(1L, "app", 2L, "account", 3L, "none", 4L, "none"), service.estadoApp(1L));
+    }
+
+    private static EmergencyContact contacto(Long id, String correo) {
+        EmergencyContact c = EmergencyContact.nuevo(10L, new DatosContacto("X", "300", correo, null, null));
+        c.setId(id);
+        return c;
     }
 
     @Test

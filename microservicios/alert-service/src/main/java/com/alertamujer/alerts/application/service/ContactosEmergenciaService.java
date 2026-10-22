@@ -2,6 +2,7 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.application.port.in.ContactosEmergenciaUseCase;
 import com.alertamujer.alerts.application.port.out.AjustesPort;
+import com.alertamujer.alerts.application.port.out.CelularesPort;
 import com.alertamujer.alerts.application.port.out.ContactoRepositorio;
 import com.alertamujer.alerts.application.port.out.IdentidadPort;
 import com.alertamujer.alerts.domain.model.DatosContacto;
@@ -11,7 +12,9 @@ import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /** Contactos de emergencia: cada usuaria administra los suyos, hasta el máximo configurado. */
@@ -21,11 +24,14 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     private final ContactoRepositorio repositorio;
     private final IdentidadPort identidad;
     private final AjustesPort ajustes;
+    private final CelularesPort celulares;
 
-    public ContactosEmergenciaService(ContactoRepositorio repositorio, IdentidadPort identidad, AjustesPort ajustes) {
+    public ContactosEmergenciaService(ContactoRepositorio repositorio, IdentidadPort identidad, AjustesPort ajustes,
+                                      CelularesPort celulares) {
         this.repositorio = repositorio;
         this.identidad = identidad;
         this.ajustes = ajustes;
+        this.celulares = celulares;
     }
 
     @Override
@@ -70,6 +76,21 @@ public class ContactosEmergenciaService implements ContactosEmergenciaUseCase {
     public void eliminar(Long id, Long userId) {
         propio(id, userId, "No puedes eliminar contactos de otro usuario");
         repositorio.eliminar(id);
+    }
+
+    @Override
+    public Map<Long, String> estadoApp(Long userId) {
+        Map<Long, String> estados = new LinkedHashMap<>();
+        for (EmergencyContact c : repositorio.deLaUsuaria(perfilDe(userId))) {
+            String correo = c.getEmail();
+            Optional<Long> cuenta = correo == null || correo.isBlank()
+                    ? Optional.empty()
+                    : identidad.usuariaPorCorreo(correo.trim());
+            estados.put(c.getId(), cuenta
+                    .map(id -> celulares.tokensDeCelulares(id).isEmpty() ? SIN_CELULAR : CON_APP)
+                    .orElse(SIN_CUENTA));
+        }
+        return estados;
     }
 
     private Long perfilDe(Long userId) {
