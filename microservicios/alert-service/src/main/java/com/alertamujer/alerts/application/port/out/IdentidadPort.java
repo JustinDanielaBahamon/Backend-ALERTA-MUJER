@@ -20,4 +20,7 @@ public interface IdentidadPort {
 
     /** true si el correo es de una usuaria registrada (se le puede avisar también por push). */
     boolean tieneCuenta(String correo);
+
+    /** users.id de la persona registrada con ese correo, si existe. */
+    Optional<Long> usuariaPorCorreo(String correo);
 }

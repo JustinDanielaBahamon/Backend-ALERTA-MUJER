@@ -42,4 +42,9 @@ class IdentidadAdapter implements IdentidadPort {
     public boolean tieneCuenta(String correo) {
         return identityApi.findUserByEmail(correo).isPresent();
     }
+
+    @Override
+    public Optional<Long> usuariaPorCorreo(String correo) {
+        return identityApi.findUserByEmail(correo).map(UserSummary::id);
+    }
 }
