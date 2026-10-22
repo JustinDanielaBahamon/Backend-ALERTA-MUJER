@@ -88,6 +88,20 @@ public class Device {
                 .orElse(true);
     }
 
+    /**
+     * true si los datos describen este mismo celular: misma marca, modelo, nombre y sistema. Reinstalar
+     * la app o borrar sus datos cambia el identificador guardado, pero el celular sigue siendo el mismo.
+     */
+    public boolean esMismoCelular(DatosDispositivo d) {
+        if (!esCelular() || d.brand() == null || d.model() == null || OS_WEB.equalsIgnoreCase(d.osName())) return false;
+        return igual(brand, d.brand()) && igual(model, d.model()) && igual(deviceName, d.deviceName())
+                && igual(osName, d.osName());
+    }
+
+    private static boolean igual(String a, String b) {
+        return (a == null ? "" : a.trim()).equalsIgnoreCase(b == null ? "" : b.trim());
+    }
+
     public boolean esCelular() {
         return !OS_WEB.equalsIgnoreCase(osName);
     }
