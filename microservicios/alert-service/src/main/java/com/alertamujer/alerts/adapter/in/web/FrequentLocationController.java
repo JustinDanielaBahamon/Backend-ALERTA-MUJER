@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** Adaptador de entrada REST de los lugares frecuentes. */
+/** REST input adapter for frequent places. */
 @RestController
 @RequestMapping("/api/frequent-locations")
 public class FrequentLocationController {
@@ -21,7 +21,7 @@ public class FrequentLocationController {
         this.places = places;
     }
 
-    // userId = users.id (lo que envían web y móvil). Solo la dueña (auditoría S2).
+    // userId = users.id (what web and mobile send). Owner only (audit S2).
     @GetMapping("/user/{userId}")
     @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<List<FrequentLocationResponse>> getByUserId(@PathVariable Long userId) {

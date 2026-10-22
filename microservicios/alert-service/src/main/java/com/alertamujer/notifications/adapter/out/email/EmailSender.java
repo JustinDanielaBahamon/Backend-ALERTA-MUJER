@@ -1,12 +1,12 @@
 package com.alertamujer.notifications.adapter.out.email;
 
-/** Envío de correos. La implementación (Resend, Brevo o solo registro) se elige por configuración. */
+/** Email sending. The implementation (Resend, Brevo or log only) is chosen by configuration. */
 public interface EmailSender {
 
-    /** Envía el correo; lanza EmailException si el proveedor lo rechaza. */
+    /** Sends the email; throws EmailException if the provider rejects it. */
     void send(EmailMessage message);
 
-    /** Nombre del proveedor, para registrarlo en los envíos. */
+    /** Provider name, to record it in the deliveries. */
     String provider();
 
     record EmailMessage(String to, String subject, String html, String text) {}

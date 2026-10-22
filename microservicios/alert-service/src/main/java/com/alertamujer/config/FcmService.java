@@ -6,34 +6,34 @@ import java.util.Map;
 public interface FcmService {
 
     /**
-     * Aviso de emergencia: mensaje solo de datos con prioridad alta de Android y vigencia de 5 minutos,
-     * para que la app lo reciba aunque esté cerrada y muestre la alarma a pantalla completa.
-     * Devuelve los tokens que fallaron (vacío si todos se entregaron a FCM).
+     * Emergency notice: data-only message with Android high priority and a 5-minute TTL,
+     * so the app receives it even when closed and shows the full-screen alarm.
+     * Returns the tokens that failed (empty if all were delivered to FCM).
      */
     List<String> sendEmergencyAlert(List<String> deviceTokens, Map<String, String> data);
 
     /**
-     * Enviar notificación simple a un solo dispositivo
+     * Send a simple notification to a single device
      */
     String sendSingleNotification(String deviceToken, String title, String body, String alertId, String action);
 
     /**
-     * Enviar notificación en lote a múltiples dispositivos
+     * Send a batch notification to several devices
      */
     List<String> sendBatchNotification(List<String> deviceTokens, String title, String body, String alertId, String action);
 
     /**
-     * Notificar cuando se activa una alerta - enviar push a todos los dispositivos del usuario
+     * Notify when an alert is activated - send a push to all the user's devices
      */
     void notifyAlertTriggered(Long alertId, Long userProfileId);
 
     /**
-     * Obtener todos los tokens FCM activos de los dispositivos de un usuario
+     * Get all active FCM tokens of a user's devices
      */
     List<String> getFcmTokensByUser(Long userProfileId);
 
     /**
-     * Notificar actualización de ubicación en tiempo real
+     * Notify real-time location updates
      */
     void sendLocationUpdateNotification(String alertId, String deviceToken, double latitude, double longitude);
 }

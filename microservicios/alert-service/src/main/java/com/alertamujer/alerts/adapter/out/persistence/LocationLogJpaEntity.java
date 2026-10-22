@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila del historial de ubicaciones. El dominio es LocationLog. */
+/** Row of the location history. The domain is LocationLog. */
 @Entity
 @Table(name = "location_log", schema = "alert")
 @Data

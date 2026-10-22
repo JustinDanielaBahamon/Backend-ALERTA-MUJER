@@ -15,9 +15,9 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Adaptador de entrada: escucha los eventos de alerts y los que reenvía Auth Service por HTTP. Corre
- * en otro hilo y solo después de confirmar la transacción que los publicó (si la hay), para no
- * avisar de una alerta que no llegó a guardarse ni demorar la respuesta a la usuaria.
+ * Input adapter: listens to the alerts events and the ones Auth Service forwards over HTTP. Runs
+ * on another thread and only after the publishing transaction commits (if any), so it does not
+ * notify about an alert that was never saved nor delay the response to the user.
  */
 @Component
 class NotificationEventsListener {

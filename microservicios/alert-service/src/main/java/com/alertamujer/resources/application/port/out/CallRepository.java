@@ -5,14 +5,14 @@ import com.alertamujer.resources.domain.model.ResourceCall;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: las llamadas a los recursos. */
+/** Output port: calls to resources. */
 public interface CallRepository {
 
     List<ResourceCall> all();
 
     Optional<ResourceCall> find(Long id);
 
-    /** De la más reciente a la más antigua. */
+    /** Newest to oldest. */
     List<ResourceCall> ofProfile(Long profile);
 
     List<ResourceCall> ofResource(Long resourceId);

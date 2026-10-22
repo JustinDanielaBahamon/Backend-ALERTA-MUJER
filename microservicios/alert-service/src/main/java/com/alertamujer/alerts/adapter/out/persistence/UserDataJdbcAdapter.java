@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Adaptador de salida: borra en una sola transacción todo lo personal de una usuaria en las tablas
- * de Alert Service (alert, notification y resource). Las alertas no se borran: las evidencias
- * (Evidence Service) y los envíos apuntan a ellas.
+ * Output adapter: deletes in a single transaction everything personal of a user in the
+ * Alert Service tables (alert, notification and resource). Alerts are not deleted: the evidence
+ * (Evidence Service) and the deliveries point to them.
  */
 @Component
 class UserDataJdbcAdapter implements UserDataRepository {
@@ -32,10 +32,10 @@ class UserDataJdbcAdapter implements UserDataRepository {
         rows += jdbc.update("DELETE FROM alert.alert_message WHERE alert_id IN " + HER_ALERTS, p);
         rows += jdbc.update("DELETE FROM notification.tracking_link WHERE alert_id IN " + HER_ALERTS, p);
         rows += jdbc.update("DELETE FROM notification.tracking_view WHERE alert_id IN " + HER_ALERTS, p);
-        // Los envíos quedan en el historial sin el correo ni el token de cada contacto
+        // Deliveries stay in the history without each contact's email or token
         rows += jdbc.update("UPDATE alert.alert_contact SET destination = '(eliminado)', error_message = NULL "
                 + "WHERE alert_id IN " + HER_ALERTS, p);
-        // La llave foránea de alert_contact deja el envío sin contacto (ON DELETE SET NULL)
+        // The alert_contact foreign key leaves the delivery without a contact (ON DELETE SET NULL)
         rows += jdbc.update("DELETE FROM alert.emergency_contact WHERE user_profile_id = ?", p);
         rows += jdbc.update("DELETE FROM resource.resource_call WHERE user_profile_id = ?", p);
         rows += jdbc.update("UPDATE alert.alert SET message = NULL, latitude = NULL, longitude = NULL, "

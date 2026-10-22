@@ -4,7 +4,7 @@ import com.alertamujer.zones.api.ZonesApi;
 import com.alertamujer.zones.application.port.in.ZonesUseCase;
 import org.springframework.stereotype.Component;
 
-/** Adaptador de entrada: el contrato ZonesApi que usa el panel de Auth Service (por /internal/rpc). */
+/** Input adapter: the ZonesApi contract used by the Auth Service panel (through /internal/rpc). */
 @Component
 class ZonesApiAdapter implements ZonesApi {
 

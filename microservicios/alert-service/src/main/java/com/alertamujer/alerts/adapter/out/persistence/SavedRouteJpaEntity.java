@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Fila de un recorrido guardado (los puntos van en JSONB). El dominio es SavedRoute. */
+/** Row of a saved route (the points go in JSONB). The domain is SavedRoute. */
 @Entity
 @Table(name = "saved_route", schema = "alert")
 @Data

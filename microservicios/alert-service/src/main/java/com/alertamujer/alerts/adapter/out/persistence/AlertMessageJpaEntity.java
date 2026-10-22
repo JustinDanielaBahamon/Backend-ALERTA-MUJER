@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un mensaje del chat de una alerta. El dominio es AlertMessage. */
+/** Row of an alert chat message. The domain is AlertMessage. */
 @Entity
 @Table(name = "alert_message", schema = "alert")
 @Data

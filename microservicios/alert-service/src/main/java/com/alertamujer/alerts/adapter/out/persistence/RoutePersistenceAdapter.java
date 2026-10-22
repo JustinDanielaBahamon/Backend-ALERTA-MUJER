@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los recorridos guardados en PostgreSQL. */
+/** Output adapter: saved routes in PostgreSQL. */
 @Component
 class RoutePersistenceAdapter implements RouteRepository {
 

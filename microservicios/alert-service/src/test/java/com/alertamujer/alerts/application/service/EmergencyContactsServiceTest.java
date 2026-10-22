@@ -104,7 +104,7 @@ class EmergencyContactsServiceTest {
 
     @Test
     void ofUser_anotherUsersOnesAreSeenByNobody() {
-        // Ni siquiera la administración: son datos de terceros (auditoría S2)
+        // Not even the administration: it is third-party data (audit S2)
         assertThrows(AccessDeniedException.class, () -> service.ofUser(5L, 1L));
         verify(repository, never()).ofUser(5L);
     }

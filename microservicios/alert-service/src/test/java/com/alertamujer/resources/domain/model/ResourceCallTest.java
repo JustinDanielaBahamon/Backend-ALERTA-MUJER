@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de recursos y llamadas, sin Spring ni base de datos. */
+/** Resource and call rules, without Spring or a database. */
 class ResourceCallTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);

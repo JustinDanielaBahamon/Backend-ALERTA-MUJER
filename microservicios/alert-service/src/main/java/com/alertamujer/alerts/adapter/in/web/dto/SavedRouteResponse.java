@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// Mismo orden de siempre: @JsonProperty movería los "is..." al inicio
+// Same order as always: @JsonProperty would move the "is..." ones to the start
 @JsonPropertyOrder({"id", "userProfileId", "name", "startLabel", "endLabel", "city", "department", "country",
         "distanceKm", "estimatedMinutes", "points", "isStarred", "isManual", "createdAt", "updatedAt"})
 public record SavedRouteResponse(Long id, Long userProfileId, String name, String startLabel, String endLabel,

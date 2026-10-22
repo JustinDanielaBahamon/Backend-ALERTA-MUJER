@@ -18,10 +18,10 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 /**
- * Cómo se conecta Alert Service con los otros microservicios.
- * - Atiende AlertsApi y ZonesApi (para Auth y Evidence).
- * - Usa IdentityApi, DevicesApi y SettingsApi de Auth Service y EvidenceApi de Evidence Service.
- * - Recibe de Auth los eventos de recuperación de contraseña y de celular nuevo (envía el correo/push).
+ * How Alert Service connects to the other microservices.
+ * - Serves AlertsApi and ZonesApi (for Auth and Evidence).
+ * - Uses IdentityApi, DevicesApi and SettingsApi from Auth Service and EvidenceApi from Evidence Service.
+ * - Receives from Auth the password recovery and new phone events (sends the email/push).
  */
 @Configuration
 public class AlertMicroserviceConfig {

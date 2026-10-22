@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Lugar frecuente de la usuaria (casa, trabajo...) con su nivel de riesgo.
+ * The user's frequent place (home, work...) with its risk level.
  */
 public class FrequentLocation {
 
@@ -45,7 +45,7 @@ public class FrequentLocation {
         return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    /** Actualización parcial: la web usa PATCH y el móvil envía solo lo modificado. */
+    /** Partial update: the web uses PATCH and mobile sends only what changed. */
     public void update(PlaceData data, LocalDateTime now) {
         if (data.name() != null && !data.name().isBlank()) name = data.name();
         if (data.address() != null) address = data.address();

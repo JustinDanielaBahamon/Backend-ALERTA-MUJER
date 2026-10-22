@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los recursos de ayuda en PostgreSQL. */
+/** Output adapter: help resources in PostgreSQL. */
 @Component
 class ResourcePersistenceAdapter implements ResourceRepository {
 

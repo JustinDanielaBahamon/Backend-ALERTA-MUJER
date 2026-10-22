@@ -5,7 +5,7 @@ import com.alertamujer.resources.domain.model.EmergencyResource;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los recursos de ayuda. */
+/** Output port: help resources. */
 public interface ResourceRepository {
 
     List<EmergencyResource> all();

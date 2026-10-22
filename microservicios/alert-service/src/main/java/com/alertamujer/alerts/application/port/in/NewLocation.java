@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Punto GPS enviado por la app. deviceId es opcional (versiones anteriores de la app no lo envían);
- * recordedAt permite subir puntos que quedaron en cola sin conexión.
+ * GPS point sent by the app. deviceId is optional (older app versions do not send it);
+ * recordedAt allows uploading points that were queued while offline.
  */
 public record NewLocation(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy,
                              Long alertId, Long deviceId, LocalDateTime recordedAt) {

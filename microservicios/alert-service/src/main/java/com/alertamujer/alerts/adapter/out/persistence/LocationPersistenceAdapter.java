@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: el historial de ubicaciones en PostgreSQL. */
+/** Output adapter: location history in PostgreSQL. */
 @Component
 class LocationPersistenceAdapter implements LocationRepository {
 

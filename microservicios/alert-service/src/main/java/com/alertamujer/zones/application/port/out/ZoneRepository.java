@@ -5,7 +5,7 @@ import com.alertamujer.zones.domain.model.Zone;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: las zonas del mapa. */
+/** Output port: the map zones. */
 public interface ZoneRepository {
 
     List<Zone> all();

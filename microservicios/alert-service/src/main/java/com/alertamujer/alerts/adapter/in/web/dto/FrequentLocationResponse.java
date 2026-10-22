@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// Mismo orden de siempre: @JsonProperty movería los "is..." al inicio
+// Same order as always: @JsonProperty would move the "is..." ones to the start
 @JsonPropertyOrder({"id", "userProfileId", "name", "address", "city", "latitude", "longitude", "notes", "riskLevel",
         "isActive", "createdAt", "updatedAt"})
 public record FrequentLocationResponse(Long id, Long userProfileId, String name, String address, String city,

@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un contacto de emergencia. El dominio es EmergencyContact. */
+/** Row of an emergency contact. The domain is EmergencyContact. */
 @Entity
 @Table(name = "emergency_contact", schema = "alert")
 @Data

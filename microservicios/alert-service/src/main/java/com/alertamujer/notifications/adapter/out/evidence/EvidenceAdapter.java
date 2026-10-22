@@ -17,12 +17,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Adaptador de salida: las grabaciones de una alerta (Evidence Service).
+ * Output adapter: the recordings of an alert (Evidence Service).
  *
- * La lista se espera como máximo {@value #ESPERA_MS} ms: si Evidence Service está dormido (Render
- * gratis tarda 1-3 min en despertar), el seguimiento del contacto se muestra igual con el mapa y
- * los datos, sin grabaciones. La consulta sigue en segundo plano y despierta al servicio, así que la
- * siguiente actualización de la página ya las trae.
+ * The list is awaited at most {@value #WAIT_MS} ms: if Evidence Service is asleep (free Render
+ * takes 1-3 min to wake up), the contact's tracking page still shows the map and
+ * the data, without recordings. The query keeps running in the background and wakes the service, so the
+ * next page refresh already brings them.
  */
 @Component
 class EvidenceAdapter implements EvidencePort {
@@ -31,7 +31,7 @@ class EvidenceAdapter implements EvidencePort {
     static final long WAIT_MS = 4000;
 
     private final EvidenceApi evidenceApi;
-    // Pocas consultas a la vez: si están todas ocupadas (servicio dormido), no se encolan más
+    // Few queries at a time: if they are all busy (service asleep), no more are queued
     private final ExecutorService queries = new ThreadPoolExecutor(1, 4, 60, TimeUnit.SECONDS,
             new SynchronousQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 

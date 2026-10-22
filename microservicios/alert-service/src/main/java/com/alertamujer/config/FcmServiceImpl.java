@@ -39,7 +39,7 @@ public class FcmServiceImpl implements FcmService {
                                 .setPriority(AndroidConfig.Priority.HIGH)
                                 .setTtl(Duration.ofMinutes(5).toMillis())
                                 .build())
-                        // Navegadores (panel web): entregar ya, y no más de 5 minutos tarde
+                        // Browsers (web panel): deliver now, and no more than 5 minutes late
                         .setWebpushConfig(WebpushConfig.builder()
                                 .putHeader("Urgency", "high")
                                 .putHeader("TTL", "300")
@@ -72,12 +72,12 @@ public class FcmServiceImpl implements FcmService {
 
     @Override
     public void notifyAlertTriggered(Long alertId, Long userProfileId) {
-        // Obtener tokens FCM de los dispositivos del usuario
+        // Get the FCM tokens of the user's devices
         List<String> fcmTokens = getFcmTokensByUser(userProfileId);
 
         if (!fcmTokens.isEmpty()) {
             try {
-                // Usar FirebaseMessaging.getInstance() directamente (patrón estándar de Firebase Admin SDK)
+                // Use FirebaseMessaging.getInstance() directly (standard Firebase Admin SDK pattern)
                 String token = fcmTokens.get(0);
                 com.google.firebase.messaging.FirebaseMessaging messaging = com.google.firebase.messaging.FirebaseMessaging.getInstance();
                 String response = messaging.send(
@@ -90,7 +90,7 @@ public class FcmServiceImpl implements FcmService {
                                                 .build())
                                 .build()
                 );
-                // Nota: En un caso completo, enviaríamos a todos los tokens, pero por simplicidad usamos el primero
+                // Note: in a complete case we would send to all tokens, but for simplicity we use the first one
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -104,7 +104,7 @@ public class FcmServiceImpl implements FcmService {
 
     @Override
     public void sendLocationUpdateNotification(String alertId, String deviceToken, double latitude, double longitude) {
-        // Notificación simple - usar Firebase directamente
-        // TODO: Implementar notificación de ubicación
+        // Simple notification - use Firebase directly
+        // TODO: Implement location notification
     }
 }

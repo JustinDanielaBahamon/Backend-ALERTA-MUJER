@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Registro de que la usuaria marcó a un recurso de ayuda desde la app.
+ * Record that the user called a help resource from the app.
  */
 public class ResourceCall {
 
@@ -14,7 +14,7 @@ public class ResourceCall {
     private Long alertId;
     private Long deviceId;
     private String telephoneDialed;
-    /** initiated si la app no indica otro. */
+    /** initiated if the app does not say otherwise. */
     private String status;
     private LocalDateTime startedAt = LocalDateTime.now();
     private LocalDateTime endedAt;
@@ -24,8 +24,8 @@ public class ResourceCall {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /**
-     * Llamada nueva: el número es el que marcó la app o, si no lo envía, el del recurso. La dueña
-     * sale del token, nunca del body.
+     * New call: the number is the one the app dialed or, if not sent, the resource's. The owner
+     * comes from the token, never from the body.
      */
     public static ResourceCall newOne(Long profile, EmergencyResource resource, Long alertId, Long deviceId,
                                      String dialedNumber, String status, LocalDateTime now) {
@@ -45,7 +45,7 @@ public class ResourceCall {
         return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    /** Resultado de la llamada: solo los datos que lleguen. */
+    /** Result of the call: only the data that arrives. */
     public void update(String newStatus, LocalDateTime end, Integer newDurationSeconds) {
         if (newStatus != null) status = newStatus;
         if (end != null) endedAt = end;

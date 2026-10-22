@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** Avisos a los contactos de emergencia al activar y al terminar una alerta. Solo conoce puertos. */
+/** Notices to the emergency contacts when an alert is activated and when it ends. Only knows ports. */
 @Service
 public class AlertNoticesService implements NotifyContactsUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(AlertNoticesService.class);
 
-    /** Canales que registra el módulo alerts para cada contacto. */
+    /** Channels the alerts module records for each contact. */
     static final String EMAIL_CHANNEL = "email";
     static final String PUSH_CHANNEL = "push";
 
@@ -61,7 +61,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         AlertSummary alert = alerts.find(alertId).orElse(null);
         String name = identity.profileFullName(userProfile).orElse(null);
         Map<Long, String> emailByContact = emailsByContact(deliveries);
-        // Un enlace por alerta: lo usan el correo (página web) y el push (pantalla de la app)
+        // One link per alert: used by the email (web page) and the push (app screen)
         String code = tracking.createLink(alertId);
         String url = webBaseUrl + "/seguimiento/" + code;
         for (AlertRecipient delivery : deliveries) {
@@ -99,7 +99,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         }
     }
 
-    /** Enlace de Google Maps con el punto (para el correo, como respaldo si la página tarda). */
+    /** Google Maps link with the point (for the email, as a fallback if the page is slow). */
     static String googleMaps(BigDecimal lat, BigDecimal lng) {
         return "https://www.google.com/maps/search/?api=1&query=" + lat.toPlainString() + "," + lng.toPlainString();
     }
@@ -133,7 +133,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         }
     }
 
-    // El correo de cada contacto sirve también para saber si tiene la app (push)
+    // Each contact's email also tells whether she has the app (push)
     private static Map<Long, String> emailsByContact(List<AlertRecipient> deliveries) {
         return deliveries.stream()
                 .filter(e -> EMAIL_CHANNEL.equals(e.channel()))

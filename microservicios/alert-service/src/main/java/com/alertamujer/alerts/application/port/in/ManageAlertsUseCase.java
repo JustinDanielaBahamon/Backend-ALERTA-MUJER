@@ -8,18 +8,18 @@ import com.alertamujer.alerts.domain.model.Alert;
 
 import java.util.List;
 
-/** Casos de uso del panel de administración. */
+/** Admin panel use cases. */
 public interface ManageAlertsUseCase {
 
-    /** Todas las alertas con la usuaria que la activó, de la más reciente a la más antigua. */
+    /** All alerts with the user who activated them, newest to oldest. */
     List<AdminAlertView> listAll();
 
-    /** Cambia el estado de cualquier alerta, por ejemplo a "resolved" (atendida). */
+    /** Changes the status of any alert, for example to "resolved" (attended). */
     Alert changeStatus(Long id, String status);
 
     /**
-     * Detalle para el panel: última ubicación (solo de alertas activas o atendidas, auditoría S2) y
-     * estado de envío a cada contacto, sin su nombre ni su correo.
+     * Detail for the panel: last location (only of active or attended alerts, audit S2) and
+     * delivery status to each contact, without their name or email.
      */
     AdminDetail detail(Long id);
 
@@ -27,9 +27,9 @@ public interface ManageAlertsUseCase {
 
     record AdminChannel(String channel, String status, LocalDateTime sentAt, LocalDateTime deliveredAt) {}
 
-    /** contacto: número del contacto en la alerta (1, 2...). relationship: parentesco, si lo tiene. */
+    /** contacto: number of the contact in the alert (1, 2...). relationship: kinship, if any. */
     record AdminDelivery(@com.fasterxml.jackson.annotation.JsonProperty("contacto") int contact, String relationship, List<AdminChannel> channels) {}
 
-    /** ubicacionVisible: false si la alerta se canceló o venció (la administración no ve su recorrido). */
+    /** ubicacionVisible: false if the alert was cancelled or expired (the administration does not see its route). */
     record AdminDetail(@com.fasterxml.jackson.annotation.JsonProperty("ubicacionVisible") boolean locationVisible, @com.fasterxml.jackson.annotation.JsonProperty("puntos") int points, @com.fasterxml.jackson.annotation.JsonProperty("ultimaUbicacion") LastLocation lastLocation, @com.fasterxml.jackson.annotation.JsonProperty("envios") List<AdminDelivery> deliveries) {}
 }

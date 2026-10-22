@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-/** Body para crear o editar una zona (panel de administración). */
+/** Body to create or edit a zone (admin panel). */
 public record ZoneRequest(Integer createdByAdminId, String name, String zoneType, String riskLevel, String description,
                           String address, String city, BigDecimal latitude, BigDecimal longitude, BigDecimal radiusMeters,
                           @JsonProperty("isActive") Boolean isActive) {

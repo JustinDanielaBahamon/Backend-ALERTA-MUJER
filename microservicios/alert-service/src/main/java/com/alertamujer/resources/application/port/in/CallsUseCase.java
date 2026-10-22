@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Registro de las llamadas de la usuaria a los recursos de ayuda. */
+/** Record of the user's calls to help resources. */
 public interface CallsUseCase {
 
     List<ResourceCall> all();
 
-    /** Vacío si no existe o es de otra usuaria. */
+    /** Empty if it does not exist or belongs to another user. */
     Optional<ResourceCall> one(Long id, Long userId);
 
     List<ResourceCall> mias(Long userId);

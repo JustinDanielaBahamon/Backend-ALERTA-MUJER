@@ -5,7 +5,7 @@ import com.alertamujer.alerts.domain.model.FrequentLocation;
 
 import java.util.List;
 
-/** Lugares frecuentes de la usuaria. */
+/** The user's frequent places. */
 public interface FrequentPlacesUseCase {
 
     List<FrequentLocation> activeOf(Long userId);

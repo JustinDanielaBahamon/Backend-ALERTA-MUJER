@@ -4,7 +4,7 @@ import com.alertamujer.alerts.domain.model.SavedRoute;
 
 import java.util.List;
 
-/** Recorridos guardados de la usuaria (compartidos entre web y móvil). */
+/** The user's saved routes (shared between web and mobile). */
 public interface RoutesUseCase {
 
     List<SavedRoute> mine(Long userId);

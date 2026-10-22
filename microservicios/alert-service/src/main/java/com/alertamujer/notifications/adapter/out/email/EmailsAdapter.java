@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-/** Adaptador de salida: arma cada correo con la plantilla de la marca y lo envía con el proveedor configurado. */
+/** Output adapter: builds each email with the brand template and sends it with the configured provider. */
 @Component
 class EmailsAdapter implements EmailsPort {
 

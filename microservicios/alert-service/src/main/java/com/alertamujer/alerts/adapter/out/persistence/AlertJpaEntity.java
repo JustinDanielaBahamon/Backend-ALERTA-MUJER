@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila de la tabla de alertas. Solo la usa el adaptador de persistencia; el dominio es Alert. */
+/** Row of the alerts table. Only the persistence adapter uses it; the domain is Alert. */
 @Entity
 @Table(name = "alert", schema = "alert")
 @Data

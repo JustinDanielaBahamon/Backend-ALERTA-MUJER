@@ -1,5 +1,5 @@
 package com.alertamujer.alerts.domain.model;
 
-/** Datos de un contacto de emergencia. Al actualizar, un campo null se deja como estaba. */
+/** Data of an emergency contact. On update, a null field is left as it was. */
 public record ContactData(String contactName, String telephone, String email, String relationship, String photo) {
 }

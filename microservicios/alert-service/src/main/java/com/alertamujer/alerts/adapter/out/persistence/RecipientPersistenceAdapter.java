@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los envíos de cada alerta en PostgreSQL. */
+/** Output adapter: the deliveries of each alert in PostgreSQL. */
 @Component
 class RecipientPersistenceAdapter implements RecipientRepository {
 

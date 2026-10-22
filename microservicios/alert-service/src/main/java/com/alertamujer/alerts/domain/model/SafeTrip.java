@@ -5,8 +5,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
- * "Avísame si no llego": un trayecto con hora de llegada. Si la usuaria no confirma a tiempo, el
- * servidor activa una alerta por ella. Modelo del dominio: no conoce la base de datos ni Spring.
+ * "Avísame si no llego": a trip with an arrival time. If the user does not confirm in time, the
+ * server activates an alert for her. Domain model: knows neither the database nor Spring.
  */
 public class SafeTrip {
 
@@ -15,14 +15,14 @@ public class SafeTrip {
     public static final String CANCELLED = "cancelled";
     public static final String ALERTED = "alerted";
 
-    /** Límites de tiempo: evitan trayectos absurdos o temporizadores olvidados por días. */
+    /** Time limits: avoid absurd trips or timers forgotten for days. */
     public static final int MIN_MINUTES = 5;
     public static final int MAX_MINUTES = 240;
     public static final int EXTENSION_MAXIMA = 60;
     public static final int MAX_TOTAL_DURATION = 360;
-    /** Margen después de la hora de llegada antes de avisar (un semáforo, un ascensor...). */
+    /** Margin after the arrival time before notifying (a traffic light, an elevator...). */
     public static final Duration GRACE = Duration.ofMinutes(2);
-    /** Se le pregunta "¿ya llegaste?" este tiempo antes de la hora de llegada. */
+    /** She is asked "¿ya llegaste?" this long before the arrival time. */
     public static final Duration REMINDER_LEAD = Duration.ofMinutes(5);
     private static final int MAX_DESTINATION = 120;
 
@@ -68,12 +68,12 @@ public class SafeTrip {
         return ACTIVE.equals(status);
     }
 
-    /** Pasó la hora de llegada (más el margen) sin que confirmara. */
+    /** The arrival time (plus the margin) passed without her confirming. */
     public boolean expired(LocalDateTime now) {
         return active() && now.isAfter(expectedArrival.plus(GRACE));
     }
 
-    /** Toca preguntarle si ya llegó (una sola vez). */
+    /** Time to ask her whether she arrived (only once). */
     public boolean dueSoon(LocalDateTime now) {
         return active() && !reminderSent && !now.isBefore(expectedArrival.minus(REMINDER_LEAD));
     }
@@ -90,7 +90,7 @@ public class SafeTrip {
         endedAt = now;
     }
 
-    /** Más tiempo: hasta EXTENSION_MAXIMA cada vez y DURACION_TOTAL_MAXIMA en total. */
+    /** More time: up to MAX_EXTENSION each time and MAX_TOTAL_DURATION in total. */
     public void extender(int minutes) {
         requireActive();
         if (minutes < 1 || minutes > EXTENSION_MAXIMA) {
@@ -101,7 +101,7 @@ public class SafeTrip {
             throw new IllegalArgumentException("Un trayecto no puede durar más de " + MAX_TOTAL_DURATION / 60 + " horas");
         }
         expectedArrival = newOne;
-        reminderSent = false; // se le vuelve a preguntar antes de la nueva hora
+        reminderSent = false; // she is asked again before the new time
     }
 
     public void markReminder() {

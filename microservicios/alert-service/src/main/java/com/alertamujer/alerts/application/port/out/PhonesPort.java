@@ -2,12 +2,12 @@ package com.alertamujer.alerts.application.port.out;
 
 import java.util.List;
 
-/** Puerto de salida: los celulares de la usuaria (Auth Service). */
+/** Output port: the user's phones (Auth Service). */
 public interface PhonesPort {
 
-    /** true si el dispositivo es el celular que la usuaria usó más recientemente (o si no se conoce). */
+    /** true if the device is the phone the user used most recently (or if unknown). */
     boolean isTheNewest(Long userId, Long deviceId);
 
-    /** Tokens push solo de celulares (sin navegadores web). */
+    /** Push tokens of phones only (no web browsers). */
     List<String> phoneTokens(Long userId);
 }

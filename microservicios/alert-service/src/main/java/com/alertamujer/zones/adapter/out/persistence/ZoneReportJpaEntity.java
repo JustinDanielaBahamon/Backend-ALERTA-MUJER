@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un reporte de zona. El dominio es ZoneReport. */
+/** Row of a zone report. The domain is ZoneReport. */
 @Entity
 @Table(name = "zone_report", schema = "resource")
 @Data

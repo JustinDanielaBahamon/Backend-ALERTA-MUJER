@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Recorridos guardados de la usuaria autenticada (compartidos entre web y móvil).
- * Siempre opera sobre la dueña del token: no hay forma de leer recorridos ajenos.
+ * Saved routes of the authenticated user (shared between web and mobile).
+ * Always works on the token owner: there is no way to read someone else's routes.
  */
 @RestController
 @RequestMapping("/api/saved-routes")

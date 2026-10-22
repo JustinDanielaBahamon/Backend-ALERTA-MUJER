@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Punto GPS de una usuaria: del día a día o del recorrido de una alerta.
+ * GPS point of a user: day-to-day or from an alert route.
  */
 public class LocationLog {
 
     private Long id;
     private Long userProfileId;
-    /** Null en las ubicaciones del día a día. */
+    /** Null for day-to-day locations. */
     private Long alertId;
     private BigDecimal latitude;
     private BigDecimal longitude;
@@ -39,7 +39,7 @@ public class LocationLog {
         return alertId != null;
     }
 
-    /** Puntos en cola sin conexión: se respeta su hora si es de las últimas 24 h y no del futuro. */
+    /** Points queued while offline: their time is respected if within the last 24 h and not in the future. */
     public void recordTime(LocalDateTime sent, LocalDateTime now) {
         recordedAt = sent != null && sent.isAfter(now.minusHours(24)) && !sent.isAfter(now) ? sent : now;
     }

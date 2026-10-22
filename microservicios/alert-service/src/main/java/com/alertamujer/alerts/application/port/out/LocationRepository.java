@@ -6,22 +6,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: el historial de ubicaciones. */
+/** Output port: location history. */
 public interface LocationRepository {
 
     LocationLog save(LocationLog location);
 
-    /** Las más recientes primero. */
+    /** Most recent first. */
     List<LocationLog> recent(Long profile, int howMany);
 
     Optional<LocationLog> latest(Long profile);
 
-    /** Recorrido de una alerta, del primer punto al último. */
+    /** Route of an alert, from the first point to the last. */
     List<LocationLog> ofAlert(Long alertId);
 
-    /** Borra las ubicaciones del día a día (sin alerta) anteriores a la fecha. */
+    /** Deletes day-to-day locations (without alert) older than the date. */
     int deleteWithoutAlertBefore(LocalDateTime date);
 
-    /** Borra los recorridos de las alertas anteriores a la fecha. */
+    /** Deletes alert routes older than the date. */
     int deleteFromAlertsBefore(LocalDateTime date);
 }

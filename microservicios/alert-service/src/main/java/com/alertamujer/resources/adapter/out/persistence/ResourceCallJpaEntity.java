@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de una llamada a un recurso. El dominio es ResourceCall. */
+/** Row of a call to a resource. The domain is ResourceCall. */
 @Entity
 @Table(name = "resource_call", schema = "resource")
 @Data

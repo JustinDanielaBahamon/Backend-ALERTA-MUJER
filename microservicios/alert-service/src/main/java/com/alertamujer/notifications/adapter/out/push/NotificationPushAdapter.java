@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de salida: push de alta prioridad con Firebase Cloud Messaging. */
+/** Output adapter: high-priority push with Firebase Cloud Messaging. */
 @Component
 class NotificationPushAdapter implements PushPort {
 

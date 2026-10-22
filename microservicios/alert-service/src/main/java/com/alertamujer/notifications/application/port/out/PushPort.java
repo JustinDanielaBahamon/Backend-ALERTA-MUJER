@@ -3,9 +3,9 @@ package com.alertamujer.notifications.application.port.out;
 import java.util.List;
 import java.util.Map;
 
-/** Puerto de salida: push de alta prioridad con Firebase. */
+/** Output port: high-priority push with Firebase. */
 public interface PushPort {
 
-    /** Devuelve los tokens a los que no se pudo enviar. */
+    /** Returns the tokens that could not be reached. */
     List<String> send(List<String> tokens, Map<String, String> data);
 }

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST de las alertas. Solo traduce HTTP ↔ casos de uso. */
+/** REST input adapter for alerts. Only translates HTTP ↔ use cases. */
 @RestController
 @RequestMapping("/api/alerts")
 public class AlertController {
@@ -42,7 +42,7 @@ public class AlertController {
         this.locations = locations;
     }
 
-    /** Recorrido GPS de una alerta (lo usa el seguimiento de alertas del móvil). */
+    /** GPS route of an alert (used by the mobile alert tracking). */
     @GetMapping("/{id}/locations")
     public ResponseEntity<List<LocationLogResponse>> getAlertLocations(@PathVariable Long id,
                                                                        @AuthenticationPrincipal Long currentUserId,
@@ -57,14 +57,14 @@ public class AlertController {
         return ResponseEntity.ok(administration.listAll());
     }
 
-    /** Detalle del panel: última ubicación y estado de envío a cada contacto (sin sus datos). */
+    /** Panel detail: last location and delivery status to each contact (without their data). */
     @GetMapping("/{id}/admin-detail")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ManageAlertsUseCase.AdminDetail> getAdminDetail(@PathVariable Long id) {
         return ResponseEntity.ok(administration.detail(id));
     }
 
-    /** Cambia el estado de una alerta de cualquier usuaria, por ejemplo a "resolved" (atendida). */
+    /** Changes the status of any user's alert, for example to "resolved" (attended). */
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AlertResponse> changeAlertStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
@@ -94,7 +94,7 @@ public class AlertController {
         return ResponseEntity.ok(AlertResponse.of(alerts.activate(request.toNew(), currentUserId)));
     }
 
-    /** Contactos avisados en una alerta y el estado de cada canal (solo la dueña de la alerta). */
+    /** Contacts notified in an alert and the status of each channel (alert owner only). */
     @GetMapping("/{id}/contacts")
     public ResponseEntity<List<NotifiedContact>> getAlertContacts(@PathVariable Long id,
                                                                      @AuthenticationPrincipal Long currentUserId) {
@@ -103,7 +103,7 @@ public class AlertController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** Chat de la alerta (solo la dueña). after: id del último mensaje que ya tiene (0 = todos). */
+    /** Alert chat (owner only). after: id of the last message she already has (0 = all). */
     @GetMapping("/{id}/messages")
     public ResponseEntity<List<AlertMessageView>> getMessages(@PathVariable Long id,
                                                               @RequestParam(defaultValue = "0") Long after,
@@ -119,7 +119,7 @@ public class AlertController {
 
     public record MessageRequest(String body) {}
 
-    /** Conservar las evidencias de la alerta (no se borran a los 60 días). Body: {"keep": true}. */
+    /** Keep the alert's evidence (not deleted after 60 days). Body: {"keep": true}. */
     @PatchMapping("/{id}/keep-evidence")
     public ResponseEntity<AlertResponse> keepEvidence(@PathVariable Long id, @RequestBody Map<String, Boolean> body,
                                                       @AuthenticationPrincipal Long currentUserId) {

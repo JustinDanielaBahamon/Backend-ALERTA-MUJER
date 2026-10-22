@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-/** Adaptador de entrada: limpia el historial de ubicaciones una vez al día. */
+/** Input adapter: cleans the location history once a day. */
 @Component
 class LocationCleanupScheduler {
 
@@ -16,7 +16,7 @@ class LocationCleanupScheduler {
         this.clear = clear;
     }
 
-    // Todos los días a las 3:30 a. m. (hora de Colombia), cuando casi nadie usa la app
+    // Every day at 3:30 a.m. (Colombia time), when almost nobody uses the app
     @Scheduled(cron = "${locations.retention.cron:0 30 3 * * *}", zone = "America/Bogota")
     void clear() {
         clear.clear(LocalDateTime.now());

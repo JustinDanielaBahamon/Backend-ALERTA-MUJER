@@ -4,18 +4,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Alertas que recibió la usuaria como contacto de emergencia de otra persona (se le avisó a su
- * correo). Desde el panel web ve cuáles están activas y abre su seguimiento.
+ * Alerts the user received as another person's emergency contact (her email was
+ * notified). From the web panel she sees which are active and opens their tracking.
  */
 public interface ReceivedAlertsUseCase {
 
-    /** Las de los últimos 30 días, de la más reciente a la más antigua. */
+    /** Those of the last 30 days, newest to oldest. */
     List<ReceivedAlert> received(Long userId, LocalDateTime now);
 
-    /** Código de seguimiento de una alerta recibida, solo si el seguimiento sigue vigente. */
+    /** Tracking code of a received alert, only if the tracking is still valid. */
     String trackingLink(Long userId, Long alertId, LocalDateTime now);
 
-    /** Lo que ve el contacto: solo el nombre de pila de quien activó la alerta. */
+    /** What the contact sees: only the first name of whoever activated the alert. */
     record ReceivedAlert(Long alertId, String firstName, String status, boolean active,
                          LocalDateTime startedAt, LocalDateTime endedAt, boolean trackingAvailable) {}
 }

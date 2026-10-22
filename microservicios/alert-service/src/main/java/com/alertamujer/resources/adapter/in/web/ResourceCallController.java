@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** Adaptador de entrada REST de las llamadas a los recursos. */
+/** REST input adapter for calls to resources. */
 @RestController
 @RequestMapping("/api/resource-calls")
 public class ResourceCallController {
@@ -34,7 +34,7 @@ public class ResourceCallController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // userId = users.id. Solo la dueña o la administración.
+    // userId = users.id. Owner or administration only.
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN') or #userId == authentication.principal")
     public ResponseEntity<List<ResourceCallResponse>> getCallsByUser(@PathVariable Long userId) {

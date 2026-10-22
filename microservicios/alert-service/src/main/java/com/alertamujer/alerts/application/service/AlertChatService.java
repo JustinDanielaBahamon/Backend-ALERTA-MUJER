@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Chat de una alerta entre quien la activó y sus contactos. */
+/** Chat of an alert between whoever activated it and her contacts. */
 @Service
 public class AlertChatService implements AlertChatUseCase {
 
@@ -59,7 +59,7 @@ public class AlertChatService implements AlertChatUseCase {
 
     private Alert ownAlert(Long alertId, Long userId) {
         Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        // Una alerta ajena se responde igual que una inexistente
+        // Someone else's alert is answered like a missing one
         if (!alert.esDe(identity.profileOf(userId).orElse(null))) throw new ResourceNotFoundException("Alert", alertId);
         return alert;
     }

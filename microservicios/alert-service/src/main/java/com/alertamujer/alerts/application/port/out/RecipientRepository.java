@@ -5,7 +5,7 @@ import com.alertamujer.alerts.domain.model.AlertContact;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los envíos de cada alerta (un registro por contacto y canal). */
+/** Output port: the deliveries of each alert (one record per contact and channel). */
 public interface RecipientRepository {
 
     void saveAll(List<AlertContact> recipients);
@@ -16,6 +16,6 @@ public interface RecipientRepository {
 
     List<AlertContact> ofAlert(Long alertId);
 
-    /** Alertas en las que se avisó a este correo (el contacto que tiene cuenta en la app). */
+    /** Alerts in which this email was notified (the contact who has an app account). */
     List<Long> alertsNotifiedTo(String email);
 }

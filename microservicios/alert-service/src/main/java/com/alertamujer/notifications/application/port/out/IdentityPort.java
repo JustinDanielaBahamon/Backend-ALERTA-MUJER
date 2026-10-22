@@ -2,16 +2,16 @@ package com.alertamujer.notifications.application.port.out;
 
 import java.util.Optional;
 
-/** Puerto de salida hacia identity (Auth Service por HTTP). */
+/** Output port to identity (Auth Service over HTTP). */
 public interface IdentityPort {
 
-    /** Nombre completo de la dueña del perfil (para los correos). */
+    /** Full name of the profile owner (for the emails). */
     Optional<String> profileFullName(Long profile);
 
-    /** Solo el nombre de pila: el seguimiento puede reenviarse. */
+    /** Only the first name: the tracking may be forwarded. */
     Optional<String> profileFirstName(Long profile);
 
-    /** users.id de la persona con ese correo, si tiene cuenta. */
+    /** users.id of the person with that email, if she has an account. */
     Optional<Long> userWithEmail(String email);
 
     Optional<String> emailOf(Long userId);

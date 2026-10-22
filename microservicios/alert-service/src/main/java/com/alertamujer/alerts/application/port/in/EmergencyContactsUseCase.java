@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Contactos de emergencia de la usuaria. */
+/** The user's emergency contacts. */
 public interface EmergencyContactsUseCase {
 
-    /** Vacío si no existe o es de otra usuaria. */
+    /** Empty if it does not exist or belongs to another user. */
     Optional<EmergencyContact> one(Long id, Long userId);
 
-    /** Solo los propios: idPedido puede ser el users.id o el user_profile.id de la usuaria (S2: la administración no los ve). */
+    /** Own ones only: requestedId may be the user's users.id or user_profile.id (S2: the administration does not see them). */
     List<EmergencyContact> ofUser(Long requestedId, Long userId);
 
     EmergencyContact create(ContactData data, Long userId);
@@ -23,8 +23,8 @@ public interface EmergencyContactsUseCase {
     void delete(Long id, Long userId);
 
     /**
-     * Si a cada contacto le puede llegar el aviso en el celular: "app" (tiene cuenta y un celular con
-     * notificaciones registrado), "account" (tiene cuenta pero ningún celular) o "none" (solo correo).
+     * Whether each contact can get the notice on her phone: "app" (has an account and a phone with
+     * notifications registered), "account" (has an account but no phone) or "none" (email only).
      */
     Map<Long, String> appStatus(Long userId);
 

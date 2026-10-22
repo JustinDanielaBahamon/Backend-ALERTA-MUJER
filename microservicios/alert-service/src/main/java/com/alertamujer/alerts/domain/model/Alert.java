@@ -6,8 +6,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Alerta SOS de una usuaria. Es el modelo del dominio: no conoce la base de datos ni Spring, y
- * guarda las reglas de una alerta (cómo cambia de estado, cuándo vence, cuántas se conservan).
+ * SOS alert of a user. It is the domain model: knows neither the database nor Spring, and
+ * holds the alert rules (how its status changes, when it expires, how many are kept).
  */
 public class Alert {
 
@@ -25,20 +25,20 @@ public class Alert {
     private LocalDateTime endedAt;
     private LocalDateTime cancelledAt;
     private LocalDateTime createdAt = LocalDateTime.now();
-    /** true = sus evidencias no se borran a los 60 días (lo marca la usuaria). */
+    /** true = its evidence is not deleted after 60 days (marked by the user). */
     private boolean keepEvidence = false;
 
     public static final String ACTIVE = "active";
-    /** Estados que la administración puede asignar. */
+    /** Statuses the administration can assign. */
     public static final Set<String> STATUSES = Set.of(ACTIVE, "resolved", "cancelled", "expired");
-    /** Cuántas alertas puede conservar cada usuaria (pruebas para una denuncia sin llenar la nube). */
+    /** How many alerts each user can keep (evidence for a complaint without filling the cloud). */
     public static final int MAX_KEPT_ALERTS = 5;
 
     private static final Set<String> ENDED_STATUSES = Set.of("cancelled", "resolved", "finished", "ended");
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Estados en los que una alerta activa se considera terminada. */
+    /** Statuses in which an active alert is considered ended. */
     public static boolean isFinalStatus(String status) {
         return "resolved".equals(status) || "cancelled".equals(status) || "expired".equals(status);
     }
@@ -51,20 +51,20 @@ public class Alert {
         return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    /** La alerta ya no está en curso: sus envíos pendientes no van a llegar. */
+    /** The alert is no longer ongoing: its pending deliveries will not arrive. */
     public boolean ended() {
         return endedAt != null || cancelledAt != null
                 || (status != null && ENDED_STATUSES.contains(status.toLowerCase()));
     }
 
-    /** Sigue activa desde antes del límite (superó la duración máxima). */
+    /** Still active since before the limit (exceeded the maximum duration). */
     public boolean expired(LocalDateTime limit) {
         return isActive() && startedAt != null && startedAt.isBefore(limit);
     }
 
     /**
-     * Cambios de la dueña: solo se aplican los campos enviados. Devuelve true si con ellos terminó
-     * una alerta activa (hay que avisar a los contactos que la recibieron).
+     * Changes by the owner: only the sent fields are applied. Returns true if they ended
+     * an active alert (the contacts who received it must be notified).
      */
     public boolean update(AlertChanges changes, LocalDateTime now) {
         String previous = status;
@@ -80,8 +80,8 @@ public class Alert {
     }
 
     /**
-     * Cambio de estado desde la administración: "resolved" guarda la hora de cierre y "cancelled" la
-     * de cancelación. Devuelve true si terminó una alerta activa.
+     * Status change from the administration: "resolved" stores the closing time and "cancelled" the
+     * cancellation time. Returns true if an active alert ended.
      */
     public boolean changeStatus(String newStatus, LocalDateTime now) {
         if (newStatus == null || !STATUSES.contains(newStatus)) {
@@ -93,15 +93,15 @@ public class Alert {
         return ACTIVE.equals(previous) && isFinalStatus(newStatus);
     }
 
-    /** Superó la duración máxima configurada. */
+    /** Exceeded the configured maximum duration. */
     public void expire(LocalDateTime now) {
         status = "expired";
         endedAt = now;
     }
 
     /**
-     * Marca (o desmarca) la alerta para conservar sus evidencias más allá de 60 días.
-     * conservadas = cuántas alertas tiene ya marcadas la usuaria.
+     * Marks (or unmarks) the alert to keep its evidence beyond 60 days.
+     * kept = how many alerts the user has already marked.
      */
     public void keepEvidence(boolean keep, long kept) {
         if (keep && !keepEvidence && kept >= MAX_KEPT_ALERTS) {

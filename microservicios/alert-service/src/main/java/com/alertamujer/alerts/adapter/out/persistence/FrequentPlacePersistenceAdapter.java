@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los lugares frecuentes en PostgreSQL. */
+/** Output adapter: frequent places in PostgreSQL. */
 @Component
 class FrequentPlacePersistenceAdapter implements FrequentPlaceRepository {
 

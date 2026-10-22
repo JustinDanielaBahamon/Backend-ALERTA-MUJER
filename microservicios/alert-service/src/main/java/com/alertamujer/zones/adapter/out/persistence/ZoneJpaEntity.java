@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila de una zona. El dominio es Zone. */
+/** Row of a zone. The domain is Zone. */
 @Entity
 @Table(name = "zone", schema = "resource")
 @Data

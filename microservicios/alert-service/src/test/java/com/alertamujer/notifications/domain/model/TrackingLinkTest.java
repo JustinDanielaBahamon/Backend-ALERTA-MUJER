@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas del enlace de seguimiento, sin Spring ni base de datos. */
+/** Tracking link rules, without Spring or a database. */
 class TrackingLinkTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);

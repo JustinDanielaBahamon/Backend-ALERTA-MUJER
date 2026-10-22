@@ -1,9 +1,9 @@
 package com.alertamujer.alerts.application.port.out;
 
-/** Puerto de salida: la configuración que define la administración (Auth Service). */
+/** Output port: the configuration defined by the administration (Auth Service). */
 public interface SettingsPort {
 
-    /** Minutos tras los cuales una alerta activa se marca como expirada (0 = sin configuración). */
+    /** Minutes after which an active alert is marked as expired (0 = not configured). */
     int maxAlertDurationMinutes();
 
     int maxContacts();

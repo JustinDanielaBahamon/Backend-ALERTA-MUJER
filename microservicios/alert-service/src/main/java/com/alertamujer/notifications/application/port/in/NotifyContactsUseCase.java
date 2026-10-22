@@ -3,14 +3,14 @@ package com.alertamujer.notifications.application.port.in;
 import java.time.LocalDateTime;
 
 /**
- * Avisa a los contactos de emergencia: al activar la alerta, correo con el enlace de seguimiento y
- * push de alta prioridad a quienes tienen la app; al terminar, un aviso para que no sigan pendientes.
+ * Notifies the emergency contacts: when the alert is activated, an email with the tracking link and a
+ * high-priority push to those who have the app; when it ends, a notice so they stop waiting.
  */
 public interface NotifyContactsUseCase {
 
-    /** Deja el resultado de cada envío en la alerta (sent / failed). */
+    /** Stores the result of each delivery in the alert (sent / failed). */
     void alertActivated(Long alertId, Long userProfile, LocalDateTime start);
 
-    /** Aviso de cortesía: no cambia el estado de los envíos y un fallo solo se registra en el log. */
+    /** Courtesy notice: does not change the delivery status and a failure is only logged. */
     void alertEnded(Long alertId, Long userProfile, String status, LocalDateTime end);
 }

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST de los reportes de zonas. */
+/** REST input adapter for zone reports. */
 @RestController
 @RequestMapping("/api/zone-reports")
 public class ZoneReportController {
@@ -41,7 +41,7 @@ public class ZoneReportController {
         return ResponseEntity.ok(views(reports.ofZone(zoneId)));
     }
 
-    /** Reportes de una usuaria (id de usuaria o de perfil): los propios, o cualquiera para la administración. */
+    /** Reports of a user (user id or profile id): her own, or any for the administration. */
     @GetMapping("/my/{userProfileId}")
     public ResponseEntity<List<ZoneReportResponse>> getMyReports(@PathVariable Long userProfileId,
                                                                  @AuthenticationPrincipal Long currentUserId,

@@ -3,11 +3,11 @@ package com.alertamujer.alerts.application.port.in;
 import java.time.LocalDateTime;
 
 /**
- * Limpia el historial de ubicaciones: lo del día a día se guarda poco; los recorridos de una alerta,
- * más tiempo (pueden servir como prueba). La usuaria ve estos plazos en la app y en la web.
+ * Cleans the location history: day-to-day data is kept briefly; alert routes are kept
+ * longer (they may serve as evidence). The user sees these periods in the app and on the web.
  */
 public interface CleanUpLocationsUseCase {
 
-    /** Devuelve cuántas ubicaciones se borraron. */
+    /** Returns how many locations were deleted. */
     int clear(LocalDateTime now);
 }

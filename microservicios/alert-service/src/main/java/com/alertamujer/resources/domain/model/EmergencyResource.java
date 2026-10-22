@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Recurso de ayuda (línea de emergencia, estación de policía, hospital, organización...) que
- * publica la administración. Modelo del dominio: no conoce la base de datos ni Spring.
+ * Help resource (emergency line, police station, hospital, organization...)
+ * published by the administration. Domain model: knows neither the database nor Spring.
  */
 public class EmergencyResource {
 
@@ -33,7 +33,7 @@ public class EmergencyResource {
         return r;
     }
 
-    /** Edición desde el panel: reemplaza todos los datos del recurso. */
+    /** Edit from the panel: replaces all the resource data. */
     public void replace(ResourceData d) {
         name = d.name();
         resourceType = d.resourceType();

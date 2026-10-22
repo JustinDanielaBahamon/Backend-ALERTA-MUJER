@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** Adaptador de entrada REST de los recursos de ayuda. */
+/** REST input adapter for help resources. */
 @RestController
 @RequestMapping("/api/resources")
 public class EmergencyResourceController {

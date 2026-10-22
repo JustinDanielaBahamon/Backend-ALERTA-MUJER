@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila de un recurso de ayuda. El dominio es EmergencyResource. */
+/** Row of a help resource. The domain is EmergencyResource. */
 @Entity
 @Table(name = "emergency_resource", schema = "resource")
 @Data

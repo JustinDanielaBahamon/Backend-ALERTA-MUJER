@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Historial de ubicaciones: del día a día (solo del celular principal) y de cada alerta. */
+/** Location history: day-to-day (only from the primary phone) and of each alert. */
 @Service
 public class LocationsService implements LocationsUseCase {
 
@@ -39,7 +39,7 @@ public class LocationsService implements LocationsUseCase {
     public Optional<LocationLog> save(NewLocation newOne, Long userId) {
         Long profile = identity.requiredProfile(userId);
         LocationLog location = LocationLog.created(profile, newOne.latitude(), newOne.longitude(), newOne.accuracy());
-        // Solo se asocia a la alerta si es de la misma usuaria
+        // Only linked to the alert if it belongs to the same user
         if (newOne.alertId() != null) {
             alerts.find(newOne.alertId()).filter(a -> a.esDe(profile)).ifPresent(a -> location.setAlertId(a.getId()));
         }
@@ -64,8 +64,8 @@ public class LocationsService implements LocationsUseCase {
     public List<LocationLog> ofAlert(Long alertId, Long userId, boolean admin) {
         Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
         boolean own = alert.esDe(identity.requiredProfile(userId));
-        // La administración solo ve el recorrido de alertas activas o atendidas (auditoría S2):
-        // las canceladas o vencidas pudieron ser una falsa alarma y no se revisan
+        // The administration only sees the route of active or attended alerts (audit S2):
+        // cancelled or expired ones may have been a false alarm and are not reviewed
         boolean administrationCan = admin && (alert.isActive() || "resolved".equals(alert.getStatus()));
         if (!own && !administrationCan) {
             throw new AccessDeniedException("No puedes ver ubicaciones de esta alerta");

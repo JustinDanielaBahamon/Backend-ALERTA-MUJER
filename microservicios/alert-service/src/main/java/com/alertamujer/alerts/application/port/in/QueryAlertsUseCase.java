@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-/** Consultas de alertas que piden los otros módulos y microservicios. */
+/** Alert queries asked by the other modules and microservices. */
 public interface QueryAlertsUseCase {
 
     Optional<Alert> find(Long id);
@@ -17,13 +17,13 @@ public interface QueryAlertsUseCase {
 
     List<Alert> all();
 
-    /** Número de alertas por user_profile.id. */
+    /** Number of alerts per user_profile.id. */
     Map<Long, Long> countByProfile();
 
     long activeCount();
 
     List<Long> profileIds(Long profile);
 
-    /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
+    /** Of those alerts, the ones the user marked to keep their evidence. */
     Set<Long> keepEvidence(Collection<Long> ids);
 }

@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida hacia el módulo alerts (mismo microservicio) por su contrato AlertsApi. */
+/** Output adapter to the alerts module (same microservice) through its AlertsApi contract. */
 @Component
 class AlertsAdapter implements AlertsPort {
 

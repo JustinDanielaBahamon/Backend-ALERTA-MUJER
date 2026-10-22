@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: trayectos de "Avísame si no llego". */
+/** Output port: "Avísame si no llego" trips. */
 public interface TripRepository {
 
     SafeTrip save(SafeTrip trip);
@@ -15,9 +15,9 @@ public interface TripRepository {
 
     Optional<SafeTrip> activeOf(Long profile);
 
-    /** Activos cuya hora de llegada es anterior a este momento (para avisar o alertar). */
+    /** Active ones whose arrival time is before this moment (to notify or alert). */
     List<SafeTrip> activeArrivingBefore(LocalDateTime moment);
 
-    /** Trayectos iniciados por la usuaria desde ese momento (límite diario). */
+    /** Trips started by the user since that moment (daily limit). */
     long startedSince(Long profile, LocalDateTime since);
 }

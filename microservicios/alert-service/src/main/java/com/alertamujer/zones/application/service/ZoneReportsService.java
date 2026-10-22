@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Reportes de zonas: la autora sale del token (user_profile.id), nunca del body. */
+/** Zone reports: the author comes from the token (user_profile.id), never from the body. */
 @Service
 public class ZoneReportsService implements ZoneReportsUseCase {
 

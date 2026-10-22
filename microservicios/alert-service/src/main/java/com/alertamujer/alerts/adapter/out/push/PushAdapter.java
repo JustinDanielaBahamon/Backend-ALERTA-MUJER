@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de salida: push de datos con Firebase Cloud Messaging. */
+/** Output adapter: data push with Firebase Cloud Messaging. */
 @Component
 class PushAdapter implements PushPort {
 

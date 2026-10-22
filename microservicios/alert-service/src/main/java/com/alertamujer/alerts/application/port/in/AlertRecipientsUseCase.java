@@ -6,19 +6,19 @@ import com.alertamujer.alerts.domain.model.Alert;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** A quién se avisó en cada alerta y cómo va cada envío. */
+/** Who was notified in each alert and how each delivery is going. */
 public interface AlertRecipientsUseCase {
 
-    /** Contactos avisados en la alerta, con el estado de cada canal. */
+    /** Contacts notified in the alert, with the status of each channel. */
     List<NotifiedContact> contactsOf(Alert alert);
 
-    /** Envíos registrados de la alerta (para el módulo de notificaciones). */
+    /** Deliveries recorded for the alert (for the notifications module). */
     List<AlertRecipient> recipients(Long alertId);
 
-    /** Resultado de un envío: "sent" o "failed" (con el motivo). */
+    /** Result of a delivery: "sent" or "failed" (with the reason). */
     void recordDelivery(Long recipientId, String status, String error);
 
-    /** Alertas en las que se avisó a este correo. */
+    /** Alerts in which this email was notified. */
     List<Long> alertsNotifiedTo(String email);
 
     record DeliveryChannel(String channel, String destination, String status,

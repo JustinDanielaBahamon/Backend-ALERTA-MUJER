@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-/** Adaptador de entrada: cada minuto revisa las alertas que superaron la duración máxima. */
+/** Input adapter: every minute reviews the alerts that exceeded the maximum duration. */
 @Component
 class AlertExpirationScheduler {
 

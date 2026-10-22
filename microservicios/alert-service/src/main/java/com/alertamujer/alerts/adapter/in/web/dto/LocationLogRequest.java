@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Punto GPS enviado por la app móvil. La dueña sale del token, nunca del body.
- * deviceId es opcional (versiones anteriores de la app no lo envían); recordedAt también: permite
- * subir puntos que quedaron en cola sin conexión.
+ * GPS point sent by the mobile app. The owner comes from the token, never from the body.
+ * deviceId is optional (older app versions do not send it); so is recordedAt: it allows
+ * uploading points that were queued while offline.
  */
 public record LocationLogRequest(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, Long alertId,
                                  Long deviceId, LocalDateTime recordedAt) {

@@ -5,7 +5,7 @@ import com.alertamujer.zones.domain.model.ZoneReport;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los reportes de las usuarias sobre las zonas. */
+/** Output port: the users' reports about the zones. */
 public interface ZoneReportRepository {
 
     List<ZoneReport> all();

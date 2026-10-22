@@ -5,7 +5,7 @@ import com.alertamujer.identity.api.AccountDeletedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-/** Adaptador de entrada: Auth Service avisa por HTTP que se eliminó una cuenta. */
+/** Input adapter: Auth Service reports over HTTP that an account was deleted. */
 @Component
 class AccountDeletedListener {
 

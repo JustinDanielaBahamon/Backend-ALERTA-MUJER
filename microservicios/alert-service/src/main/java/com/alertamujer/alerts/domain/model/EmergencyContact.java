@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Contacto de emergencia de una usuaria: a quién se avisa cuando activa una alerta.
+ * Emergency contact of a user: who gets notified when she activates an alert.
  */
 public class EmergencyContact {
 
@@ -16,7 +16,7 @@ public class EmergencyContact {
     private String telephone;
     private String email;
     private String relationship;
-    /** Foto del contacto como data URI de imagen pequeña (ver FotoDataUri). */
+    /** Contact photo as a small image data URI (see PhotoDataUri). */
     private String photo;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
@@ -38,17 +38,17 @@ public class EmergencyContact {
         return profile != null && Objects.equals(userProfileId, profile);
     }
 
-    /** Solo se cambian los campos enviados: un PUT con datos parciales no debe borrar el resto. */
+    /** Only the sent fields change: a PUT with partial data must not erase the rest. */
     public void update(ContactData data) {
         if (data.contactName() != null) contactName = data.contactName();
         if (data.telephone() != null) telephone = data.telephone();
         if (data.email() != null) email = data.email().isBlank() ? null : data.email().trim();
         if (data.relationship() != null) relationship = data.relationship();
-        // "" quita la foto; null la deja como estaba
+        // "" removes the photo; null leaves it as it was
         if (data.photo() != null) photo = PhotoDataUri.validate(data.photo());
     }
 
-    /** Correo sin espacios ("" si no tiene): sin correo no se le puede avisar. */
+    /** Email without spaces ("" if none): without an email she cannot be notified. */
     public String emailToNotify() {
         return email == null ? "" : email.trim();
     }

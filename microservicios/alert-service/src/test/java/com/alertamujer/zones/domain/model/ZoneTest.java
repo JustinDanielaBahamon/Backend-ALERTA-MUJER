@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de zonas y reportes, sin Spring ni base de datos. */
+/** Zone and report rules, without Spring or a database. */
 class ZoneTest {
 
     private static ZoneData data(String risk, Boolean active) {

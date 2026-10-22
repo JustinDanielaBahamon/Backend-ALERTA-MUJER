@@ -101,7 +101,7 @@ class LocationsServiceTest {
         assertThrows(AccessDeniedException.class, () -> service.ofAlert(5L, 2L, true));
         alert.setStatus("expired");
         assertThrows(AccessDeniedException.class, () -> service.ofAlert(5L, 2L, true));
-        // La dueña sí la ve
+        // The owner does see it
         assertEquals(List.of(), service.ofAlert(5L, 1L, false));
     }
 

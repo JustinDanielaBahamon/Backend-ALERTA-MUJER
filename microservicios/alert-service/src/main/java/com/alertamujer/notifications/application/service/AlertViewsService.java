@@ -13,11 +13,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-/** Vistas del seguimiento: solo la dueña de la alerta puede consultarlas. */
+/** Tracking views: only the alert owner can query them. */
 @Service
 public class AlertViewsService implements AlertViewsUseCase {
 
-    /** El seguimiento se actualiza cada pocos segundos: quien pasó hace menos de esto lo está viendo. */
+    /** Tracking refreshes every few seconds: whoever visited less than this ago is watching it. */
     static final Duration WATCHING_NOW = Duration.ofSeconds(90);
 
     private final AlertsPort alerts;
@@ -34,7 +34,7 @@ public class AlertViewsService implements AlertViewsUseCase {
     public ViewCount views(Long alertId, Long userId, LocalDateTime now) {
         AlertSummary alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
         Long profile = identity.profileOf(userId).orElse(null);
-        // Una alerta ajena se responde igual que una inexistente: no se revela que existe
+        // Someone else's alert is answered like a missing one: its existence is not revealed
         if (!Objects.equals(profile, alert.userProfileId())) throw new ResourceNotFoundException("Alert", alertId);
         return views.count(alertId, now.minus(WATCHING_NOW));
     }

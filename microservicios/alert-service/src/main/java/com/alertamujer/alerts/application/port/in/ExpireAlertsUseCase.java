@@ -3,15 +3,15 @@ package com.alertamujer.alerts.application.port.in;
 import java.time.LocalDateTime;
 
 /**
- * Marca como "expired" las alertas que siguen activas más allá de la duración máxima configurada
- * por la administración, para que no queden abiertas para siempre.
+ * Marks as "expired" the alerts still active beyond the maximum duration configured
+ * by the administration, so they are not left open forever.
  */
 public interface ExpireAlertsUseCase {
 
-    /** Revisión automática: expira las vencidas y recuerda el resultado para el panel. */
+    /** Automatic run: expires the overdue ones and remembers the result for the panel. */
     int review(LocalDateTime now);
 
-    /** Última revisión automática (null si aún no corrió). */
+    /** Last automatic run (null if it has not run yet). */
     LocalDateTime lastRun();
 
     int expiredLastRun();

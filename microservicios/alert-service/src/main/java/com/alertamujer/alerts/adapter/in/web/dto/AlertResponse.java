@@ -5,7 +5,7 @@ import com.alertamujer.alerts.domain.model.Alert;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Alerta como la reciben la web y la app (mismos campos y orden de siempre). */
+/** Alert as the web and the app receive it (same fields and order as always). */
 public record AlertResponse(Long id, Long userProfileId, Long deviceId, String alertType, String activationMethod,
                             String status, String message, BigDecimal latitude, BigDecimal longitude,
                             LocalDateTime startedAt, LocalDateTime endedAt, LocalDateTime cancelledAt,

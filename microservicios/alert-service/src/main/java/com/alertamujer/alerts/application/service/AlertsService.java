@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Casos de uso de las alertas. Solo conoce puertos, no la base ni los otros microservicios. */
+/** Alert use cases. Only knows ports, not the database or the other microservices. */
 @Service
 public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase {
 
@@ -40,7 +40,7 @@ public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase
         this.events = events;
     }
 
-    // ── De la usuaria ───────────────────────────────────────────────
+    // ── For the user ───────────────────────────────────────────────
 
     @Override
     public List<Alert> mias(Long userId) {
@@ -60,21 +60,21 @@ public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase
     public List<Alert> ofUser(Long requestedId, Long userId) {
         Long own = profileOf(userId);
         UserSummary current = identity.user(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
-        // users.id y user_profile.id no coinciden necesariamente (en producción son distintos)
+        // users.id and user_profile.id do not necessarily match (in production they differ)
         if (requestedId.equals(userId) || requestedId.equals(own)) {
             return repository.ofUser(own);
         }
         if (!current.admin()) {
             throw new AccessDeniedException("No puedes ver alertas de otro usuario");
         }
-        // Para la administración el id se interpreta como users.id y, si no existe, como user_profile.id
+        // For the administration the id is taken as users.id and, if it does not exist, as user_profile.id
         return repository.ofUser(identity.profileOf(requestedId).orElse(requestedId));
     }
 
     @Override
     @Transactional
     public Alert activate(NewAlert newOne, Long userId) {
-        // La dueña sale del JWT; nunca se confía en un perfil que llegue en el body (evita IDOR)
+        // The owner comes from the JWT; a profile arriving in the body is never trusted (prevents IDOR)
         Long profile = profileOf(userId);
         Optional<Alert> ongoing = repository.ongoing(profile);
         if (ongoing.isPresent()) return ongoing.get();
@@ -100,7 +100,7 @@ public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase
     public Alert update(Long id, AlertChanges changes, Long userId) {
         Alert alert = own(id, userId, "No puedes modificar alertas de otro usuario");
         LocalDateTime now = LocalDateTime.now();
-        // Al terminar una alerta activa se avisa a los contactos que la recibieron
+        // When an active alert ends, the contacts who received it are notified
         if (alert.update(changes, now)) events.alertEnded(alert, now);
         return repository.save(alert);
     }
@@ -120,7 +120,7 @@ public class AlertsService implements ManageOwnAlertsUseCase, QueryAlertsUseCase
         repository.delete(id);
     }
 
-    // ── Para otros módulos ──────────────────────────────────────────
+    // ── For other modules ──────────────────────────────────────────
 
     @Override
     public Optional<Alert> find(Long id) {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Adaptador de salida: el chat de las alertas en PostgreSQL. */
+/** Output adapter: the alert chat in PostgreSQL. */
 @Component
 class MessagePersistenceAdapter implements MessageRepository {
 

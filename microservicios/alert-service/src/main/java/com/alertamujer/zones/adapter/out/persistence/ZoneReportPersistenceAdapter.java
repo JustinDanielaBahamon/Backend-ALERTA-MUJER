@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los reportes de zonas en PostgreSQL. */
+/** Output adapter: zone reports in PostgreSQL. */
 @Component
 class ZoneReportPersistenceAdapter implements ZoneReportRepository {
 

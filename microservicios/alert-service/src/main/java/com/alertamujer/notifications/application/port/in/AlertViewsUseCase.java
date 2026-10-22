@@ -4,7 +4,7 @@ import com.alertamujer.notifications.application.port.out.ViewsRepository.ViewCo
 
 import java.time.LocalDateTime;
 
-/** Cuántas personas abrieron el seguimiento de una alerta propia (y cuántas lo están viendo). */
+/** How many people opened the tracking of an own alert (and how many are watching it). */
 public interface AlertViewsUseCase {
 
     ViewCount views(Long alertId, Long userId, LocalDateTime now);

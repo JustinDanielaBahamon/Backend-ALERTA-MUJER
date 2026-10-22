@@ -2,7 +2,7 @@ package com.alertamujer.alerts.adapter.in.web.dto;
 
 import com.alertamujer.alerts.domain.model.ContactData;
 
-/** Body para crear o modificar un contacto. photo: data URI de imagen; "" la quita. */
+/** Body to create or change a contact. photo: image data URI; "" removes it. */
 public record EmergencyContactRequest(String contactName, String telephone, String email, String relationship,
                                       String photo) {
 

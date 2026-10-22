@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Brevo (API HTTP). Permite enviar desde un remitente verificado sin dominio propio. */
+/** Brevo (HTTP API). Allows sending from a verified sender without an own domain. */
 public class BrevoEmailSender implements EmailSender {
 
     private static final Pattern NAME_AND_EMAIL = Pattern.compile("^\\s*(.*?)\\s*<([^>]+)>\\s*$");

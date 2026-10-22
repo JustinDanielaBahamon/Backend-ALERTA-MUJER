@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Ubicaciones que reporta la app móvil. Son datos muy sensibles: cada usuaria solo ve las suyas
- * (la administración puede consultar las de cualquier usuaria).
+ * Locations the mobile app reports. They are very sensitive data: each user only sees her own
+ * (the administration can query any user's).
  */
 @RestController
 @RequestMapping("/api/location-logs")
@@ -33,7 +33,7 @@ public class LocationLogController {
     @PostMapping
     public ResponseEntity<LocationLogResponse> saveLocation(@RequestBody LocationLogRequest request,
                                                             @AuthenticationPrincipal Long currentUserId) {
-        // 202: llegó bien pero no se guarda (es de un celular que no es el principal)
+        // 202: arrived fine but is not stored (it is from a phone that is not the primary one)
         return locations.save(request.toNew(), currentUserId)
                 .map(l -> ResponseEntity.ok(LocationLogResponse.of(l)))
                 .orElse(ResponseEntity.accepted().build());
@@ -45,7 +45,7 @@ public class LocationLogController {
         return ResponseEntity.ok(locations.recent(currentUserId, limit).stream().map(LocationLogResponse::of).toList());
     }
 
-    /** Pide a los celulares de la usuaria que envíen su ubicación actual (push silencioso). */
+    /** Asks the user's phones to send their current location (silent push). */
     @PostMapping("/me/request")
     public ResponseEntity<Map<String, Object>> requestFromPhone(@AuthenticationPrincipal Long currentUserId) {
         try {
@@ -57,7 +57,7 @@ public class LocationLogController {
         }
     }
 
-    /** Última ubicación enviada por el celular de la usuaria (204 si nunca ha enviado). */
+    /** Last location sent by the user's phone (204 if it never sent one). */
     @GetMapping("/me/latest")
     public ResponseEntity<LocationLogResponse> getMyLatest(@AuthenticationPrincipal Long currentUserId) {
         return locations.latest(currentUserId)
@@ -65,7 +65,7 @@ public class LocationLogController {
                 .orElse(ResponseEntity.noContent().build());
     }
 
-    // userId = users.id. Solo la dueña: la administración solo ve el recorrido de alertas (auditoría S2).
+    // userId = users.id. Owner only: the administration only sees alert routes (audit S2).
     @GetMapping("/user/{userId}")
     @PreAuthorize("#userId == authentication.principal")
     public ResponseEntity<List<LocationLogResponse>> getByUser(@PathVariable Long userId,

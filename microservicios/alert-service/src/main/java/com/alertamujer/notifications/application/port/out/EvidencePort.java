@@ -6,11 +6,11 @@ import com.alertamujer.evidence.api.EvidenceApi.EvidenceSummary;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida hacia Evidence Service: grabaciones de la alerta para el seguimiento. */
+/** Output port to Evidence Service: alert recordings for the tracking page. */
 public interface EvidencePort {
 
     List<EvidenceSummary> ofAlert(Long alertId);
 
-    /** Solo si la evidencia pertenece a esa alerta. */
+    /** Only if the evidence belongs to that alert. */
     Optional<EvidenceFile> file(Long alertId, Long evidenceId);
 }

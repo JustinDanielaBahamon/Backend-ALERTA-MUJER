@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Adaptador de entrada REST: "Avísame si no llego". Todo es de la usuaria en sesión. */
+/** REST input adapter: "Avísame si no llego". Everything belongs to the signed-in user. */
 @RestController
 @RequestMapping("/api/safe-trips")
 public class SafeTripController {
@@ -27,7 +27,7 @@ public class SafeTripController {
                 new NewTrip(r.destination(), r.minutes(), r.deviceId(), r.latitude(), r.longitude()), userId)));
     }
 
-    /** El trayecto en curso, o 204 si no hay. */
+    /** The ongoing trip, or 204 if none. */
     @GetMapping("/active")
     public ResponseEntity<SafeTripView> active(@AuthenticationPrincipal Long userId) {
         return trips.active(userId).map(t -> ResponseEntity.ok(SafeTripView.of(t)))

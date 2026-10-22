@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los contactos de emergencia en PostgreSQL. */
+/** Output adapter: emergency contacts in PostgreSQL. */
 @Component
 class ContactPersistenceAdapter implements ContactRepository {
 

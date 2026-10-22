@@ -5,7 +5,7 @@ import com.alertamujer.alerts.domain.model.FrequentLocation;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los lugares frecuentes. */
+/** Output port: frequent places. */
 public interface FrequentPlaceRepository {
 
     List<FrequentLocation> all();

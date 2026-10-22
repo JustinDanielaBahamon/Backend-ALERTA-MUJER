@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Enlaces de seguimiento y lo que ve el contacto con ellos: ubicación, grabaciones y chat. */
+/** Tracking links and what the contact sees with them: location, recordings and chat. */
 @Service
 public class PublicTrackingService implements PublicTrackingUseCase {
 
@@ -73,7 +73,7 @@ public class PublicTrackingService implements PublicTrackingUseCase {
         if (route.isEmpty() && alert.latitude() != null && alert.longitude() != null) {
             route.add(new LocationPoint(alert.latitude(), alert.longitude(), null, alert.startedAt()));
         }
-        // Video y audio grabados durante la alerta: el contacto puede verlos para ayudar a ubicarla
+        // Video and audio recorded during the alert: the contact can watch them to help find her
         List<PublicEvidence> recordings = evidences.ofAlert(alert.id()).stream()
                 .map(e -> new PublicEvidence(e.id(), e.mediaType(), e.contentType(), e.createdAt()))
                 .toList();

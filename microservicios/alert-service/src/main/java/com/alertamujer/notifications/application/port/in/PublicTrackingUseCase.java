@@ -8,31 +8,31 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Seguimiento público de una alerta con el enlace del correo (sin iniciar sesión). Si el enlace no
- * existe, se revocó o venció, responde ResourceNotFoundException.
+ * Public tracking of an alert with the email link (without signing in). If the link does not
+ * exist, was revoked or expired, throws ResourceNotFoundException.
  */
 public interface PublicTrackingUseCase {
 
-    /** Crea un enlace para la alerta y devuelve el código (no se puede recuperar después). */
+    /** Creates a link for the alert and returns the code (it cannot be recovered later). */
     String createLink(Long alertId);
 
     TrackingView query(String code, LocalDateTime now);
 
     /**
-     * Como consultar, y además deja constancia de que ese visitante (identificador anónimo del
-     * navegador o la app) abrió el seguimiento: la usuaria ve cuántos la están viendo.
+     * Like query, and also records that this visitor (anonymous identifier of the
+     * browser or the app) opened the tracking: the user sees how many are watching.
      */
     TrackingView query(String code, String visitor, LocalDateTime now);
 
-    /** Archivo de una grabación de la alerta del enlace. */
+    /** File of a recording of the link's alert. */
     EvidenceFile evidence(String code, Long evidenceId, LocalDateTime now);
 
     List<AlertMessageView> messages(String code, Long afterId, LocalDateTime now);
 
-    /** Mensaje del contacto; con límite por enlace para que nadie llene el chat. */
+    /** Message from the contact; with a per-link limit so nobody floods the chat. */
     AlertMessageView sendMessage(String code, String name, String text, LocalDateTime now);
 
-    /** Solo el nombre de pila de la usuaria: el enlace puede reenviarse. */
+    /** Only the user's first name: the link may be forwarded. */
     record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,
                         LocalDateTime endedAt, List<LocationPoint> route, String emergencyNumber,
                         List<PublicEvidence> evidence) {
@@ -41,6 +41,6 @@ public interface PublicTrackingUseCase {
         }
     }
 
-    /** Evidencia que ve el contacto: se abre con /api/public/tracking/{codigo}/evidence/{id}. */
+    /** Evidence the contact sees: opened with /api/public/tracking/{code}/evidence/{id}. */
     record PublicEvidence(Long id, String mediaType, String contentType, LocalDateTime createdAt) {}
 }

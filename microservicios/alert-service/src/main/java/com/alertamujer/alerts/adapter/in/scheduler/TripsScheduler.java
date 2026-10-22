@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 /**
- * Adaptador de entrada: cada minuto revisa los trayectos de "Avísame si no llego". Empieza a los 10 s
- * de arrancar: si el servidor estaba dormido (Render gratis), los vencidos se alertan apenas despierte.
+ * Input adapter: every minute reviews the "Avísame si no llego" trips. Starts 10 s after
+ * startup: if the server was asleep (free Render), the overdue ones are alerted as soon as it wakes up.
  */
 @Component
 class TripsScheduler {

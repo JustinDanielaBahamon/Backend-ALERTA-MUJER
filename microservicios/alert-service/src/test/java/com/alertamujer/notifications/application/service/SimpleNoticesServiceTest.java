@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Aviso de celular nuevo y código de recuperación: un fallo no debe romper a quien publicó el evento. */
+/** New phone notice and recovery code: a failure must not break whoever published the event. */
 class SimpleNoticesServiceTest {
 
     @Test

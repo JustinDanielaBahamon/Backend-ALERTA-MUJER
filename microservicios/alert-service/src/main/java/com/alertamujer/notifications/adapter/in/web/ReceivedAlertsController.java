@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST: alertas de las personas que tienen a la usuaria como contacto de emergencia. */
+/** REST input adapter: alerts of the people who have the user as an emergency contact. */
 @RestController
 @RequestMapping("/api/received-alerts")
 public class ReceivedAlertsController {
@@ -33,7 +33,7 @@ public class ReceivedAlertsController {
                 .body(received.received(currentUserId, LocalDateTime.now()));
     }
 
-    /** Código para abrir /seguimiento/{codigo} de una alerta recibida. */
+    /** Code to open /seguimiento/{code} of a received alert. */
     @PostMapping("/{alertId}/tracking")
     public ResponseEntity<Map<String, String>> tracking(@PathVariable Long alertId,
                                                            @AuthenticationPrincipal Long currentUserId) {

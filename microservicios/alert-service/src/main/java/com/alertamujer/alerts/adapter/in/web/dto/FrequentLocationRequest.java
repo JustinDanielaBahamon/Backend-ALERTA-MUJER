@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-/** Body para crear o modificar (parcialmente) un lugar frecuente. */
+/** Body to create or (partially) change a frequent place. */
 public record FrequentLocationRequest(String name, String address, String city, BigDecimal latitude,
                                       BigDecimal longitude, String notes, String riskLevel,
                                       @JsonProperty("isActive") Boolean isActive) {

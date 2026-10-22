@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: los trayectos de "Avísame si no llego" en PostgreSQL. */
+/** Output adapter: "Avísame si no llego" trips in PostgreSQL. */
 @Component
 class TripPersistenceAdapter implements TripRepository {
 

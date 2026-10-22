@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST de los contactos de emergencia. */
+/** REST input adapter for emergency contacts. */
 @RestController
 @RequestMapping("/api/contacts")
 public class EmergencyContactController {
@@ -21,7 +21,7 @@ public class EmergencyContactController {
         this.contacts = contacts;
     }
 
-    /** Va aparte de la lista: consulta Auth Service por cada contacto y no debe demorar la pantalla. */
+    /** Separate from the list: it queries Auth Service for each contact and must not slow down the screen. */
     @GetMapping("/app-status")
     public ResponseEntity<Map<Long, String>> appStatus(@AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(contacts.appStatus(currentUserId));

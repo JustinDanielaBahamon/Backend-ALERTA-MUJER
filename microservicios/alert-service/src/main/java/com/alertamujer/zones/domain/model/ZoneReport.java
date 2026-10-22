@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Reporte de una usuaria sobre una zona (cómo la percibe); la administración lo aprueba o rechaza.
+ * A user's report about a zone (how she perceives it); the administration approves or rejects it.
  */
 public class ZoneReport {
 
@@ -21,7 +21,7 @@ public class ZoneReport {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** La autora sale del token, nunca del body. */
+    /** The author comes from the token, never from the body. */
     public static ZoneReport created(Long profile, Long zoneId, String classification, String comment) {
         ZoneReport r = new ZoneReport();
         r.userProfileId = profile;

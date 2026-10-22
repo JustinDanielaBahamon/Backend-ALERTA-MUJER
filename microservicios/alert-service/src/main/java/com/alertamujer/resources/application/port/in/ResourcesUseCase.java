@@ -6,7 +6,7 @@ import com.alertamujer.resources.domain.model.EmergencyResource;
 import java.util.List;
 import java.util.Optional;
 
-/** Recursos de ayuda: los ve cualquier usuaria con sesión y los edita la administración. */
+/** Help resources: seen by any signed-in user and edited by the administration. */
 public interface ResourcesUseCase {
 
     List<EmergencyResource> all();

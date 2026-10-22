@@ -5,22 +5,22 @@ import com.alertamujer.identity.api.UserSummary;
 import java.util.Map;
 import java.util.Optional;
 
-/** Puerto de salida: datos de las usuarias (Auth Service). */
+/** Output port: user data (Auth Service). */
 public interface IdentityPort {
 
-    /** El JWT trae users.id; las alertas, contactos y ubicaciones pertenecen a user_profile.id. */
+    /** The JWT carries users.id; alerts, contacts and locations belong to user_profile.id. */
     Optional<Long> profileOf(Long userId);
 
-    /** Como perfilDe, pero falla si la usuaria no tiene perfil. */
+    /** Like profileOf, but fails if the user has no profile. */
     Long requiredProfile(Long userId);
 
     Optional<UserSummary> user(Long userId);
 
     Map<Long, UserSummary> usersByProfile();
 
-    /** true si el correo es de una usuaria registrada (se le puede avisar también por push). */
+    /** true if the email belongs to a registered user (she can also be notified by push). */
     boolean hasAccount(String email);
 
-    /** users.id de la persona registrada con ese correo, si existe. */
+    /** users.id of the registered person with that email, if any. */
     Optional<Long> userByEmail(String email);
 }

@@ -28,15 +28,15 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * "Avísame si no llego". Si la usuaria no confirma su llegada a tiempo, se activa una alerta normal
- * (correo y push a sus contactos) con su última ubicación conocida: funciona aunque su celular esté
- * sin datos ni saldo, porque la activa el servidor.
+ * "Avísame si no llego". If the user does not confirm her arrival in time, a normal alert is activated
+ * (email and push to her contacts) with her last known location: it works even if her phone has
+ * no data or credit, because the server activates it.
  */
 @Service
 public class TripsService implements TripsUseCase, ReviewTripsUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(TripsService.class);
-    /** Evita abusos (miles de temporizadores) sin estorbar el uso normal. */
+    /** Prevents abuse (thousands of timers) without getting in the way of normal use. */
     static final int MAX_PER_DAY = 20;
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a");
 
@@ -101,7 +101,7 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
         return trips.save(t);
     }
 
-    // ── Revisión periódica ──────────────────────────────────────────
+    // ── Periodic review ──────────────────────────────────────────
 
     @Override
     @Transactional
@@ -116,7 +116,7 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
                     askIfArrived(t, now);
                 }
             } catch (RuntimeException e) {
-                // Un trayecto con problemas no debe impedir revisar los demás
+                // A trip with problems must not prevent reviewing the others
                 log.error("No se pudo revisar el trayecto {}: {}", t.getId(), e.getMessage());
             }
         }

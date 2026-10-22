@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.List;
 
-/** Body para crear un recorrido. La dueña y la estrella las decide el backend, no el cliente. */
+/** Body to create a route. The owner and the star are decided by the backend, not the client. */
 public record SavedRouteRequest(String name, String startLabel, String endLabel, String city, String department,
                                 String country, BigDecimal distanceKm, Integer estimatedMinutes,
                                 List<RoutePoint> points, @JsonProperty("isManual") Boolean isManual) {

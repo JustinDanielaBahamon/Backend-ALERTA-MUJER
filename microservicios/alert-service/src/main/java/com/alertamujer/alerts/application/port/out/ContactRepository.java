@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los contactos de emergencia. */
+/** Output port: emergency contacts. */
 public interface ContactRepository {
 
     List<EmergencyContact> all();

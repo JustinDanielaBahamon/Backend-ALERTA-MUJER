@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Recorrido guardado por la usuaria (máximo 4 por usuaria, máximo 2 estrella).
- * Compartido entre la app móvil y la web.
+ * Route saved by the user (at most 4 per user, at most 2 starred).
+ * Shared between the mobile app and the web.
  */
 public class SavedRoute {
 
@@ -30,13 +30,13 @@ public class SavedRoute {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
-    // Reglas compartidas con web y móvil (también las garantiza un trigger en la base)
+    // Rules shared with web and mobile (also enforced by a database trigger)
     public static final int MAX_ROUTES = 4;
     public static final int MAX_STARRED = 2;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Nombre y al menos un punto de inicio y uno de fin, con coordenadas válidas. */
+    /** Name and at least one start point and one end point, with valid coordinates. */
     public static void validate(String name, List<RoutePoint> points) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("El recorrido necesita un nombre");
@@ -52,14 +52,14 @@ public class SavedRoute {
         }
     }
 
-    /** recorridos y estrellas = los que ya tiene la usuaria. */
+    /** routes and starredCount = the ones the user already has. */
     public static void checkRoom(long routes) {
         if (routes >= MAX_ROUTES) {
             throw new ConflictException("Solo puedes tener " + MAX_ROUTES + " recorridos guardados. Elimina uno para crear otro.");
         }
     }
 
-    /** Igual que en el móvil: un recorrido nuevo es estrella mientras haya cupo. */
+    /** Same as on mobile: a new route is starred while there is room. */
     public void initialStar(long starredCount) {
         isStarred = starredCount < MAX_STARRED;
     }

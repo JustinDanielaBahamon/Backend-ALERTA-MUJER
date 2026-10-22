@@ -5,10 +5,10 @@ import com.alertamujer.alerts.domain.model.SavedRoute;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: los recorridos guardados. */
+/** Output port: saved routes. */
 public interface RouteRepository {
 
-    /** Los más nuevos primero. */
+    /** Newest first. */
     List<SavedRoute> ofUser(Long profile);
 
     Optional<SavedRoute> find(Long id);

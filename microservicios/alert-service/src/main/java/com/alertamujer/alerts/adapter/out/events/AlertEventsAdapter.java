@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 /**
- * Adaptador de salida: publica los eventos de Spring que escucha el módulo de notificaciones
- * (@TransactionalEventListener, después de confirmar la transacción y en otro hilo).
+ * Output adapter: publishes the Spring events the notifications module listens to
+ * (@TransactionalEventListener, after the transaction commits and on another thread).
  */
 @Component
 class AlertEventsAdapter implements AlertEventsPort {

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-/** Adaptador de salida: los enlaces de seguimiento en PostgreSQL. */
+/** Output adapter: tracking links in PostgreSQL. */
 @Component
 class LinkPersistenceAdapter implements LinkRepository {
 

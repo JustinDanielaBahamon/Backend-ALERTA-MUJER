@@ -5,19 +5,19 @@ import com.alertamujer.zones.domain.model.ZoneReport;
 import java.util.List;
 import java.util.Optional;
 
-/** Reportes de las usuarias sobre las zonas y su revisión por la administración. */
+/** Users' reports about zones and their review by the administration. */
 public interface ZoneReportsUseCase {
 
     List<ZoneReport> all();
 
-    /** Vacío si no existe o es de otra usuaria. */
+    /** Empty if it does not exist or belongs to another user. */
     Optional<ZoneReport> one(Long id, Long userId);
 
     List<ZoneReport> ofZone(Long zoneId);
 
     /**
-     * Reportes de una usuaria: se acepta su id de usuaria o de perfil; los de otra persona solo los ve
-     * la administración.
+     * Reports of a user: her user id or profile id is accepted; another person's are only seen
+     * by the administration.
      */
     List<ZoneReport> ofUser(Long requestedId, Long userId, boolean admin);
 

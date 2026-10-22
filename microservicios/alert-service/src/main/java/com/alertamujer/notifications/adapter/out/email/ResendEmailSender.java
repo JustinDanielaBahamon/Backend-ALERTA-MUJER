@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Resend (API HTTP; Render gratis bloquea SMTP). Sin dominio verificado, Resend solo entrega
- * al correo dueño de la cuenta.
+ * Resend (HTTP API; free Render blocks SMTP). Without a verified domain, Resend only delivers
+ * to the account owner's email.
  */
 public class ResendEmailSender implements EmailSender {
 

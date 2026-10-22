@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-/** Llamadas a los recursos: cada usuaria solo ve y cambia las suyas. */
+/** Calls to the resources: each user only sees and changes her own. */
 @Service
 public class CallsService implements CallsUseCase {
 

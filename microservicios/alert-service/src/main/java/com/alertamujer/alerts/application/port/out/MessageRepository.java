@@ -4,10 +4,10 @@ import com.alertamujer.alerts.domain.model.AlertMessage;
 
 import java.util.List;
 
-/** Puerto de salida: el chat de cada alerta. */
+/** Output port: the chat of each alert. */
 public interface MessageRepository {
 
-    /** Mensajes posteriores a afterId (0 = todos), del más antiguo al más nuevo. */
+    /** Messages after afterId (0 = all), oldest to newest. */
     List<AlertMessage> posteriores(Long alertId, long afterId);
 
     long count(Long alertId);

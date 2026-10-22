@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Adaptador de entrada REST: seguimiento público de una alerta (lo abre el contacto desde el correo, sin iniciar sesión). */
+/** REST input adapter: public tracking of an alert (opened by the contact from the email, without signing in). */
 @RestController
 public class PublicTrackingController {
 
@@ -30,7 +30,7 @@ public class PublicTrackingController {
         this.tracking = tracking;
     }
 
-    /** v: identificador anónimo del navegador o la app que mira (para contar las vistas). */
+    /** v: anonymous identifier of the watching browser or app (to count the views). */
     @GetMapping("/api/public/tracking/{code}")
     public ResponseEntity<TrackingView> query(@PathVariable String code,
                                                   @RequestParam(name = "v", required = false) String visitor) {
@@ -39,7 +39,7 @@ public class PublicTrackingController {
                 .body(tracking.query(code, visitor, LocalDateTime.now()));
     }
 
-    /** Chat de la alerta para el contacto. after: id del último mensaje que ya tiene (0 = todos). */
+    /** Alert chat for the contact. after: id of the last message she already has (0 = all). */
     @GetMapping("/api/public/tracking/{code}/messages")
     public ResponseEntity<List<AlertMessageView>> messages(@PathVariable String code,
                                                            @RequestParam(defaultValue = "0") Long after) {
@@ -53,12 +53,12 @@ public class PublicTrackingController {
         return ResponseEntity.ok(tracking.sendMessage(code, message.name(), message.body(), LocalDateTime.now()));
     }
 
-    /** name: cómo se presenta el contacto (el enlace no dice quién es). */
+    /** name: how the contact introduces herself (the link does not say who she is). */
     public record ContactMessage(String name, String body) {}
 
     /**
-     * Video o audio de la alerta para el contacto. Con almacenamiento S3 redirige a un enlace firmado
-     * que vence en minutos; en disco entrega el archivo (con Range, para adelantar).
+     * Alert video or audio for the contact. With S3 storage it redirects to a signed link
+     * that expires in minutes; on disk it serves the file (with Range, to seek).
      */
     @GetMapping("/api/public/tracking/{code}/evidence/{id}")
     public ResponseEntity<Resource> evidence(@PathVariable String code, @PathVariable Long id) {

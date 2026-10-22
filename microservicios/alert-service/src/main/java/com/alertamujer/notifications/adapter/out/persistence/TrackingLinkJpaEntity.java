@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un enlace de seguimiento. El dominio es TrackingLink. */
+/** Row of a tracking link. The domain is TrackingLink. */
 @Entity
 @Table(name = "tracking_link", schema = "notification")
 @Data

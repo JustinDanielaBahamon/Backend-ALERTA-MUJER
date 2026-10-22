@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Adaptador de salida hacia Evidence Service para la página de seguimiento de los contactos.
- * Los archivos no viajan en JSON: se piden sus datos y su enlace firmado de B2; el contenido se
- * descarga aparte, solo si hace falta (almacenamiento en disco, sin enlaces firmados).
+ * Output adapter to Evidence Service for the contacts tracking page.
+ * Files do not travel in JSON: their data and their signed B2 link are requested; the content is
+ * downloaded separately, only when needed (disk storage, without signed links).
  */
 @Component
 class EvidenceApiHttpClient implements EvidenceApi {
@@ -60,10 +60,10 @@ class EvidenceApiHttpClient implements EvidenceApi {
         }
     }
 
-    /** Datos de un archivo de evidencia (sin el contenido). */
+    /** Data of an evidence file (without the content). */
     record FileData(String contentType, String fileName, String temporaryLink) {}
 
-    /** Contenido del archivo en Evidence Service; se descarga al leerlo, con la clave interna. */
+    /** File content in Evidence Service; downloaded when read, with the internal key. */
     static final class RemoteContent extends AbstractResource {
         private final String url;
         private final String key;

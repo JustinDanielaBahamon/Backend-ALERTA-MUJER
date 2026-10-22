@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/** Puerto de salida: dónde se guardan las alertas. */
+/** Output port: where alerts are stored. */
 public interface AlertRepository {
 
     Alert save(Alert alert);
@@ -15,7 +15,7 @@ public interface AlertRepository {
 
     Optional<Alert> find(Long id);
 
-    /** Las que no existen se omiten. */
+    /** Missing ones are skipped. */
     List<Alert> findMany(Collection<Long> ids);
 
     List<Alert> all();
@@ -24,10 +24,10 @@ public interface AlertRepository {
 
     List<Alert> active();
 
-    /** La alerta activa más reciente de la usuaria. */
+    /** The user's most recent active alert. */
     Optional<Alert> ongoing(Long profile);
 
-    /** Alertas de la usuaria marcadas para conservar sus evidencias. */
+    /** The user's alerts marked to keep their evidence. */
     long kept(Long profile);
 
     void delete(Long id);

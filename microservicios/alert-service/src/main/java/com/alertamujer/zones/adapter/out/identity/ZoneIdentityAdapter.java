@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-/** Adaptador de salida hacia identity: en Alert Service, IdentityApi es un cliente HTTP a Auth Service. */
+/** Output adapter to identity: in Alert Service, IdentityApi is an HTTP client to Auth Service. */
 @Component
 class ZoneIdentityAdapter implements IdentityPort {
 

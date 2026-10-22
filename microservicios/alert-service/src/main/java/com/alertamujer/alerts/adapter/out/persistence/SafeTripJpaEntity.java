@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila de un trayecto de "Avísame si no llego". El dominio es SafeTrip. */
+/** Row of an "Avísame si no llego" trip. The domain is SafeTrip. */
 @Entity
 @Table(name = "safe_trip", schema = "alert")
 @Data

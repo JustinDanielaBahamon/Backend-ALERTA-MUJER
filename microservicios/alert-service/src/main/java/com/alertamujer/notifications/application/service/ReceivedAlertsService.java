@@ -16,7 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-/** Alertas de las personas que tienen a la usuaria como contacto de emergencia. */
+/** Alerts of the people who have the user as an emergency contact. */
 @Service
 public class ReceivedAlertsService implements ReceivedAlertsUseCase {
 
@@ -38,7 +38,7 @@ public class ReceivedAlertsService implements ReceivedAlertsUseCase {
         String email = identity.emailOf(userId).orElse(null);
         Long myProfile = identity.profileOf(userId).orElse(null);
         return alerts.findMany(alerts.notifiedTo(email)).stream()
-                .filter(a -> !Objects.equals(a.userProfileId(), myProfile)) // las propias no son "recibidas"
+                .filter(a -> !Objects.equals(a.userProfileId(), myProfile)) // her own ones are not "received"
                 .filter(a -> a.startedAt() != null && a.startedAt().isAfter(now.minus(RECENT)))
                 .sorted(Comparator.comparing(AlertSummary::startedAt).reversed())
                 .map(a -> view(a, now))
@@ -62,7 +62,7 @@ public class ReceivedAlertsService implements ReceivedAlertsUseCase {
         String name = identity.profileFirstName(a.userProfileId()).orElse("");
         LocalDateTime end = PublicTrackingService.end(a);
         boolean active = "active".equals(a.status());
-        // Aquí una alerta terminada sin hora de cierre ya no ofrece seguimiento
+        // Here an ended alert without an end time no longer offers tracking
         boolean available = active || (end != null && TrackingLink.liveTracking(a.status(), end, now));
         return new ReceivedAlert(a.id(), name, a.status(), active, a.startedAt(), end, available);
     }

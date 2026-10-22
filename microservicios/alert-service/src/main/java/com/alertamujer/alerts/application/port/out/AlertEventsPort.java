@@ -5,14 +5,14 @@ import com.alertamujer.alerts.domain.model.Alert;
 import java.time.LocalDateTime;
 
 /**
- * Puerto de salida: avisa al resto del sistema lo que pasa con una alerta. El módulo de
- * notificaciones envía los correos y push después de confirmar la transacción.
+ * Output port: tells the rest of the system what happens with an alert. The notifications
+ * module sends the emails and pushes after the transaction commits.
  */
 public interface AlertEventsPort {
 
-    /** Se activó la alerta y ya quedaron registrados sus destinatarios. */
+    /** The alert was activated and its recipients are already recorded. */
     void alertActivated(Alert alert);
 
-    /** Terminó una alerta activa (atendida, cancelada o expirada). */
+    /** An active alert ended (attended, cancelled or expired). */
     void alertEnded(Alert alert, LocalDateTime when);
 }

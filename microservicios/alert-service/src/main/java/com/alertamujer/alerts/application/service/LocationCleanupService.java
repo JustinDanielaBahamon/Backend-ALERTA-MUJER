@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-/** Borra lo del día a día a los 7 días y los recorridos de las alertas a los 30 (configurable). */
+/** Deletes day-to-day data after 7 days and alert routes after 30 (configurable). */
 @Service
 public class LocationCleanupService implements CleanUpLocationsUseCase {
 

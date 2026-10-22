@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
-/** Adaptador de entrada REST: cuántas personas abrieron el seguimiento de una alerta propia. */
+/** REST input adapter: how many people opened the tracking of an own alert. */
 @RestController
 public class AlertViewsController {
 

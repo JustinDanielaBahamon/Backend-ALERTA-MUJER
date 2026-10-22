@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Pide a los celulares de la usuaria su ubicación actual con un push silencioso. Sin esto la web
- * solo veía el último punto enviado mientras la app estuvo abierta.
+ * Asks the user's phones for their current location with a silent push. Without this the web
+ * only saw the last point sent while the app was open.
  */
 @Service
 public class LocationRequestService implements RequestLocationUseCase {
@@ -44,7 +44,7 @@ public class LocationRequestService implements RequestLocationUseCase {
         if (previous != null && previous.plusSeconds(SECONDS_BETWEEN_REQUESTS).isAfter(now)) {
             throw new IllegalStateException("Ya se pidió la ubicación hace un momento. Espera unos segundos.");
         }
-        // Solo celulares: un navegador no tiene GPS ni puede responder
+        // Phones only: a browser has no GPS and cannot answer
         List<String> tokens = phones.phoneTokens(userId);
         if (tokens.isEmpty()) {
             throw new IllegalStateException("Tu celular no tiene la app con notificaciones activas. Abre AlertaMujer en el celular e inicia sesión.");

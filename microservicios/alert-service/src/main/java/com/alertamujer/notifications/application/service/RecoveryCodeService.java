@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-/** Envía el código de recuperación de contraseña; un fallo solo queda en el log (Auth ya respondió). */
+/** Sends the password recovery code; a failure only goes to the log (Auth already answered). */
 @Service
 public class RecoveryCodeService implements SendRecoveryCodeUseCase {
 

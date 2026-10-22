@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de un envío de alerta (contacto + canal). El dominio es AlertContact. */
+/** Row of an alert delivery (contact + channel). The domain is AlertContact. */
 @Entity
 @Table(name = "alert_contact", schema = "alert",
         uniqueConstraints = @UniqueConstraint(columnNames = {"alert_id", "emergency_contact_id", "channel"}, name = "uk_alert_contact"))

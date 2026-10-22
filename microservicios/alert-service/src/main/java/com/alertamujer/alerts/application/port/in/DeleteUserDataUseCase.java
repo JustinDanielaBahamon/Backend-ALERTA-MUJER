@@ -1,6 +1,6 @@
 package com.alertamujer.alerts.application.port.in;
 
-/** Al eliminarse una cuenta se borran los datos personales que guarda Alert Service. */
+/** When an account is deleted, the personal data Alert Service keeps is erased. */
 public interface DeleteUserDataUseCase {
 
     void deleteDataOf(Long userProfileId);

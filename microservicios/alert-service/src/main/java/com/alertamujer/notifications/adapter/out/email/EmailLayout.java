@@ -3,9 +3,9 @@ package com.alertamujer.notifications.adapter.out.email;
 import org.springframework.web.util.HtmlUtils;
 
 /**
- * Plantilla común de los correos: encabezado violeta con el logo de la app, tarjeta blanca y pie.
- * Hecha con tablas y estilos en línea porque Gmail y Outlook ignoran CSS externo y flexbox. El logo
- * se carga desde la web pública (Gmail no muestra imágenes incrustadas como data URI).
+ * Common email template: violet header with the app logo, white card and footer.
+ * Built with tables and inline styles because Gmail and Outlook ignore external CSS and flexbox. The logo
+ * is loaded from the public web (Gmail does not show images embedded as data URIs).
  */
 final class EmailLayout {
 
@@ -17,15 +17,15 @@ final class EmailLayout {
 
     private EmailLayout() {}
 
-    /** Dirección pública del logo (web/public/email/logo.png). */
+    /** Public address of the logo (web/public/email/logo.png). */
     static String logoUrl(String webBaseUrl) {
         return webBaseUrl.replaceAll("/+$", "") + "/email/logo.png";
     }
 
     /**
-     * @param resumen texto corto que Gmail muestra junto al asunto en la bandeja (no se ve en el correo)
-     * @param cuerpo  HTML ya escapado
-     * @param pie     HTML ya escapado con el motivo por el que llega el correo
+     * @param summary short text Gmail shows next to the subject in the inbox (not visible in the email)
+     * @param body    already escaped HTML
+     * @param footer  already escaped HTML with the reason the email arrives
      */
     static String page(String logoUrl, String summary, String title, String body, String pie) {
         return """
@@ -57,7 +57,7 @@ final class EmailLayout {
                 body, LIGHT_VIOLET, DARK_VIOLET, TEXT, VIOLET, SOFT_TEXT, pie);
     }
 
-    /** Botón grande (un enlace con estilo de botón: los correos no tienen botones de verdad). */
+    /** Big button (a link styled as a button: emails do not have real buttons). */
     static String button(String url, String text) {
         return """
                 <p style="text-align:center;margin:26px 0">
@@ -66,7 +66,7 @@ final class EmailLayout {
                 </p>""".formatted(HtmlUtils.htmlEscape(url), VIOLET, HtmlUtils.htmlEscape(text));
     }
 
-    /** Recuadro destacado (p. ej. el número de emergencias). */
+    /** Highlighted box (e.g. the emergency number). */
     static String highlighted(String html) {
         return "<p style=\"background:" + LIGHT_VIOLET + ";border-left:4px solid " + VIOLET
                 + ";border-radius:10px;padding:12px 14px;margin:18px 0\">" + html + "</p>";

@@ -2,7 +2,7 @@ package com.alertamujer.alerts.adapter.in.web;
 
 import org.springframework.security.core.Authentication;
 
-/** Apoyo de los controladores: el rol sale del JWT. */
+/** Controller helper: the role comes from the JWT. */
 final class Authorization {
 
     private Authorization() {

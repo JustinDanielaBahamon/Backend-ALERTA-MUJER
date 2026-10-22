@@ -1,8 +1,8 @@
 package com.alertamujer.notifications.application.port.out;
 
-/** Puerto de salida hacia settings (Auth Service por HTTP). */
+/** Output port to settings (Auth Service over HTTP). */
 public interface SettingsPort {
 
-    /** Número de emergencia que se ofrece a los contactos (en Colombia, 123). */
+    /** Emergency number offered to the contacts (123 in Colombia). */
     String emergencyNumber();
 }

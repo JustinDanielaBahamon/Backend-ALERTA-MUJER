@@ -1,8 +1,8 @@
 package com.alertamujer.alerts.application.port.out;
 
-/** Puerto de salida: borrado de los datos personales de una usuaria en Alert Service. */
+/** Output port: deletion of a user's personal data in Alert Service. */
 public interface UserDataRepository {
 
-    /** Devuelve cuántas filas se borraron o limpiaron. */
+    /** Returns how many rows were deleted or cleared. */
     int deleteOf(Long userProfileId);
 }

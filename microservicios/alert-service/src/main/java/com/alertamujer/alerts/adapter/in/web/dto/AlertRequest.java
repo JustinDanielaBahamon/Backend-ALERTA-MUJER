@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Body para crear (POST) o modificar (PUT) una alerta. La dueña sale del token: un id o
- * userProfileId en el body se ignora. contactIds solo se usa al crear.
+ * Body to create (POST) or change (PUT) an alert. The owner comes from the token: an id or
+ * userProfileId in the body is ignored. contactIds is only used when creating.
  */
 public record AlertRequest(Long deviceId, String alertType, String activationMethod, String status, String message,
                            BigDecimal latitude, BigDecimal longitude, LocalDateTime startedAt,

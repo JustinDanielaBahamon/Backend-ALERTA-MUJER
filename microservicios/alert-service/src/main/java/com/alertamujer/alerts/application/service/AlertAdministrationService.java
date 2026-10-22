@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/** Alertas para el panel: los campos de la alerta más la usuaria que la activó (nombre y correo). */
+/** Alerts for the panel: the alert fields plus the user who activated it (name and email). */
 @Service
 public class AlertAdministrationService implements ManageAlertsUseCase {
 

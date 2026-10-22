@@ -3,13 +3,13 @@ package com.alertamujer.alerts.domain.model;
 import java.time.LocalDateTime;
 
 /**
- * Mensaje del chat de una alerta (de quien la activó o de uno de sus contactos).
+ * Message of an alert chat (from whoever activated it or from one of her contacts).
  */
 public class AlertMessage {
 
     private Long id;
     private Long alertId;
-    /** "owner" (quien activó la alerta) o "contact". */
+    /** "owner" (who activated the alert) or "contact". */
     private String senderType;
     private String senderName;
     private String body;
@@ -24,8 +24,8 @@ public class AlertMessage {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /**
-     * Valida y crea un mensaje: solo mientras la alerta está activa, con texto y dentro de los
-     * límites. enviados = mensajes que ya tiene la alerta.
+     * Validates and creates a message: only while the alert is active, with text and within the
+     * limits. sentOnes = messages the alert already has.
      */
     public static AlertMessage write(Alert alert, String type, String name, String text, long sentOnes) {
         if (!alert.isActive()) {

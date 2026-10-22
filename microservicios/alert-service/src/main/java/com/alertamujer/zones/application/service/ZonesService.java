@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/** Zonas del mapa. Solo conoce el puerto de las zonas. */
+/** Map zones. Only knows the zones port. */
 @Service
 public class ZonesService implements ZonesUseCase {
 

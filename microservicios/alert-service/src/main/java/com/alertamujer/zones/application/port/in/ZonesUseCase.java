@@ -6,7 +6,7 @@ import com.alertamujer.zones.domain.model.Zone;
 import java.util.List;
 import java.util.Optional;
 
-/** Zonas del mapa: las ve cualquier usuaria con sesión y las edita la administración. */
+/** Map zones: seen by any signed-in user and edited by the administration. */
 public interface ZonesUseCase {
 
     List<Zone> all();
@@ -23,6 +23,6 @@ public interface ZonesUseCase {
 
     void delete(Long id);
 
-    /** Zonas activas (estadísticas del panel). */
+    /** Active zones (panel stats). */
     long countActive();
 }

@@ -3,14 +3,14 @@ package com.alertamujer.notifications.adapter.out.email;
 import com.alertamujer.notifications.adapter.out.email.EmailSender.EmailMessage;
 import org.springframework.web.util.HtmlUtils;
 
-/** Correo con el código de recuperación de contraseña que pidió la usuaria desde la web o la app. */
+/** Email with the password recovery code the user requested from the web or the app. */
 final class RecoveryCodeTemplate {
 
     private RecoveryCodeTemplate() {}
 
     static EmailMessage build(String to, String name, String code, int validityMinutes, String logoUrl) {
         String greeting = name == null || name.isBlank() ? "Hola" : "Hola, " + name;
-        String subject = "Tu código para recuperar la contraseña de AlertaMujer"; // sin el código: el asunto queda en logs
+        String subject = "Tu código para recuperar la contraseña de AlertaMujer"; // without the code: the subject ends up in logs
         String body = "<p>" + HtmlUtils.htmlEscape(greeting) + ":</p>"
                 + "<p>Pediste recuperar la contraseña de tu cuenta de AlertaMujer. Escribe este código en la web o en la app:</p>"
                 + "<p style=\"text-align:center;font-size:34px;letter-spacing:10px;font-weight:bold;color:"

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Zona del mapa (de riesgo, segura, de ayuda, policía o asistencia) que publica la administración.
- * Modelo del dominio: no conoce la base de datos ni Spring.
+ * Map zone (risk, safe, help, police or assistance) published by the administration.
+ * Domain model: knows neither the database nor Spring.
  */
 public class Zone {
 
@@ -37,7 +37,7 @@ public class Zone {
         return z;
     }
 
-    /** Edición desde el panel: reemplaza todos los datos de la zona. */
+    /** Edit from the panel: replaces all the zone data. */
     public void replace(ZoneData d) {
         name = d.name();
         zoneType = d.zoneType();

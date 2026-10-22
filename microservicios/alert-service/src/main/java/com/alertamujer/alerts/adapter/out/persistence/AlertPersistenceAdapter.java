@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: guarda las alertas en PostgreSQL con JPA y traduce fila ↔ dominio. */
+/** Output adapter: stores alerts in PostgreSQL with JPA and maps row ↔ domain. */
 @Component
 class AlertPersistenceAdapter implements AlertRepository {
 

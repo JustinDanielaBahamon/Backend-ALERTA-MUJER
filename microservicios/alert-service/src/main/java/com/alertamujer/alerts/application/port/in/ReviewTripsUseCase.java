@@ -2,9 +2,9 @@ package com.alertamujer.alerts.application.port.in;
 
 import java.time.LocalDateTime;
 
-/** Revisión periódica: pregunta "¿ya llegaste?" y alerta por quien no confirmó a tiempo. */
+/** Periodic review: asks "¿ya llegaste?" and alerts for whoever did not confirm in time. */
 public interface ReviewTripsUseCase {
 
-    /** Devuelve cuántas alertas activó. */
+    /** Returns how many alerts it activated. */
     int review(LocalDateTime now);
 }

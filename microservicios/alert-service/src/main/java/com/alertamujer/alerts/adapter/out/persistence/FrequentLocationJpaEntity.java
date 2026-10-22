@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/** Fila de un lugar frecuente. El dominio es FrequentLocation. */
+/** Row of a frequent place. The domain is FrequentLocation. */
 @Entity
 @Table(name = "frequent_location", schema = "alert")
 @Data

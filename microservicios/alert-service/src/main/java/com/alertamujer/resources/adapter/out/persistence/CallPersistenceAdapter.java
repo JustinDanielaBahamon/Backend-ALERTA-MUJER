@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-/** Adaptador de salida: las llamadas a los recursos en PostgreSQL. */
+/** Output adapter: calls to resources in PostgreSQL. */
 @Component
 class CallPersistenceAdapter implements CallRepository {
 

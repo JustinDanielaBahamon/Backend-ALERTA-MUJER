@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Adaptador de entrada: el contrato AlertsApi que usan los otros módulos (notificaciones) y los otros
- * microservicios (Auth y Evidence, por /internal/rpc). Traduce el dominio a los records del contrato.
+ * Input adapter: the AlertsApi contract used by the other modules (notifications) and the other
+ * microservices (Auth and Evidence, through /internal/rpc). Translates the domain to the contract records.
  */
 @Component
 @Transactional(readOnly = true)

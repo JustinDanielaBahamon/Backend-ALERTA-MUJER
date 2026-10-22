@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Lugares frecuentes de la usuaria (casa, trabajo...). */
+/** The user's frequent places (home, work...). */
 @Service
 public class FrequentPlacesService implements FrequentPlacesUseCase {
 
@@ -42,7 +42,7 @@ public class FrequentPlacesService implements FrequentPlacesUseCase {
     @Override
     @Transactional
     public FrequentLocation create(PlaceData data, Long userId) {
-        // La dueña sale del JWT; se ignora cualquier perfil del body (evita IDOR)
+        // The owner comes from the JWT; any profile in the body is ignored (prevents IDOR)
         return repository.save(FrequentLocation.created(identity.requiredProfile(userId), data, LocalDateTime.now()));
     }
 

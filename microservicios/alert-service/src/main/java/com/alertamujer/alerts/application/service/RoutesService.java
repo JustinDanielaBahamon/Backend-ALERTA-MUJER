@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/** Recorridos guardados: siempre de la dueña del token, nunca de otra usuaria. */
+/** Saved routes: always of the token owner, never of another user. */
 @Service
 public class RoutesService implements RoutesUseCase {
 

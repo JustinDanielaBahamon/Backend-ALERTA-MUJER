@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas de la alerta, sin Spring ni base de datos. */
+/** Alert rules, without Spring or a database. */
 class AlertTest {
 
     private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 20, 10, 0);
@@ -116,7 +116,7 @@ class AlertTest {
         a.keepEvidence(true, 4);
         assertTrue(a.isKeepEvidence());
 
-        // Ya conservada: volver a marcarla no cuenta como una más
+        // Already kept: marking it again does not count as one more
         a.keepEvidence(true, Alert.MAX_KEPT_ALERTS);
         a.keepEvidence(false, Alert.MAX_KEPT_ALERTS);
         assertFalse(a.isKeepEvidence());

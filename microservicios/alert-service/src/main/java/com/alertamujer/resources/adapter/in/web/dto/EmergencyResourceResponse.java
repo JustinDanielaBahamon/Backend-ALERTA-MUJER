@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-// Mismo orden de siempre: @JsonProperty movería "isActive" al inicio
+// Same order as always: @JsonProperty would move "isActive" to the start
 @JsonPropertyOrder({"id", "name", "resourceType", "telephone", "secondaryTelephone", "email", "address", "city", "latitude",
         "longitude", "description", "isActive", "createdAt", "updatedAt"})
 public record EmergencyResourceResponse(Long id, String name, String resourceType, String telephone,

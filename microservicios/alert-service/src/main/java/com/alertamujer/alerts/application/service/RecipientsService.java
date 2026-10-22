@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Destinatarios de una alerta: qué contactos se avisan, por qué canal (correo si tiene correo, y
- * push si además es usuaria de la app) y en qué estado está cada envío.
+ * Recipients of an alert: which contacts are notified, through which channel (email if she has an email, and
+ * push if she is also an app user) and the status of each delivery.
  */
 @Service
 public class RecipientsService implements AlertRecipientsUseCase {
@@ -42,9 +42,9 @@ public class RecipientsService implements AlertRecipientsUseCase {
     }
 
     /**
-     * Crea un registro por cada contacto avisado y canal disponible. Sin contactIds se avisa a todos
-     * los contactos de la usuaria; con contactIds, solo a esos (deben ser suyos: un id ajeno o borrado
-     * cancela la alerta en vez de avisar a otras personas).
+     * Creates one record per notified contact and available channel. Without contactIds all the user's
+     * contacts are notified; with contactIds, only those (they must be hers: a foreign or deleted id
+     * cancels the alert instead of notifying other people).
      */
     @Transactional
     public void registrar(Alert alert, List<Long> contactIds) {
@@ -66,7 +66,7 @@ public class RecipientsService implements AlertRecipientsUseCase {
             }
         }
         repository.saveAll(records);
-        // Los avisos salen después de confirmar la transacción (módulo de notificaciones)
+        // The notices go out after the transaction commits (notifications module)
         events.alertActivated(alert);
     }
 

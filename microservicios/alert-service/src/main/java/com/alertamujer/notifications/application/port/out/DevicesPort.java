@@ -2,9 +2,9 @@ package com.alertamujer.notifications.application.port.out;
 
 import java.util.List;
 
-/** Puerto de salida hacia devices (Auth Service por HTTP). */
+/** Output port to devices (Auth Service over HTTP). */
 public interface DevicesPort {
 
-    /** Tokens push de todos los dispositivos de la persona (users.id). */
+    /** Push tokens of all the person's devices (users.id). */
     List<String> tokensDe(Long userId);
 }

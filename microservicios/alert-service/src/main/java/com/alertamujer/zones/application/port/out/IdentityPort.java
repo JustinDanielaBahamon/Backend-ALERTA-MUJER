@@ -2,10 +2,10 @@ package com.alertamujer.zones.application.port.out;
 
 import java.util.Optional;
 
-/** Puerto de salida hacia identity (Auth Service por HTTP). */
+/** Output port to identity (Auth Service over HTTP). */
 public interface IdentityPort {
 
-    /** El JWT trae users.id; los reportes se guardan por user_profile.id. */
+    /** The JWT carries users.id; reports are stored by user_profile.id. */
     Long requiredProfile(Long userId);
 
     Optional<Long> profileOf(Long userId);

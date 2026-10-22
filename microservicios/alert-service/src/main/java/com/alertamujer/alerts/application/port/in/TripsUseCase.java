@@ -5,10 +5,10 @@ import com.alertamujer.alerts.domain.model.SafeTrip;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-/** "Avísame si no llego": la usuaria inicia, confirma, alarga o cancela su trayecto. */
+/** "Avísame si no llego": the user starts, confirms, extends or cancels her trip. */
 public interface TripsUseCase {
 
-    /** Solo puede haber uno activo: si ya hay otro, falla (IllegalStateException). */
+    /** Only one can be active: if there is another one, it fails (IllegalStateException). */
     SafeTrip start(NewTrip created, Long userId);
 
     Optional<SafeTrip> active(Long userId);

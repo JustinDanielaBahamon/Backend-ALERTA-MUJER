@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/** Casos de uso de las alertas con los puertos simulados (sin base de datos ni otros servicios). */
+/** Alert use cases with mocked ports (no database or other services). */
 @ExtendWith(MockitoExtension.class)
 class AlertsServiceTest {
 

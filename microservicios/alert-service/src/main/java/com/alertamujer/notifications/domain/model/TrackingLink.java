@@ -10,9 +10,9 @@ import java.util.Base64;
 import java.util.HexFormat;
 
 /**
- * Enlace público para seguir una alerta desde el correo o la app. El código tiene 256 bits
- * aleatorios y solo viaja al contacto; aquí queda su hash. Vale mientras la alerta está activa y
- * hasta 2 horas después de que termina. Modelo del dominio: no conoce la base de datos ni Spring.
+ * Public link to follow an alert from the email or the app. The code has 256 random
+ * bits and only travels to the contact; its hash is stored here. Valid while the alert is active and
+ * up to 2 hours after it ends. Domain model: knows neither the database nor Spring.
  */
 public class TrackingLink {
 
@@ -27,7 +27,7 @@ public class TrackingLink {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Código nuevo de 256 bits en Base64 URL (43 caracteres). No se puede recuperar después. */
+    /** New 256-bit code in URL-safe Base64 (43 characters). It cannot be recovered later. */
     public static String generateCode() {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
@@ -49,12 +49,12 @@ public class TrackingLink {
         }
     }
 
-    /** Descarta de entrada códigos que no pueden ser válidos, sin consultar la base. */
+    /** Discards upfront codes that cannot be valid, without querying the database. */
     public static boolean possibleFormat(String code) {
         return code != null && code.length() >= 20 && code.length() <= 100;
     }
 
-    /** El seguimiento de una alerta sigue disponible: activa, o terminada hace menos de 2 horas. */
+    /** The alert tracking is still available: active, or ended less than 2 hours ago. */
     public static boolean liveTracking(String alertStatus, LocalDateTime end, LocalDateTime now) {
         if ("active".equals(alertStatus)) return true;
         return end == null || !end.plus(VALIDITY_AFTER_END).isBefore(now);

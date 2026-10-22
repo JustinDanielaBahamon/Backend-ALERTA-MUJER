@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/** Adaptador de entrada REST de las zonas del mapa. */
+/** REST input adapter for the map zones. */
 @RestController
 @RequestMapping("/api/zones")
 public class ZoneController {

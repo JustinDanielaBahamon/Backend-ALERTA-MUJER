@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
- * Cuenta eliminada: se borran sus contactos de emergencia, ubicaciones, recorridos, lugares
- * frecuentes, mensajes del chat y enlaces de seguimiento. Las alertas quedan como registro anónimo
- * (sin mensaje ni ubicación) para que las estadísticas del panel no cambien.
+ * Account deleted: her emergency contacts, locations, routes, frequent places, chat messages
+ * and tracking links are deleted. Alerts stay as an anonymous record
+ * (without message or location) so the panel stats do not change.
  */
 @Service
 public class UserDataDeletionService implements DeleteUserDataUseCase {

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/** Elige el proveedor de correo: notifications.email.provider = resend | brevo | log. */
+/** Picks the email provider: notifications.email.provider = resend | brevo | log. */
 @Configuration
 public class EmailSenderConfig {
 

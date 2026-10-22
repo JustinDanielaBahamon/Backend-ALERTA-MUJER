@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Spring nombra cada bean por su clase: dos adaptadores con el mismo nombre en módulos distintos
- * (p. ej. dos PushAdapter) impiden que el servicio arranque. Las pruebas unitarias no levantan
- * Spring, así que esto lo detecta sin base de datos.
+ * Spring names each bean after its class: two adapters with the same name in different modules
+ * (e.g. two PushAdapter) stop the service from starting. Unit tests do not start
+ * Spring, so this detects it without a database.
  */
 class BeanNamesTest {
 

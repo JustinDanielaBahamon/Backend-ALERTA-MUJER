@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Destinatario de una alerta: un contacto avisado por un canal (correo o push) y el estado de ese
- * envío.
+ * Recipient of an alert: a contact notified through a channel (email or push) and the status of that
+ * delivery.
  */
 public class AlertContact {
 
     private Long id;
     private Long alertId;
-    /** Null si la usuaria borró el contacto después de la alerta (el envío queda en el historial). */
+    /** Null if the user deleted the contact after the alert (the delivery stays in the history). */
     private Long emergencyContactId;
     private String channel;
     private String destination;
@@ -39,7 +39,7 @@ public class AlertContact {
         return d;
     }
 
-    /** Resultado de un intento de envío: "sent" o "failed" (con el motivo). */
+    /** Result of a delivery attempt: "sent" or "failed" (with the reason). */
     public void recordAttempt(String newStatus, String error, LocalDateTime now) {
         status = newStatus;
         attempts = (attempts == null ? 0 : attempts) + 1;
@@ -47,7 +47,7 @@ public class AlertContact {
         errorMessage = error == null ? null : error.length() > MAX_ERROR ? error.substring(0, MAX_ERROR) : error;
     }
 
-    /** Estado que ve la usuaria: un envío abierto de una alerta terminada se informa como "expired". */
+    /** Status the user sees: an open delivery of an ended alert is reported as "expired". */
     public String visibleStatus(boolean alertEnded) {
         return alertEnded && OPEN_STATUSES.contains(status) ? "expired" : status;
     }

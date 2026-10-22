@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-/** Adaptador de salida: las visitas al seguimiento en notification.tracking_view. */
+/** Output adapter: tracking visits in notification.tracking_view. */
 @Component
 class ViewsJdbcAdapter implements ViewsRepository {
 

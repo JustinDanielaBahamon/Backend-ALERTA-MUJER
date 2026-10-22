@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Expira las alertas que superan la duración máxima configurada por la administración. */
+/** Expires the alerts that exceed the maximum duration configured by the administration. */
 @Service
 public class AlertExpirationService implements ExpireAlertsUseCase {
 
@@ -23,7 +23,7 @@ public class AlertExpirationService implements ExpireAlertsUseCase {
     private final SettingsPort settings;
     private final AlertEventsPort events;
 
-    // Última ejecución, para el estado del sistema en el panel
+    // Last run, for the system status in the panel
     private volatile LocalDateTime lastRun;
     private volatile int expiredLastRun;
 
@@ -35,7 +35,7 @@ public class AlertExpirationService implements ExpireAlertsUseCase {
 
     @Override
     public int review(LocalDateTime now) {
-        // guardarTodas abre la transacción dentro de AuditSource.con, así la auditoría registra el origen
+        // saveAll opens the transaction inside AuditSource.runAs, so the audit records the source
         int expired = AuditSource.runAs("Tarea automática · Expiración de alertas", () -> expireOverdue(now));
         lastRun = now;
         expiredLastRun = expired;

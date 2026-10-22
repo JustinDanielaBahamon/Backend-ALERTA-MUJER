@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Límite de mensajes de un contacto en el chat de una alerta: como mucho uno cada 2 segundos y 30
- * cada 10 minutos por enlace, para que nadie pueda llenar el chat. Se cuenta en memoria.
+ * Message limit for a contact in an alert chat: at most one every 2 seconds and 30
+ * every 10 minutes per link, so nobody can flood the chat. Counted in memory.
  */
 public class ContactMessageLimit {
 
@@ -18,7 +18,7 @@ public class ContactMessageLimit {
 
     private final Map<String, Deque<LocalDateTime>> deliveriesByLink = new ConcurrentHashMap<>();
 
-    /** Registra un envío del enlace o lanza IllegalArgumentException si supera el límite. */
+    /** Records a send through the link or throws IllegalArgumentException if over the limit. */
     public void registrar(String linkKey, LocalDateTime now) {
         Deque<LocalDateTime> deliveries = deliveriesByLink.computeIfAbsent(linkKey, k -> new ArrayDeque<>());
         synchronized (deliveries) {

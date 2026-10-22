@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
-/** Push a los otros celulares de la usuaria cuando entra desde uno nuevo (solo a ella, no a sus contactos). */
+/** Push to the user's other phones when she signs in from a new one (only to her, not to her contacts). */
 @Service
 public class NewPhoneNoticeService implements NotifyNewPhoneUseCase {
 

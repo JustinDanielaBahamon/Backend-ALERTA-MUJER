@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-/** Correos que recibe un contacto de emergencia cuando una usuaria activa una alerta y cuando esta termina. */
+/** Emails an emergency contact receives when a user activates an alert and when it ends. */
 final class AlertEmailTemplate {
 
     private static final ZoneId COLOMBIA = ZoneId.of("America/Bogota");
@@ -16,8 +16,8 @@ final class AlertEmailTemplate {
     private AlertEmailTemplate() {}
 
     /**
-     * @param mapsUrl enlace de respaldo a Google Maps con la última ubicación conocida (puede ser null)
-     * @param logoUrl dirección pública del logo (EmailLayout.logoUrl)
+     * @param mapsUrl fallback Google Maps link with the last known location (may be null)
+     * @param logoUrl public address of the logo (EmailLayout.logoUrl)
      */
     static EmailMessage build(String to, String contactName, String userName, LocalDateTime start,
                                   String trackingUrl, String mapsUrl, String emergencyNumber, String logoUrl) {
@@ -53,8 +53,8 @@ final class AlertEmailTemplate {
     }
 
     /**
-     * Aviso de que la alerta terminó, para que el contacto no siga pendiente.
-     * @param estado resolved, cancelled o expired
+     * Notice that the alert ended, so the contact stops waiting.
+     * @param status resolved, cancelled or expired
      */
     static EmailMessage buildEnd(String to, String contactName, String userName, String status,
                                      LocalDateTime end, String emergencyNumber, String logoUrl) {

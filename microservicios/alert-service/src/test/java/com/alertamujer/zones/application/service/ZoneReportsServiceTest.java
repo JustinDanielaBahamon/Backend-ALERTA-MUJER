@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/** La autora del reporte es el perfil del token (antes se comparaba con users.id, que no coincide). */
+/** The report author is the token's profile (it used to be compared with users.id, which does not match). */
 class ZoneReportsServiceTest {
 
     private final ZoneReportRepository repository = mock(ZoneReportRepository.class);

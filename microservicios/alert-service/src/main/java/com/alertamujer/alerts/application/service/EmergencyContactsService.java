@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Contactos de emergencia: cada usuaria administra los suyos, hasta el máximo configurado. */
+/** Emergency contacts: each user manages her own, up to the configured maximum. */
 @Service
 public class EmergencyContactsService implements EmergencyContactsUseCase {
 
@@ -47,14 +47,14 @@ public class EmergencyContactsService implements EmergencyContactsUseCase {
         if (requestedId.equals(userId) || requestedId.equals(own)) {
             return repository.ofUser(own);
         }
-        // Los contactos son datos de terceros: ni la administración los consulta (auditoría S2)
+        // Contacts are third-party data: not even the administration queries them (audit S2)
         throw new AccessDeniedException("No puedes ver los contactos de otra usuaria");
     }
 
     @Override
     @Transactional
     public EmergencyContact create(ContactData data, Long userId) {
-        // La dueña sale del JWT, nunca del body (evita IDOR)
+        // The owner comes from the JWT, never from the body (prevents IDOR)
         Long profile = profileOf(userId);
         int max = settings.maxContacts();
         if (repository.ofUser(profile).size() >= max) {

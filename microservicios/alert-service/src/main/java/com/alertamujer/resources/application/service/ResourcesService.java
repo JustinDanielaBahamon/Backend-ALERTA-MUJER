@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-/** Recursos de ayuda. Solo conoce el puerto de los recursos. */
+/** Help resources. Only knows the resources port. */
 @Service
 public class ResourcesService implements ResourcesUseCase {
 

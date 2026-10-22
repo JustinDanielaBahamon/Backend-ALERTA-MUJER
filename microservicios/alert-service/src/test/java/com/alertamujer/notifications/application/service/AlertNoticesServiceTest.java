@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Avisos a los contactos con los puertos simulados (sin correo, Firebase ni otros servicios). */
+/** Notices to the contacts with mocked ports (no email, Firebase or other services). */
 class AlertNoticesServiceTest {
 
     private static final LocalDateTime START = LocalDateTime.of(2026, 10, 16, 15, 0);
