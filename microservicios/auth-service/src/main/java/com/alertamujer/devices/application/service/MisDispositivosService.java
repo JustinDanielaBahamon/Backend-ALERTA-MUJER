@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 /** Dispositivos de la persona en sesión. Solo conoce puertos. */
 @Service
@@ -45,7 +47,19 @@ public class MisDispositivosService implements MisDispositivosUseCase {
     @Override
     @Transactional
     public Device registrar(DatosDispositivo datos, Long userId) {
-        Device guardado = repositorio.guardar(Device.nuevo(identidad.cuentaRequerida(userId), datos, LocalDateTime.now()));
+        Long cuenta = identidad.cuentaRequerida(userId);
+        LocalDateTime ahora = LocalDateTime.now();
+        // El mismo celular volviendo a registrarse (app reinstalada o datos borrados): se reutiliza el
+        // registro en vez de duplicarlo, y no se avisa de "otro celular"
+        Optional<Device> mismo = repositorio.deCuenta(cuenta).stream()
+                .filter(d -> d.esMismoCelular(datos))
+                .max(Comparator.comparing(Device::getLastAccess, Comparator.nullsFirst(Comparator.naturalOrder())));
+        if (mismo.isPresent()) {
+            Device d = mismo.get();
+            d.registrarUso(datos, ahora);
+            return repositorio.guardar(d);
+        }
+        Device guardado = repositorio.guardar(Device.nuevo(cuenta, datos, ahora));
         avisarNuevoCelular(guardado);
         return guardado;
     }

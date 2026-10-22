@@ -60,6 +60,21 @@ class MisDispositivosServiceTest {
     }
 
     @Test
+    void elMismoCelularReinstaladoReutilizaSuRegistroSinAvisar() {
+        Device existente = propio(10L, "android", "t-viejo");
+        existente.setBrand("xiaomi");
+        existente.setModel("Note 13");
+        existente.setDeviceName("Mi Xiaomi");
+        when(repositorio.deCuenta(4L)).thenReturn(List.of(existente, propio(11L, "android", "t-otro")));
+
+        Device d = service.registrar(celular("Mi Xiaomi"), 1L);
+
+        assertEquals(10L, d.getId(), "no se crea un registro nuevo");
+        verify(repositorio, never()).guardar(argThat((Device x) -> Long.valueOf(30L).equals(x.getId())));
+        verifyNoInteractions(eventos);
+    }
+
+    @Test
     void elPanelWebOElPrimerCelularNoAvisan() {
         when(repositorio.deCuenta(4L)).thenReturn(List.of(propio(30L, "android", "t-nuevo")));
         service.registrar(celular(null), 1L);

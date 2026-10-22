@@ -159,3 +159,7 @@ databaseChangeLog:
   - include:
       file: changesets/v1.6.0/17-safe-trip.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.6.0/18-merge-duplicate-devices.sql
+      relativeToChangelogFile: true
