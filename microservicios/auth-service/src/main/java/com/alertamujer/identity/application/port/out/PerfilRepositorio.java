@@ -8,9 +8,9 @@ import java.util.Optional;
 /** Puerto de salida: los perfiles de las usuarias. */
 public interface PerfilRepositorio {
 
-    UserProfile guardar(UserProfile perfil);
+    UserProfile save(UserProfile perfil);
 
-    Optional<UserProfile> buscar(Long id);
+    Optional<UserProfile> find(Long id);
 
     Optional<UserProfile> deUsuaria(Long userId);
 

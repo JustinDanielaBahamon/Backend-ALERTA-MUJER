@@ -9,18 +9,18 @@ import java.util.Optional;
 /** Puerto de salida: dónde se guardan las alertas. */
 public interface AlertaRepositorio {
 
-    Alert guardar(Alert alerta);
+    Alert save(Alert alert);
 
-    List<Alert> guardarTodas(List<Alert> alertas);
+    List<Alert> guardarTodas(List<Alert> alerts);
 
-    Optional<Alert> buscar(Long id);
+    Optional<Alert> find(Long id);
 
     /** Las que no existen se omiten. */
-    List<Alert> buscarVarias(Collection<Long> ids);
+    List<Alert> findMany(Collection<Long> ids);
 
     List<Alert> todas();
 
-    List<Alert> deLaUsuaria(Long perfil);
+    List<Alert> ofUser(Long perfil);
 
     List<Alert> activas();
 
@@ -28,7 +28,7 @@ public interface AlertaRepositorio {
     Optional<Alert> enCurso(Long perfil);
 
     /** Alertas de la usuaria marcadas para conservar sus evidencias. */
-    long conservadas(Long perfil);
+    long kept(Long perfil);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

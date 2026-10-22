@@ -19,14 +19,14 @@ import static org.mockito.Mockito.*;
 
 class InformesServiceTest {
 
-    private final InformeRepositorio repositorio = mock(InformeRepositorio.class);
-    private final AlertasPort alertas = mock(AlertasPort.class);
+    private final InformeRepositorio repository = mock(InformeRepositorio.class);
+    private final AlertsPort alerts = mock(AlertsPort.class);
     private final UsuariasPort usuarias = mock(UsuariasPort.class);
     private final ZonasPort zonas = mock(ZonasPort.class);
     private final ExportadorInformesPort exportador = mock(ExportadorInformesPort.class);
-    private final InformesService service = new InformesService(repositorio, alertas, usuarias, zonas, exportador);
+    private final InformesService service = new InformesService(repository, alerts, usuarias, zonas, exportador);
 
-    private static AdminAlertView alerta(Long id, String estado) {
+    private static AdminAlertView alert(Long id, String estado) {
         return new AdminAlertView(id, 10L, 1L, "Ana", "ana@correo.com", 1L, "main", "panic_button", estado, null, null, null,
                 LocalDateTime.of(2026, 10, 15, 8, 30), null, null, null);
     }
@@ -37,10 +37,10 @@ class InformesServiceTest {
     void setUp() {
         informe = AlertReport.nuevo(new CambiosInforme("Informe", null, null, null, null, null, null, null, null, null, "resolved"), 2L);
         informe.setId(5L);
-        when(repositorio.buscar(5L)).thenReturn(Optional.of(informe));
-        when(repositorio.guardar(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(alertas.todas()).thenReturn(List.of(alerta(1L, "resolved"), alerta(2L, "active"), alerta(3L, "resolved")));
-        when(usuarias.buscar(anyLong())).thenReturn(Optional.empty());
+        when(repository.find(5L)).thenReturn(Optional.of(informe));
+        when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(alerts.todas()).thenReturn(List.of(alert(1L, "resolved"), alert(2L, "active"), alert(3L, "resolved")));
+        when(usuarias.find(anyLong())).thenReturn(Optional.empty());
         when(usuarias.porId()).thenReturn(Map.of());
     }
 
@@ -61,16 +61,16 @@ class InformesServiceTest {
         verify(exportador).pdf(any(), argThat(l -> l.stream().map(AdminAlertView::id).toList().equals(List.of(1L, 3L))));
         verify(exportador, never()).csv(any(), any());
         assertEquals(1, informe.getExportCount());
-        verify(repositorio).guardar(informe);
+        verify(repository).save(informe);
     }
 
     @Test
     void lasEstadisticasSumanExportacionesYZonasActivas() {
         informe.setExportCount(3);
-        when(repositorio.todos()).thenReturn(List.of(informe));
+        when(repository.todos()).thenReturn(List.of(informe));
         when(zonas.activas()).thenReturn(4L);
 
-        var stats = service.estadisticas();
+        var stats = service.stats();
 
         assertEquals(1, stats.totalReports());
         assertEquals(3, stats.totalAlerts());

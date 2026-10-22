@@ -12,5 +12,5 @@ public interface EvidenciasPort {
     List<EvidenceSummary> deAlerta(Long alertId);
 
     /** Solo si la evidencia pertenece a esa alerta. */
-    Optional<EvidenceFile> archivo(Long alertId, Long evidenciaId);
+    Optional<EvidenceFile> file(Long alertId, Long evidenciaId);
 }

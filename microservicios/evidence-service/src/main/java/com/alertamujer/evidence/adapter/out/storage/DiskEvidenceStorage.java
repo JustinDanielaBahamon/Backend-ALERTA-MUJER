@@ -1,6 +1,6 @@
 package com.alertamujer.evidence.adapter.out.storage;
 
-import com.alertamujer.evidence.application.port.out.AlmacenamientoEvidencias;
+import com.alertamujer.evidence.application.port.out.EvidenceStorage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,13 +21,13 @@ import java.util.HexFormat;
 import java.util.UUID;
 
 /**
- * Guarda los archivos de evidencia en disco con un nombre aleatorio (UUID), fuera de cualquier
- * carpeta pública. Solo la API los entrega, después de validar que la usuaria es la dueña.
- * Es el almacenamiento por defecto (desarrollo y pruebas); en producción se usa S3.
+ * Stores evidence files on disk with a random name (UUID), outside any public folder. Only the API
+ * serves them, after checking that the user is the owner.
+ * It is the default storage (development and tests); production uses S3.
  */
 @Component
 @ConditionalOnProperty(name = "evidence.storage", havingValue = "disk", matchIfMissing = true)
-public class DiskEvidenceStorage implements AlmacenamientoEvidencias {
+public class DiskEvidenceStorage implements EvidenceStorage {
 
     private final Path root;
 
@@ -37,16 +37,16 @@ public class DiskEvidenceStorage implements AlmacenamientoEvidencias {
     }
 
     @Override
-    public ArchivoGuardado guardar(ArchivoEntrante file) {
+    public StoredFile save(IncomingFile file) {
         String key = UUID.randomUUID().toString();
-        Path destino = resolve(key);
-        try (InputStream in = file.contenido().get();
+        Path target = resolve(key);
+        try (InputStream in = file.content().get();
              DigestInputStream digest = new DigestInputStream(in, MessageDigest.getInstance("SHA-256"))) {
-            long size = Files.copy(digest, destino, StandardCopyOption.REPLACE_EXISTING);
+            long size = Files.copy(digest, target, StandardCopyOption.REPLACE_EXISTING);
             String sha256 = HexFormat.of().formatHex(digest.getMessageDigest().digest());
-            return new ArchivoGuardado(key, sha256, size);
+            return new StoredFile(key, sha256, size);
         } catch (IOException e) {
-            eliminar(key);
+            delete(key);
             throw new UncheckedIOException("No se pudo guardar la evidencia", e);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException(e);
@@ -54,21 +54,21 @@ public class DiskEvidenceStorage implements AlmacenamientoEvidencias {
     }
 
     @Override
-    public Resource cargar(String key) {
+    public Resource load(String key) {
         return new FileSystemResource(resolve(key));
     }
 
     @Override
-    public void eliminar(String key) {
+    public void delete(String key) {
         if (key == null) return;
         try {
             Files.deleteIfExists(resolve(key));
         } catch (IOException ignored) {
-            // Si no se puede borrar el archivo, no debe impedir borrar el registro
+            // If the file cannot be deleted, that must not prevent deleting the record
         }
     }
 
-    // La clave siempre es un UUID generado aquí; se valida igual para impedir rutas tipo "../"
+    // The key is always a UUID generated here; it is validated anyway to block paths like "../"
     private Path resolve(String key) {
         UUID.fromString(key);
         Path path = root.resolve(key).normalize();

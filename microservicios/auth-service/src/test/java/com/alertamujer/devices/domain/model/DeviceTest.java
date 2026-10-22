@@ -12,8 +12,8 @@ class DeviceTest {
 
     private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
 
-    private static DatosDispositivo datos(String marca, String nombre, String gps, String permisos) {
-        return new DatosDispositivo("uuid", marca, null, nombre, null, null, null, gps, null, null, null, permisos);
+    private static DatosDispositivo data(String marca, String name, String gps, String permisos) {
+        return new DatosDispositivo("uuid", marca, null, name, null, null, null, gps, null, null, null, permisos);
     }
 
     private static Device celular(Long id, String os, LocalDateTime acceso) {
@@ -26,7 +26,7 @@ class DeviceTest {
 
     @Test
     void unoNuevoQuedaActivoConGpsDesconocidoYConectadoAhora() {
-        Device d = Device.nuevo(4L, datos("Samsung", null, null, null), AHORA);
+        Device d = Device.nuevo(4L, data("Samsung", null, null, null), AHORA);
 
         assertEquals(4L, d.getAccountId());
         assertEquals("unknown", d.getGpsStatus());
@@ -36,9 +36,9 @@ class DeviceTest {
 
     @Test
     void registrarUsoActualizaSoloLoQueLlegaRecortadoYMarcaLaConexion() {
-        Device d = Device.nuevo(4L, datos("Samsung", null, null, null), AHORA.minusDays(1));
+        Device d = Device.nuevo(4L, data("Samsung", null, null, null), AHORA.minusDays(1));
 
-        d.registrarUso(datos(null, "  Galaxy de Ana  ", "active", "{ \"ubicacion\": true }"), AHORA);
+        d.registrarUso(data(null, "  Galaxy de Ana  ", "active", "{ \"ubicacion\": true }"), AHORA);
 
         assertEquals("Samsung", d.getBrand());
         assertEquals("Galaxy de Ana", d.getDeviceName());

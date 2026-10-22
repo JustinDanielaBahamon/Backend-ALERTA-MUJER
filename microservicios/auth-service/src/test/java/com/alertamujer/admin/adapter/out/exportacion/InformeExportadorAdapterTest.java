@@ -19,13 +19,13 @@ class InformeExportadorAdapterTest {
     private final AlertReportView informe = new AlertReportView(1L, "Informe", "Neiva",
             "pending", null, null, null, "PDF", List.of(), null, null, null, 1, 0, "Admin", null, null);
 
-    private final List<AdminAlertView> alertas = List.of(new AdminAlertView(7L, 10L, 1L, "Ana", "ana@correo.com", 1L,
+    private final List<AdminAlertView> alerts = List.of(new AdminAlertView(7L, 10L, 1L, "Ana", "ana@correo.com", 1L,
             "main", "panic_button", "active", "Ayuda; ya", new BigDecimal("2.9273"), new BigDecimal("-75.2819"),
             LocalDateTime.of(2026, 10, 15, 8, 30), null, null, null));
 
     @Test
     void csv_tieneBomCabeceraYFilasEscapadas() {
-        String csv = new String(exporter.csv(informe, alertas), StandardCharsets.UTF_8);
+        String csv = new String(exporter.csv(informe, alerts), StandardCharsets.UTF_8);
 
         assertTrue(csv.startsWith("﻿ID;Inicio;"));
         // La hora sale en hora de Colombia, sin importar la zona del servidor
@@ -42,7 +42,7 @@ class InformeExportadorAdapterTest {
 
     @Test
     void pdf_generaUnDocumento() {
-        byte[] pdf = exporter.pdf(informe, alertas);
+        byte[] pdf = exporter.pdf(informe, alerts);
 
         assertEquals("%PDF", new String(pdf, 0, 4, StandardCharsets.US_ASCII));
     }
@@ -56,7 +56,7 @@ class InformeExportadorAdapterTest {
 
         assertEquals("1 h 05 min", InformeExportadorAdapter.duracion(atendida));
         assertEquals("12 min", InformeExportadorAdapter.duracion(cancelada));
-        assertEquals("", InformeExportadorAdapter.duracion(alertas.get(0)));
+        assertEquals("", InformeExportadorAdapter.duracion(alerts.get(0)));
     }
 
     @Test

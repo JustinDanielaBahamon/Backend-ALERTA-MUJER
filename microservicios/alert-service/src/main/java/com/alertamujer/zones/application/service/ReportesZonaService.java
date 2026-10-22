@@ -3,7 +3,7 @@ package com.alertamujer.zones.application.service;
 import com.alertamujer.shared.exception.AccessDeniedException;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import com.alertamujer.zones.application.port.in.ReportesZonaUseCase;
-import com.alertamujer.zones.application.port.out.IdentidadPort;
+import com.alertamujer.zones.application.port.out.IdentityPort;
 import com.alertamujer.zones.application.port.out.ReporteZonaRepositorio;
 import com.alertamujer.zones.application.port.out.ZonaRepositorio;
 import com.alertamujer.zones.domain.model.ZoneReport;
@@ -18,50 +18,50 @@ import java.util.Optional;
 @Service
 public class ReportesZonaService implements ReportesZonaUseCase {
 
-    private final ReporteZonaRepositorio repositorio;
+    private final ReporteZonaRepositorio repository;
     private final ZonaRepositorio zonas;
-    private final IdentidadPort identidad;
+    private final IdentityPort identidad;
 
-    public ReportesZonaService(ReporteZonaRepositorio repositorio, ZonaRepositorio zonas, IdentidadPort identidad) {
-        this.repositorio = repositorio;
+    public ReportesZonaService(ReporteZonaRepositorio repository, ZonaRepositorio zonas, IdentityPort identidad) {
+        this.repository = repository;
         this.zonas = zonas;
         this.identidad = identidad;
     }
 
     @Override
     public List<ZoneReport> todos() {
-        return repositorio.todos();
+        return repository.todos();
     }
 
     @Override
     public Optional<ZoneReport> uno(Long id, Long userId) {
-        Long perfil = identidad.perfilDe(userId).orElse(null);
-        return repositorio.buscar(id).filter(r -> r.esDe(perfil));
+        Long perfil = identidad.profileOf(userId).orElse(null);
+        return repository.find(id).filter(r -> r.esDe(perfil));
     }
 
     @Override
     public List<ZoneReport> deZona(Long zoneId) {
-        return repositorio.deZona(zoneId);
+        return repository.deZona(zoneId);
     }
 
     @Override
     public List<ZoneReport> deUsuaria(Long idPedido, Long userId, boolean admin) {
         Long propio = identidad.perfilRequerido(userId);
-        if (idPedido.equals(userId) || idPedido.equals(propio)) return repositorio.dePerfil(propio);
+        if (idPedido.equals(userId) || idPedido.equals(propio)) return repository.dePerfil(propio);
         if (!admin) throw new AccessDeniedException("No puedes ver los reportes de otra usuaria");
-        return repositorio.dePerfil(identidad.perfilDe(idPedido).orElse(idPedido));
+        return repository.dePerfil(identidad.profileOf(idPedido).orElse(idPedido));
     }
 
     @Override
     public List<ZoneReport> conEstado(String estado) {
-        return repositorio.conEstado(estado);
+        return repository.conEstado(estado);
     }
 
     @Override
     @Transactional
-    public ZoneReport crear(Long zoneId, String clasificacion, String comentario, Long userId) {
-        if (zoneId == null || zonas.buscar(zoneId).isEmpty()) throw new ResourceNotFoundException("Zone", zoneId);
-        return repositorio.guardar(ZoneReport.nuevo(identidad.perfilRequerido(userId), zoneId, clasificacion, comentario));
+    public ZoneReport create(Long zoneId, String clasificacion, String comentario, Long userId) {
+        if (zoneId == null || zonas.find(zoneId).isEmpty()) throw new ResourceNotFoundException("Zone", zoneId);
+        return repository.save(ZoneReport.nuevo(identidad.perfilRequerido(userId), zoneId, clasificacion, comentario));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ReportesZonaService implements ReportesZonaUseCase {
     public ZoneReport aprobar(Long id, Integer adminId) {
         ZoneReport r = existente(id);
         r.aprobar(adminId, LocalDateTime.now());
-        return repositorio.guardar(r);
+        return repository.save(r);
     }
 
     @Override
@@ -77,20 +77,20 @@ public class ReportesZonaService implements ReportesZonaUseCase {
     public ZoneReport rechazar(Long id, Integer adminId) {
         ZoneReport r = existente(id);
         r.rechazar(adminId, LocalDateTime.now());
-        return repositorio.guardar(r);
+        return repository.save(r);
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id, Long userId) {
+    public void delete(Long id, Long userId) {
         ZoneReport r = existente(id);
         if (!r.esDe(identidad.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes eliminar reportes de otro usuario");
         }
-        repositorio.eliminar(id);
+        repository.delete(id);
     }
 
     private ZoneReport existente(Long id) {
-        return repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
+        return repository.find(id).orElseThrow(() -> new ResourceNotFoundException("ZoneReport", id));
     }
 }

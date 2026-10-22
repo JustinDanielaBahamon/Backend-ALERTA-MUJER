@@ -8,15 +8,15 @@ import java.util.Optional;
 /** Puerto de salida: los dispositivos. */
 public interface DispositivoRepositorio {
 
-    Device guardar(Device dispositivo);
+    Device save(Device dispositivo);
 
-    Optional<Device> buscar(Long id);
+    Optional<Device> find(Long id);
 
     List<Device> todos();
 
     List<Device> deCuenta(Long accountId);
 
-    void eliminar(Long id);
+    void delete(Long id);
 
     long contar();
 }

@@ -20,9 +20,9 @@ import static org.mockito.Mockito.*;
 
 class AuditoriaServiceTest {
 
-    private final AuditoriaRepositorio repositorio = mock(AuditoriaRepositorio.class);
+    private final AuditoriaRepositorio repository = mock(AuditoriaRepositorio.class);
     private final UsuariasPort usuarias = mock(UsuariasPort.class);
-    private final AuditoriaService service = new AuditoriaService(repositorio, usuarias);
+    private final AuditoriaService service = new AuditoriaService(repository, usuarias);
 
     private static final UserSummary ADMIN = new UserSummary(2L, "Sara", "Ruiz", "sara@correo.com", null, UserSummary.ROL_ADMIN, null);
     private static final UserSummary ANA = new UserSummary(5L, "Ana", "Gómez", "ana@correo.com", null, 1L, null);
@@ -31,10 +31,10 @@ class AuditoriaServiceTest {
     @Test
     void laPaginaTieneUnTamanoMaximoYAgregaQuienHizoElCambio() {
         AuditLog r = AuditLog.eventoDeSesion(4L, "LOGIN_SUCCESS", null, null, null, null);
-        when(repositorio.pagina(TODO, 0, 100)).thenReturn(new AuditoriaRepositorio.Pagina(List.of(r), 1, 0));
+        when(repository.pagina(TODO, 0, 100)).thenReturn(new AuditoriaRepositorio.Pagina(List.of(r), 1, 0));
         when(usuarias.porCuenta()).thenReturn(Map.of(4L, ADMIN));
 
-        var p = service.listar(TODO, -3, 500);
+        var p = service.listAll(TODO, -3, 500);
 
         assertEquals(100, p.size());
         assertEquals("Sara Ruiz", p.items().get(0).actorName());
@@ -47,7 +47,7 @@ class AuditoriaServiceTest {
         sistema.setId(1L);
         sistema.setAction("UPDATE");
         sistema.setDescription("=HYPERLINK(\"x\")");
-        when(repositorio.primeros(TODO, AuditoriaService.MAXIMO_EXPORTACION)).thenReturn(List.of(sistema));
+        when(repository.primeros(TODO, AuditoriaService.MAXIMO_EXPORTACION)).thenReturn(List.of(sistema));
         when(usuarias.porCuenta()).thenReturn(Map.of());
 
         String csv = new String(service.exportar(TODO), StandardCharsets.UTF_8);
@@ -69,15 +69,15 @@ class AuditoriaServiceTest {
         ContextoPeticionPort peticion = mock(ContextoPeticionPort.class);
         when(peticion.dispositivo()).thenReturn("Chrome · Linux");
         when(peticion.ip()).thenReturn("1.2.3.4");
-        EventosSeguridadService eventos = new EventosSeguridadService(repositorio, peticion);
+        EventosSeguridadService events = new EventosSeguridadService(repository, peticion);
 
-        eventos.registrar(4L, "LOGIN_FAILED", "Contraseña incorrecta");
+        events.registrar(4L, "LOGIN_FAILED", "Contraseña incorrecta");
         ArgumentCaptor<AuditLog> r = ArgumentCaptor.forClass(AuditLog.class);
-        verify(repositorio).guardar(r.capture());
+        verify(repository).save(r.capture());
         assertEquals("Contraseña incorrecta · Chrome · Linux", r.getValue().getDescription());
         assertEquals("1.2.3.4", r.getValue().getIpAddress());
 
-        when(repositorio.guardar(any())).thenThrow(new IllegalStateException("base caída"));
-        assertDoesNotThrow(() -> eventos.registrar(4L, "LOGOUT", null));
+        when(repository.save(any())).thenThrow(new IllegalStateException("base caída"));
+        assertDoesNotThrow(() -> events.registrar(4L, "LOGOUT", null));
     }
 }

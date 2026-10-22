@@ -23,14 +23,14 @@ public class EmergencyContact {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static EmergencyContact nuevo(Long perfil, DatosContacto datos) {
+    public static EmergencyContact nuevo(Long perfil, DatosContacto data) {
         EmergencyContact c = new EmergencyContact();
         c.userProfileId = perfil;
-        c.contactName = datos.contactName();
-        c.telephone = datos.telephone();
-        c.email = datos.email();
-        c.relationship = datos.relationship();
-        c.photo = FotoDataUri.validar(datos.photo());
+        c.contactName = data.contactName();
+        c.telephone = data.telephone();
+        c.email = data.email();
+        c.relationship = data.relationship();
+        c.photo = FotoDataUri.validate(data.photo());
         return c;
     }
 
@@ -39,13 +39,13 @@ public class EmergencyContact {
     }
 
     /** Solo se cambian los campos enviados: un PUT con datos parciales no debe borrar el resto. */
-    public void actualizar(DatosContacto datos) {
-        if (datos.contactName() != null) contactName = datos.contactName();
-        if (datos.telephone() != null) telephone = datos.telephone();
-        if (datos.email() != null) email = datos.email().isBlank() ? null : datos.email().trim();
-        if (datos.relationship() != null) relationship = datos.relationship();
+    public void actualizar(DatosContacto data) {
+        if (data.contactName() != null) contactName = data.contactName();
+        if (data.telephone() != null) telephone = data.telephone();
+        if (data.email() != null) email = data.email().isBlank() ? null : data.email().trim();
+        if (data.relationship() != null) relationship = data.relationship();
         // "" quita la foto; null la deja como estaba
-        if (datos.photo() != null) photo = FotoDataUri.validar(datos.photo());
+        if (data.photo() != null) photo = FotoDataUri.validate(data.photo());
     }
 
     /** Correo sin espacios ("" si no tiene): sin correo no se le puede avisar. */

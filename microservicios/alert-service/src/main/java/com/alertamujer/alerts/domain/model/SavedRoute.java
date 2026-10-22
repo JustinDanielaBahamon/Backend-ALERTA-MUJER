@@ -37,8 +37,8 @@ public class SavedRoute {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Nombre y al menos un punto de inicio y uno de fin, con coordenadas válidas. */
-    public static void validar(String nombre, List<RoutePoint> puntos) {
-        if (nombre == null || nombre.isBlank()) {
+    public static void validate(String name, List<RoutePoint> puntos) {
+        if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("El recorrido necesita un nombre");
         }
         if (puntos == null || puntos.size() < 2) {
@@ -68,8 +68,8 @@ public class SavedRoute {
         return perfil != null && Objects.equals(userProfileId, perfil);
     }
 
-    public void renombrar(String nombre) {
-        if (nombre != null && !nombre.isBlank()) name = nombre.trim();
+    public void renombrar(String name) {
+        if (name != null && !name.isBlank()) this.name = name.trim();
     }
 
     public void marcarEstrella(Boolean estrella, long estrellas) {

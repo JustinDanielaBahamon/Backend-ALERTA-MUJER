@@ -5,7 +5,7 @@ import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase;
 import com.alertamujer.alerts.application.port.out.ContactoRepositorio;
 import com.alertamujer.alerts.application.port.out.DestinatarioRepositorio;
 import com.alertamujer.alerts.application.port.out.EventosAlertaPort;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.AlertContact;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
@@ -28,17 +28,17 @@ import java.util.stream.Collectors;
 @Service
 public class DestinatariosService implements DestinatariosAlertaUseCase {
 
-    private final DestinatarioRepositorio repositorio;
+    private final DestinatarioRepositorio repository;
     private final ContactoRepositorio contactos;
-    private final IdentidadPort identidad;
-    private final EventosAlertaPort eventos;
+    private final IdentityPort identidad;
+    private final EventosAlertaPort events;
 
-    public DestinatariosService(DestinatarioRepositorio repositorio, ContactoRepositorio contactos,
-                                IdentidadPort identidad, EventosAlertaPort eventos) {
-        this.repositorio = repositorio;
+    public DestinatariosService(DestinatarioRepositorio repository, ContactoRepositorio contactos,
+                                IdentityPort identidad, EventosAlertaPort events) {
+        this.repository = repository;
         this.contactos = contactos;
         this.identidad = identidad;
-        this.eventos = eventos;
+        this.events = events;
     }
 
     /**
@@ -47,8 +47,8 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
      * cancela la alerta en vez de avisar a otras personas).
      */
     @Transactional
-    public void registrar(Alert alerta, List<Long> contactIds) {
-        List<EmergencyContact> avisados = contactos.deLaUsuaria(alerta.getUserProfileId());
+    public void registrar(Alert alert, List<Long> contactIds) {
+        List<EmergencyContact> avisados = contactos.ofUser(alert.getUserProfileId());
         if (contactIds != null && !contactIds.isEmpty()) {
             Set<Long> elegidos = contactIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
             avisados = avisados.stream().filter(c -> elegidos.contains(c.getId())).toList();
@@ -60,42 +60,42 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
         for (EmergencyContact contacto : avisados) {
             String correo = contacto.correoParaAvisar();
             if (correo.isEmpty()) continue;
-            registros.add(AlertContact.nuevo(alerta.getId(), contacto.getId(), AlertContact.CANAL_CORREO, correo));
+            registros.add(AlertContact.nuevo(alert.getId(), contacto.getId(), AlertContact.CANAL_CORREO, correo));
             if (identidad.tieneCuenta(correo)) {
-                registros.add(AlertContact.nuevo(alerta.getId(), contacto.getId(), AlertContact.CANAL_PUSH, "App Alerta Mujer"));
+                registros.add(AlertContact.nuevo(alert.getId(), contacto.getId(), AlertContact.CANAL_PUSH, "App Alerta Mujer"));
             }
         }
-        repositorio.guardarTodos(registros);
+        repository.guardarTodos(registros);
         // Los avisos salen después de confirmar la transacción (módulo de notificaciones)
-        eventos.alertaActivada(alerta);
+        events.alertaActivada(alert);
     }
 
     @Override
-    public List<ContactoNotificado> contactosDe(Alert alerta) {
-        boolean terminada = alerta.terminada();
+    public List<ContactoNotificado> contactosDe(Alert alert) {
+        boolean terminada = alert.terminada();
         Map<Long, EmergencyContact> porId = new LinkedHashMap<>();
-        contactos.deLaUsuaria(alerta.getUserProfileId()).forEach(c -> porId.put(c.getId(), c));
+        contactos.ofUser(alert.getUserProfileId()).forEach(c -> porId.put(c.getId(), c));
 
         Map<Long, List<CanalEnvio>> canales = new LinkedHashMap<>();
-        for (AlertContact d : repositorio.deLaAlerta(alerta.getId())) {
+        for (AlertContact d : repository.ofAlert(alert.getId())) {
             canales.computeIfAbsent(d.getEmergencyContactId(), k -> new ArrayList<>())
                     .add(new CanalEnvio(d.getChannel(), d.getDestination(), d.estadoVisible(terminada),
                             d.getSentAt(), d.getDeliveredAt()));
         }
         List<ContactoNotificado> resultado = new ArrayList<>();
-        canales.forEach((contactoId, lista) -> {
+        canales.forEach((contactoId, list) -> {
             EmergencyContact c = porId.get(contactoId);
             resultado.add(new ContactoNotificado(contactoId,
                     c != null ? c.getContactName() : contactoId == null ? "Contacto eliminado" : "Contacto",
                     c != null ? c.getRelationship() : null,
-                    lista));
+                    list));
         });
         return resultado;
     }
 
     @Override
     public List<AlertRecipient> destinatarios(Long alertId) {
-        List<AlertContact> envios = repositorio.deLaAlerta(alertId);
+        List<AlertContact> envios = repository.ofAlert(alertId);
         Map<Long, String> nombres = contactos.buscarVarios(envios.stream()
                         .map(AlertContact::getEmergencyContactId).filter(Objects::nonNull).collect(Collectors.toSet()))
                 .stream()
@@ -110,15 +110,15 @@ public class DestinatariosService implements DestinatariosAlertaUseCase {
     @Override
     @Transactional
     public void registrarEntrega(Long destinatarioId, String estado, String error) {
-        repositorio.buscar(destinatarioId).ifPresent(d -> {
+        repository.find(destinatarioId).ifPresent(d -> {
             d.registrarIntento(estado, error, LocalDateTime.now());
-            repositorio.guardar(d);
+            repository.save(d);
         });
     }
 
     @Override
     public List<Long> alertasAvisadasA(String correo) {
         if (correo == null || correo.isBlank()) return List.of();
-        return repositorio.alertasAvisadasA(correo.trim());
+        return repository.alertasAvisadasA(correo.trim());
     }
 }

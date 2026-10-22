@@ -6,7 +6,7 @@ import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase.Con
 import com.alertamujer.alerts.application.port.in.DestinatariosAlertaUseCase;
 import com.alertamujer.alerts.application.port.out.AlertaRepositorio;
 import com.alertamujer.alerts.application.port.out.EventosAlertaPort;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.UbicacionRepositorio;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.LocationLog;
@@ -24,29 +24,29 @@ import java.util.Map;
 @Service
 public class AdministracionAlertasService implements AdministrarAlertasUseCase {
 
-    private final AlertaRepositorio repositorio;
-    private final IdentidadPort identidad;
-    private final EventosAlertaPort eventos;
+    private final AlertaRepositorio repository;
+    private final IdentityPort identidad;
+    private final EventosAlertaPort events;
     private final UbicacionRepositorio ubicaciones;
     private final DestinatariosAlertaUseCase destinatarios;
 
-    public AdministracionAlertasService(AlertaRepositorio repositorio, IdentidadPort identidad, EventosAlertaPort eventos,
+    public AdministracionAlertasService(AlertaRepositorio repository, IdentityPort identidad, EventosAlertaPort events,
                                         UbicacionRepositorio ubicaciones, DestinatariosAlertaUseCase destinatarios) {
-        this.repositorio = repositorio;
+        this.repository = repository;
         this.identidad = identidad;
-        this.eventos = eventos;
+        this.events = events;
         this.ubicaciones = ubicaciones;
         this.destinatarios = destinatarios;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AdminAlertView> listar() {
-        Map<Long, UserSummary> porPerfil = identidad.usuariasPorPerfil();
-        return repositorio.todas().stream()
+    public List<AdminAlertView> listAll() {
+        Map<Long, UserSummary> byProfile = identidad.usersByProfile();
+        return repository.todas().stream()
                 .sorted(Comparator.comparing(Alert::getStartedAt, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(a -> {
-                    UserSummary u = porPerfil.get(a.getUserProfileId());
+                    UserSummary u = byProfile.get(a.getUserProfileId());
                     return new AdminAlertView(a.getId(), a.getUserProfileId(), u != null ? u.id() : null,
                             u != null ? u.fullName() : null, u != null ? u.email() : null,
                             a.getDeviceId(), a.getAlertType(), a.getActivationMethod(), a.getStatus(),
@@ -59,23 +59,23 @@ public class AdministracionAlertasService implements AdministrarAlertasUseCase {
     @Override
     @Transactional
     public Alert cambiarEstado(Long id, String estado) {
-        Alert alerta = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
+        Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
         LocalDateTime ahora = LocalDateTime.now();
-        if (alerta.cambiarEstado(estado, ahora)) eventos.alertaTerminada(alerta, ahora);
-        return repositorio.guardar(alerta);
+        if (alert.cambiarEstado(estado, ahora)) events.alertaTerminada(alert, ahora);
+        return repository.save(alert);
     }
 
     @Override
     @Transactional(readOnly = true)
     public DetalleAdmin detalle(Long id) {
-        Alert alerta = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
-        boolean visible = alerta.estaActiva() || "resolved".equals(alerta.getStatus());
-        List<LocationLog> puntos = visible ? ubicaciones.deLaAlerta(id) : List.of();
+        Alert alert = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Alert", id));
+        boolean visible = alert.estaActiva() || "resolved".equals(alert.getStatus());
+        List<LocationLog> puntos = visible ? ubicaciones.ofAlert(id) : List.of();
         UltimaUbicacion ultima = puntos.stream()
                 .max(Comparator.comparing(LocationLog::getRecordedAt))
                 .map(l -> new UltimaUbicacion(l.getLatitude(), l.getLongitude(), l.getAccuracy(), l.getRecordedAt()))
                 .orElse(null);
-        List<ContactoNotificado> contactos = destinatarios.contactosDe(alerta);
+        List<ContactoNotificado> contactos = destinatarios.contactosDe(alert);
         List<EnvioAdmin> envios = new java.util.ArrayList<>();
         for (int i = 0; i < contactos.size(); i++) {
             ContactoNotificado c = contactos.get(i);

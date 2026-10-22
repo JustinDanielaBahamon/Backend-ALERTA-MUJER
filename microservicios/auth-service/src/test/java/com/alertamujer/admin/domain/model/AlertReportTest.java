@@ -12,8 +12,8 @@ class AlertReportTest {
 
     private static final LocalDateTime DIA = LocalDateTime.of(2026, 10, 15, 12, 0);
 
-    private static CambiosInforme cambios(String nombre, List<Long> ids, String estadoAlerta) {
-        return new CambiosInforme(nombre, null, null, null, null, null, null, ids, DIA.minusDays(1), DIA.plusDays(1), estadoAlerta);
+    private static CambiosInforme cambios(String name, List<Long> ids, String estadoAlerta) {
+        return new CambiosInforme(name, null, null, null, null, null, null, ids, DIA.minusDays(1), DIA.plusDays(1), estadoAlerta);
     }
 
     @Test

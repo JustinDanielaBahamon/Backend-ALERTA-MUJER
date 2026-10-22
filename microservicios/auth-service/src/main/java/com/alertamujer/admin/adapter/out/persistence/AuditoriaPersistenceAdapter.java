@@ -26,8 +26,8 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
     private static final Sort MAS_RECIENTES = Sort.by(Sort.Direction.DESC, "id");
 
     @Override
-    public Pagina pagina(FiltroAuditoria filtro, int pagina, int tamano) {
-        Page<AuditLogJpaEntity> p = jpa.findAll(especificacion(filtro), PageRequest.of(pagina, tamano, MAS_RECIENTES));
+    public Pagina pagina(FiltroAuditoria filtro, int pagina, int size) {
+        Page<AuditLogJpaEntity> p = jpa.findAll(especificacion(filtro), PageRequest.of(pagina, size, MAS_RECIENTES));
         return new Pagina(p.getContent().stream().map(AuditoriaPersistenceAdapter::aDominio).toList(), p.getTotalElements(), p.getNumber());
     }
 
@@ -38,7 +38,7 @@ class AuditoriaPersistenceAdapter implements AuditoriaRepositorio {
     }
 
     @Override
-    public AuditLog guardar(AuditLog registro) {
+    public AuditLog save(AuditLog registro) {
         return aDominio(jpa.save(aFila(registro)));
     }
 

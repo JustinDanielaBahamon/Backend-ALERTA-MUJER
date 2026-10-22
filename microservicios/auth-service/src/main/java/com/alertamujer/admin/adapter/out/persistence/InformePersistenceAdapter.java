@@ -23,17 +23,17 @@ class InformePersistenceAdapter implements InformeRepositorio {
     }
 
     @Override
-    public Optional<AlertReport> buscar(Long id) {
+    public Optional<AlertReport> find(Long id) {
         return jpa.findById(id).map(InformePersistenceAdapter::aDominio);
     }
 
     @Override
-    public AlertReport guardar(AlertReport informe) {
+    public AlertReport save(AlertReport informe) {
         return aDominio(jpa.save(aFila(informe)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

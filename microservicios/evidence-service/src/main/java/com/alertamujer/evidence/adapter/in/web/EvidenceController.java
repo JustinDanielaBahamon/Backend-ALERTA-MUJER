@@ -3,12 +3,12 @@ package com.alertamujer.evidence.adapter.in.web;
 import com.alertamujer.evidence.adapter.in.web.dto.AdminEvidenceView;
 import com.alertamujer.evidence.adapter.in.web.dto.EvidenceDto;
 import com.alertamujer.evidence.adapter.in.web.dto.EvidenceView;
-import com.alertamujer.evidence.application.port.in.AdministrarEvidenciasUseCase;
-import com.alertamujer.evidence.application.port.in.ConsultarEvidenciasUseCase;
-import com.alertamujer.evidence.application.port.in.ConsultarEvidenciasUseCase.ArchivoEvidencia;
-import com.alertamujer.evidence.application.port.in.ModificarEvidenciaUseCase;
-import com.alertamujer.evidence.application.port.in.SubirEvidenciaUseCase;
-import com.alertamujer.evidence.application.port.out.AlmacenamientoEvidencias.ArchivoEntrante;
+import com.alertamujer.evidence.application.port.in.ManageEvidenceUseCase;
+import com.alertamujer.evidence.application.port.in.QueryEvidenceUseCase;
+import com.alertamujer.evidence.application.port.in.QueryEvidenceUseCase.EvidenceWithContent;
+import com.alertamujer.evidence.application.port.in.UpdateEvidenceUseCase;
+import com.alertamujer.evidence.application.port.in.UploadEvidenceUseCase;
+import com.alertamujer.evidence.application.port.out.EvidenceStorage.IncomingFile;
 import com.alertamujer.evidence.domain.model.Evidence;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ContentDisposition;
@@ -27,19 +27,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-/** Adaptador de entrada REST: traduce HTTP a casos de uso. No tiene lógica de negocio. */
+/** REST input adapter: translates HTTP into use cases. It has no business logic. */
 @RestController
 @RequestMapping("/api/evidences")
 public class EvidenceController {
 
-    private final SubirEvidenciaUseCase subir;
-    private final ConsultarEvidenciasUseCase consultar;
-    private final ModificarEvidenciaUseCase modificar;
-    private final AdministrarEvidenciasUseCase administrar;
+    private final UploadEvidenceUseCase upload;
+    private final QueryEvidenceUseCase consultar;
+    private final UpdateEvidenceUseCase modificar;
+    private final ManageEvidenceUseCase administrar;
 
-    public EvidenceController(SubirEvidenciaUseCase subir, ConsultarEvidenciasUseCase consultar,
-                              ModificarEvidenciaUseCase modificar, AdministrarEvidenciasUseCase administrar) {
-        this.subir = subir;
+    public EvidenceController(UploadEvidenceUseCase upload, QueryEvidenceUseCase consultar,
+                              UpdateEvidenceUseCase modificar, ManageEvidenceUseCase administrar) {
+        this.upload = upload;
         this.consultar = consultar;
         this.modificar = modificar;
         this.administrar = administrar;
@@ -48,26 +48,26 @@ public class EvidenceController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminEvidenceView>> getAllEvidences() {
-        return ResponseEntity.ok(administrar.listar().stream().map(AdminEvidenceView::of).toList());
+        return ResponseEntity.ok(administrar.listAll().stream().map(AdminEvidenceView::of).toList());
     }
 
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdministrarEvidenciasUseCase.Estadisticas> getStats() {
-        return ResponseEntity.ok(administrar.estadisticas());
+    public ResponseEntity<ManageEvidenceUseCase.Stats> getStats() {
+        return ResponseEntity.ok(administrar.stats());
     }
 
-    /** Revisión de la administración: pending, verified o rejected. */
+    /** Review by the administration: pending, verified or rejected. */
     @PatchMapping("/{id}/review")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AdminEvidenceView> review(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(AdminEvidenceView.of(administrar.cambiarRevision(id, body.get("reviewStatus"))));
+        return ResponseEntity.ok(AdminEvidenceView.of(administrar.changeReview(id, body.get("reviewStatus"))));
     }
 
-    /** Evidencias de la usuaria autenticada (más recientes primero). */
+    /** Evidence of the authenticated user (newest first). */
     @GetMapping("/me")
     public ResponseEntity<List<EvidenceView>> getMine(@AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(consultar.deLaUsuaria(userId).stream().map(EvidenceView::of).toList());
+        return ResponseEntity.ok(consultar.ofUser(userId).stream().map(EvidenceView::of).toList());
     }
 
     @GetMapping("/{id}")
@@ -75,12 +75,12 @@ public class EvidenceController {
         return ResponseEntity.ok(EvidenceDto.of(consultar.una(id, userId)));
     }
 
-    /** Sube una foto, video, audio o PDF y lo asocia a una alerta de la usuaria. */
+    /** Uploads a photo, video, audio or PDF and links it to one of the user's alerts. */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<EvidenceView> upload(@RequestParam("file") MultipartFile file,
                                                @RequestParam("alertId") Long alertId,
                                                @AuthenticationPrincipal Long userId) {
-        ArchivoEntrante archivo = new ArchivoEntrante(file.getOriginalFilename(), file.getContentType(), file.getSize(),
+        IncomingFile incoming = new IncomingFile(file.getOriginalFilename(), file.getContentType(), file.getSize(),
                 () -> {
                     try {
                         return file.getInputStream();
@@ -88,17 +88,17 @@ public class EvidenceController {
                         throw new UncheckedIOException(e);
                     }
                 });
-        return ResponseEntity.ok(EvidenceView.of(subir.subir(archivo, alertId, userId)));
+        return ResponseEntity.ok(EvidenceView.of(upload.upload(incoming, alertId, userId)));
     }
 
-    /** Contenido del archivo, solo para la dueña (o la administración). Admite Range para adelantar videos. */
+    /** File content, only for the owner (or the administration). Supports Range to seek in videos. */
     @GetMapping("/{id}/file")
     public ResponseEntity<Resource> getFile(@PathVariable Long id,
                                             @RequestParam(defaultValue = "false") boolean download,
                                             @AuthenticationPrincipal Long userId,
                                             Authentication authentication) {
-        ArchivoEvidencia archivo = consultar.archivo(id, userId, esAdmin(authentication));
-        Evidence e = archivo.evidencia();
+        EvidenceWithContent file = consultar.file(id, userId, esAdmin(authentication));
+        Evidence e = file.evidence();
         boolean inline = !download && !"document".equals(e.getMediaType());
         ContentDisposition disposition = (inline ? ContentDisposition.inline() : ContentDisposition.attachment())
                 .filename(e.getFileName() == null ? "evidencia-" + id : e.getFileName(), StandardCharsets.UTF_8)
@@ -108,16 +108,16 @@ public class EvidenceController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
                 .header("X-Content-Type-Options", "nosniff")
                 .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-                .body(archivo.contenido());
+                .body(file.content());
     }
 
     @PostMapping
-    public ResponseEntity<EvidenceDto> createEvidence(@RequestBody EvidenceDto.SinArchivo body,
+    public ResponseEntity<EvidenceDto> createEvidence(@RequestBody EvidenceDto.WithoutFile body,
                                                       @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(modificar.registrarSinArchivo(body.alertId(), body.mediaType(), body.fileUrl(), userId)));
+        return ResponseEntity.ok(EvidenceDto.of(modificar.registerWithoutFile(body.alertId(), body.mediaType(), body.fileUrl(), userId)));
     }
 
-    /** La dueña le pone un nombre más corto a su evidencia. */
+    /** The owner gives her evidence a shorter name. */
     @PatchMapping("/{id}/name")
     public ResponseEntity<EvidenceView> rename(@PathVariable Long id, @RequestBody Map<String, String> body,
                                                @AuthenticationPrincipal Long userId) {
@@ -125,15 +125,15 @@ public class EvidenceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EvidenceDto> updateEvidence(@PathVariable Long id, @RequestBody EvidenceDto.SinArchivo body,
+    public ResponseEntity<EvidenceDto> updateEvidence(@PathVariable Long id, @RequestBody EvidenceDto.WithoutFile body,
                                                       @AuthenticationPrincipal Long userId) {
-        return ResponseEntity.ok(EvidenceDto.of(modificar.actualizarSinArchivo(id, body.mediaType(), body.fileUrl(), userId)));
+        return ResponseEntity.ok(EvidenceDto.of(modificar.updateWithoutFile(id, body.mediaType(), body.fileUrl(), userId)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvidence(@PathVariable Long id, @AuthenticationPrincipal Long userId,
                                                Authentication authentication) {
-        modificar.eliminar(id, userId, esAdmin(authentication));
+        modificar.delete(id, userId, esAdmin(authentication));
         return ResponseEntity.noContent().build();
     }
 

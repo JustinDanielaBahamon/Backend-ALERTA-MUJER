@@ -28,12 +28,12 @@ class SeguimientoPublicoServiceTest {
     private static final String CODIGO = TrackingLink.generarCodigo();
 
     private final EnlaceRepositorio enlaces = mock(EnlaceRepositorio.class);
-    private final AlertasPort alertas = mock(AlertasPort.class);
-    private final IdentidadPort identidad = mock(IdentidadPort.class);
+    private final AlertsPort alerts = mock(AlertsPort.class);
+    private final IdentityPort identidad = mock(IdentityPort.class);
     private final AjustesPort ajustes = mock(AjustesPort.class);
-    private final EvidenciasPort evidencias = mock(EvidenciasPort.class);
+    private final EvidenciasPort evidences = mock(EvidenciasPort.class);
     private final VistasRepositorio vistas = mock(VistasRepositorio.class);
-    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alertas, identidad, ajustes, evidencias, vistas);
+    private final SeguimientoPublicoService service = new SeguimientoPublicoService(enlaces, alerts, identidad, ajustes, evidences, vistas);
 
     private TrackingLink enlace;
 
@@ -45,8 +45,8 @@ class SeguimientoPublicoServiceTest {
         when(ajustes.numeroEmergencia()).thenReturn("123");
     }
 
-    private void alerta(String estado, LocalDateTime fin) {
-        when(alertas.buscar(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", estado, null,
+    private void alert(String estado, LocalDateTime fin) {
+        when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "panic_button", estado, null,
                 AHORA.minusHours(1), new BigDecimal("4.6"), new BigDecimal("-74.1"), fin, null)));
     }
 
@@ -54,18 +54,18 @@ class SeguimientoPublicoServiceTest {
     void crearGuardaSoloElHashDelCodigo() {
         String codigo = service.crearEnlace(5L);
 
-        ArgumentCaptor<TrackingLink> guardado = ArgumentCaptor.forClass(TrackingLink.class);
-        verify(enlaces).guardar(guardado.capture());
-        assertEquals(TrackingLink.hash(codigo), guardado.getValue().getTokenHash());
-        assertEquals(5L, guardado.getValue().getAlertId());
+        ArgumentCaptor<TrackingLink> stored = ArgumentCaptor.forClass(TrackingLink.class);
+        verify(enlaces).save(stored.capture());
+        assertEquals(TrackingLink.hash(codigo), stored.getValue().getTokenHash());
+        assertEquals(5L, stored.getValue().getAlertId());
     }
 
     @Test
     void consultarMuestraNombreDePilaRecorridoYGrabaciones() {
-        alerta("active", null);
+        alert("active", null);
         LocationPoint punto = new LocationPoint(new BigDecimal("4.61"), new BigDecimal("-74.08"), null, AHORA);
-        when(alertas.recorrido(5L)).thenReturn(List.of(punto));
-        when(evidencias.deAlerta(5L)).thenReturn(List.of(new EvidenceSummary(9L, "video", "video/mp4", 100L, AHORA)));
+        when(alerts.recorrido(5L)).thenReturn(List.of(punto));
+        when(evidences.deAlerta(5L)).thenReturn(List.of(new EvidenceSummary(9L, "video", "video/mp4", 100L, AHORA)));
 
         TrackingView v = service.consultar(CODIGO, AHORA);
 
@@ -78,25 +78,25 @@ class SeguimientoPublicoServiceTest {
 
     @Test
     void sinRecorridoUsaLaUbicacionConLaQueSeActivo() {
-        alerta("active", null);
-        when(alertas.recorrido(5L)).thenReturn(List.of());
-        when(evidencias.deAlerta(5L)).thenReturn(List.of());
+        alert("active", null);
+        when(alerts.recorrido(5L)).thenReturn(List.of());
+        when(evidences.deAlerta(5L)).thenReturn(List.of());
 
         assertEquals(new BigDecimal("4.6"), service.consultar(CODIGO, AHORA).lastPoint().latitude());
     }
 
     @Test
     void venceDosHorasDespuesDeTerminar() {
-        alerta("resolved", AHORA.minusHours(3));
+        alert("resolved", AHORA.minusHours(3));
 
         assertThrows(ResourceNotFoundException.class, () -> service.consultar(CODIGO, AHORA));
         assertThrows(ResourceNotFoundException.class, () -> service.mensajes(CODIGO, 0L, AHORA));
-        assertThrows(ResourceNotFoundException.class, () -> service.evidencia(CODIGO, 9L, AHORA));
+        assertThrows(ResourceNotFoundException.class, () -> service.evidence(CODIGO, 9L, AHORA));
     }
 
     @Test
     void rechazaEnlacesRevocadosInexistentesOMalFormados() {
-        alerta("active", null);
+        alert("active", null);
         enlace.setRevokedAt(AHORA);
 
         assertThrows(ResourceNotFoundException.class, () -> service.consultar(CODIGO, AHORA));
@@ -106,23 +106,23 @@ class SeguimientoPublicoServiceTest {
 
     @Test
     void laEvidenciaDeOtraAlertaNoExiste() {
-        alerta("active", null);
-        when(evidencias.archivo(5L, 99L)).thenReturn(Optional.empty());
-        EvidenceFile archivo = new EvidenceFile("video/mp4", "v.mp4", null, Optional.empty());
-        when(evidencias.archivo(5L, 9L)).thenReturn(Optional.of(archivo));
+        alert("active", null);
+        when(evidences.file(5L, 99L)).thenReturn(Optional.empty());
+        EvidenceFile file = new EvidenceFile("video/mp4", "v.mp4", null, Optional.empty());
+        when(evidences.file(5L, 9L)).thenReturn(Optional.of(file));
 
-        assertSame(archivo, service.evidencia(CODIGO, 9L, AHORA));
-        assertThrows(ResourceNotFoundException.class, () -> service.evidencia(CODIGO, 99L, AHORA));
+        assertSame(file, service.evidence(CODIGO, 9L, AHORA));
+        assertThrows(ResourceNotFoundException.class, () -> service.evidence(CODIGO, 99L, AHORA));
     }
 
     @Test
     void elContactoEscribeEnElChatPeroNoPuedeInundarlo() {
-        alerta("active", null);
+        alert("active", null);
         AlertMessageView m = new AlertMessageView(1L, "contact", "Bea", "Hola", AHORA);
-        when(alertas.mensajeDeContacto(5L, "Bea", "Hola")).thenReturn(m);
+        when(alerts.mensajeDeContacto(5L, "Bea", "Hola")).thenReturn(m);
 
         assertSame(m, service.enviarMensaje(CODIGO, "Bea", "Hola", AHORA));
         assertThrows(IllegalArgumentException.class, () -> service.enviarMensaje(CODIGO, "Bea", "Hola", AHORA.plusSeconds(1)));
-        verify(alertas, times(1)).mensajeDeContacto(any(), any(), any());
+        verify(alerts, times(1)).mensajeDeContacto(any(), any(), any());
     }
 }

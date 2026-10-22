@@ -2,7 +2,7 @@ package com.alertamujer.devices.application.service;
 
 import com.alertamujer.devices.application.port.in.AdministrarDispositivosUseCase;
 import com.alertamujer.devices.application.port.out.DispositivoRepositorio;
-import com.alertamujer.devices.application.port.out.IdentidadPort;
+import com.alertamujer.devices.application.port.out.IdentityPort;
 import com.alertamujer.devices.domain.model.Device;
 import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -17,19 +17,19 @@ import java.util.Map;
 @Service
 public class AdministracionDispositivosService implements AdministrarDispositivosUseCase {
 
-    private final DispositivoRepositorio repositorio;
-    private final IdentidadPort identidad;
+    private final DispositivoRepositorio repository;
+    private final IdentityPort identidad;
 
-    public AdministracionDispositivosService(DispositivoRepositorio repositorio, IdentidadPort identidad) {
-        this.repositorio = repositorio;
+    public AdministracionDispositivosService(DispositivoRepositorio repository, IdentityPort identidad) {
+        this.repository = repository;
         this.identidad = identidad;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DispositivoConDuena> listar() {
+    public List<DispositivoConDuena> listAll() {
         Map<Long, UserSummary> duenas = identidad.duenasPorCuenta();
-        return repositorio.todos().stream()
+        return repository.todos().stream()
                 .sorted(Comparator.comparing(Device::getLastAccess, Comparator.nullsLast(Comparator.reverseOrder())))
                 .map(d -> new DispositivoConDuena(d, duenas.get(d.getAccountId())))
                 .toList();
@@ -48,17 +48,17 @@ public class AdministracionDispositivosService implements AdministrarDispositivo
         if (estado == null || !Device.ESTADOS.contains(estado)) throw new IllegalArgumentException("Estado no válido: " + estado);
         Device d = existente(id);
         d.cambiarEstado(estado);
-        repositorio.guardar(d);
+        repository.save(d);
         return obtener(id);
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id) {
-        repositorio.eliminar(existente(id).getId());
+    public void delete(Long id) {
+        repository.delete(existente(id).getId());
     }
 
     private Device existente(Long id) {
-        return repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("Device", id));
+        return repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Device", id));
     }
 }

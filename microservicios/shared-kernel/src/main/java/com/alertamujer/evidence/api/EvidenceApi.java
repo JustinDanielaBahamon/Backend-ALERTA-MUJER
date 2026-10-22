@@ -11,13 +11,13 @@ import java.util.Optional;
 public interface EvidenceApi {
 
     /** Evidencias con archivo de una alerta, de la más antigua a la más reciente. */
-    List<EvidenceSummary> evidenciasDeAlerta(Long alertId);
+    List<EvidenceSummary> alertEvidence(Long alertId);
 
     /** Archivo de una evidencia, solo si pertenece a esa alerta. */
-    Optional<EvidenceFile> archivo(Long alertId, Long evidenceId);
+    Optional<EvidenceFile> file(Long alertId, Long evidenceId);
 
     record EvidenceSummary(Long id, String mediaType, String contentType, Long sizeBytes, LocalDateTime createdAt) {}
 
     /** enlaceTemporal: abrirlo directo del almacenamiento (S3) si está disponible; si no, entregar resource. */
-    record EvidenceFile(String contentType, String fileName, Resource resource, Optional<URI> enlaceTemporal) {}
+    record EvidenceFile(String contentType, String fileName, Resource resource, Optional<URI> temporaryLink) {}
 }

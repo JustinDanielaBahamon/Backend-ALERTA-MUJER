@@ -14,11 +14,11 @@ class SavedRouteTest {
 
     @Test
     void necesitaNombreYAlMenosDosPuntosValidos() {
-        assertDoesNotThrow(() -> SavedRoute.validar("Casa", List.of(A, B)));
-        assertThrows(IllegalArgumentException.class, () -> SavedRoute.validar(" ", List.of(A, B)));
-        assertThrows(IllegalArgumentException.class, () -> SavedRoute.validar("Casa", List.of(A)));
+        assertDoesNotThrow(() -> SavedRoute.validate("Casa", List.of(A, B)));
+        assertThrows(IllegalArgumentException.class, () -> SavedRoute.validate(" ", List.of(A, B)));
+        assertThrows(IllegalArgumentException.class, () -> SavedRoute.validate("Casa", List.of(A)));
         assertThrows(IllegalArgumentException.class,
-                () -> SavedRoute.validar("Casa", List.of(A, new RoutePoint(95.0, 0.0, null))));
+                () -> SavedRoute.validate("Casa", List.of(A, new RoutePoint(95.0, 0.0, null))));
     }
 
     @Test

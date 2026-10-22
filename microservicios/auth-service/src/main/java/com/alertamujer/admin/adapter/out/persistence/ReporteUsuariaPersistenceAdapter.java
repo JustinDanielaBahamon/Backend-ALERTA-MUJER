@@ -28,7 +28,7 @@ class ReporteUsuariaPersistenceAdapter implements ReporteUsuariaRepositorio {
     }
 
     @Override
-    public Optional<UserReport> buscar(Long id) {
+    public Optional<UserReport> find(Long id) {
         return jpa.findById(id).map(ReporteUsuariaPersistenceAdapter::aDominio);
     }
 
@@ -38,12 +38,12 @@ class ReporteUsuariaPersistenceAdapter implements ReporteUsuariaRepositorio {
     }
 
     @Override
-    public UserReport guardar(UserReport reporte) {
+    public UserReport save(UserReport reporte) {
         return aDominio(jpa.save(aFila(reporte)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

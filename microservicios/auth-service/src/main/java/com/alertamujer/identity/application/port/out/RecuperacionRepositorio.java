@@ -7,7 +7,7 @@ import java.util.List;
 /** Puerto de salida: las solicitudes de recuperación de contraseña. */
 public interface RecuperacionRepositorio {
 
-    RecoveryRequest guardar(RecoveryRequest solicitud);
+    RecoveryRequest save(RecoveryRequest solicitud);
 
     void guardarTodas(List<RecoveryRequest> solicitudes);
 

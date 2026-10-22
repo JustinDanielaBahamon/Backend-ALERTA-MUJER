@@ -43,9 +43,9 @@ public class SafeTrip {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static SafeTrip nuevo(Long perfil, Long userId, Long deviceId, String destino, int minutos,
+    public static SafeTrip nuevo(Long perfil, Long userId, Long deviceId, String target, int minutos,
                                  BigDecimal lat, BigDecimal lng, LocalDateTime ahora) {
-        if (destino == null || destino.isBlank()) throw new IllegalArgumentException("Escribe a dónde vas");
+        if (target == null || target.isBlank()) throw new IllegalArgumentException("Escribe a dónde vas");
         if (minutos < MINUTOS_MINIMOS || minutos > MINUTOS_MAXIMOS) {
             throw new IllegalArgumentException("El tiempo de llegada debe estar entre " + MINUTOS_MINIMOS + " y "
                     + MINUTOS_MAXIMOS + " minutos");
@@ -55,7 +55,7 @@ public class SafeTrip {
         t.userProfileId = perfil;
         t.userId = userId;
         t.deviceId = deviceId;
-        String limpio = destino.trim();
+        String limpio = target.trim();
         t.destination = limpio.length() > MAXIMO_DESTINO ? limpio.substring(0, MAXIMO_DESTINO) : limpio;
         t.destinationLatitude = lat;
         t.destinationLongitude = lng;
@@ -108,9 +108,9 @@ public class SafeTrip {
         reminderSent = true;
     }
 
-    public void marcarAlertado(Long alerta, LocalDateTime ahora) {
+    public void marcarAlertado(Long alert, LocalDateTime ahora) {
         status = ALERTADO;
-        alertId = alerta;
+        alertId = alert;
         endedAt = ahora;
     }
 

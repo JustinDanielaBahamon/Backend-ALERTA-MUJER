@@ -43,7 +43,7 @@ public class ZoneController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ZoneResponse> createZone(@RequestBody ZoneRequest request) {
-        return ResponseEntity.ok(ZoneResponse.of(zonas.crear(request.aDatos())));
+        return ResponseEntity.ok(ZoneResponse.of(zonas.create(request.aDatos())));
     }
 
     @PutMapping("/{id}")
@@ -55,7 +55,7 @@ public class ZoneController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteZone(@PathVariable Long id) {
-        zonas.eliminar(id);
+        zonas.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

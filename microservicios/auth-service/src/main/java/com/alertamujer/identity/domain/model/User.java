@@ -41,9 +41,9 @@ public class User {
     // ── Reglas ──────────────────────────────────────────────────────
 
     /** Usuaria nueva desde el formulario de registro (nombre completo en un solo campo). */
-    public static User nueva(String nombre, String email, String telefono, String tipoDocumento,
+    public static User nueva(String name, String email, String telefono, String tipoDocumento,
                              String numeroDocumento, LocalDate nacimiento) {
-        String[] partes = nombre.split(" ");
+        String[] partes = name.split(" ");
         User u = new User();
         u.roleId = ROL_USUARIA;
         u.firstName = partes[0];
@@ -58,13 +58,13 @@ public class User {
 
     /** Usuaria nueva que entra por primera vez con Google (sin teléfono ni documento). */
     public static User desdeGoogle(String email, String name, String givenName, String familyName) {
-        String nombre = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
+        String firstName = givenName != null && !givenName.isBlank() ? givenName : (name != null ? name.split(" ")[0] : "");
         String apellido = familyName != null ? familyName
                 : (name != null && name.contains(" ") ? name.substring(name.indexOf(' ') + 1) : "");
-        if (nombre.isBlank()) nombre = email.substring(0, email.indexOf('@'));
+        if (firstName.isBlank()) firstName = email.substring(0, email.indexOf('@'));
         User u = new User();
         u.roleId = ROL_USUARIA;
-        u.firstName = recortar(nombre);
+        u.firstName = recortar(firstName);
         u.lastName = recortar(apellido);
         u.email = email;
         return u;
@@ -119,8 +119,8 @@ public class User {
     }
 
     /** Cambios de la administración: solo los campos que llegan con valor. */
-    public void actualizarDesdeAdministracion(String nombre, String apellido, String telefono, String correo) {
-        if (nombre != null) firstName = nombre;
+    public void actualizarDesdeAdministracion(String name, String apellido, String telefono, String correo) {
+        if (name != null) firstName = name;
         if (apellido != null) lastName = apellido;
         if (telefono != null) telephone = telefono;
         if (correo != null) email = correo;

@@ -3,7 +3,7 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.alerts.application.port.in.NuevaAlerta;
 import com.alertamujer.alerts.application.port.out.AlertaRepositorio;
 import com.alertamujer.alerts.application.port.out.EventosAlertaPort;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.CambiosAlerta;
 import com.alertamujer.identity.api.UserSummary;
@@ -31,27 +31,27 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AlertasServiceTest {
 
-    @Mock private AlertaRepositorio repositorio;
+    @Mock private AlertaRepositorio repository;
     @Mock private DestinatariosService destinatarios;
-    @Mock private IdentidadPort identidad;
-    @Mock private EventosAlertaPort eventos;
+    @Mock private IdentityPort identidad;
+    @Mock private EventosAlertaPort events;
 
     @InjectMocks private AlertasService service;
 
-    private Alert alerta;
+    private Alert alert;
 
     @BeforeEach
     void setUp() {
-        alerta = new Alert();
-        alerta.setId(1L);
-        alerta.setUserProfileId(10L);
-        alerta.setDeviceId(1L);
-        alerta.setActivationMethod("panic_button");
-        alerta.setStartedAt(LocalDateTime.now());
+        alert = new Alert();
+        alert.setId(1L);
+        alert.setUserProfileId(10L);
+        alert.setDeviceId(1L);
+        alert.setActivationMethod("panic_button");
+        alert.setStartedAt(LocalDateTime.now());
     }
 
     private void perfil(Long userId, Long perfil) {
-        when(identidad.perfilDe(userId)).thenReturn(Optional.of(perfil));
+        when(identidad.profileOf(userId)).thenReturn(Optional.of(perfil));
     }
 
     private static NuevaAlerta nueva(List<Long> contactIds) {
@@ -62,8 +62,8 @@ class AlertasServiceTest {
     @Test
     void activar_laDuenaSaleDelTokenYSeAvisaALosContactos() {
         perfil(1L, 10L);
-        when(repositorio.enCurso(10L)).thenReturn(Optional.empty());
-        when(repositorio.guardar(any(Alert.class))).thenAnswer(inv -> {
+        when(repository.enCurso(10L)).thenReturn(Optional.empty());
+        when(repository.save(any(Alert.class))).thenAnswer(inv -> {
             Alert a = inv.getArgument(0);
             a.setId(7L);
             return a;
@@ -81,73 +81,73 @@ class AlertasServiceTest {
     @Test
     void activar_conUnaAlertaEnCursoLaDevuelveSinAvisarOtraVez() {
         perfil(1L, 10L);
-        when(repositorio.enCurso(10L)).thenReturn(Optional.of(alerta));
+        when(repository.enCurso(10L)).thenReturn(Optional.of(alert));
 
-        assertSame(alerta, service.activar(nueva(null), 1L));
+        assertSame(alert, service.activar(nueva(null), 1L));
 
-        verify(repositorio, never()).guardar(any());
+        verify(repository, never()).save(any());
         verifyNoInteractions(destinatarios);
     }
 
     @Test
     void activar_sinPerfilFalla() {
-        when(identidad.perfilDe(1L)).thenReturn(Optional.empty());
+        when(identidad.profileOf(1L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.activar(nueva(null), 1L));
-        verifyNoInteractions(repositorio);
+        verifyNoInteractions(repository);
     }
 
     @Test
     void actualizar_alTerminarLaAlertaAvisaALosContactos() {
         perfil(1L, 10L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
-        when(repositorio.guardar(alerta)).thenReturn(alerta);
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
+        when(repository.save(alert)).thenReturn(alert);
 
         Alert resultado = service.actualizar(1L, new CambiosAlerta(null, null, "resolved", null, null, null), 1L);
 
         assertEquals("resolved", resultado.getStatus());
         assertNotNull(resultado.getEndedAt());
-        verify(eventos).alertaTerminada(eq(alerta), any(LocalDateTime.class));
+        verify(events).alertaTerminada(eq(alert), any(LocalDateTime.class));
     }
 
     @Test
     void actualizar_sinCambioDeEstadoNoAvisa() {
         perfil(1L, 10L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
-        when(repositorio.guardar(alerta)).thenReturn(alerta);
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
+        when(repository.save(alert)).thenReturn(alert);
 
         service.actualizar(1L, new CambiosAlerta(null, null, null, "Voy en taxi", null, null), 1L);
 
-        verifyNoInteractions(eventos);
+        verifyNoInteractions(events);
     }
 
     @Test
     void actualizarOEliminarUnaAlertaAjenaSeRechaza() {
         perfil(2L, 20L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
 
         assertThrows(AccessDeniedException.class,
                 () -> service.actualizar(1L, new CambiosAlerta(null, null, "cancelled", null, null, null), 2L));
-        assertThrows(AccessDeniedException.class, () -> service.eliminar(1L, 2L));
-        verify(repositorio, never()).guardar(any());
-        verify(repositorio, never()).eliminar(any());
+        assertThrows(AccessDeniedException.class, () -> service.delete(1L, 2L));
+        verify(repository, never()).save(any());
+        verify(repository, never()).delete(any());
     }
 
     @Test
     void eliminar_laDuenaBorraSuAlerta() {
         perfil(1L, 10L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
 
-        service.eliminar(1L, 1L);
+        service.delete(1L, 1L);
 
-        verify(repositorio).eliminar(1L);
+        verify(repository).delete(1L);
     }
 
     @Test
     void una_soloDevuelveLasPropias() {
         perfil(1L, 10L);
         perfil(2L, 20L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
 
         assertTrue(service.una(1L, 1L).isPresent());
         assertTrue(service.una(1L, 2L).isEmpty());
@@ -157,7 +157,7 @@ class AlertasServiceTest {
     void deUsuaria_aceptaElIdDeUsuariaOElDePerfilPropio() {
         perfil(1L, 10L);
         when(identidad.usuaria(1L)).thenReturn(Optional.of(new UserSummary(1L, "Ana", null, "ana@test.com", null, 1L, null)));
-        when(repositorio.deLaUsuaria(10L)).thenReturn(List.of(alerta));
+        when(repository.ofUser(10L)).thenReturn(List.of(alert));
 
         assertEquals(1, service.deUsuaria(1L, 1L).size());
         assertEquals(1, service.deUsuaria(10L, 1L).size());
@@ -173,21 +173,21 @@ class AlertasServiceTest {
         perfil(2L, 30L);
         perfil(5L, 50L);
         when(identidad.usuaria(2L)).thenReturn(Optional.of(new UserSummary(2L, "Admin", null, "admin@test.com", null, UserSummary.ROL_ADMIN, null)));
-        when(repositorio.deLaUsuaria(50L)).thenReturn(List.of(alerta));
+        when(repository.ofUser(50L)).thenReturn(List.of(alert));
 
-        assertEquals(List.of(alerta), service.deUsuaria(5L, 2L));
+        assertEquals(List.of(alert), service.deUsuaria(5L, 2L));
     }
 
     @Test
     void conservarEvidencias_cuentaLasQueYaConserva() {
         perfil(1L, 10L);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(alerta));
-        when(repositorio.conservadas(10L)).thenReturn((long) Alert.MAX_ALERTAS_CONSERVADAS);
+        when(repository.find(1L)).thenReturn(Optional.of(alert));
+        when(repository.kept(10L)).thenReturn((long) Alert.MAX_ALERTAS_CONSERVADAS);
 
         assertThrows(IllegalArgumentException.class, () -> service.conservarEvidencias(1L, true, 1L));
 
-        when(repositorio.conservadas(10L)).thenReturn(4L);
-        when(repositorio.guardar(alerta)).thenReturn(alerta);
+        when(repository.kept(10L)).thenReturn(4L);
+        when(repository.save(alert)).thenReturn(alert);
         assertTrue(service.conservarEvidencias(1L, true, 1L).isKeepEvidence());
     }
 
@@ -200,13 +200,13 @@ class AlertasServiceTest {
         Alert ajena = new Alert();
         ajena.setId(3L);
         ajena.setUserProfileId(20L);
-        when(repositorio.todas()).thenReturn(List.of(alerta, otra, ajena));
-        when(repositorio.buscarVarias(Set.of(1L, 2L))).thenReturn(List.of(alerta, otra));
+        when(repository.todas()).thenReturn(List.of(alert, otra, ajena));
+        when(repository.findMany(Set.of(1L, 2L))).thenReturn(List.of(alert, otra));
 
         assertEquals(2L, service.conteoPorPerfil().get(10L));
-        assertEquals(Set.of(2L), service.conservanEvidencias(Set.of(1L, 2L)));
-        assertEquals(Set.of(), service.conservanEvidencias(Set.of()));
-        assertTrue(service.buscar(null).isEmpty());
+        assertEquals(Set.of(2L), service.keepEvidence(Set.of(1L, 2L)));
+        assertEquals(Set.of(), service.keepEvidence(Set.of()));
+        assertTrue(service.find(null).isEmpty());
     }
 
     @Test
@@ -214,21 +214,21 @@ class AlertasServiceTest {
         perfil(1L, 10L);
         Alert vieja = new Alert();
         vieja.setStartedAt(LocalDateTime.now().minusDays(1));
-        when(repositorio.deLaUsuaria(10L)).thenReturn(List.of(vieja, alerta));
+        when(repository.ofUser(10L)).thenReturn(List.of(vieja, alert));
 
-        assertEquals(List.of(alerta, vieja), service.mias(1L));
+        assertEquals(List.of(alert, vieja), service.mias(1L));
     }
 
     @Test
     void activar_noConfiaEnLaFechaDeCreacionSiNoLlega() {
         perfil(1L, 10L);
-        when(repositorio.enCurso(10L)).thenReturn(Optional.empty());
-        when(repositorio.guardar(any(Alert.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.enCurso(10L)).thenReturn(Optional.empty());
+        when(repository.save(any(Alert.class))).thenAnswer(inv -> inv.getArgument(0));
 
         service.activar(nueva(null), 1L);
 
         ArgumentCaptor<Alert> captor = ArgumentCaptor.forClass(Alert.class);
-        verify(repositorio).guardar(captor.capture());
+        verify(repository).save(captor.capture());
         assertNotNull(captor.getValue().getStartedAt());
         assertNull(captor.getValue().getId());
     }

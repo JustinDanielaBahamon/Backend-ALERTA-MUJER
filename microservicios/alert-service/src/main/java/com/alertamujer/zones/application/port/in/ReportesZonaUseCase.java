@@ -23,11 +23,11 @@ public interface ReportesZonaUseCase {
 
     List<ZoneReport> conEstado(String estado);
 
-    ZoneReport crear(Long zoneId, String clasificacion, String comentario, Long userId);
+    ZoneReport create(Long zoneId, String clasificacion, String comentario, Long userId);
 
     ZoneReport aprobar(Long id, Integer adminId);
 
     ZoneReport rechazar(Long id, Integer adminId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 }

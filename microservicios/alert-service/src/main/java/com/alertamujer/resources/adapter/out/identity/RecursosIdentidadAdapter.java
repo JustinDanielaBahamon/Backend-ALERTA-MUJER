@@ -1,12 +1,12 @@
 package com.alertamujer.resources.adapter.out.identity;
 
 import com.alertamujer.identity.api.IdentityApi;
-import com.alertamujer.resources.application.port.out.IdentidadPort;
+import com.alertamujer.resources.application.port.out.IdentityPort;
 import org.springframework.stereotype.Component;
 
 /** Adaptador de salida hacia identity: en Alert Service, IdentityApi es un cliente HTTP a Auth Service. */
 @Component
-class RecursosIdentidadAdapter implements IdentidadPort {
+class RecursosIdentidadAdapter implements IdentityPort {
 
     private final IdentityApi identityApi;
 

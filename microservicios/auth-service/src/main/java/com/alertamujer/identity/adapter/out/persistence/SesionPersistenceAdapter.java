@@ -22,7 +22,7 @@ class SesionPersistenceAdapter implements SesionRepositorio {
     }
 
     @Override
-    public DeviceSession guardar(DeviceSession sesion) {
+    public DeviceSession save(DeviceSession sesion) {
         return aDominio(jpa.save(aFila(sesion)));
     }
 

@@ -1,14 +1,14 @@
 package com.alertamujer.zones.adapter.out.identity;
 
 import com.alertamujer.identity.api.IdentityApi;
-import com.alertamujer.zones.application.port.out.IdentidadPort;
+import com.alertamujer.zones.application.port.out.IdentityPort;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
 /** Adaptador de salida hacia identity: en Alert Service, IdentityApi es un cliente HTTP a Auth Service. */
 @Component
-class ZonasIdentidadAdapter implements IdentidadPort {
+class ZonasIdentidadAdapter implements IdentityPort {
 
     private final IdentityApi identityApi;
 
@@ -22,7 +22,7 @@ class ZonasIdentidadAdapter implements IdentidadPort {
     }
 
     @Override
-    public Optional<Long> perfilDe(Long userId) {
+    public Optional<Long> profileOf(Long userId) {
         return identityApi.findProfileId(userId);
     }
 }

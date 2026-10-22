@@ -23,7 +23,7 @@ class SolicitudEliminacionPersistenceAdapter implements SolicitudEliminacionRepo
     }
 
     @Override
-    public Optional<AccountDeletionRequest> buscar(Long id) {
+    public Optional<AccountDeletionRequest> find(Long id) {
         return jpa.findById(id).map(SolicitudEliminacionPersistenceAdapter::aDominio);
     }
 
@@ -33,7 +33,7 @@ class SolicitudEliminacionPersistenceAdapter implements SolicitudEliminacionRepo
     }
 
     @Override
-    public AccountDeletionRequest guardar(AccountDeletionRequest solicitud) {
+    public AccountDeletionRequest save(AccountDeletionRequest solicitud) {
         return aDominio(jpa.save(aFila(solicitud)));
     }
 

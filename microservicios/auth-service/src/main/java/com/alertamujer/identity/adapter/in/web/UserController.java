@@ -57,19 +57,19 @@ public class UserController {
 
     static CambiosUsuaria cambios(Map<String, Object> updates) {
         return new CambiosUsuaria(texto(updates, "firstName"), texto(updates, "lastName"), texto(updates, "telephone"),
-                texto(updates, "documentNumber"), texto(updates, "documentType"), fecha(updates.get("birthdate")),
+                texto(updates, "documentNumber"), texto(updates, "documentType"), date(updates.get("birthdate")),
                 texto(updates, "profilePhoto"));
     }
 
     // null = la clave no llegó; Optional vacío = llegó con null
-    private static Optional<String> texto(Map<String, Object> updates, String clave) {
-        if (!updates.containsKey(clave)) return null;
-        Object valor = updates.get(clave);
+    private static Optional<String> texto(Map<String, Object> updates, String key) {
+        if (!updates.containsKey(key)) return null;
+        Object valor = updates.get(key);
         return Optional.ofNullable(valor == null ? null : String.valueOf(valor));
     }
 
     // AAAA-MM-DD; una fecha con otro formato se ignora
-    private static LocalDate fecha(Object valor) {
+    private static LocalDate date(Object valor) {
         if (valor == null) return null;
         try {
             return LocalDate.parse(String.valueOf(valor));

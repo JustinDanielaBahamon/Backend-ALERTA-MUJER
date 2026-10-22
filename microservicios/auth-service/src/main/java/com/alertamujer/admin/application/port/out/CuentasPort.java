@@ -8,7 +8,7 @@ import java.util.List;
 /** Puerto de salida hacia identity: la administración de cuentas (identity guarda los datos y sus reglas). */
 public interface CuentasPort {
 
-    List<UserAccountView> listar();
+    List<UserAccountView> listAll();
 
     /** identity valida el estado, impide que una administradora se bloquee a sí misma y el correo repetido. */
     UserAccountView actualizar(Long userId, UserAccountChanges cambios, Long quienActua);

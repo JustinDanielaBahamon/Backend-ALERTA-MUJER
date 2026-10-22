@@ -9,7 +9,7 @@ import java.util.List;
 /** Administración de cuentas desde el panel. */
 public interface AdministrarCuentasUseCase {
 
-    List<CuentaDeUsuaria> listar();
+    List<CuentaDeUsuaria> listAll();
 
     /** Valida el estado, impide que una administradora se bloquee a sí misma y que el correo se repita. */
     CuentaDeUsuaria actualizar(Long userId, CambiosCuenta cambios, Long quienActua);

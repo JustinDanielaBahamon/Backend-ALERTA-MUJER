@@ -5,7 +5,7 @@ import com.alertamujer.alerts.application.port.in.NuevaAlerta;
 import com.alertamujer.alerts.application.port.in.RevisarTrayectosUseCase;
 import com.alertamujer.alerts.application.port.in.TrayectosUseCase;
 import com.alertamujer.alerts.application.port.out.CelularesPort;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.PushPort;
 import com.alertamujer.alerts.application.port.out.TrayectoRepositorio;
 import com.alertamujer.alerts.application.port.out.UbicacionRepositorio;
@@ -41,17 +41,17 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
     private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("h:mm a");
 
     private final TrayectoRepositorio trayectos;
-    private final IdentidadPort identidad;
-    private final GestionarAlertasUseCase alertas;
+    private final IdentityPort identidad;
+    private final GestionarAlertasUseCase alerts;
     private final UbicacionRepositorio ubicaciones;
     private final CelularesPort celulares;
     private final PushPort push;
 
-    public TrayectosService(TrayectoRepositorio trayectos, IdentidadPort identidad, GestionarAlertasUseCase alertas,
+    public TrayectosService(TrayectoRepositorio trayectos, IdentityPort identidad, GestionarAlertasUseCase alerts,
                             UbicacionRepositorio ubicaciones, CelularesPort celulares, PushPort push) {
         this.trayectos = trayectos;
         this.identidad = identidad;
-        this.alertas = alertas;
+        this.alerts = alerts;
         this.ubicaciones = ubicaciones;
         this.celulares = celulares;
         this.push = push;
@@ -68,13 +68,13 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
         if (trayectos.iniciadosDesde(perfil, ahora.minusHours(24)) >= MAXIMO_POR_DIA) {
             throw new IllegalArgumentException("Llegaste al máximo de " + MAXIMO_POR_DIA + " trayectos por día");
         }
-        return trayectos.guardar(SafeTrip.nuevo(perfil, userId, nuevo.deviceId(), nuevo.destino(), nuevo.minutos(),
+        return trayectos.save(SafeTrip.nuevo(perfil, userId, nuevo.deviceId(), nuevo.target(), nuevo.minutos(),
                 nuevo.latitude(), nuevo.longitude(), ahora));
     }
 
     @Override
     public Optional<SafeTrip> activo(Long userId) {
-        return identidad.perfilDe(userId).flatMap(trayectos::activoDe);
+        return identidad.profileOf(userId).flatMap(trayectos::activoDe);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
     public SafeTrip llegue(Long id, Long userId) {
         SafeTrip t = propio(id, userId);
         t.llegar(LocalDateTime.now());
-        return trayectos.guardar(t);
+        return trayectos.save(t);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
     public SafeTrip extender(Long id, int minutos, Long userId) {
         SafeTrip t = propio(id, userId);
         t.extender(minutos);
-        return trayectos.guardar(t);
+        return trayectos.save(t);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
     public SafeTrip cancelar(Long id, Long userId) {
         SafeTrip t = propio(id, userId);
         t.cancelar(LocalDateTime.now());
-        return trayectos.guardar(t);
+        return trayectos.save(t);
     }
 
     // ── Revisión periódica ──────────────────────────────────────────
@@ -129,13 +129,13 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
                 + HORA.format(HoraColombia.de(t.getStartedAt())) + " y debía llegar a las "
                 + HORA.format(HoraColombia.de(t.getExpectedArrival())) + "."
                 + ultima.map(l -> " Última ubicación hace " + minutosDesde(l.getRecordedAt(), ahora) + " min.").orElse("");
-        Alert alerta = alertas.activar(new NuevaAlerta(t.getDeviceId(), "main", "timer", "active", mensaje,
+        Alert alert = alerts.activar(new NuevaAlerta(t.getDeviceId(), "main", "timer", "active", mensaje,
                 ultima.map(LocationLog::getLatitude).orElse(t.getDestinationLatitude()),
                 ultima.map(LocationLog::getLongitude).orElse(t.getDestinationLongitude()),
                 null, null), t.getUserId());
-        t.marcarAlertado(alerta.getId(), ahora);
-        trayectos.guardar(t);
-        log.info("Trayecto {} sin confirmar: alerta {} activada", t.getId(), alerta.getId());
+        t.marcarAlertado(alert.getId(), ahora);
+        trayectos.save(t);
+        log.info("Trayecto {} sin confirmar: alerta {} activada", t.getId(), alert.getId());
     }
 
     private void preguntarSiLlego(SafeTrip t, LocalDateTime ahora) {
@@ -148,7 +148,7 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
                     "minutos", String.valueOf(Math.max(0, Duration.between(ahora, t.getExpectedArrival()).toMinutes()))));
         }
         t.marcarRecordatorio();
-        trayectos.guardar(t);
+        trayectos.save(t);
     }
 
     private static long minutosDesde(LocalDateTime momento, LocalDateTime ahora) {
@@ -157,7 +157,7 @@ public class TrayectosService implements TrayectosUseCase, RevisarTrayectosUseCa
 
     private SafeTrip propio(Long id, Long userId) {
         Long perfil = identidad.perfilRequerido(userId);
-        return trayectos.buscar(id).filter(t -> t.esDe(perfil))
+        return trayectos.find(id).filter(t -> t.esDe(perfil))
                 .orElseThrow(() -> new ResourceNotFoundException("Trayecto", id));
     }
 }

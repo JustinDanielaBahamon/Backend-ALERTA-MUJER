@@ -18,5 +18,5 @@ public interface ChatAlertaUseCase {
 
     AlertMessage enviarDeLaDuena(Long alertId, Long userId, String texto);
 
-    AlertMessage enviarDeContacto(Long alertId, String nombre, String texto);
+    AlertMessage enviarDeContacto(Long alertId, String name, String texto);
 }

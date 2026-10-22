@@ -1,7 +1,7 @@
 package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.application.port.in.NuevoRecorrido;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.RecorridoRepositorio;
 import com.alertamujer.alerts.domain.model.RoutePoint;
 import com.alertamujer.alerts.domain.model.SavedRoute;
@@ -24,8 +24,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RecorridosServiceTest {
 
-    @Mock private RecorridoRepositorio repositorio;
-    @Mock private IdentidadPort identidad;
+    @Mock private RecorridoRepositorio repository;
+    @Mock private IdentityPort identidad;
 
     @InjectMocks private RecorridosService service;
 
@@ -42,11 +42,11 @@ class RecorridosServiceTest {
 
     @Test
     void crear_esEstrellaMientrasHayaCupo() {
-        when(repositorio.contar(10L)).thenReturn(1L);
-        when(repositorio.contarEstrella(10L)).thenReturn(1L);
-        when(repositorio.guardar(any(SavedRoute.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.contar(10L)).thenReturn(1L);
+        when(repository.contarEstrella(10L)).thenReturn(1L);
+        when(repository.save(any(SavedRoute.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        SavedRoute r = service.crear(nuevo(), 1L);
+        SavedRoute r = service.create(nuevo(), 1L);
 
         assertEquals("Casa", r.getName());
         assertEquals(10L, r.getUserProfileId());
@@ -56,10 +56,10 @@ class RecorridosServiceTest {
 
     @Test
     void crear_conLos4OcupadosSeRechaza() {
-        when(repositorio.contar(10L)).thenReturn(4L);
+        when(repository.contar(10L)).thenReturn(4L);
 
-        assertThrows(ConflictException.class, () -> service.crear(nuevo(), 1L));
-        verify(repositorio, never()).guardar(any());
+        assertThrows(ConflictException.class, () -> service.create(nuevo(), 1L));
+        verify(repository, never()).save(any());
     }
 
     @Test
@@ -67,10 +67,10 @@ class RecorridosServiceTest {
         SavedRoute ajeno = new SavedRoute();
         ajeno.setId(3L);
         ajeno.setUserProfileId(20L);
-        when(repositorio.buscar(3L)).thenReturn(Optional.of(ajeno));
+        when(repository.find(3L)).thenReturn(Optional.of(ajeno));
 
         assertThrows(AccessDeniedException.class, () -> service.actualizar(3L, "Otro", null, 1L));
-        assertThrows(AccessDeniedException.class, () -> service.eliminar(3L, 1L));
-        verify(repositorio, never()).eliminar(any());
+        assertThrows(AccessDeniedException.class, () -> service.delete(3L, 1L));
+        verify(repository, never()).delete(any());
     }
 }

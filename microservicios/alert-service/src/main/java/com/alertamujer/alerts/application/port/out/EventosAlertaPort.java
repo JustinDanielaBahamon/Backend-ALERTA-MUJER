@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 public interface EventosAlertaPort {
 
     /** Se activó la alerta y ya quedaron registrados sus destinatarios. */
-    void alertaActivada(Alert alerta);
+    void alertaActivada(Alert alert);
 
     /** Terminó una alerta activa (atendida, cancelada o expirada). */
-    void alertaTerminada(Alert alerta, LocalDateTime cuando);
+    void alertaTerminada(Alert alert, LocalDateTime cuando);
 }

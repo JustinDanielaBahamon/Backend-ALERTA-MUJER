@@ -18,12 +18,12 @@ class CuentaPersistenceAdapter implements CuentaRepositorio {
     }
 
     @Override
-    public Account guardar(Account cuenta) {
+    public Account save(Account cuenta) {
         return aDominio(jpa.save(aFila(cuenta)));
     }
 
     @Override
-    public Optional<Account> buscar(Long id) {
+    public Optional<Account> find(Long id) {
         return jpa.findById(id).map(CuentaPersistenceAdapter::aDominio);
     }
 

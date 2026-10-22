@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
-/** Fila de la tabla de evidencias. Solo la usa el adaptador de persistencia; el dominio es Evidence. */
+/** Row of the evidence table. Only the persistence adapter uses it; the domain model is Evidence. */
 @Entity
 @Table(name = "evidence", schema = "alert")
 @Data

@@ -12,5 +12,5 @@ interface EvidenceJpaRepository extends JpaRepository<EvidenceJpaEntity, Long> {
 
     List<EvidenceJpaEntity> findByAlertIdOrderByCreatedAtAsc(Long alertId);
 
-    List<EvidenceJpaEntity> findByCreatedAtBefore(LocalDateTime antes);
+    List<EvidenceJpaEntity> findByCreatedAtBefore(LocalDateTime before);
 }

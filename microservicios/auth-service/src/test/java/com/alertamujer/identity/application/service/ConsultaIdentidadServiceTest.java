@@ -38,13 +38,13 @@ class ConsultaIdentidadServiceTest {
     void porPerfilYPorCuentaPasanPorSuUsuaria() {
         UserProfile perfil = UserProfile.de(1L);
         Account cuenta = Account.nueva(1L, "hash");
-        when(perfiles.buscar(10L)).thenReturn(Optional.of(perfil));
-        when(cuentas.buscar(4L)).thenReturn(Optional.of(cuenta));
-        when(usuarias.buscar(1L)).thenReturn(Optional.of(usuaria(1L)));
+        when(perfiles.find(10L)).thenReturn(Optional.of(perfil));
+        when(cuentas.find(4L)).thenReturn(Optional.of(cuenta));
+        when(usuarias.find(1L)).thenReturn(Optional.of(usuaria(1L)));
 
-        assertEquals(1L, service.porPerfil(10L).orElseThrow().getId());
+        assertEquals(1L, service.byProfile(10L).orElseThrow().getId());
         assertEquals(1L, service.porCuenta(4L).orElseThrow().getId());
-        assertTrue(service.porPerfil(null).isEmpty());
+        assertTrue(service.byProfile(null).isEmpty());
         assertTrue(service.usuaria(null).isEmpty());
         assertTrue(service.porCorreo(null).isEmpty());
     }
@@ -58,9 +58,9 @@ class ConsultaIdentidadServiceTest {
         when(usuarias.todas()).thenReturn(List.of(usuaria(1L)));
         when(perfiles.todos()).thenReturn(List.of(conPersona, huerfano));
 
-        Map<Long, User> porPerfil = service.porIdDePerfil();
+        Map<Long, User> byProfile = service.porIdDePerfil();
 
-        assertEquals(1, porPerfil.size());
-        assertEquals(1L, porPerfil.get(10L).getId());
+        assertEquals(1, byProfile.size());
+        assertEquals(1L, byProfile.get(10L).getId());
     }
 }

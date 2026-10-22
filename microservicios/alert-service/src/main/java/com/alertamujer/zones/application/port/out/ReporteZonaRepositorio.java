@@ -10,7 +10,7 @@ public interface ReporteZonaRepositorio {
 
     List<ZoneReport> todos();
 
-    Optional<ZoneReport> buscar(Long id);
+    Optional<ZoneReport> find(Long id);
 
     List<ZoneReport> deZona(Long zoneId);
 
@@ -18,7 +18,7 @@ public interface ReporteZonaRepositorio {
 
     List<ZoneReport> conEstado(String estado);
 
-    ZoneReport guardar(ZoneReport reporte);
+    ZoneReport save(ZoneReport reporte);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

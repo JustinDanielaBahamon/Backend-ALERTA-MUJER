@@ -18,12 +18,12 @@ class DispositivoPersistenceAdapter implements DispositivoRepositorio {
     }
 
     @Override
-    public Device guardar(Device dispositivo) {
+    public Device save(Device dispositivo) {
         return aDominio(jpa.save(aFila(dispositivo)));
     }
 
     @Override
-    public Optional<Device> buscar(Long id) {
+    public Optional<Device> find(Long id) {
         return jpa.findById(id).map(DispositivoPersistenceAdapter::aDominio);
     }
 
@@ -38,7 +38,7 @@ class DispositivoPersistenceAdapter implements DispositivoRepositorio {
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

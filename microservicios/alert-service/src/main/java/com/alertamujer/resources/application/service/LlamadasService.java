@@ -1,7 +1,7 @@
 package com.alertamujer.resources.application.service;
 
 import com.alertamujer.resources.application.port.in.LlamadasUseCase;
-import com.alertamujer.resources.application.port.out.IdentidadPort;
+import com.alertamujer.resources.application.port.out.IdentityPort;
 import com.alertamujer.resources.application.port.out.LlamadaRepositorio;
 import com.alertamujer.resources.application.port.out.RecursoRepositorio;
 import com.alertamujer.resources.domain.model.EmergencyResource;
@@ -19,49 +19,49 @@ import java.util.Optional;
 @Service
 public class LlamadasService implements LlamadasUseCase {
 
-    private final LlamadaRepositorio repositorio;
+    private final LlamadaRepositorio repository;
     private final RecursoRepositorio recursos;
-    private final IdentidadPort identidad;
+    private final IdentityPort identidad;
 
-    public LlamadasService(LlamadaRepositorio repositorio, RecursoRepositorio recursos, IdentidadPort identidad) {
-        this.repositorio = repositorio;
+    public LlamadasService(LlamadaRepositorio repository, RecursoRepositorio recursos, IdentityPort identidad) {
+        this.repository = repository;
         this.recursos = recursos;
         this.identidad = identidad;
     }
 
     @Override
     public List<ResourceCall> todas() {
-        return repositorio.todas();
+        return repository.todas();
     }
 
     @Override
     public Optional<ResourceCall> una(Long id, Long userId) {
         Long perfil = identidad.perfilRequerido(userId);
-        return repositorio.buscar(id).filter(c -> c.esDe(perfil));
+        return repository.find(id).filter(c -> c.esDe(perfil));
     }
 
     @Override
     public List<ResourceCall> mias(Long userId) {
-        return repositorio.dePerfil(identidad.perfilRequerido(userId));
+        return repository.dePerfil(identidad.perfilRequerido(userId));
     }
 
     @Override
     public List<ResourceCall> deRecurso(Long recursoId) {
-        return repositorio.deRecurso(recursoId);
+        return repository.deRecurso(recursoId);
     }
 
     @Override
     public List<ResourceCall> deAlerta(Long alertId) {
-        return repositorio.deAlerta(alertId);
+        return repository.deAlerta(alertId);
     }
 
     @Override
     @Transactional
     public ResourceCall registrar(Long recursoId, Long alertId, Long deviceId, String telefonoMarcado, String estado, Long userId) {
         if (recursoId == null) throw new IllegalArgumentException("Indica a qué recurso se llamó");
-        EmergencyResource recurso = recursos.buscar(recursoId)
+        EmergencyResource recurso = recursos.find(recursoId)
                 .orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", recursoId));
-        return repositorio.guardar(ResourceCall.nueva(identidad.perfilRequerido(userId), recurso, alertId, deviceId,
+        return repository.save(ResourceCall.nueva(identidad.perfilRequerido(userId), recurso, alertId, deviceId,
                 telefonoMarcado, estado, LocalDateTime.now()));
     }
 
@@ -70,17 +70,17 @@ public class LlamadasService implements LlamadasUseCase {
     public ResourceCall actualizar(Long id, String estado, LocalDateTime fin, Integer duracionSegundos, Long userId) {
         ResourceCall c = propia(id, userId);
         c.actualizar(estado, fin, duracionSegundos);
-        return repositorio.guardar(c);
+        return repository.save(c);
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id, Long userId) {
-        repositorio.eliminar(propia(id, userId).getId());
+    public void delete(Long id, Long userId) {
+        repository.delete(propia(id, userId).getId());
     }
 
     private ResourceCall propia(Long id, Long userId) {
-        ResourceCall c = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("ResourceCall", id));
+        ResourceCall c = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("ResourceCall", id));
         if (!c.esDe(identidad.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes acceder a llamadas de otro usuario");
         }

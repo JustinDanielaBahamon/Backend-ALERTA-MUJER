@@ -4,7 +4,7 @@ import com.alertamujer.evidence.domain.model.Evidence;
 
 import java.time.LocalDateTime;
 
-/** Evidencia tal como la ve la usuaria (sin la clave interna del almacenamiento). */
+/** Evidence as the user sees it (without the internal storage key). */
 public record EvidenceDto(Long id, Long alertId, String mediaType, String fileUrl, String fileName,
                           String contentType, Long sizeBytes, String sha256, String reviewStatus,
                           LocalDateTime createdAt) {
@@ -14,6 +14,6 @@ public record EvidenceDto(Long id, Long alertId, String mediaType, String fileUr
                 e.getContentType(), e.getSizeBytes(), e.getSha256(), e.getReviewStatus(), e.getCreatedAt());
     }
 
-    /** Cuerpo para registrar o actualizar una evidencia sin archivo (clientes antiguos). */
-    public record SinArchivo(Long alertId, String mediaType, String fileUrl) {}
+    /** Body to register or update an evidence without a file (old clients). */
+    public record WithoutFile(Long alertId, String mediaType, String fileUrl) {}
 }

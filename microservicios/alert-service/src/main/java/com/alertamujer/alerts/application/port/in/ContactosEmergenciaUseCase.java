@@ -16,11 +16,11 @@ public interface ContactosEmergenciaUseCase {
     /** Solo los propios: idPedido puede ser el users.id o el user_profile.id de la usuaria (S2: la administración no los ve). */
     List<EmergencyContact> deUsuaria(Long idPedido, Long userId);
 
-    EmergencyContact crear(DatosContacto datos, Long userId);
+    EmergencyContact create(DatosContacto data, Long userId);
 
-    EmergencyContact actualizar(Long id, DatosContacto datos, Long userId);
+    EmergencyContact actualizar(Long id, DatosContacto data, Long userId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 
     /**
      * Si a cada contacto le puede llegar el aviso en el celular: "app" (tiene cuenta y un celular con

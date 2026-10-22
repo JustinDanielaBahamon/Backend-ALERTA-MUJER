@@ -1,6 +1,6 @@
 package com.alertamujer.admin.adapter.out.alerts;
 
-import com.alertamujer.admin.application.port.out.AlertasPort;
+import com.alertamujer.admin.application.port.out.AlertsPort;
 import com.alertamujer.alerts.api.AdminAlertView;
 import com.alertamujer.alerts.api.AlertsApi;
 import com.alertamujer.alerts.api.AlertsApi.ExpirationStatus;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 /** Adaptador de salida hacia Alert Service: en Auth Service, AlertsApi es un cliente HTTP (/internal/rpc). */
 @Component
-class AdminAlertasAdapter implements AlertasPort {
+class AdminAlertasAdapter implements AlertsPort {
 
     private final AlertsApi alertsApi;
 

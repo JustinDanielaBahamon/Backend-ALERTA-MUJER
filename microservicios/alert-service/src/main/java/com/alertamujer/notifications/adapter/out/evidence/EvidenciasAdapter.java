@@ -41,10 +41,10 @@ class EvidenciasAdapter implements EvidenciasPort {
 
     @Override
     public List<EvidenceSummary> deAlerta(Long alertId) {
-        CompletableFuture<List<EvidenceSummary>> lista =
-                CompletableFuture.supplyAsync(() -> evidenceApi.evidenciasDeAlerta(alertId), consultas);
+        CompletableFuture<List<EvidenceSummary>> list =
+                CompletableFuture.supplyAsync(() -> evidenceApi.alertEvidence(alertId), consultas);
         try {
-            return lista.get(ESPERA_MS, TimeUnit.MILLISECONDS);
+            return list.get(ESPERA_MS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return List.of();
@@ -56,7 +56,7 @@ class EvidenciasAdapter implements EvidenciasPort {
     }
 
     @Override
-    public Optional<EvidenceFile> archivo(Long alertId, Long evidenciaId) {
-        return evidenceApi.archivo(alertId, evidenciaId);
+    public Optional<EvidenceFile> file(Long alertId, Long evidenciaId) {
+        return evidenceApi.file(alertId, evidenciaId);
     }
 }

@@ -24,19 +24,19 @@ public class AuditoriaService implements AuditoriaUseCase {
     static final int MAXIMO_EXPORTACION = 5000;
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    private final AuditoriaRepositorio repositorio;
+    private final AuditoriaRepositorio repository;
     private final UsuariasPort usuarias;
 
-    public AuditoriaService(AuditoriaRepositorio repositorio, UsuariasPort usuarias) {
-        this.repositorio = repositorio;
+    public AuditoriaService(AuditoriaRepositorio repository, UsuariasPort usuarias) {
+        this.repository = repository;
         this.usuarias = usuarias;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public AuditPage listar(FiltroAuditoria filtro, int pagina, int tamano) {
-        int size = Math.max(1, Math.min(tamano, TAMANO_MAXIMO));
-        AuditoriaRepositorio.Pagina p = repositorio.pagina(filtro, Math.max(0, pagina), size);
+    public AuditPage listAll(FiltroAuditoria filtro, int pagina, int requestedSize) {
+        int size = Math.max(1, Math.min(requestedSize, TAMANO_MAXIMO));
+        AuditoriaRepositorio.Pagina p = repository.pagina(filtro, Math.max(0, pagina), size);
         return new AuditPage(vistas(p.registros()), p.total(), p.numero(), size);
     }
 
@@ -45,7 +45,7 @@ public class AuditoriaService implements AuditoriaUseCase {
     public byte[] exportar(FiltroAuditoria filtro) {
         StringBuilder sb = new StringBuilder("﻿");
         sb.append("ID;Fecha;Responsable;Rol;Correo;Origen;Acción;Tipo;Registro;Detalle;IP\r\n");
-        for (AuditLogView v : vistas(repositorio.primeros(filtro, MAXIMO_EXPORTACION))) {
+        for (AuditLogView v : vistas(repository.primeros(filtro, MAXIMO_EXPORTACION))) {
             sb.append(String.join(";", List.of(
                     String.valueOf(v.id()),
                     v.createdAt() == null ? "" : FECHA.format(HoraColombia.de(v.createdAt())),

@@ -23,7 +23,7 @@ class LlamadaPersistenceAdapter implements LlamadaRepositorio {
     }
 
     @Override
-    public Optional<ResourceCall> buscar(Long id) {
+    public Optional<ResourceCall> find(Long id) {
         return jpa.findById(id).map(LlamadaPersistenceAdapter::aDominio);
     }
 
@@ -43,12 +43,12 @@ class LlamadaPersistenceAdapter implements LlamadaRepositorio {
     }
 
     @Override
-    public ResourceCall guardar(ResourceCall llamada) {
+    public ResourceCall save(ResourceCall llamada) {
         return aDominio(jpa.save(aFila(llamada)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

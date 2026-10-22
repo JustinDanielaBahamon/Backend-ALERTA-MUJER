@@ -19,7 +19,7 @@ class AdminCuentasAdapter implements CuentasPort {
     }
 
     @Override
-    public List<UserAccountView> listar() {
+    public List<UserAccountView> listAll() {
         return identityAdminApi.listUserAccounts();
     }
 

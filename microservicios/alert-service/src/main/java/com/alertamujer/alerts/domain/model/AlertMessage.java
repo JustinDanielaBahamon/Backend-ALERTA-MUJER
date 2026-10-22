@@ -27,8 +27,8 @@ public class AlertMessage {
      * Valida y crea un mensaje: solo mientras la alerta está activa, con texto y dentro de los
      * límites. enviados = mensajes que ya tiene la alerta.
      */
-    public static AlertMessage escribir(Alert alerta, String tipo, String nombre, String texto, long enviados) {
-        if (!alerta.estaActiva()) {
+    public static AlertMessage escribir(Alert alert, String type, String name, String texto, long enviados) {
+        if (!alert.estaActiva()) {
             throw new IllegalArgumentException("La alerta ya terminó: no se pueden enviar más mensajes");
         }
         String cuerpo = texto == null ? "" : texto.trim();
@@ -40,15 +40,15 @@ public class AlertMessage {
             throw new IllegalArgumentException("Se alcanzó el máximo de mensajes de esta alerta");
         }
         AlertMessage m = new AlertMessage();
-        m.alertId = alerta.getId();
-        m.senderType = tipo;
-        m.senderName = nombreLimpio(nombre, DE_LA_DUENA.equals(tipo) ? "Ella" : "Contacto");
+        m.alertId = alert.getId();
+        m.senderType = type;
+        m.senderName = nombreLimpio(name, DE_LA_DUENA.equals(type) ? "Ella" : "Contacto");
         m.body = cuerpo;
         return m;
     }
 
-    private static String nombreLimpio(String nombre, String porDefecto) {
-        String n = nombre == null ? "" : nombre.trim();
+    private static String nombreLimpio(String name, String porDefecto) {
+        String n = name == null ? "" : name.trim();
         if (n.isEmpty()) return porDefecto;
         return n.length() > MAXIMO_NOMBRE ? n.substring(0, MAXIMO_NOMBRE) : n;
     }

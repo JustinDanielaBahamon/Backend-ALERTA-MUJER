@@ -19,5 +19,5 @@ public interface TrayectosUseCase {
 
     SafeTrip cancelar(Long id, Long userId);
 
-    record NuevoTrayecto(String destino, int minutos, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}
+    record NuevoTrayecto(String target, int minutos, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}
 }

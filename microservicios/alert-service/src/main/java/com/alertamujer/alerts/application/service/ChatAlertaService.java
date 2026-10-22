@@ -2,7 +2,7 @@ package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.application.port.in.ChatAlertaUseCase;
 import com.alertamujer.alerts.application.port.out.AlertaRepositorio;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.MensajeRepositorio;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.AlertMessage;
@@ -18,12 +18,12 @@ import java.util.List;
 public class ChatAlertaService implements ChatAlertaUseCase {
 
     private final MensajeRepositorio mensajes;
-    private final AlertaRepositorio alertas;
-    private final IdentidadPort identidad;
+    private final AlertaRepositorio alerts;
+    private final IdentityPort identidad;
 
-    public ChatAlertaService(MensajeRepositorio mensajes, AlertaRepositorio alertas, IdentidadPort identidad) {
+    public ChatAlertaService(MensajeRepositorio mensajes, AlertaRepositorio alerts, IdentityPort identidad) {
         this.mensajes = mensajes;
-        this.alertas = alertas;
+        this.alerts = alerts;
         this.identidad = identidad;
     }
 
@@ -34,33 +34,33 @@ public class ChatAlertaService implements ChatAlertaUseCase {
 
     @Override
     public List<AlertMessage> mensajesDeLaDuena(Long alertId, Long userId, Long afterId) {
-        alertaPropia(alertId, userId);
+        ownAlert(alertId, userId);
         return mensajes(alertId, afterId);
     }
 
     @Override
     @Transactional
     public AlertMessage enviarDeLaDuena(Long alertId, Long userId, String texto) {
-        Alert alerta = alertaPropia(alertId, userId);
-        String nombre = identidad.usuaria(userId).map(UserSummary::firstName).orElse(null);
-        return guardar(alerta, AlertMessage.DE_LA_DUENA, nombre, texto);
+        Alert alert = ownAlert(alertId, userId);
+        String name = identidad.usuaria(userId).map(UserSummary::firstName).orElse(null);
+        return save(alert, AlertMessage.DE_LA_DUENA, name, texto);
     }
 
     @Override
     @Transactional
-    public AlertMessage enviarDeContacto(Long alertId, String nombre, String texto) {
-        Alert alerta = alertas.buscar(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
-        return guardar(alerta, AlertMessage.DE_CONTACTO, nombre, texto);
+    public AlertMessage enviarDeContacto(Long alertId, String name, String texto) {
+        Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
+        return save(alert, AlertMessage.DE_CONTACTO, name, texto);
     }
 
-    private AlertMessage guardar(Alert alerta, String tipo, String nombre, String texto) {
-        return mensajes.guardar(AlertMessage.escribir(alerta, tipo, nombre, texto, mensajes.contar(alerta.getId())));
+    private AlertMessage save(Alert alert, String type, String name, String texto) {
+        return mensajes.save(AlertMessage.escribir(alert, type, name, texto, mensajes.contar(alert.getId())));
     }
 
-    private Alert alertaPropia(Long alertId, Long userId) {
-        Alert alerta = alertas.buscar(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
+    private Alert ownAlert(Long alertId, Long userId) {
+        Alert alert = alerts.find(alertId).orElseThrow(() -> new ResourceNotFoundException("Alert", alertId));
         // Una alerta ajena se responde igual que una inexistente
-        if (!alerta.esDe(identidad.perfilDe(userId).orElse(null))) throw new ResourceNotFoundException("Alert", alertId);
-        return alerta;
+        if (!alert.esDe(identidad.profileOf(userId).orElse(null))) throw new ResourceNotFoundException("Alert", alertId);
+        return alert;
     }
 }

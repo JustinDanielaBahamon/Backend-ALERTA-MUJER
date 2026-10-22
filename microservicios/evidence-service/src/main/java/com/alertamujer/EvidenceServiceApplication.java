@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-/** Evidence Service: fotos, videos y audios de las alertas (Backblaze B2), huella SHA-256 y retención. */
+/** Evidence Service: alert photos, videos and audio (Backblaze B2), SHA-256 fingerprint and retention. */
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

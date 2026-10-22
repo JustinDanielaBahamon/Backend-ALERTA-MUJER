@@ -19,10 +19,10 @@ class JwtTokensAdapter implements TokensPort {
     private static final long DURACION_ACCESO_MS = 24L * 60 * 60 * 1000;          // 24 horas
     private static final long DURACION_RENOVACION_MS = 15L * 24 * 60 * 60 * 1000; // 15 días
 
-    private final SecretKey clave;
+    private final SecretKey key;
 
     JwtTokensAdapter(JwtKeyProvider jwtKeyProvider) {
-        this.clave = jwtKeyProvider.key();
+        this.key = jwtKeyProvider.key();
     }
 
     @Override
@@ -32,7 +32,7 @@ class JwtTokensAdapter implements TokensPort {
                 .claim("role", rol)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + DURACION_ACCESO_MS))
-                .signWith(clave)
+                .signWith(key)
                 .compact();
     }
 
@@ -43,13 +43,13 @@ class JwtTokensAdapter implements TokensPort {
                 .claim("type", "refresh")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + DURACION_RENOVACION_MS))
-                .signWith(clave)
+                .signWith(key)
                 .compact();
     }
 
     @Override
     public Long usuariaDeRenovacion(String token) {
-        Claims claims = Jwts.parser().verifyWith(clave).build().parseSignedClaims(token).getPayload();
+        Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
         if (!"refresh".equals(claims.get("type", String.class))) {
             throw new IllegalArgumentException("No es un token de renovación");
         }

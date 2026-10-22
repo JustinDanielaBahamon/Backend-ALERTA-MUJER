@@ -1,7 +1,7 @@
 package com.alertamujer.admin.application.service;
 
 import com.alertamujer.admin.application.port.in.GestionUsuariasUseCase;
-import com.alertamujer.admin.application.port.out.AlertasPort;
+import com.alertamujer.admin.application.port.out.AlertsPort;
 import com.alertamujer.admin.application.port.out.CuentasPort;
 import com.alertamujer.identity.api.UserAccountChanges;
 import com.alertamujer.identity.api.UserAccountView;
@@ -15,25 +15,25 @@ import java.util.Map;
 public class GestionUsuariasService implements GestionUsuariasUseCase {
 
     private final CuentasPort cuentas;
-    private final AlertasPort alertas;
+    private final AlertsPort alerts;
 
-    public GestionUsuariasService(CuentasPort cuentas, AlertasPort alertas) {
+    public GestionUsuariasService(CuentasPort cuentas, AlertsPort alerts) {
         this.cuentas = cuentas;
-        this.alertas = alertas;
+        this.alerts = alerts;
     }
 
     @Override
-    public List<UsuariaConAlertas> listar() {
-        Map<Long, Long> porPerfil = alertas.conteoPorPerfil();
-        return cuentas.listar().stream().map(c -> conAlertas(c, porPerfil)).toList();
+    public List<UsuariaConAlertas> listAll() {
+        Map<Long, Long> byProfile = alerts.conteoPorPerfil();
+        return cuentas.listAll().stream().map(c -> conAlertas(c, byProfile)).toList();
     }
 
     @Override
     public UsuariaConAlertas actualizar(Long userId, UserAccountChanges cambios, Long quienActua) {
-        return conAlertas(cuentas.actualizar(userId, cambios, quienActua), alertas.conteoPorPerfil());
+        return conAlertas(cuentas.actualizar(userId, cambios, quienActua), alerts.conteoPorPerfil());
     }
 
-    private static UsuariaConAlertas conAlertas(UserAccountView c, Map<Long, Long> porPerfil) {
-        return new UsuariaConAlertas(c, c.profileId() == null ? 0L : porPerfil.getOrDefault(c.profileId(), 0L));
+    private static UsuariaConAlertas conAlertas(UserAccountView c, Map<Long, Long> byProfile) {
+        return new UsuariaConAlertas(c, c.profileId() == null ? 0L : byProfile.getOrDefault(c.profileId(), 0L));
     }
 }

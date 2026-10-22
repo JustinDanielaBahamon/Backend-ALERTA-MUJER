@@ -31,7 +31,7 @@ public class SavedRouteController {
 
     @PostMapping
     public ResponseEntity<SavedRouteResponse> create(@RequestBody SavedRouteRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(SavedRouteResponse.of(recorridos.crear(request.aNuevo(), currentUserId)));
+        return ResponseEntity.ok(SavedRouteResponse.of(recorridos.create(request.aNuevo(), currentUserId)));
     }
 
     @PatchMapping("/{id}")
@@ -43,7 +43,7 @@ public class SavedRouteController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        recorridos.eliminar(id, currentUserId);
+        recorridos.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

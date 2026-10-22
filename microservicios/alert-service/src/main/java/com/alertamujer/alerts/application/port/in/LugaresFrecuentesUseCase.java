@@ -12,9 +12,9 @@ public interface LugaresFrecuentesUseCase {
 
     FrequentLocation uno(Long id, Long userId);
 
-    FrequentLocation crear(DatosLugar datos, Long userId);
+    FrequentLocation create(DatosLugar data, Long userId);
 
-    FrequentLocation actualizar(Long id, DatosLugar datos, Long userId);
+    FrequentLocation actualizar(Long id, DatosLugar data, Long userId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 }

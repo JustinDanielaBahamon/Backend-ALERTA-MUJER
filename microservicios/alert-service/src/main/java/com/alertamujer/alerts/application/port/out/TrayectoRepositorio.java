@@ -9,9 +9,9 @@ import java.util.Optional;
 /** Puerto de salida: trayectos de "Avísame si no llego". */
 public interface TrayectoRepositorio {
 
-    SafeTrip guardar(SafeTrip trayecto);
+    SafeTrip save(SafeTrip trayecto);
 
-    Optional<SafeTrip> buscar(Long id);
+    Optional<SafeTrip> find(Long id);
 
     Optional<SafeTrip> activoDe(Long perfil);
 

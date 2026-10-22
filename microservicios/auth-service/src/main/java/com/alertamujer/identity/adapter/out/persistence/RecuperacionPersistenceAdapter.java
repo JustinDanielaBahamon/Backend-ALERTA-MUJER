@@ -17,7 +17,7 @@ class RecuperacionPersistenceAdapter implements RecuperacionRepositorio {
     }
 
     @Override
-    public RecoveryRequest guardar(RecoveryRequest solicitud) {
+    public RecoveryRequest save(RecoveryRequest solicitud) {
         return aDominio(jpa.save(aFila(solicitud)));
     }
 

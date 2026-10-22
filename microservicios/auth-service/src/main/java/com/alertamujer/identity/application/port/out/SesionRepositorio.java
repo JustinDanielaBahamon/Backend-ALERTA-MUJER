@@ -9,5 +9,5 @@ public interface SesionRepositorio {
 
     List<DeviceSession> activasDeCuenta(Long accountId);
 
-    DeviceSession guardar(DeviceSession sesion);
+    DeviceSession save(DeviceSession sesion);
 }

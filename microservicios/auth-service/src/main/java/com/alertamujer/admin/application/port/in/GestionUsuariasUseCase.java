@@ -8,9 +8,9 @@ import java.util.List;
 /** Gestión de usuarias del panel: las cuentas (identity) con su número de alertas (Alert Service). */
 public interface GestionUsuariasUseCase {
 
-    List<UsuariaConAlertas> listar();
+    List<UsuariaConAlertas> listAll();
 
     UsuariaConAlertas actualizar(Long userId, UserAccountChanges cambios, Long quienActua);
 
-    record UsuariaConAlertas(UserAccountView cuenta, long alertas) {}
+    record UsuariaConAlertas(UserAccountView cuenta, long alerts) {}
 }

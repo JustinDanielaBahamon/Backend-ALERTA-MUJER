@@ -15,11 +15,11 @@ public interface RecursosUseCase {
 
     List<EmergencyResource> deCiudad(String ciudad);
 
-    List<EmergencyResource> deTipo(String tipo);
+    List<EmergencyResource> deTipo(String type);
 
-    EmergencyResource crear(DatosRecurso datos);
+    EmergencyResource create(DatosRecurso data);
 
-    EmergencyResource reemplazar(Long id, DatosRecurso datos);
+    EmergencyResource reemplazar(Long id, DatosRecurso data);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

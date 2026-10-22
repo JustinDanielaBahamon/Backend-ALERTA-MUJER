@@ -26,17 +26,17 @@ public class FrequentLocation {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static FrequentLocation nuevo(Long perfil, DatosLugar datos, LocalDateTime ahora) {
+    public static FrequentLocation nuevo(Long perfil, DatosLugar data, LocalDateTime ahora) {
         FrequentLocation l = new FrequentLocation();
         l.userProfileId = perfil;
-        l.name = datos.name();
-        l.address = datos.address();
-        l.city = datos.city();
-        l.latitude = datos.latitude();
-        l.longitude = datos.longitude();
-        l.notes = datos.notes();
-        l.riskLevel = datos.riskLevel() == null || datos.riskLevel().isBlank() ? RIESGO_POR_DEFECTO : datos.riskLevel();
-        l.isActive = datos.isActive() == null || datos.isActive();
+        l.name = data.name();
+        l.address = data.address();
+        l.city = data.city();
+        l.latitude = data.latitude();
+        l.longitude = data.longitude();
+        l.notes = data.notes();
+        l.riskLevel = data.riskLevel() == null || data.riskLevel().isBlank() ? RIESGO_POR_DEFECTO : data.riskLevel();
+        l.isActive = data.isActive() == null || data.isActive();
         l.createdAt = ahora;
         return l;
     }
@@ -46,15 +46,15 @@ public class FrequentLocation {
     }
 
     /** Actualización parcial: la web usa PATCH y el móvil envía solo lo modificado. */
-    public void actualizar(DatosLugar datos, LocalDateTime ahora) {
-        if (datos.name() != null && !datos.name().isBlank()) name = datos.name();
-        if (datos.address() != null) address = datos.address();
-        if (datos.city() != null) city = datos.city();
-        if (datos.latitude() != null) latitude = datos.latitude();
-        if (datos.longitude() != null) longitude = datos.longitude();
-        if (datos.notes() != null) notes = datos.notes();
-        if (datos.riskLevel() != null && !datos.riskLevel().isBlank()) riskLevel = datos.riskLevel();
-        if (datos.isActive() != null) isActive = datos.isActive();
+    public void actualizar(DatosLugar data, LocalDateTime ahora) {
+        if (data.name() != null && !data.name().isBlank()) name = data.name();
+        if (data.address() != null) address = data.address();
+        if (data.city() != null) city = data.city();
+        if (data.latitude() != null) latitude = data.latitude();
+        if (data.longitude() != null) longitude = data.longitude();
+        if (data.notes() != null) notes = data.notes();
+        if (data.riskLevel() != null && !data.riskLevel().isBlank()) riskLevel = data.riskLevel();
+        if (data.isActive() != null) isActive = data.isActive();
         updatedAt = ahora;
     }
 

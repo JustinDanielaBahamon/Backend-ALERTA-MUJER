@@ -29,17 +29,17 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
     private final CuentaRepositorio cuentas;
     private final RecuperacionRepositorio solicitudes;
     private final CifradoPort cifrado;
-    private final EventosIdentidadPort eventos;
+    private final EventosIdentidadPort events;
     private final SecureRandom random = new SecureRandom();
 
     public RecuperacionContrasenaService(UsuariaRepositorio usuarias, CuentaRepositorio cuentas,
                                          RecuperacionRepositorio solicitudes, CifradoPort cifrado,
-                                         EventosIdentidadPort eventos) {
+                                         EventosIdentidadPort events) {
         this.usuarias = usuarias;
         this.cuentas = cuentas;
         this.solicitudes = solicitudes;
         this.cifrado = cifrado;
-        this.eventos = eventos;
+        this.events = events;
     }
 
     @Override
@@ -60,34 +60,34 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
         do {
             codigo = String.format("%06d", random.nextInt(1_000_000));
         } while (solicitudes.existeHash(RecoveryRequest.hash(accountId, codigo)));
-        solicitudes.guardar(RecoveryRequest.nueva(accountId, codigo, ip, ahora));
+        solicitudes.save(RecoveryRequest.nueva(accountId, codigo, ip, ahora));
 
         User u = usuaria.get();
-        eventos.codigoRecuperacion(u.getEmail(), u.nombreCompleto(), codigo, RecoveryRequest.MINUTOS_VALIDEZ);
+        events.codigoRecuperacion(u.getEmail(), u.nombreCompleto(), codigo, RecoveryRequest.MINUTOS_VALIDEZ);
     }
 
     @Override
     @Transactional(noRollbackFor = IllegalArgumentException.class)
     public void verificar(String email, String codigo) {
-        validar(email, codigo);
+        validate(email, codigo);
     }
 
     @Override
     @Transactional(noRollbackFor = IllegalArgumentException.class)
     public void restablecer(String email, String codigo, String nuevaContrasena) {
         Account.validarContrasenaNueva(nuevaContrasena);
-        RecoveryRequest solicitud = validar(email, codigo);
-        Account cuenta = cuentas.buscar(solicitud.getAccountId()).orElseThrow(() -> new IllegalArgumentException(CODIGO_INVALIDO));
+        RecoveryRequest solicitud = validate(email, codigo);
+        Account cuenta = cuentas.find(solicitud.getAccountId()).orElseThrow(() -> new IllegalArgumentException(CODIGO_INVALIDO));
         cuenta.cambiarContrasena(cifrado.cifrar(nuevaContrasena));
-        cuentas.guardar(cuenta);
+        cuentas.save(cuenta);
         solicitud.usar(LocalDateTime.now());
-        solicitudes.guardar(solicitud);
-        if (usuarias.buscar(cuenta.getUserId()).map(User::esAdmin).orElse(false)) {
-            eventos.sesionAdmin(cuenta.getId(), AdminSessionEvent.PASSWORD_CHANGED, "Recuperación por correo");
+        solicitudes.save(solicitud);
+        if (usuarias.find(cuenta.getUserId()).map(User::esAdmin).orElse(false)) {
+            events.sesionAdmin(cuenta.getId(), AdminSessionEvent.PASSWORD_CHANGED, "Recuperación por correo");
         }
     }
 
-    private RecoveryRequest validar(String email, String codigo) {
+    private RecoveryRequest validate(String email, String codigo) {
         if (codigo == null || !codigo.matches("\\d{6}")) throw new IllegalArgumentException(CODIGO_INVALIDO);
         Account cuenta = usuarias.porCorreo(normalizar(email))
                 .flatMap(u -> cuentas.deUsuaria(u.getId()))
@@ -98,12 +98,12 @@ public class RecuperacionContrasenaService implements RecuperarContrasenaUseCase
                 .orElseThrow(() -> new IllegalArgumentException(CODIGO_INVALIDO));
         if (solicitud.vencida(LocalDateTime.now())) {
             solicitud.expirar();
-            solicitudes.guardar(solicitud);
+            solicitudes.save(solicitud);
             throw new IllegalArgumentException(CODIGO_INVALIDO);
         }
         if (!solicitud.coincide(codigo)) {
             solicitud.registrarFallo();
-            solicitudes.guardar(solicitud);
+            solicitudes.save(solicitud);
             throw new IllegalArgumentException(CODIGO_INVALIDO);
         }
         return solicitud;

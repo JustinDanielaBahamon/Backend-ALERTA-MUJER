@@ -40,10 +40,10 @@ public class RpcServerController {
     @PostMapping("/{contrato}/{metodo}")
     public ResponseEntity<Object> invocar(@PathVariable String contrato, @PathVariable String metodo,
                                           @RequestBody JsonNode argumentos) throws Exception {
-        Class<?> tipo = contratos.get(contrato);
-        if (tipo == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorRemoto("NoExpuesto", contrato));
+        Class<?> type = contratos.get(contrato);
+        if (type == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorRemoto("NoExpuesto", contrato));
         int cantidad = argumentos == null ? 0 : argumentos.size();
-        Method m = Arrays.stream(tipo.getMethods())
+        Method m = Arrays.stream(type.getMethods())
                 .filter(x -> x.getName().equals(metodo) && x.getParameterCount() == cantidad)
                 .findFirst().orElse(null);
         if (m == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorRemoto("NoExiste", metodo));
@@ -54,7 +54,7 @@ public class RpcServerController {
                     json.getTypeFactory().constructType(m.getGenericParameterTypes()[i]));
         }
         try {
-            return ResponseEntity.ok(m.invoke(contexto.getBean(tipo), args));
+            return ResponseEntity.ok(m.invoke(contexto.getBean(type), args));
         } catch (InvocationTargetException e) {
             Throwable causa = e.getCause();
             return ResponseEntity.status(estadoDe(causa)).body(new ErrorRemoto(causa.getClass().getSimpleName(), causa.getMessage()));

@@ -1,7 +1,7 @@
 package com.alertamujer.alerts.application.service;
 
 import com.alertamujer.alerts.application.port.in.LugaresFrecuentesUseCase;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.LugarFrecuenteRepositorio;
 import com.alertamujer.alerts.domain.model.DatosLugar;
 import com.alertamujer.alerts.domain.model.FrequentLocation;
@@ -17,22 +17,22 @@ import java.util.List;
 @Service
 public class LugaresFrecuentesService implements LugaresFrecuentesUseCase {
 
-    private final LugarFrecuenteRepositorio repositorio;
-    private final IdentidadPort identidad;
+    private final LugarFrecuenteRepositorio repository;
+    private final IdentityPort identidad;
 
-    public LugaresFrecuentesService(LugarFrecuenteRepositorio repositorio, IdentidadPort identidad) {
-        this.repositorio = repositorio;
+    public LugaresFrecuentesService(LugarFrecuenteRepositorio repository, IdentityPort identidad) {
+        this.repository = repository;
         this.identidad = identidad;
     }
 
     @Override
     public List<FrequentLocation> activosDe(Long userId) {
-        return repositorio.activosDeLaUsuaria(identidad.perfilRequerido(userId));
+        return repository.activosDeLaUsuaria(identidad.perfilRequerido(userId));
     }
 
     @Override
     public FrequentLocation uno(Long id, Long userId) {
-        FrequentLocation lugar = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("FrequentLocation", id));
+        FrequentLocation lugar = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("FrequentLocation", id));
         if (!lugar.esDe(identidad.perfilRequerido(userId))) {
             throw new AccessDeniedException("No puedes acceder a ubicaciones frecuentes de otro usuario");
         }
@@ -41,22 +41,22 @@ public class LugaresFrecuentesService implements LugaresFrecuentesUseCase {
 
     @Override
     @Transactional
-    public FrequentLocation crear(DatosLugar datos, Long userId) {
+    public FrequentLocation create(DatosLugar data, Long userId) {
         // La dueña sale del JWT; se ignora cualquier perfil del body (evita IDOR)
-        return repositorio.guardar(FrequentLocation.nuevo(identidad.perfilRequerido(userId), datos, LocalDateTime.now()));
+        return repository.save(FrequentLocation.nuevo(identidad.perfilRequerido(userId), data, LocalDateTime.now()));
     }
 
     @Override
     @Transactional
-    public FrequentLocation actualizar(Long id, DatosLugar datos, Long userId) {
+    public FrequentLocation actualizar(Long id, DatosLugar data, Long userId) {
         FrequentLocation lugar = uno(id, userId);
-        lugar.actualizar(datos, LocalDateTime.now());
-        return repositorio.guardar(lugar);
+        lugar.actualizar(data, LocalDateTime.now());
+        return repository.save(lugar);
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id, Long userId) {
-        repositorio.eliminar(uno(id, userId).getId());
+    public void delete(Long id, Long userId) {
+        repository.delete(uno(id, userId).getId());
     }
 }

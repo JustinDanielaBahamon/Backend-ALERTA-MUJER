@@ -8,9 +8,9 @@ import java.util.Optional;
 /** Puerto de salida: las cuentas (credenciales y estado). */
 public interface CuentaRepositorio {
 
-    Account guardar(Account cuenta);
+    Account save(Account cuenta);
 
-    Optional<Account> buscar(Long id);
+    Optional<Account> find(Long id);
 
     Optional<Account> deUsuaria(Long userId);
 

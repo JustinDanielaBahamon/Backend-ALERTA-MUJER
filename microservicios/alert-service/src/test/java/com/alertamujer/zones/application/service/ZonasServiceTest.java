@@ -14,22 +14,22 @@ import static org.mockito.Mockito.*;
 
 class ZonasServiceTest {
 
-    private final ZonaRepositorio repositorio = mock(ZonaRepositorio.class);
-    private final ZonasService service = new ZonasService(repositorio);
+    private final ZonaRepositorio repository = mock(ZonaRepositorio.class);
+    private final ZonasService service = new ZonasService(repository);
 
     @Test
     void cuentaSoloLasZonasActivas() {
         Zone activa = new Zone();
         Zone inactiva = new Zone();
         inactiva.setIsActive(false);
-        when(repositorio.todas()).thenReturn(List.of(activa, inactiva));
+        when(repository.todas()).thenReturn(List.of(activa, inactiva));
 
         assertEquals(1, service.contarActivas());
     }
 
     @Test
     void editarUnaZonaInexistenteResponde404() {
-        when(repositorio.buscar(9L)).thenReturn(Optional.empty());
+        when(repository.find(9L)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> service.reemplazar(9L,
                 new DatosZona(null, "x", "risk", null, null, null, "x", null, null, null, null)));

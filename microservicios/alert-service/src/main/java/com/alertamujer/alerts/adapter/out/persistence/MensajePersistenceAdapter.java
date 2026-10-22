@@ -28,7 +28,7 @@ class MensajePersistenceAdapter implements MensajeRepositorio {
     }
 
     @Override
-    public AlertMessage guardar(AlertMessage mensaje) {
+    public AlertMessage save(AlertMessage mensaje) {
         return aDominio(jpa.save(aFila(mensaje)));
     }
 

@@ -19,7 +19,7 @@ class AdminUsuariasAdapter implements UsuariasPort {
     }
 
     @Override
-    public Optional<UserSummary> buscar(Long userId) {
+    public Optional<UserSummary> find(Long userId) {
         return identityApi.findUser(userId);
     }
 

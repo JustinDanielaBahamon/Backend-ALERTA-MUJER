@@ -24,5 +24,5 @@ public interface LlamadasUseCase {
 
     ResourceCall actualizar(Long id, String estado, LocalDateTime fin, Integer duracionSegundos, Long userId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 }

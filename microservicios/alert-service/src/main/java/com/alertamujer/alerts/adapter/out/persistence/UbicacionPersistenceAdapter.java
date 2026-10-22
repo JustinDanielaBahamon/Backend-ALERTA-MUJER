@@ -20,7 +20,7 @@ class UbicacionPersistenceAdapter implements UbicacionRepositorio {
     }
 
     @Override
-    public LocationLog guardar(LocationLog ubicacion) {
+    public LocationLog save(LocationLog ubicacion) {
         return aDominio(jpa.save(aFila(ubicacion)));
     }
 
@@ -36,18 +36,18 @@ class UbicacionPersistenceAdapter implements UbicacionRepositorio {
     }
 
     @Override
-    public List<LocationLog> deLaAlerta(Long alertId) {
+    public List<LocationLog> ofAlert(Long alertId) {
         return jpa.findByAlertIdOrderByRecordedAtAsc(alertId).stream().map(UbicacionPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public int borrarSinAlertaAntesDe(LocalDateTime fecha) {
-        return jpa.borrarSinAlertaAntesDe(fecha);
+    public int borrarSinAlertaAntesDe(LocalDateTime date) {
+        return jpa.borrarSinAlertaAntesDe(date);
     }
 
     @Override
-    public int borrarDeAlertasAntesDe(LocalDateTime fecha) {
-        return jpa.borrarDeAlertasAntesDe(fecha);
+    public int borrarDeAlertasAntesDe(LocalDateTime date) {
+        return jpa.borrarDeAlertasAntesDe(date);
     }
 
     static LocationLog aDominio(LocationLogJpaEntity f) {

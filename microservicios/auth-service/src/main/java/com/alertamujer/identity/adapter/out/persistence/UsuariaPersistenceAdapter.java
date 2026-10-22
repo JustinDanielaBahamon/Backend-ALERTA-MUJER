@@ -20,7 +20,7 @@ class UsuariaPersistenceAdapter implements UsuariaRepositorio {
     }
 
     @Override
-    public User guardar(User usuaria) {
+    public User save(User usuaria) {
         UserJpaEntity f = aFila(usuaria);
         f.setRole(roles.findById(usuaria.getRoleId())
                 .orElseThrow(() -> new IllegalStateException("No existe el rol " + usuaria.getRoleId())));
@@ -28,7 +28,7 @@ class UsuariaPersistenceAdapter implements UsuariaRepositorio {
     }
 
     @Override
-    public Optional<User> buscar(Long id) {
+    public Optional<User> find(Long id) {
         return jpa.findById(id).map(UsuariaPersistenceAdapter::aDominio);
     }
 

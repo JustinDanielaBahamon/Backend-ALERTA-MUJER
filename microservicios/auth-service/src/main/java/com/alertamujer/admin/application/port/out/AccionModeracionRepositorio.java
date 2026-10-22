@@ -10,5 +10,5 @@ public interface AccionModeracionRepositorio {
 
     List<ModerationAction> deCasos(Collection<Long> casoIds);
 
-    ModerationAction guardar(ModerationAction accion);
+    ModerationAction save(ModerationAction accion);
 }

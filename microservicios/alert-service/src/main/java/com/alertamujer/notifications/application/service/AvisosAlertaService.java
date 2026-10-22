@@ -5,11 +5,11 @@ import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.notifications.application.port.in.AvisarContactosUseCase;
 import com.alertamujer.notifications.application.port.in.SeguimientoPublicoUseCase;
 import com.alertamujer.notifications.application.port.out.AjustesPort;
-import com.alertamujer.notifications.application.port.out.AlertasPort;
+import com.alertamujer.notifications.application.port.out.AlertsPort;
 import com.alertamujer.notifications.application.port.out.CorreosPort;
 import com.alertamujer.notifications.application.port.out.CorreosPort.CorreoNoEnviadoException;
 import com.alertamujer.notifications.application.port.out.DispositivosPort;
-import com.alertamujer.notifications.application.port.out.IdentidadPort;
+import com.alertamujer.notifications.application.port.out.IdentityPort;
 import com.alertamujer.notifications.application.port.out.PushPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     static final String CANAL_CORREO = "email";
     static final String CANAL_PUSH = "push";
 
-    private final AlertasPort alertas;
-    private final IdentidadPort identidad;
+    private final AlertsPort alerts;
+    private final IdentityPort identidad;
     private final DispositivosPort dispositivos;
     private final AjustesPort ajustes;
     private final SeguimientoPublicoUseCase seguimiento;
@@ -41,10 +41,10 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
     private final PushPort push;
     private final String webBaseUrl;
 
-    public AvisosAlertaService(AlertasPort alertas, IdentidadPort identidad, DispositivosPort dispositivos,
+    public AvisosAlertaService(AlertsPort alerts, IdentityPort identidad, DispositivosPort dispositivos,
                                AjustesPort ajustes, SeguimientoPublicoUseCase seguimiento, CorreosPort correos,
                                PushPort push, @Value("${notifications.web-base-url:http://localhost:4200}") String webBaseUrl) {
-        this.alertas = alertas;
+        this.alerts = alerts;
         this.identidad = identidad;
         this.dispositivos = dispositivos;
         this.ajustes = ajustes;
@@ -56,40 +56,40 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
 
     @Override
     public void alertaActivada(Long alertId, Long perfilUsuaria, LocalDateTime inicio) {
-        List<AlertRecipient> envios = alertas.destinatarios(alertId);
+        List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
-        AlertSummary alerta = alertas.buscar(alertId).orElse(null);
-        String nombre = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
+        AlertSummary alert = alerts.find(alertId).orElse(null);
+        String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
         Map<Long, String> correoPorContacto = correosPorContacto(envios);
         // Un enlace por alerta: lo usan el correo (página web) y el push (pantalla de la app)
         String codigo = seguimiento.crearEnlace(alertId);
         String url = webBaseUrl + "/seguimiento/" + codigo;
         for (AlertRecipient envio : envios) {
             if (CANAL_CORREO.equals(envio.channel())) {
-                enviarCorreo(envio, nombre, inicio, alerta, url);
+                enviarCorreo(envio, name, inicio, alert, url);
             } else if (CANAL_PUSH.equals(envio.channel())) {
-                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), nombre, alertId, codigo);
+                enviarPush(envio, correoPorContacto.get(envio.emergencyContactId()), name, alertId, codigo);
             }
         }
     }
 
     @Override
     public void alertaTerminada(Long alertId, Long perfilUsuaria, String estado, LocalDateTime fin) {
-        List<AlertRecipient> envios = alertas.destinatarios(alertId);
+        List<AlertRecipient> envios = alerts.destinatarios(alertId);
         if (envios.isEmpty()) return;
-        String nombre = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
+        String name = identidad.nombreCompletoDelPerfil(perfilUsuaria).orElse(null);
         Map<Long, String> correoPorContacto = correosPorContacto(envios);
         for (AlertRecipient envio : envios) {
             try {
                 if (CANAL_CORREO.equals(envio.channel())) {
-                    correos.finDeAlerta(envio.destination(), envio.contactName(), nombre, estado, fin, ajustes.numeroEmergencia());
+                    correos.finDeAlerta(envio.destination(), envio.contactName(), name, estado, fin, ajustes.numeroEmergencia());
                 } else if (CANAL_PUSH.equals(envio.channel()) && envio.emergencyContactId() != null) {
                     List<String> tokens = tokensDelContacto(correoPorContacto.get(envio.emergencyContactId()));
                     if (!tokens.isEmpty()) {
                         push.enviar(tokens, Map.of(
                                 "tipo", "ALERTA_FINALIZADA",
                                 "alertaId", String.valueOf(alertId),
-                                "nombre", nombre == null ? "" : nombre,
+                                "nombre", name == null ? "" : name,
                                 "estado", estado));
                     }
                 }
@@ -104,32 +104,32 @@ public class AvisosAlertaService implements AvisarContactosUseCase {
         return "https://www.google.com/maps/search/?api=1&query=" + lat.toPlainString() + "," + lng.toPlainString();
     }
 
-    private void enviarCorreo(AlertRecipient envio, String nombre, LocalDateTime inicio, AlertSummary alerta, String url) {
-        String maps = alerta != null && alerta.latitude() != null && alerta.longitude() != null
-                ? googleMaps(alerta.latitude(), alerta.longitude()) : null;
+    private void enviarCorreo(AlertRecipient envio, String name, LocalDateTime inicio, AlertSummary alert, String url) {
+        String maps = alert != null && alert.latitude() != null && alert.longitude() != null
+                ? googleMaps(alert.latitude(), alert.longitude()) : null;
         try {
-            correos.avisoDeAlerta(envio.destination(), envio.contactName(), nombre, inicio, url, maps, ajustes.numeroEmergencia());
-            alertas.registrarEntrega(envio.id(), "sent", null);
+            correos.avisoDeAlerta(envio.destination(), envio.contactName(), name, inicio, url, maps, ajustes.numeroEmergencia());
+            alerts.registrarEntrega(envio.id(), "sent", null);
         } catch (CorreoNoEnviadoException e) {
-            alertas.registrarEntrega(envio.id(), "failed", e.getMessage());
+            alerts.registrarEntrega(envio.id(), "failed", e.getMessage());
         }
     }
 
-    private void enviarPush(AlertRecipient envio, String correoContacto, String nombre, Long alertId, String codigo) {
+    private void enviarPush(AlertRecipient envio, String correoContacto, String name, Long alertId, String codigo) {
         List<String> tokens = tokensDelContacto(correoContacto);
         if (tokens.isEmpty()) {
-            alertas.registrarEntrega(envio.id(), "failed", "El contacto no tiene la app con notificaciones activas");
+            alerts.registrarEntrega(envio.id(), "failed", "El contacto no tiene la app con notificaciones activas");
             return;
         }
         List<String> fallidos = push.enviar(tokens, Map.of(
                 "tipo", "ALERTA_SOS",
                 "alertaId", String.valueOf(alertId),
-                "nombre", nombre == null ? "" : nombre,
+                "nombre", name == null ? "" : name,
                 "codigo", codigo));
         if (fallidos.size() == tokens.size()) {
-            alertas.registrarEntrega(envio.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
+            alerts.registrarEntrega(envio.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
         } else {
-            alertas.registrarEntrega(envio.id(), "sent", null);
+            alerts.registrarEntrega(envio.id(), "sent", null);
         }
     }
 

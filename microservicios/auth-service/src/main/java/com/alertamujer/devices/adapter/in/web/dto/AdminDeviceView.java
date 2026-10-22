@@ -17,7 +17,7 @@ public record AdminDeviceView(Long id, Long accountId, Long userId, String owner
 
     public static AdminDeviceView of(DispositivoConDuena dc) {
         Device d = dc.dispositivo();
-        UserSummary u = dc.duena();
+        UserSummary u = dc.owner();
         return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.id() : null,
                 u == null ? null : u.fullName(), u != null ? u.email() : null, u != null ? u.telephone() : null,
                 d.getDeviceUuid(), d.getBrand(), d.getModel(), d.getOsName(), d.getOsVersion(),

@@ -22,7 +22,7 @@ public final class FotoDataUri {
      * Devuelve la foto lista para guardar: null si viene vacía (quitar la foto). Lanza
      * IllegalArgumentException (400) si no es una imagen válida o es demasiado grande.
      */
-    public static String validar(String foto) {
+    public static String validate(String foto) {
         if (foto == null || foto.isBlank()) return null;
         String valor = foto.trim();
         if (valor.length() > MAXIMO_CARACTERES) {

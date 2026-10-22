@@ -31,7 +31,7 @@ public class ConsultaIdentidadService implements ConsultarIdentidadUseCase {
     }
 
     @Override
-    public Optional<Long> perfilDe(Long userId) {
+    public Optional<Long> profileOf(Long userId) {
         return perfiles.deUsuaria(userId).map(UserProfile::getId);
     }
 
@@ -42,7 +42,7 @@ public class ConsultaIdentidadService implements ConsultarIdentidadUseCase {
 
     @Override
     public Optional<User> usuaria(Long userId) {
-        return userId == null ? Optional.empty() : usuarias.buscar(userId);
+        return userId == null ? Optional.empty() : usuarias.find(userId);
     }
 
     @Override
@@ -51,13 +51,13 @@ public class ConsultaIdentidadService implements ConsultarIdentidadUseCase {
     }
 
     @Override
-    public Optional<User> porPerfil(Long perfilId) {
-        return perfilId == null ? Optional.empty() : perfiles.buscar(perfilId).flatMap(p -> usuaria(p.getUserId()));
+    public Optional<User> byProfile(Long perfilId) {
+        return perfilId == null ? Optional.empty() : perfiles.find(perfilId).flatMap(p -> usuaria(p.getUserId()));
     }
 
     @Override
     public Optional<User> porCuenta(Long accountId) {
-        return accountId == null ? Optional.empty() : cuentas.buscar(accountId).flatMap(c -> usuaria(c.getUserId()));
+        return accountId == null ? Optional.empty() : cuentas.find(accountId).flatMap(c -> usuaria(c.getUserId()));
     }
 
     @Override

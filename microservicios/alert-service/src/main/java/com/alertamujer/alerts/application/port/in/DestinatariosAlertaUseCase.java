@@ -10,7 +10,7 @@ import java.util.List;
 public interface DestinatariosAlertaUseCase {
 
     /** Contactos avisados en la alerta, con el estado de cada canal. */
-    List<ContactoNotificado> contactosDe(Alert alerta);
+    List<ContactoNotificado> contactosDe(Alert alert);
 
     /** Envíos registrados de la alerta (para el módulo de notificaciones). */
     List<AlertRecipient> destinatarios(Long alertId);

@@ -4,39 +4,39 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Evidencia de una alerta (foto, video, audio o documento). Es el modelo del dominio: no conoce la
- * base de datos ni Spring, y guarda las reglas propias de una evidencia (qué archivos se aceptan,
- * cómo se renombra, cuándo vence).
+ * Evidence of an alert (photo, video, audio or document). It is the domain model: it knows neither the
+ * database nor Spring, and holds the evidence rules (which files are accepted, how it is renamed,
+ * when it expires).
  */
 public class Evidence {
 
-    /** Revisión de la administración. */
+    /** Review by the administration. */
     public static final Set<String> REVISIONES = Set.of("pending", "verified", "rejected");
 
-    // SVG/HTML quedan fuera a propósito: pueden ejecutar scripts al abrirse
+    // SVG/HTML are left out on purpose: they can run scripts when opened
     private static final Set<String> DOCUMENTOS = Set.of("application/pdf");
-    private static final int MAX_NOMBRE = 80;
+    private static final int MAX_NAME_LENGTH = 80;
 
     private Long id;
     private Long alertId;
     /** photo | video | audio | document */
     private String mediaType;
-    /** Ruta de la API para obtener el archivo (nunca una URL pública). */
+    /** API path to get the file (never a public URL). */
     private String fileUrl;
     private String fileName;
     private String contentType;
     private Long sizeBytes;
-    /** Huella del archivo para demostrar que no fue alterado. */
+    /** File fingerprint to prove it was not altered. */
     private String sha256;
-    /** Nombre del archivo en el almacenamiento. Interno: no se expone. */
+    /** File name in the storage. Internal: never exposed. */
     private String storageKey;
     private String reviewStatus = "pending";
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    /** Tipo de evidencia según el archivo; rechaza lo que no es foto, video, audio o PDF. */
-    public static String tipoDe(String contentType) {
+    /** Evidence type based on the file; rejects anything that is not a photo, video, audio or PDF. */
+    public static String typeOf(String contentType) {
         String c = contentType == null ? "" : contentType.toLowerCase();
         if (c.startsWith("image/") && !c.contains("svg")) return "photo";
         if (c.startsWith("video/")) return "video";
@@ -45,41 +45,41 @@ public class Evidence {
         throw new IllegalArgumentException("Tipo de archivo no permitido. Sube una foto, video, audio o PDF.");
     }
 
-    /** Nombre legible del archivo original; nunca se usa como ruta en el almacenamiento. */
-    public static String nombreSeguro(String original, String mediaType) {
-        String nombre = original == null ? "" : original.replaceAll("[\\\\/\\r\\n\"]", "_").trim();
-        if (nombre.isEmpty()) nombre = mediaType;
-        return nombre.length() > 200 ? nombre.substring(nombre.length() - 200) : nombre;
+    /** Readable name of the original file; never used as a storage path. */
+    public static String safeName(String original, String mediaType) {
+        String name = original == null ? "" : original.replaceAll("[\\\\/\\r\\n\"]", "_").trim();
+        if (name.isEmpty()) name = mediaType;
+        return name.length() > 200 ? name.substring(name.length() - 200) : name;
     }
 
-    /** Cambia el nombre que ve la usuaria y conserva la extensión (el archivo y su huella no cambian). */
-    public void renombrar(String nombre) {
-        String limpio = nombre == null ? "" : nombre.replaceAll("[\\\\/\\r\\n\"<>]", " ").trim().replaceAll("\\s+", " ");
+    /** Changes the name the user sees and keeps the extension (the file and its fingerprint do not change). */
+    public void renombrar(String name) {
+        String limpio = name == null ? "" : name.replaceAll("[\\\\/\\r\\n\"<>]", " ").trim().replaceAll("\\s+", " ");
         if (limpio.isEmpty()) throw new IllegalArgumentException("Escribe un nombre para la evidencia");
-        if (limpio.length() > MAX_NOMBRE) {
-            throw new IllegalArgumentException("El nombre puede tener máximo " + MAX_NOMBRE + " caracteres");
+        if (limpio.length() > MAX_NAME_LENGTH) {
+            throw new IllegalArgumentException("El nombre puede tener máximo " + MAX_NAME_LENGTH + " caracteres");
         }
         String extension = extension(fileName);
         if (!extension.isEmpty() && !limpio.toLowerCase().endsWith(extension.toLowerCase())) limpio += extension;
         this.fileName = limpio;
     }
 
-    public void cambiarRevision(String revision) {
-        if (revision == null || !REVISIONES.contains(revision)) {
-            throw new IllegalArgumentException("Estado de revisión no válido: " + revision);
+    public void changeReview(String review) {
+        if (review == null || !REVISIONES.contains(review)) {
+            throw new IllegalArgumentException("Estado de revisión no válido: " + review);
         }
-        this.reviewStatus = revision;
+        this.reviewStatus = review;
     }
 
-    /** true si la evidencia tiene un archivo guardado (las antiguas solo tenían una URL). */
-    public boolean tieneArchivo() {
+    /** true if the evidence has a stored file (old ones only had a URL). */
+    public boolean hasFile() {
         return storageKey != null;
     }
 
-    private static String extension(String nombre) {
-        if (nombre == null) return "";
-        int punto = nombre.lastIndexOf('.');
-        return punto > 0 && nombre.length() - punto <= 6 ? nombre.substring(punto) : "";
+    private static String extension(String name) {
+        if (name == null) return "";
+        int punto = name.lastIndexOf('.');
+        return punto > 0 && name.length() - punto <= 6 ? name.substring(punto) : "";
     }
 
     // ── Datos ───────────────────────────────────────────────────────

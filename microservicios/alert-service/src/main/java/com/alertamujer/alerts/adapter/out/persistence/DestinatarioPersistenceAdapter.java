@@ -23,17 +23,17 @@ class DestinatarioPersistenceAdapter implements DestinatarioRepositorio {
     }
 
     @Override
-    public AlertContact guardar(AlertContact destinatario) {
+    public AlertContact save(AlertContact destinatario) {
         return aDominio(jpa.save(aFila(destinatario)));
     }
 
     @Override
-    public Optional<AlertContact> buscar(Long id) {
+    public Optional<AlertContact> find(Long id) {
         return jpa.findById(id).map(DestinatarioPersistenceAdapter::aDominio);
     }
 
     @Override
-    public List<AlertContact> deLaAlerta(Long alertId) {
+    public List<AlertContact> ofAlert(Long alertId) {
         return jpa.findByAlertId(alertId).stream().map(DestinatarioPersistenceAdapter::aDominio).toList();
     }
 

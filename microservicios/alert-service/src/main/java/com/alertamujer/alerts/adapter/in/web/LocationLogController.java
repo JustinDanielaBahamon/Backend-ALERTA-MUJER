@@ -34,7 +34,7 @@ public class LocationLogController {
     public ResponseEntity<LocationLogResponse> saveLocation(@RequestBody LocationLogRequest request,
                                                             @AuthenticationPrincipal Long currentUserId) {
         // 202: llegó bien pero no se guarda (es de un celular que no es el principal)
-        return ubicaciones.guardar(request.aNueva(), currentUserId)
+        return ubicaciones.save(request.aNueva(), currentUserId)
                 .map(l -> ResponseEntity.ok(LocationLogResponse.of(l)))
                 .orElse(ResponseEntity.accepted().build());
     }
@@ -77,7 +77,7 @@ public class LocationLogController {
     public ResponseEntity<List<LocationLogResponse>> getByAlert(@PathVariable Long alertId,
                                                                 @AuthenticationPrincipal Long currentUserId,
                                                                 Authentication authentication) {
-        return ResponseEntity.ok(ubicaciones.deLaAlerta(alertId, currentUserId, Autorizacion.esAdmin(authentication)).stream()
+        return ResponseEntity.ok(ubicaciones.ofAlert(alertId, currentUserId, Autorizacion.esAdmin(authentication)).stream()
                 .map(LocationLogResponse::of).toList());
     }
 }

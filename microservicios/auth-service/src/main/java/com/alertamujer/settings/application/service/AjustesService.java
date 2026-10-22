@@ -14,10 +14,10 @@ import java.time.LocalDateTime;
 @Service
 public class AjustesService implements AdministrarAjustesUseCase, ConsultarAjustesUseCase {
 
-    private final ConfiguracionRepositorio repositorio;
+    private final ConfiguracionRepositorio repository;
 
-    public AjustesService(ConfiguracionRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public AjustesService(ConfiguracionRepositorio repository) {
+        this.repository = repository;
     }
 
     @Override
@@ -32,9 +32,9 @@ public class AjustesService implements AdministrarAjustesUseCase, ConsultarAjust
         SystemConfiguration c = existente();
         LocalDateTime ahora = LocalDateTime.now();
         c.actualizar(cambios, adminUserId, ahora);
-        SystemConfiguration guardada = repositorio.guardar(c);
-        guardada.setUpdatedAt(ahora);
-        return guardada;
+        SystemConfiguration saved = repository.save(c);
+        saved.setUpdatedAt(ahora);
+        return saved;
     }
 
     @Override
@@ -46,22 +46,22 @@ public class AjustesService implements AdministrarAjustesUseCase, ConsultarAjust
     @Override
     @Transactional(readOnly = true)
     public int duracionMaximaAlertaMinutos() {
-        return repositorio.actual().map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
+        return repository.actual().map(SystemConfiguration::getSosMaxDurationMinutes).orElse(0);
     }
 
     @Override
     @Transactional(readOnly = true)
     public String numeroEmergencia() {
-        return repositorio.actual().map(SystemConfiguration::getEmergencyPhoneNumber).orElse("123");
+        return repository.actual().map(SystemConfiguration::getEmergencyPhoneNumber).orElse("123");
     }
 
     @Override
     @Transactional(readOnly = true)
     public int maximoContactos() {
-        return repositorio.actual().map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);
+        return repository.actual().map(SystemConfiguration::getMaxEmergencyContacts).orElse(5);
     }
 
     private SystemConfiguration existente() {
-        return repositorio.actual().orElseThrow(() -> new IllegalStateException("Falta la configuración del sistema"));
+        return repository.actual().orElseThrow(() -> new IllegalStateException("Falta la configuración del sistema"));
     }
 }

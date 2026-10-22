@@ -11,13 +11,13 @@ public interface ContactoRepositorio {
 
     List<EmergencyContact> todos();
 
-    Optional<EmergencyContact> buscar(Long id);
+    Optional<EmergencyContact> find(Long id);
 
     List<EmergencyContact> buscarVarios(Collection<Long> ids);
 
-    List<EmergencyContact> deLaUsuaria(Long perfil);
+    List<EmergencyContact> ofUser(Long perfil);
 
-    EmergencyContact guardar(EmergencyContact contacto);
+    EmergencyContact save(EmergencyContact contacto);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

@@ -3,8 +3,8 @@ package com.alertamujer.notifications.application.service;
 import com.alertamujer.alerts.api.AlertSummary;
 import com.alertamujer.notifications.application.port.in.AlertasRecibidasUseCase.ReceivedAlert;
 import com.alertamujer.notifications.application.port.in.SeguimientoPublicoUseCase;
-import com.alertamujer.notifications.application.port.out.AlertasPort;
-import com.alertamujer.notifications.application.port.out.IdentidadPort;
+import com.alertamujer.notifications.application.port.out.AlertsPort;
+import com.alertamujer.notifications.application.port.out.IdentityPort;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,27 +21,27 @@ class AlertasRecibidasServiceTest {
 
     private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
 
-    private final AlertasPort alertas = mock(AlertasPort.class);
-    private final IdentidadPort identidad = mock(IdentidadPort.class);
+    private final AlertsPort alerts = mock(AlertsPort.class);
+    private final IdentityPort identidad = mock(IdentityPort.class);
     private final SeguimientoPublicoUseCase seguimiento = mock(SeguimientoPublicoUseCase.class);
-    private final AlertasRecibidasService service = new AlertasRecibidasService(alertas, identidad, seguimiento);
+    private final AlertasRecibidasService service = new AlertasRecibidasService(alerts, identidad, seguimiento);
 
-    private static AlertSummary alerta(Long id, Long perfil, String estado, LocalDateTime inicio, LocalDateTime fin) {
+    private static AlertSummary alert(Long id, Long perfil, String estado, LocalDateTime inicio, LocalDateTime fin) {
         return new AlertSummary(id, perfil, "main", "panic_button", estado, null, inicio, null, null, fin, null);
     }
 
     @BeforeEach
     void setUp() {
         when(identidad.correoDe(1L)).thenReturn(Optional.of("bea@correo.com"));
-        when(identidad.perfilDe(1L)).thenReturn(Optional.of(11L));
+        when(identidad.profileOf(1L)).thenReturn(Optional.of(11L));
         when(identidad.nombreDePilaDelPerfil(10L)).thenReturn(Optional.of("Ana"));
-        when(alertas.avisadasA("bea@correo.com")).thenReturn(List.of(1L, 2L, 3L, 4L, 5L));
-        when(alertas.buscarVarias(List.of(1L, 2L, 3L, 4L, 5L))).thenReturn(List.of(
-                alerta(1L, 10L, "resolved", AHORA.minusDays(2), AHORA.minusDays(2).plusHours(1)),
-                alerta(2L, 10L, "active", AHORA.minusMinutes(5), null),
-                alerta(3L, 11L, "active", AHORA.minusMinutes(1), null),      // propia
-                alerta(4L, 10L, "resolved", AHORA.minusDays(40), AHORA.minusDays(40)),  // vieja
-                alerta(5L, 10L, "cancelled", AHORA.minusHours(1), AHORA.minusMinutes(30))));
+        when(alerts.avisadasA("bea@correo.com")).thenReturn(List.of(1L, 2L, 3L, 4L, 5L));
+        when(alerts.findMany(List.of(1L, 2L, 3L, 4L, 5L))).thenReturn(List.of(
+                alert(1L, 10L, "resolved", AHORA.minusDays(2), AHORA.minusDays(2).plusHours(1)),
+                alert(2L, 10L, "active", AHORA.minusMinutes(5), null),
+                alert(3L, 11L, "active", AHORA.minusMinutes(1), null),      // propia
+                alert(4L, 10L, "resolved", AHORA.minusDays(40), AHORA.minusDays(40)),  // vieja
+                alert(5L, 10L, "cancelled", AHORA.minusHours(1), AHORA.minusMinutes(30))));
     }
 
     @Test

@@ -30,16 +30,16 @@ public class MiCuentaService implements MiCuentaUseCase {
     private final PerfilRepositorio perfiles;
     private final CuentaRepositorio cuentas;
     private final CifradoPort cifrado;
-    private final EventosIdentidadPort eventos;
+    private final EventosIdentidadPort events;
     private final AdministrarCuentasUseCase administracion;
 
     public MiCuentaService(UsuariaRepositorio usuarias, PerfilRepositorio perfiles, CuentaRepositorio cuentas,
-                           CifradoPort cifrado, EventosIdentidadPort eventos, AdministrarCuentasUseCase administracion) {
+                           CifradoPort cifrado, EventosIdentidadPort events, AdministrarCuentasUseCase administracion) {
         this.usuarias = usuarias;
         this.perfiles = perfiles;
         this.cuentas = cuentas;
         this.cifrado = cifrado;
-        this.eventos = eventos;
+        this.events = events;
         this.administracion = administracion;
     }
 
@@ -55,14 +55,14 @@ public class MiCuentaService implements MiCuentaUseCase {
         cambios = sinRepetidos(usuaria, cambios);
         // La foto se valida antes de guardar nada: "" o null la quitan
         if (cambios.profilePhoto() != null) {
-            String valida = FotoDataUri.validar(cambios.profilePhoto().orElse(null));
+            String valida = FotoDataUri.validate(cambios.profilePhoto().orElse(null));
             perfiles.deUsuaria(userId).ifPresent(p -> {
                 p.setProfilePhotoUrl(valida);
-                perfiles.guardar(p);
+                perfiles.save(p);
             });
         }
         usuaria.actualizarDatos(cambios);
-        return new UsuariaConFoto(usuarias.guardar(usuaria), foto(userId));
+        return new UsuariaConFoto(usuarias.save(usuaria), foto(userId));
     }
 
     /**
@@ -98,9 +98,9 @@ public class MiCuentaService implements MiCuentaUseCase {
             throw new IllegalArgumentException("La nueva contraseña debe ser distinta de la actual");
         }
         cuenta.cambiarContrasena(cifrado.cifrar(nueva));
-        cuentas.guardar(cuenta);
-        if (usuarias.buscar(userId).map(User::esAdmin).orElse(false)) {
-            eventos.sesionAdmin(cuenta.getId(), AdminSessionEvent.PASSWORD_CHANGED, null);
+        cuentas.save(cuenta);
+        if (usuarias.find(userId).map(User::esAdmin).orElse(false)) {
+            events.sesionAdmin(cuenta.getId(), AdminSessionEvent.PASSWORD_CHANGED, null);
         }
     }
 
@@ -119,7 +119,7 @@ public class MiCuentaService implements MiCuentaUseCase {
     }
 
     private User existente(Long userId) {
-        return usuarias.buscar(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        return usuarias.find(userId).orElseThrow(() -> new ResourceNotFoundException("User", userId));
     }
 
     private String foto(Long userId) {

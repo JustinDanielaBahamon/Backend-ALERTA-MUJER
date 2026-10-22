@@ -12,7 +12,7 @@ import java.util.List;
 public interface AdministrarAlertasUseCase {
 
     /** Todas las alertas con la usuaria que la activó, de la más reciente a la más antigua. */
-    List<AdminAlertView> listar();
+    List<AdminAlertView> listAll();
 
     /** Cambia el estado de cualquier alerta, por ejemplo a "resolved" (atendida). */
     Alert cambiarEstado(Long id, String estado);

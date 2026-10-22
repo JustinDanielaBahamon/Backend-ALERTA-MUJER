@@ -28,7 +28,7 @@ class RecuperacionContrasenaServiceTest {
     @Mock private CuentaRepositorio cuentas;
     @Mock private RecuperacionRepositorio solicitudes;
     @Mock private CifradoPort cifrado;
-    @Mock private EventosIdentidadPort eventos;
+    @Mock private EventosIdentidadPort events;
 
     @InjectMocks private RecuperacionContrasenaService service;
 
@@ -44,7 +44,7 @@ class RecuperacionContrasenaServiceTest {
         cuenta.setId(4L);
         lenient().when(usuarias.porCorreo("ana@correo.com")).thenReturn(Optional.of(ana));
         lenient().when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
-        lenient().when(cuentas.buscar(4L)).thenReturn(Optional.of(cuenta));
+        lenient().when(cuentas.find(4L)).thenReturn(Optional.of(cuenta));
         lenient().when(solicitudes.pendientesDeCuenta(4L)).thenAnswer(inv -> List.copyOf(pendientes));
     }
 
@@ -59,12 +59,12 @@ class RecuperacionContrasenaServiceTest {
         service.solicitar(" ana@correo.com ", "1.2.3.4");
 
         ArgumentCaptor<String> codigo = ArgumentCaptor.forClass(String.class);
-        verify(eventos).codigoRecuperacion(eq("ana@correo.com"), eq("Ana Gómez"), codigo.capture(), eq(15));
+        verify(events).codigoRecuperacion(eq("ana@correo.com"), eq("Ana Gómez"), codigo.capture(), eq(15));
         assertTrue(codigo.getValue().matches("\\d{6}"));
-        ArgumentCaptor<RecoveryRequest> guardada = ArgumentCaptor.forClass(RecoveryRequest.class);
-        verify(solicitudes).guardar(guardada.capture());
-        assertEquals(RecoveryRequest.hash(4L, codigo.getValue()), guardada.getValue().getTokenHash());
-        assertEquals("1.2.3.4", guardada.getValue().getRequestedIp());
+        ArgumentCaptor<RecoveryRequest> saved = ArgumentCaptor.forClass(RecoveryRequest.class);
+        verify(solicitudes).save(saved.capture());
+        assertEquals(RecoveryRequest.hash(4L, codigo.getValue()), saved.getValue().getTokenHash());
+        assertEquals("1.2.3.4", saved.getValue().getRequestedIp());
     }
 
     @Test
@@ -75,20 +75,20 @@ class RecuperacionContrasenaServiceTest {
         cuenta.cambiarEstado("blocked");
         service.solicitar("ana@correo.com", null);
 
-        verifyNoInteractions(eventos);
-        verify(solicitudes, never()).guardar(any());
+        verifyNoInteractions(events);
+        verify(solicitudes, never()).save(any());
     }
 
     @Test
     void noEnviaOtroCodigoAntesDeUnMinutoYElNuevoReemplazaAlAnterior() {
         RecoveryRequest reciente = pendiente("111111", LocalDateTime.now().minusSeconds(10));
         service.solicitar("ana@correo.com", null);
-        verifyNoInteractions(eventos);
+        verifyNoInteractions(events);
 
         reciente.setCreatedAt(LocalDateTime.now().minusMinutes(2));
         service.solicitar("ana@correo.com", null);
         assertEquals("replaced", reciente.getStatus());
-        verify(eventos).codigoRecuperacion(anyString(), anyString(), anyString(), anyInt());
+        verify(events).codigoRecuperacion(anyString(), anyString(), anyString(), anyInt());
     }
 
     @Test

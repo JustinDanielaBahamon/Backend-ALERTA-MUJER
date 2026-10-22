@@ -3,7 +3,7 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.alerts.application.port.out.AjustesPort;
 import com.alertamujer.alerts.application.port.out.CelularesPort;
 import com.alertamujer.alerts.application.port.out.ContactoRepositorio;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.domain.model.DatosContacto;
 import com.alertamujer.alerts.domain.model.EmergencyContact;
 import com.alertamujer.shared.exception.AccessDeniedException;
@@ -26,8 +26,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ContactosEmergenciaServiceTest {
 
-    @Mock private ContactoRepositorio repositorio;
-    @Mock private IdentidadPort identidad;
+    @Mock private ContactoRepositorio repository;
+    @Mock private IdentityPort identidad;
     @Mock private AjustesPort ajustes;
     @Mock private CelularesPort celulares;
 
@@ -37,16 +37,16 @@ class ContactosEmergenciaServiceTest {
 
     @BeforeEach
     void setUp() {
-        lenient().when(identidad.perfilDe(1L)).thenReturn(Optional.of(10L));
+        lenient().when(identidad.profileOf(1L)).thenReturn(Optional.of(10L));
     }
 
     @Test
     void crear_permiteHastaElLimiteYLaDuenaSaleDelToken() {
         when(ajustes.maximoContactos()).thenReturn(5);
-        when(repositorio.deLaUsuaria(10L)).thenReturn(Collections.nCopies(4, new EmergencyContact()));
-        when(repositorio.guardar(any(EmergencyContact.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.ofUser(10L)).thenReturn(Collections.nCopies(4, new EmergencyContact()));
+        when(repository.save(any(EmergencyContact.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        EmergencyContact creado = service.crear(EVA, 1L);
+        EmergencyContact creado = service.create(EVA, 1L);
 
         assertEquals(10L, creado.getUserProfileId());
         assertEquals("Eva", creado.getContactName());
@@ -54,7 +54,7 @@ class ContactosEmergenciaServiceTest {
 
     @Test
     void estadoApp_distingueConAppSinCelularYSinCuenta() {
-        when(repositorio.deLaUsuaria(10L)).thenReturn(List.of(
+        when(repository.ofUser(10L)).thenReturn(List.of(
                 contacto(1L, "eva@correo.com"), contacto(2L, "ana@correo.com"), contacto(3L, "nadie@correo.com"), contacto(4L, null)));
         when(identidad.usuariaPorCorreo("eva@correo.com")).thenReturn(Optional.of(50L));
         when(identidad.usuariaPorCorreo("ana@correo.com")).thenReturn(Optional.of(60L));
@@ -74,47 +74,47 @@ class ContactosEmergenciaServiceTest {
     @Test
     void crear_rechazaAlSuperarElLimite() {
         when(ajustes.maximoContactos()).thenReturn(5);
-        when(repositorio.deLaUsuaria(10L)).thenReturn(Collections.nCopies(5, new EmergencyContact()));
+        when(repository.ofUser(10L)).thenReturn(Collections.nCopies(5, new EmergencyContact()));
 
-        assertThrows(IllegalArgumentException.class, () -> service.crear(EVA, 1L));
-        verify(repositorio, never()).guardar(any());
+        assertThrows(IllegalArgumentException.class, () -> service.create(EVA, 1L));
+        verify(repository, never()).save(any());
     }
 
     @Test
     void crear_rechazaUnaFotoQueNoEsImagen() {
         when(ajustes.maximoContactos()).thenReturn(5);
-        when(repositorio.deLaUsuaria(10L)).thenReturn(List.of());
+        when(repository.ofUser(10L)).thenReturn(List.of());
 
         assertThrows(IllegalArgumentException.class,
-                () -> service.crear(new DatosContacto("Eva", null, null, null, "<script>"), 1L));
-        verify(repositorio, never()).guardar(any());
+                () -> service.create(new DatosContacto("Eva", null, null, null, "<script>"), 1L));
+        verify(repository, never()).save(any());
     }
 
     @Test
     void actualizarOEliminarUnContactoAjenoSeRechaza() {
         EmergencyContact ajeno = EmergencyContact.nuevo(20L, EVA);
         ajeno.setId(3L);
-        when(repositorio.buscar(3L)).thenReturn(Optional.of(ajeno));
+        when(repository.find(3L)).thenReturn(Optional.of(ajeno));
 
         assertThrows(AccessDeniedException.class, () -> service.actualizar(3L, EVA, 1L));
-        assertThrows(AccessDeniedException.class, () -> service.eliminar(3L, 1L));
-        verify(repositorio, never()).guardar(any());
-        verify(repositorio, never()).eliminar(any());
+        assertThrows(AccessDeniedException.class, () -> service.delete(3L, 1L));
+        verify(repository, never()).save(any());
+        verify(repository, never()).delete(any());
     }
 
     @Test
     void deUsuaria_losDeOtraUsuariaNoLosVeNadie() {
         // Ni siquiera la administración: son datos de terceros (auditoría S2)
         assertThrows(AccessDeniedException.class, () -> service.deUsuaria(5L, 1L));
-        verify(repositorio, never()).deLaUsuaria(5L);
+        verify(repository, never()).ofUser(5L);
     }
 
     @Test
     void uno_soloDevuelveLosPropios() {
         EmergencyContact propio = EmergencyContact.nuevo(10L, EVA);
         EmergencyContact ajeno = EmergencyContact.nuevo(20L, EVA);
-        when(repositorio.buscar(1L)).thenReturn(Optional.of(propio));
-        when(repositorio.buscar(2L)).thenReturn(Optional.of(ajeno));
+        when(repository.find(1L)).thenReturn(Optional.of(propio));
+        when(repository.find(2L)).thenReturn(Optional.of(ajeno));
 
         assertTrue(service.uno(1L, 1L).isPresent());
         assertTrue(service.uno(2L, 1L).isEmpty());

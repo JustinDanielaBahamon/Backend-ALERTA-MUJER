@@ -20,9 +20,9 @@ public class CodigoRecuperacionService implements EnviarCodigoRecuperacionUseCas
     }
 
     @Override
-    public void enviar(String correo, String nombre, String codigo, int minutosValidez) {
+    public void enviar(String correo, String name, String codigo, int minutosValidez) {
         try {
-            correos.codigoRecuperacion(correo, nombre, codigo, minutosValidez);
+            correos.codigoRecuperacion(correo, name, codigo, minutosValidez);
         } catch (CorreoNoEnviadoException e) {
             log.warn("No se pudo enviar el código de recuperación: {}", e.getMessage());
         }

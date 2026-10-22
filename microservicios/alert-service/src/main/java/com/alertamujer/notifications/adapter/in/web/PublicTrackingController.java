@@ -61,19 +61,19 @@ public class PublicTrackingController {
      * que vence en minutos; en disco entrega el archivo (con Range, para adelantar).
      */
     @GetMapping("/api/public/tracking/{codigo}/evidence/{id}")
-    public ResponseEntity<Resource> evidencia(@PathVariable String codigo, @PathVariable Long id) {
-        EvidenceApi.EvidenceFile archivo = seguimiento.evidencia(codigo, id, LocalDateTime.now());
-        if (archivo.enlaceTemporal().isPresent()) {
+    public ResponseEntity<Resource> evidence(@PathVariable String codigo, @PathVariable Long id) {
+        EvidenceApi.EvidenceFile file = seguimiento.evidence(codigo, id, LocalDateTime.now());
+        if (file.temporaryLink().isPresent()) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(archivo.enlaceTemporal().get())
+                    .location(file.temporaryLink().get())
                     .cacheControl(CacheControl.noStore())
                     .build();
         }
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(archivo.contentType()))
+                .contentType(MediaType.parseMediaType(file.contentType()))
                 .header("X-Content-Type-Options", "nosniff")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
                 .cacheControl(CacheControl.noStore())
-                .body(archivo.resource());
+                .body(file.resource());
     }
 }

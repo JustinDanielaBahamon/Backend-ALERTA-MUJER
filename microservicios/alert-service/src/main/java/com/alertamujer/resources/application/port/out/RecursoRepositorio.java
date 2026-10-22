@@ -10,13 +10,13 @@ public interface RecursoRepositorio {
 
     List<EmergencyResource> todos();
 
-    Optional<EmergencyResource> buscar(Long id);
+    Optional<EmergencyResource> find(Long id);
 
     List<EmergencyResource> deCiudad(String ciudad);
 
-    List<EmergencyResource> deTipo(String tipo);
+    List<EmergencyResource> deTipo(String type);
 
-    EmergencyResource guardar(EmergencyResource recurso);
+    EmergencyResource save(EmergencyResource recurso);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

@@ -1,6 +1,6 @@
 package com.alertamujer.evidence.adapter.out.storage;
 
-import com.alertamujer.evidence.application.port.out.AlmacenamientoEvidencias;
+import com.alertamujer.evidence.application.port.out.EvidenceStorage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +40,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Evidencias en un almacenamiento compatible con S3: Backblaze B2 en producción y MinIO en local.
- * El bucket es privado; los archivos solo se leen por la API o con enlaces firmados que vencen.
+ * Evidence in S3-compatible storage: Backblaze B2 in production and MinIO locally.
+ * The bucket is private; files are only read through the API or with signed links that expire.
  */
 @Component
 @ConditionalOnProperty(name = "evidence.storage", havingValue = "s3")
-public class S3EvidenceStorage implements AlmacenamientoEvidencias {
+public class S3EvidenceStorage implements EvidenceStorage {
 
     private static final Logger log = LoggerFactory.getLogger(S3EvidenceStorage.class);
     private static final String PREFIJO = "evidencias/";
@@ -59,47 +59,47 @@ public class S3EvidenceStorage implements AlmacenamientoEvidencias {
                              @Value("${evidence.s3.bucket}") String bucket,
                              @Value("${evidence.s3.access-key}") String accessKey,
                              @Value("${evidence.s3.secret-key}") String secretKey,
-                             @Value("${evidence.s3.create-bucket:false}") boolean crearBucket,
+                             @Value("${evidence.s3.create-bucket:false}") boolean createBucket,
                              @Value("${evidence.s3.public-endpoint:}") String endpointPublico) {
         if (endpoint.isBlank() || bucket.isBlank() || accessKey.isBlank() || secretKey.isBlank()) {
             throw new IllegalStateException("evidence.storage=s3 requiere EVIDENCE_S3_ENDPOINT, _BUCKET, _ACCESS_KEY y _SECRET_KEY");
         }
         var credenciales = StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         // Rutas tipo endpoint/bucket/clave: las aceptan B2 y MinIO
-        var configuracion = S3Configuration.builder().pathStyleAccessEnabled(true).build();
+        var config = S3Configuration.builder().pathStyleAccessEnabled(true).build();
         this.s3 = S3Client.builder()
                 .httpClient(UrlConnectionHttpClient.create())
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.of(region))
                 .credentialsProvider(credenciales)
-                .serviceConfiguration(configuracion)
-                // Las sumas CRC32 automáticas del SDK nuevo no las aceptan todos los proveedores
+                .serviceConfiguration(config)
+                // Not every provider accepts the automatic CRC32 checksums of the new SDK
                 .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
                 .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
                 .build();
-        // Los enlaces firmados los abre el navegador del contacto: en Docker local el backend ve
-        // "minio:9000" pero el navegador "localhost:9000"
+        // Signed links are opened by the contact's browser: in local Docker the backend sees
+        // "minio:9000" but the browser sees "localhost:9000"
         this.presigner = S3Presigner.builder()
                 .endpointOverride(URI.create(endpointPublico.isBlank() ? endpoint : endpointPublico))
                 .region(Region.of(region))
                 .credentialsProvider(credenciales)
-                .serviceConfiguration(configuracion)
+                .serviceConfiguration(config)
                 .build();
         this.bucket = bucket;
-        if (crearBucket) crearBucketSiFalta();
+        if (createBucket) createBucketIfMissing();
     }
 
     @Override
-    public ArchivoGuardado guardar(ArchivoEntrante file) {
+    public StoredFile save(IncomingFile file) {
         String key = UUID.randomUUID().toString();
         try {
             String sha256 = huella(file);
-            // El SDK puede leer el contenido más de una vez (firma, reintentos): se le da una forma
-            // de abrirlo de nuevo, que la subida multipart permite (queda en memoria o en disco)
-            ContentStreamProvider contenido = () -> file.contenido().get();
+            // The SDK may read the content more than once (signing, retries): it gets a way to
+            // open it again, which the multipart upload allows (kept in memory or on disk)
+            ContentStreamProvider content = () -> file.content().get();
             s3.putObject(b -> b.bucket(bucket).key(PREFIJO + key).contentType(file.contentType()),
-                    RequestBody.fromContentProvider(contenido, file.tamano(), file.contentType()));
-            return new ArchivoGuardado(key, sha256, file.tamano());
+                    RequestBody.fromContentProvider(content, file.size(), file.contentType()));
+            return new StoredFile(key, sha256, file.size());
         } catch (IOException | UncheckedIOException e) {
             throw new IllegalStateException("No se pudo leer la evidencia", e);
         } catch (S3Exception e) {
@@ -108,8 +108,8 @@ public class S3EvidenceStorage implements AlmacenamientoEvidencias {
         }
     }
 
-    private static String huella(ArchivoEntrante file) throws IOException {
-        try (InputStream in = file.contenido().get();
+    private static String huella(IncomingFile file) throws IOException {
+        try (InputStream in = file.content().get();
              DigestInputStream digest = new DigestInputStream(in, MessageDigest.getInstance("SHA-256"))) {
             digest.transferTo(OutputStream.nullOutputStream());
             return HexFormat.of().formatHex(digest.getMessageDigest().digest());
@@ -119,41 +119,41 @@ public class S3EvidenceStorage implements AlmacenamientoEvidencias {
     }
 
     @Override
-    public Resource cargar(String key) {
-        return new ObjetoS3(validar(key));
+    public Resource load(String key) {
+        return new ObjetoS3(validate(key));
     }
 
     @Override
-    public void eliminar(String key) {
+    public void delete(String key) {
         if (key == null) return;
         try {
-            s3.deleteObject(b -> b.bucket(bucket).key(PREFIJO + validar(key)));
+            s3.deleteObject(b -> b.bucket(bucket).key(PREFIJO + validate(key)));
         } catch (S3Exception e) {
-            // Si no se puede borrar el archivo, no debe impedir borrar el registro
+            // If the file cannot be deleted, that must not prevent deleting the record
             log.warn("No se pudo borrar la evidencia {} del almacenamiento: {}", key, e.getMessage());
         }
     }
 
     @Override
-    public Optional<URI> enlaceTemporal(String key, String contentType, Duration vigencia) {
-        String clave = PREFIJO + validar(key);
+    public Optional<URI> temporaryLink(String key, String contentType, Duration vigencia) {
+        String objectKey = PREFIJO + validate(key);
         var firmado = presigner.presignGetObject(p -> p
                 .signatureDuration(vigencia)
                 .getObjectRequest(GetObjectRequest.builder()
                         .bucket(bucket)
-                        .key(clave)
+                        .key(objectKey)
                         .responseContentType(contentType)
                         .responseContentDisposition("inline")
                         .build()));
         return Optional.of(URI.create(firmado.url().toString()));
     }
 
-    // La clave siempre es un UUID generado aquí; se valida igual para no tocar otros objetos
-    private static String validar(String key) {
+    // The key is always a UUID generated here; it is validated anyway so no other objects are touched
+    private static String validate(String key) {
         return UUID.fromString(key).toString();
     }
 
-    private void crearBucketSiFalta() {
+    private void createBucketIfMissing() {
         try {
             s3.headBucket(b -> b.bucket(bucket));
         } catch (NoSuchBucketException e) {
@@ -166,7 +166,7 @@ public class S3EvidenceStorage implements AlmacenamientoEvidencias {
         }
     }
 
-    /** Objeto del bucket como Resource: Spring lo entrega con soporte de Range (adelantar videos). */
+    /** Bucket object as a Resource: Spring serves it with Range support (seeking in videos). */
     private final class ObjetoS3 extends AbstractResource {
         private final String key;
         private HeadObjectResponse cabecera;

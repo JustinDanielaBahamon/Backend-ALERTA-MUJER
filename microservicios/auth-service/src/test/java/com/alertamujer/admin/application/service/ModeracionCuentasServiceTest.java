@@ -37,14 +37,14 @@ class ModeracionCuentasServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(usuarias.buscar(5L)).thenReturn(Optional.of(ANA));
+        when(usuarias.find(5L)).thenReturn(Optional.of(ANA));
         when(usuarias.porId()).thenReturn(Map.of(5L, ANA, 2L, ADMIN));
-        when(casos.guardar(any())).thenAnswer(inv -> {
+        when(casos.save(any())).thenAnswer(inv -> {
             UserReport r = inv.getArgument(0);
             r.setId(40L);
             return r;
         });
-        when(solicitudes.guardar(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(solicitudes.save(any())).thenAnswer(inv -> inv.getArgument(0));
     }
 
     @Test
@@ -53,7 +53,7 @@ class ModeracionCuentasServiceTest {
 
         verify(cuentas).actualizar(5L, new UserAccountChanges("blocked", null, null, null, null), 2L);
         ArgumentCaptor<ModerationAction> accion = ArgumentCaptor.forClass(ModerationAction.class);
-        verify(acciones).guardar(accion.capture());
+        verify(acciones).save(accion.capture());
         assertEquals(40L, accion.getValue().getUserReportId());
         assertEquals("block", accion.getValue().getActionType());
     }
@@ -71,7 +71,7 @@ class ModeracionCuentasServiceTest {
     void desbloquearAnotaEnElUltimoCasoOCreaUno() {
         when(casos.deUsuaria(5L)).thenReturn(List.of());
         service.desbloquear(5L, "Se revisó el caso con ella", 2L);
-        verify(casos).guardar(argThat(r -> "Desbloqueo".equals(r.getReason())));
+        verify(casos).save(argThat(r -> "Desbloqueo".equals(r.getReason())));
         verify(cuentas).actualizar(5L, new UserAccountChanges("active", null, null, null, null), 2L);
     }
 
@@ -88,7 +88,7 @@ class ModeracionCuentasServiceTest {
 
         List<HistorialItem> h = service.historial(5L);
 
-        assertEquals(List.of("deletion_pending", "block"), h.stream().map(HistorialItem::tipo).toList());
+        assertEquals(List.of("deletion_pending", "block"), h.stream().map(HistorialItem::type).toList());
         assertEquals("Acoso", h.get(1).motivo());
         assertEquals("Sara Ruiz", h.get(1).adminNombre());
     }
@@ -99,7 +99,7 @@ class ModeracionCuentasServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.solicitarEliminacion(5L, "Cuenta duplicada", 2L));
 
         AccountDeletionRequest s = AccountDeletionRequest.nueva(5L, 2L, "Cuenta duplicada");
-        when(solicitudes.buscar(7L)).thenReturn(Optional.of(s));
+        when(solicitudes.find(7L)).thenReturn(Optional.of(s));
         assertThrows(IllegalArgumentException.class, () -> service.aprobar(7L, null, 2L));
         verify(cuentas, never()).anonimizar(any());
 

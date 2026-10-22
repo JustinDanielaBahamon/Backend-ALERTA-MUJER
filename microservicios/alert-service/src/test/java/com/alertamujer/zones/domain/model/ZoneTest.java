@@ -10,14 +10,14 @@ import static org.junit.jupiter.api.Assertions.*;
 /** Reglas de zonas y reportes, sin Spring ni base de datos. */
 class ZoneTest {
 
-    private static DatosZona datos(String riesgo, Boolean activa) {
+    private static DatosZona data(String riesgo, Boolean activa) {
         return new DatosZona(2, "Parque", "risk", riesgo, null, null, "Bogotá", BigDecimal.ONE, BigDecimal.ONE,
                 BigDecimal.TEN, activa);
     }
 
     @Test
     void unaZonaNuevaTieneRiesgoMedioYEstaActiva() {
-        Zone z = Zone.nueva(datos(null, null));
+        Zone z = Zone.nueva(data(null, null));
 
         assertEquals("medium", z.getRiskLevel());
         assertTrue(z.activa());
@@ -26,8 +26,8 @@ class ZoneTest {
 
     @Test
     void editarReemplazaLosDatos() {
-        Zone z = Zone.nueva(datos("high", true));
-        z.reemplazar(datos("low", false));
+        Zone z = Zone.nueva(data("high", true));
+        z.reemplazar(data("low", false));
 
         assertEquals("low", z.getRiskLevel());
         assertFalse(z.activa());

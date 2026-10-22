@@ -30,7 +30,7 @@ class AdministracionCuentasServiceTest {
     @Mock private PerfilRepositorio perfiles;
     @Mock private SesionRepositorio sesiones;
     @Mock private CifradoPort cifrado;
-    @Mock private EventosIdentidadPort eventos;
+    @Mock private EventosIdentidadPort events;
 
     @InjectMocks private AdministracionCuentasService service;
 
@@ -43,7 +43,7 @@ class AdministracionCuentasServiceTest {
         ana.setId(1L);
         cuenta = Account.nueva(1L, "hash");
         cuenta.setId(4L);
-        lenient().when(usuarias.buscar(1L)).thenReturn(Optional.of(ana));
+        lenient().when(usuarias.find(1L)).thenReturn(Optional.of(ana));
         lenient().when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
     }
 
@@ -58,8 +58,8 @@ class AdministracionCuentasServiceTest {
         assertEquals("blocked", r.cuenta().getStatus());
         assertEquals("Ana María", r.usuaria().getFirstName());
         assertEquals("Gómez", r.usuaria().getLastName());
-        verify(cuentas).guardar(cuenta);
-        verify(usuarias).guardar(ana);
+        verify(cuentas).save(cuenta);
+        verify(usuarias).save(ana);
     }
 
     @Test
@@ -67,7 +67,7 @@ class AdministracionCuentasServiceTest {
         IllegalArgumentException propia = assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, estado("blocked"), 1L));
         assertEquals("Cannot block your own account", propia.getMessage());
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, estado("raro"), 2L));
-        verify(cuentas, never()).guardar(any());
+        verify(cuentas, never()).save(any());
     }
 
     @Test
@@ -79,7 +79,7 @@ class AdministracionCuentasServiceTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> service.actualizar(1L, new CambiosCuenta(null, null, null, null, "eva@correo.com"), 2L));
         assertEquals("Email already in use", e.getMessage());
-        verify(usuarias, never()).guardar(any());
+        verify(usuarias, never()).save(any());
     }
 
     @Test
@@ -99,9 +99,9 @@ class AdministracionCuentasServiceTest {
         assertEquals("inactive", cuenta.getStatus());
         assertEquals("inutilizable", cuenta.getPasswordHash());
         assertEquals("revoked", sesion.getStatus());
-        verify(sesiones).guardar(sesion);
+        verify(sesiones).save(sesion);
         // Alert y Evidence borran contactos, ubicaciones y grabaciones del perfil
-        verify(eventos).cuentaEliminada(1L, 10L);
+        verify(events).cuentaEliminada(1L, 10L);
     }
 
     @Test
@@ -112,7 +112,7 @@ class AdministracionCuentasServiceTest {
         when(cuentas.todas()).thenReturn(List.of(cuenta));
         when(perfiles.todos()).thenReturn(List.of(perfil));
 
-        CuentaDeUsuaria r = service.listar().get(0);
+        CuentaDeUsuaria r = service.listAll().get(0);
 
         assertSame(cuenta, r.cuenta());
         assertEquals(10L, r.perfilId());

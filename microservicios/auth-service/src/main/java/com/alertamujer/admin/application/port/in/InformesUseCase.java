@@ -8,17 +8,17 @@ import java.util.List;
 /** Informes de alertas del panel: se guardan con un nombre y sus alertas y se exportan a PDF o Excel. */
 public interface InformesUseCase {
 
-    List<AlertReportView> listar();
+    List<AlertReportView> listAll();
 
     AlertReportView obtener(Long id);
 
-    ReportStats estadisticas();
+    ReportStats stats();
 
-    AlertReportView crear(CambiosInforme cambios, Long adminUserId);
+    AlertReportView create(CambiosInforme cambios, Long adminUserId);
 
     AlertReportView actualizar(Long id, CambiosInforme cambios);
 
-    void eliminar(Long id);
+    void delete(Long id);
 
     /** Archivo del informe con sus alertas (pdf o csv); suma una exportación a su contador. */
     byte[] exportar(Long id, boolean pdf);

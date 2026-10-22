@@ -16,7 +16,7 @@ public interface CorreosPort {
     void finDeAlerta(String para, String nombreContacto, String nombreUsuaria, String estado, LocalDateTime fin,
                      String numeroEmergencia);
 
-    void codigoRecuperacion(String para, String nombre, String codigo, int minutosValidez);
+    void codigoRecuperacion(String para, String name, String codigo, int minutosValidez);
 
     /** El proveedor rechazó el correo o no hay proveedor configurado. */
     class CorreoNoEnviadoException extends RuntimeException {

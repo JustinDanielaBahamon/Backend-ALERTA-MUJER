@@ -12,5 +12,5 @@ public interface MensajeRepositorio {
 
     long contar(Long alertId);
 
-    AlertMessage guardar(AlertMessage mensaje);
+    AlertMessage save(AlertMessage mensaje);
 }

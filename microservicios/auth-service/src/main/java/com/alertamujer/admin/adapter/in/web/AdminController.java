@@ -29,7 +29,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<List<AdminUserDto>> getAllUsers() {
-        return ResponseEntity.ok(usuarias.listar().stream().map(AdminUserDto::of).toList());
+        return ResponseEntity.ok(usuarias.listAll().stream().map(AdminUserDto::of).toList());
     }
 
     @PatchMapping("/users/{id}")
@@ -42,12 +42,12 @@ public class AdminController {
 
     @GetMapping("/user-reports")
     public ResponseEntity<List<UserReportView>> getAllUserReports() {
-        return ResponseEntity.ok(reportes.listar(null));
+        return ResponseEntity.ok(reportes.listAll(null));
     }
 
     @GetMapping("/user-reports/pending")
     public ResponseEntity<List<UserReportView>> getPendingUserReports() {
-        return ResponseEntity.ok(reportes.listar("pending"));
+        return ResponseEntity.ok(reportes.listAll("pending"));
     }
 
     @GetMapping("/user-reports/{id}")
@@ -57,7 +57,7 @@ public class AdminController {
 
     @PostMapping("/user-reports")
     public ResponseEntity<UserReportView> createUserReport(@RequestBody UserReportRequest r, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(reportes.crear(r.reportedUserEmail(), r.reason(), r.description(), r.severity(), currentUserId));
+        return ResponseEntity.ok(reportes.create(r.reportedUserEmail(), r.reason(), r.description(), r.severity(), currentUserId));
     }
 
     /** Actualiza estado, gravedad, motivo, descripción o notas; la revisora sale de la sesión. */
@@ -69,7 +69,7 @@ public class AdminController {
 
     @DeleteMapping("/user-reports/{id}")
     public ResponseEntity<Void> deleteUserReport(@PathVariable Long id) {
-        reportes.eliminar(id);
+        reportes.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

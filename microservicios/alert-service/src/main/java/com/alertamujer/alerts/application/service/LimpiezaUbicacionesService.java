@@ -16,14 +16,14 @@ public class LimpiezaUbicacionesService implements LimpiarUbicacionesUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(LimpiezaUbicacionesService.class);
 
-    private final UbicacionRepositorio repositorio;
+    private final UbicacionRepositorio repository;
     private final int diasSinAlerta;
     private final int diasDeAlertas;
 
-    public LimpiezaUbicacionesService(UbicacionRepositorio repositorio,
+    public LimpiezaUbicacionesService(UbicacionRepositorio repository,
                                       @Value("${locations.retention.days-without-alert:7}") int diasSinAlerta,
                                       @Value("${locations.retention.days-with-alert:30}") int diasDeAlertas) {
-        this.repositorio = repositorio;
+        this.repository = repository;
         this.diasSinAlerta = diasSinAlerta;
         this.diasDeAlertas = diasDeAlertas;
     }
@@ -31,8 +31,8 @@ public class LimpiezaUbicacionesService implements LimpiarUbicacionesUseCase {
     @Override
     public int limpiar(LocalDateTime ahora) {
         int borradas = AuditSource.con("Tarea automática · Limpieza del historial de ubicaciones", () ->
-                repositorio.borrarSinAlertaAntesDe(ahora.minusDays(diasSinAlerta))
-                        + repositorio.borrarDeAlertasAntesDe(ahora.minusDays(diasDeAlertas)));
+                repository.borrarSinAlertaAntesDe(ahora.minusDays(diasSinAlerta))
+                        + repository.borrarDeAlertasAntesDe(ahora.minusDays(diasDeAlertas)));
         if (borradas > 0) log.info("Ubicaciones antiguas eliminadas: {}", borradas);
         return borradas;
     }

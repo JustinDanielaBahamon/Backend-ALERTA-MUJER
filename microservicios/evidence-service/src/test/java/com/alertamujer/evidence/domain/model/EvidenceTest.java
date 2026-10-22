@@ -4,17 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Reglas del dominio: sin Spring, sin base de datos, sin mocks. */
+/** Domain rules: no Spring, no database, no mocks. */
 class EvidenceTest {
 
     @Test
-    void reconoceElTipoPorElArchivoYRechazaLosPeligrosos() {
-        assertEquals("photo", Evidence.tipoDe("image/jpeg"));
-        assertEquals("video", Evidence.tipoDe("video/mp4"));
-        assertEquals("audio", Evidence.tipoDe("audio/mp4"));
-        assertEquals("document", Evidence.tipoDe("application/pdf"));
-        assertThrows(IllegalArgumentException.class, () -> Evidence.tipoDe("image/svg+xml"));
-        assertThrows(IllegalArgumentException.class, () -> Evidence.tipoDe("text/html"));
+    void detectsTheTypeFromTheFileAndRejectsDangerousOnes() {
+        assertEquals("photo", Evidence.typeOf("image/jpeg"));
+        assertEquals("video", Evidence.typeOf("video/mp4"));
+        assertEquals("audio", Evidence.typeOf("audio/mp4"));
+        assertEquals("document", Evidence.typeOf("application/pdf"));
+        assertThrows(IllegalArgumentException.class, () -> Evidence.typeOf("image/svg+xml"));
+        assertThrows(IllegalArgumentException.class, () -> Evidence.typeOf("text/html"));
     }
 
     @Test
@@ -35,10 +35,10 @@ class EvidenceTest {
     }
 
     @Test
-    void soloAceptaEstadosDeRevisionConocidos() {
+    void onlyAcceptsKnownReviewStatuses() {
         Evidence e = new Evidence();
-        e.cambiarRevision("verified");
+        e.changeReview("verified");
         assertEquals("verified", e.getReviewStatus());
-        assertThrows(IllegalArgumentException.class, () -> e.cambiarRevision("Verificada"));
+        assertThrows(IllegalArgumentException.class, () -> e.changeReview("Verificada"));
     }
 }

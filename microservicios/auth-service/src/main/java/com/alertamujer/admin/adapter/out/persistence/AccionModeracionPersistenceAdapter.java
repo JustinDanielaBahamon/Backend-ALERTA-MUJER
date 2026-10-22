@@ -23,7 +23,7 @@ class AccionModeracionPersistenceAdapter implements AccionModeracionRepositorio 
     }
 
     @Override
-    public ModerationAction guardar(ModerationAction accion) {
+    public ModerationAction save(ModerationAction accion) {
         return aDominio(jpa.save(aFila(accion)));
     }
 

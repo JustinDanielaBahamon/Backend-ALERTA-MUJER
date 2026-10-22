@@ -13,12 +13,12 @@ import static org.mockito.Mockito.*;
 
 class AjustesServiceTest {
 
-    private final ConfiguracionRepositorio repositorio = mock(ConfiguracionRepositorio.class);
-    private final AjustesService service = new AjustesService(repositorio);
+    private final ConfiguracionRepositorio repository = mock(ConfiguracionRepositorio.class);
+    private final AjustesService service = new AjustesService(repository);
 
     @Test
     void sinConfiguracionUsaValoresSegurosParaLosOtrosModulos() {
-        when(repositorio.actual()).thenReturn(Optional.empty());
+        when(repository.actual()).thenReturn(Optional.empty());
 
         assertEquals(0, service.duracionMaximaAlertaMinutos());
         assertEquals("123", service.numeroEmergencia());
@@ -30,17 +30,17 @@ class AjustesServiceTest {
     void actualizarGuardaYDevuelveLaHoraDelCambio() {
         SystemConfiguration c = new SystemConfiguration();
         c.setSosMaxDurationMinutes(120);
-        when(repositorio.actual()).thenReturn(Optional.of(c));
-        when(repositorio.guardar(any())).thenAnswer(inv -> {
-            SystemConfiguration guardada = inv.getArgument(0);
-            guardada.setUpdatedAt(null); // la base no devuelve la hora del trigger
-            return guardada;
+        when(repository.actual()).thenReturn(Optional.of(c));
+        when(repository.save(any())).thenAnswer(inv -> {
+            SystemConfiguration saved = inv.getArgument(0);
+            saved.setUpdatedAt(null); // la base no devuelve la hora del trigger
+            return saved;
         });
 
         SystemConfiguration r = service.actualizar(new CambiosAjustes(90, null, null, null, null), 7L);
 
         assertEquals(90, r.getSosMaxDurationMinutes());
         assertNotNull(r.getUpdatedAt());
-        verify(repositorio).guardar(c);
+        verify(repository).save(c);
     }
 }

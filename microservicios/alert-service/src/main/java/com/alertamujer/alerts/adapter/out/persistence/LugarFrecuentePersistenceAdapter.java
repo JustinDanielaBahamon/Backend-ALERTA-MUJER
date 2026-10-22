@@ -28,17 +28,17 @@ class LugarFrecuentePersistenceAdapter implements LugarFrecuenteRepositorio {
     }
 
     @Override
-    public Optional<FrequentLocation> buscar(Long id) {
+    public Optional<FrequentLocation> find(Long id) {
         return jpa.findById(id).map(LugarFrecuentePersistenceAdapter::aDominio);
     }
 
     @Override
-    public FrequentLocation guardar(FrequentLocation lugar) {
+    public FrequentLocation save(FrequentLocation lugar) {
         return aDominio(jpa.save(aFila(lugar)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

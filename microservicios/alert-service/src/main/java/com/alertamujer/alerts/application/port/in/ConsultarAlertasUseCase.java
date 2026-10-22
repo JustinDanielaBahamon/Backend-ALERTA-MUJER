@@ -11,9 +11,9 @@ import java.util.Set;
 /** Consultas de alertas que piden los otros módulos y microservicios. */
 public interface ConsultarAlertasUseCase {
 
-    Optional<Alert> buscar(Long id);
+    Optional<Alert> find(Long id);
 
-    List<Alert> buscarVarias(Collection<Long> ids);
+    List<Alert> findMany(Collection<Long> ids);
 
     List<Alert> todas();
 
@@ -25,5 +25,5 @@ public interface ConsultarAlertasUseCase {
     List<Long> idsDelPerfil(Long perfil);
 
     /** De esas alertas, las que la usuaria marcó para conservar sus evidencias. */
-    Set<Long> conservanEvidencias(Collection<Long> ids);
+    Set<Long> keepEvidence(Collection<Long> ids);
 }

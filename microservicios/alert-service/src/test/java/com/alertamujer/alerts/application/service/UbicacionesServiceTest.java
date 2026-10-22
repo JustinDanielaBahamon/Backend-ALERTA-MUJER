@@ -3,7 +3,7 @@ package com.alertamujer.alerts.application.service;
 import com.alertamujer.alerts.application.port.in.NuevaUbicacion;
 import com.alertamujer.alerts.application.port.out.AlertaRepositorio;
 import com.alertamujer.alerts.application.port.out.CelularesPort;
-import com.alertamujer.alerts.application.port.out.IdentidadPort;
+import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.UbicacionRepositorio;
 import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.alerts.domain.model.LocationLog;
@@ -26,22 +26,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UbicacionesServiceTest {
 
-    @Mock private UbicacionRepositorio repositorio;
-    @Mock private AlertaRepositorio alertas;
-    @Mock private IdentidadPort identidad;
+    @Mock private UbicacionRepositorio repository;
+    @Mock private AlertaRepositorio alerts;
+    @Mock private IdentityPort identidad;
     @Mock private CelularesPort celulares;
 
     @InjectMocks private UbicacionesService service;
 
-    private Alert alerta;
+    private Alert alert;
 
     @BeforeEach
     void setUp() {
-        alerta = new Alert();
-        alerta.setId(5L);
-        alerta.setUserProfileId(10L);
+        alert = new Alert();
+        alert.setId(5L);
+        alert.setUserProfileId(10L);
         lenient().when(identidad.perfilRequerido(1L)).thenReturn(10L);
-        lenient().when(repositorio.guardar(any(LocationLog.class))).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(repository.save(any(LocationLog.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private static NuevaUbicacion punto(Long alertId, Long deviceId) {
@@ -52,18 +52,18 @@ class UbicacionesServiceTest {
     void descartaLaUbicacionDiariaDeUnCelularQueNoEsElPrincipal() {
         when(celulares.esElMasReciente(1L, 8L)).thenReturn(false);
 
-        assertTrue(service.guardar(punto(null, 8L), 1L).isEmpty());
-        verify(repositorio, never()).guardar(any());
+        assertTrue(service.save(punto(null, 8L), 1L).isEmpty());
+        verify(repository, never()).save(any());
     }
 
     @Test
     void laUbicacionDeUnaAlertaSeGuardaVengaDelCelularQueVenga() {
-        when(alertas.buscar(5L)).thenReturn(Optional.of(alerta));
+        when(alerts.find(5L)).thenReturn(Optional.of(alert));
 
-        LocationLog guardada = service.guardar(punto(5L, 8L), 1L).orElseThrow();
+        LocationLog saved = service.save(punto(5L, 8L), 1L).orElseThrow();
 
-        assertEquals(5L, guardada.getAlertId());
-        assertEquals(10L, guardada.getUserProfileId());
+        assertEquals(5L, saved.getAlertId());
+        assertEquals(10L, saved.getUserProfileId());
         verifyNoInteractions(celulares);
     }
 
@@ -72,37 +72,37 @@ class UbicacionesServiceTest {
         Alert ajena = new Alert();
         ajena.setId(6L);
         ajena.setUserProfileId(20L);
-        when(alertas.buscar(6L)).thenReturn(Optional.of(ajena));
+        when(alerts.find(6L)).thenReturn(Optional.of(ajena));
         when(celulares.esElMasReciente(1L, null)).thenReturn(true);
 
-        assertNull(service.guardar(punto(6L, null), 1L).orElseThrow().getAlertId());
+        assertNull(service.save(punto(6L, null), 1L).orElseThrow().getAlertId());
     }
 
     @Test
     void elRecorridoDeUnaAlertaSoloLoVenLaDuenaYLaAdministracion() {
-        when(alertas.buscar(5L)).thenReturn(Optional.of(alerta));
+        when(alerts.find(5L)).thenReturn(Optional.of(alert));
         when(identidad.perfilRequerido(2L)).thenReturn(20L);
-        when(repositorio.deLaAlerta(5L)).thenReturn(List.of());
+        when(repository.ofAlert(5L)).thenReturn(List.of());
 
-        assertThrows(AccessDeniedException.class, () -> service.deLaAlerta(5L, 2L, false));
-        assertEquals(List.of(), service.deLaAlerta(5L, 2L, true));
-        assertEquals(List.of(), service.deLaAlerta(5L, 1L, false));
+        assertThrows(AccessDeniedException.class, () -> service.ofAlert(5L, 2L, false));
+        assertEquals(List.of(), service.ofAlert(5L, 2L, true));
+        assertEquals(List.of(), service.ofAlert(5L, 1L, false));
     }
 
     @Test
     void laAdministracionNoVeElRecorridoDeAlertasCanceladasOVencidas() {
-        when(alertas.buscar(5L)).thenReturn(Optional.of(alerta));
+        when(alerts.find(5L)).thenReturn(Optional.of(alert));
         when(identidad.perfilRequerido(2L)).thenReturn(20L);
-        when(repositorio.deLaAlerta(5L)).thenReturn(List.of());
+        when(repository.ofAlert(5L)).thenReturn(List.of());
 
-        alerta.setStatus("resolved");
-        assertEquals(List.of(), service.deLaAlerta(5L, 2L, true));
-        alerta.setStatus("cancelled");
-        assertThrows(AccessDeniedException.class, () -> service.deLaAlerta(5L, 2L, true));
-        alerta.setStatus("expired");
-        assertThrows(AccessDeniedException.class, () -> service.deLaAlerta(5L, 2L, true));
+        alert.setStatus("resolved");
+        assertEquals(List.of(), service.ofAlert(5L, 2L, true));
+        alert.setStatus("cancelled");
+        assertThrows(AccessDeniedException.class, () -> service.ofAlert(5L, 2L, true));
+        alert.setStatus("expired");
+        assertThrows(AccessDeniedException.class, () -> service.ofAlert(5L, 2L, true));
         // La dueña sí la ve
-        assertEquals(List.of(), service.deLaAlerta(5L, 1L, false));
+        assertEquals(List.of(), service.ofAlert(5L, 1L, false));
     }
 
     @Test
@@ -110,7 +110,7 @@ class UbicacionesServiceTest {
         service.recientes(1L, 10_000);
         service.recientes(1L, 0);
 
-        verify(repositorio).recientes(10L, 500);
-        verify(repositorio).recientes(10L, 1);
+        verify(repository).recientes(10L, 500);
+        verify(repository).recientes(10L, 1);
     }
 }

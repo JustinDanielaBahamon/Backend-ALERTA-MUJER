@@ -28,7 +28,7 @@ class MiCuentaServiceTest {
     @Mock private PerfilRepositorio perfiles;
     @Mock private CuentaRepositorio cuentas;
     @Mock private CifradoPort cifrado;
-    @Mock private EventosIdentidadPort eventos;
+    @Mock private EventosIdentidadPort events;
     @Mock private AdministrarCuentasUseCase administracion;
 
     @InjectMocks private MiCuentaService service;
@@ -44,9 +44,9 @@ class MiCuentaServiceTest {
         perfil = UserProfile.de(1L);
         cuenta = Account.nueva(1L, "hash");
         cuenta.setId(4L);
-        lenient().when(usuarias.buscar(1L)).thenReturn(Optional.of(ana));
+        lenient().when(usuarias.find(1L)).thenReturn(Optional.of(ana));
         lenient().when(perfiles.deUsuaria(1L)).thenReturn(Optional.of(perfil));
-        lenient().when(usuarias.guardar(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(usuarias.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private static CambiosUsuaria foto(Optional<String> foto) {
@@ -62,7 +62,7 @@ class MiCuentaServiceTest {
 
         DuplicateFieldsException e = assertThrows(DuplicateFieldsException.class, () -> service.actualizar(1L, cambios));
         assertEquals(java.util.Set.of("telephone", "documentNumber"), e.getFieldErrors().keySet());
-        verify(usuarias, never()).guardar(any());
+        verify(usuarias, never()).save(any());
     }
 
     @Test
@@ -70,10 +70,10 @@ class MiCuentaServiceTest {
         CambiosUsuaria cambios = new CambiosUsuaria(null, null, Optional.of("300 123-4567"), Optional.of(" 1080 "),
                 Optional.of("C.C"), java.time.LocalDate.of(1995, 5, 5), null);
 
-        User guardada = service.actualizar(1L, cambios).usuaria();
+        User saved = service.actualizar(1L, cambios).usuaria();
 
-        assertEquals("3001234567", guardada.getTelephone());
-        assertEquals("1080", guardada.getDocumentNumber());
+        assertEquals("3001234567", saved.getTelephone());
+        assertEquals("1080", saved.getDocumentNumber());
     }
 
     @Test
@@ -86,8 +86,8 @@ class MiCuentaServiceTest {
     @Test
     void unaFotoQueNoEsImagenNoGuardaNada() {
         assertThrows(IllegalArgumentException.class, () -> service.actualizar(1L, foto(Optional.of("<script>"))));
-        verify(usuarias, never()).guardar(any());
-        verify(perfiles, never()).guardar(any());
+        verify(usuarias, never()).save(any());
+        verify(perfiles, never()).save(any());
     }
 
     @Test
@@ -104,8 +104,8 @@ class MiCuentaServiceTest {
 
         service.cambiarContrasena(1L, "Actual123", "Nueva1234");
         assertEquals("hash2", cuenta.getPasswordHash());
-        verify(cuentas).guardar(cuenta);
-        verifyNoInteractions(eventos);
+        verify(cuentas).save(cuenta);
+        verifyNoInteractions(events);
     }
 
     @Test
@@ -118,7 +118,7 @@ class MiCuentaServiceTest {
 
         service.cambiarContrasena(1L, "Actual123", "Nueva1234");
 
-        verify(eventos).sesionAdmin(4L, AdminSessionEvent.PASSWORD_CHANGED, null);
+        verify(events).sesionAdmin(4L, AdminSessionEvent.PASSWORD_CHANGED, null);
     }
 
     @Test

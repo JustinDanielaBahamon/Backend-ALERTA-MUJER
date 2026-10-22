@@ -37,7 +37,7 @@ public class AuditLogController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(auditoria.listar(new FiltroAuditoria(actorId, type, action, from, to), page, size));
+        return ResponseEntity.ok(auditoria.listAll(new FiltroAuditoria(actorId, type, action, from, to), page, size));
     }
 
     @GetMapping("/actors")

@@ -8,7 +8,7 @@ import java.util.Optional;
 /** Consultas que piden los otros módulos y microservicios. */
 public interface ConsultarIdentidadUseCase {
 
-    Optional<Long> perfilDe(Long userId);
+    Optional<Long> profileOf(Long userId);
 
     Optional<Long> cuentaDe(Long userId);
 
@@ -16,7 +16,7 @@ public interface ConsultarIdentidadUseCase {
 
     Optional<User> porCorreo(String correo);
 
-    Optional<User> porPerfil(Long perfilId);
+    Optional<User> byProfile(Long perfilId);
 
     Optional<User> porCuenta(Long accountId);
 

@@ -8,8 +8,8 @@ import java.util.List;
 /** Puerto de salida: genera el archivo de un informe con sus alertas. */
 public interface ExportadorInformesPort {
 
-    byte[] pdf(AlertReportView informe, List<AdminAlertView> alertas);
+    byte[] pdf(AlertReportView informe, List<AdminAlertView> alerts);
 
     /** CSV con ";" y BOM UTF-8, que es como Excel en español lo abre bien. */
-    byte[] csv(AlertReportView informe, List<AdminAlertView> alertas);
+    byte[] csv(AlertReportView informe, List<AdminAlertView> alerts);
 }

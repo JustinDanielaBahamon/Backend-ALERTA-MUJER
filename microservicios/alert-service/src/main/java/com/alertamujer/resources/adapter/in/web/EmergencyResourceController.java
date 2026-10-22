@@ -44,7 +44,7 @@ public class EmergencyResourceController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EmergencyResourceResponse> createResource(@RequestBody EmergencyResourceRequest request) {
-        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.crear(request.aDatos())));
+        return ResponseEntity.ok(EmergencyResourceResponse.of(recursos.create(request.aDatos())));
     }
 
     @PutMapping("/{id}")
@@ -56,7 +56,7 @@ public class EmergencyResourceController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteResource(@PathVariable Long id) {
-        recursos.eliminar(id);
+        recursos.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

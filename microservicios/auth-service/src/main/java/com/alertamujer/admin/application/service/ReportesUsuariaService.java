@@ -19,40 +19,40 @@ import java.util.Map;
 @Service
 public class ReportesUsuariaService implements ReportesUsuariaUseCase {
 
-    private final ReporteUsuariaRepositorio repositorio;
+    private final ReporteUsuariaRepositorio repository;
     private final UsuariasPort usuarias;
 
-    public ReportesUsuariaService(ReporteUsuariaRepositorio repositorio, UsuariasPort usuarias) {
-        this.repositorio = repositorio;
+    public ReportesUsuariaService(ReporteUsuariaRepositorio repository, UsuariasPort usuarias) {
+        this.repository = repository;
         this.usuarias = usuarias;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserReportView> listar(String estado) {
+    public List<UserReportView> listAll(String estado) {
         Map<Long, UserSummary> nombres = usuarias.porId();
-        List<UserReport> casos = estado == null ? repositorio.todos() : repositorio.conEstado(estado);
+        List<UserReport> casos = estado == null ? repository.todos() : repository.conEstado(estado);
         return casos.stream()
                 .sorted(Comparator.comparing(UserReport::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                .map(r -> vista(r, nombres.get(r.getReportedUserId()), nombres.get(r.getReporterUserId())))
+                .map(r -> view(r, nombres.get(r.getReportedUserId()), nombres.get(r.getReporterUserId())))
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public UserReportView obtener(Long id) {
-        return vista(existente(id));
+        return view(existente(id));
     }
 
     @Override
     @Transactional
-    public UserReportView crear(String correoReportada, String motivo, String descripcion, String gravedad, Long adminId) {
+    public UserReportView create(String correoReportada, String motivo, String descripcion, String gravedad, Long adminId) {
         if (correoReportada == null || correoReportada.isBlank()) {
             throw new IllegalArgumentException("Indica el correo de la usuaria reportada");
         }
         UserSummary reportada = usuarias.conCorreo(correoReportada.trim())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una usuaria con ese correo"));
-        return vista(repositorio.guardar(UserReport.reporte(reportada.id(), adminId, motivo, descripcion, gravedad)));
+        return view(repository.save(UserReport.reporte(reportada.id(), adminId, motivo, descripcion, gravedad)));
     }
 
     @Override
@@ -60,36 +60,36 @@ public class ReportesUsuariaService implements ReportesUsuariaUseCase {
     public UserReportView actualizar(Long id, CambiosReporte cambios, Long adminId) {
         UserReport r = existente(id);
         r.actualizar(cambios, adminId, LocalDateTime.now());
-        return vista(repositorio.guardar(r));
+        return view(repository.save(r));
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id) {
-        repositorio.eliminar(existente(id).getId());
+    public void delete(Long id) {
+        repository.delete(existente(id).getId());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public String evidencia(Long id) {
+    public String evidence(Long id) {
         return existente(id).getEvidence();
     }
 
     private UserReport existente(Long id) {
-        return repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("UserReport", id));
+        return repository.find(id).orElseThrow(() -> new ResourceNotFoundException("UserReport", id));
     }
 
-    private UserReportView vista(UserReport r) {
-        return vista(r, usuarias.buscar(r.getReportedUserId()).orElse(null), usuarias.buscar(r.getReporterUserId()).orElse(null));
+    private UserReportView view(UserReport r) {
+        return view(r, usuarias.find(r.getReportedUserId()).orElse(null), usuarias.find(r.getReporterUserId()).orElse(null));
     }
 
-    private static String nombre(UserSummary u) {
+    private static String name(UserSummary u) {
         return u == null ? null : u.fullName();
     }
 
-    private static UserReportView vista(UserReport r, UserSummary reportada, UserSummary reporta) {
-        return new UserReportView(r.getId(), r.getReportedUserId(), nombre(reportada),
-                reportada != null ? reportada.email() : null, r.getReporterUserId(), nombre(reporta),
+    private static UserReportView view(UserReport r, UserSummary reportada, UserSummary reporta) {
+        return new UserReportView(r.getId(), r.getReportedUserId(), name(reportada),
+                reportada != null ? reportada.email() : null, r.getReporterUserId(), name(reporta),
                 r.getReason(), r.getDescription(), r.getSeverity(), r.getStatus(), r.getResolutionNotes(),
                 r.getReviewedByAdminId(), r.getReviewedAt(), r.getCreatedAt(), r.getUpdatedAt(), r.tieneEvidencia());
     }

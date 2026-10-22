@@ -46,11 +46,11 @@ public class UserReport {
     }
 
     /** Caso cerrado que deja un bloqueo hecho desde Gestión de usuarios. */
-    public static UserReport bloqueo(Long userId, Long adminId, String motivo, String detalle, String evidencia, LocalDateTime ahora) {
+    public static UserReport bloqueo(Long userId, Long adminId, String motivo, String detalle, String evidence, LocalDateTime ahora) {
         UserReport r = cerrado(userId, adminId, motivo, detalle, ahora);
         r.severity = "high";
         r.resolutionNotes = "Cuenta bloqueada desde Gestión de usuarios";
-        r.evidence = evidencia;
+        r.evidence = evidence;
         return r;
     }
 

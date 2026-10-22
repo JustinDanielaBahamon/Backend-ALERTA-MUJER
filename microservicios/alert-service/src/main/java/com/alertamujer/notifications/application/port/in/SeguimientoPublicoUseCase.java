@@ -25,12 +25,12 @@ public interface SeguimientoPublicoUseCase {
     TrackingView consultar(String codigo, String visitante, LocalDateTime ahora);
 
     /** Archivo de una grabación de la alerta del enlace. */
-    EvidenceFile evidencia(String codigo, Long evidenciaId, LocalDateTime ahora);
+    EvidenceFile evidence(String codigo, Long evidenciaId, LocalDateTime ahora);
 
     List<AlertMessageView> mensajes(String codigo, Long afterId, LocalDateTime ahora);
 
     /** Mensaje del contacto; con límite por enlace para que nadie llene el chat. */
-    AlertMessageView enviarMensaje(String codigo, String nombre, String texto, LocalDateTime ahora);
+    AlertMessageView enviarMensaje(String codigo, String name, String texto, LocalDateTime ahora);
 
     /** Solo el nombre de pila de la usuaria: el enlace puede reenviarse. */
     record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,

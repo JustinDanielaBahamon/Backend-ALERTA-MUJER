@@ -30,21 +30,21 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
     private final PerfilRepositorio perfiles;
     private final SesionRepositorio sesiones;
     private final CifradoPort cifrado;
-    private final EventosIdentidadPort eventos;
+    private final EventosIdentidadPort events;
 
     public AdministracionCuentasService(UsuariaRepositorio usuarias, CuentaRepositorio cuentas, PerfilRepositorio perfiles,
-                                        SesionRepositorio sesiones, CifradoPort cifrado, EventosIdentidadPort eventos) {
+                                        SesionRepositorio sesiones, CifradoPort cifrado, EventosIdentidadPort events) {
         this.usuarias = usuarias;
         this.cuentas = cuentas;
         this.perfiles = perfiles;
         this.sesiones = sesiones;
         this.cifrado = cifrado;
-        this.eventos = eventos;
+        this.events = events;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CuentaDeUsuaria> listar() {
+    public List<CuentaDeUsuaria> listAll() {
         Map<Long, Account> porUsuaria = cuentas.todas().stream()
                 .collect(Collectors.toMap(Account::getUserId, Function.identity(), (a, b) -> a));
         Map<Long, Long> perfilPorUsuaria = perfiles.todos().stream()
@@ -68,7 +68,7 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
             }
             if (cuenta != null) {
                 cuenta.cambiarEstado(cambios.accountStatus());
-                cuentas.guardar(cuenta);
+                cuentas.save(cuenta);
             }
         }
         if (cambios.email() != null) {
@@ -78,7 +78,7 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
             }
         }
         usuaria.actualizarDesdeAdministracion(cambios.firstName(), cambios.lastName(), cambios.telephone(), cambios.email());
-        usuarias.guardar(usuaria);
+        usuarias.save(usuaria);
         return new CuentaDeUsuaria(usuaria, cuenta, perfiles.deUsuaria(userId).map(UserProfile::getId).orElse(null));
     }
 
@@ -87,26 +87,26 @@ public class AdministracionCuentasService implements AdministrarCuentasUseCase {
     public void anonimizar(Long userId) {
         User usuaria = existente(userId);
         usuaria.anonimizar();
-        usuarias.guardar(usuaria);
+        usuarias.save(usuaria);
         Optional<UserProfile> perfil = perfiles.deUsuaria(userId);
         perfil.ifPresent(p -> {
             p.setProfilePhotoUrl(null);
-            perfiles.guardar(p);
+            perfiles.save(p);
         });
         cuentas.deUsuaria(userId).ifPresent(cuenta -> {
             // Contraseña aleatoria que nadie conoce: no se puede volver a entrar
             cuenta.desactivar(cifrado.cifrar(UUID.randomUUID().toString()));
-            cuentas.guardar(cuenta);
+            cuentas.save(cuenta);
             sesiones.activasDeCuenta(cuenta.getId()).forEach(s -> {
                 s.revocar();
-                sesiones.guardar(s);
+                sesiones.save(s);
             });
         });
         // Contactos, ubicaciones, recorridos y grabaciones viven en Alert y Evidence: se avisa para que los borren
-        eventos.cuentaEliminada(userId, perfil.map(UserProfile::getId).orElse(null));
+        events.cuentaEliminada(userId, perfil.map(UserProfile::getId).orElse(null));
     }
 
     private User existente(Long userId) {
-        return usuarias.buscar(userId).orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        return usuarias.find(userId).orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
     }
 }

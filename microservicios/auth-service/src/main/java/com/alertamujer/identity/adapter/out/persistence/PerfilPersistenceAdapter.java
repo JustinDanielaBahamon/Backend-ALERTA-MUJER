@@ -18,12 +18,12 @@ class PerfilPersistenceAdapter implements PerfilRepositorio {
     }
 
     @Override
-    public UserProfile guardar(UserProfile perfil) {
+    public UserProfile save(UserProfile perfil) {
         return aDominio(jpa.save(aFila(perfil)));
     }
 
     @Override
-    public Optional<UserProfile> buscar(Long id) {
+    public Optional<UserProfile> find(Long id) {
         return jpa.findById(id).map(PerfilPersistenceAdapter::aDominio);
     }
 

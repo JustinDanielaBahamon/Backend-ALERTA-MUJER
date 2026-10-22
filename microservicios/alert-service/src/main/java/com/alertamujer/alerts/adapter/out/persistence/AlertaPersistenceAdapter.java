@@ -19,23 +19,23 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
     }
 
     @Override
-    public Alert guardar(Alert alerta) {
-        return aDominio(jpa.save(aFila(alerta)));
+    public Alert save(Alert alert) {
+        return aDominio(jpa.save(aFila(alert)));
     }
 
     @Override
-    public List<Alert> guardarTodas(List<Alert> alertas) {
-        return jpa.saveAll(alertas.stream().map(AlertaPersistenceAdapter::aFila).toList()).stream()
+    public List<Alert> guardarTodas(List<Alert> alerts) {
+        return jpa.saveAll(alerts.stream().map(AlertaPersistenceAdapter::aFila).toList()).stream()
                 .map(AlertaPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public Optional<Alert> buscar(Long id) {
+    public Optional<Alert> find(Long id) {
         return jpa.findById(id).map(AlertaPersistenceAdapter::aDominio);
     }
 
     @Override
-    public List<Alert> buscarVarias(Collection<Long> ids) {
+    public List<Alert> findMany(Collection<Long> ids) {
         return jpa.findAllById(ids).stream().map(AlertaPersistenceAdapter::aDominio).toList();
     }
 
@@ -45,7 +45,7 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
     }
 
     @Override
-    public List<Alert> deLaUsuaria(Long perfil) {
+    public List<Alert> ofUser(Long perfil) {
         return jpa.findByUserProfileId(perfil).stream().map(AlertaPersistenceAdapter::aDominio).toList();
     }
 
@@ -60,12 +60,12 @@ class AlertaPersistenceAdapter implements AlertaRepositorio {
     }
 
     @Override
-    public long conservadas(Long perfil) {
+    public long kept(Long perfil) {
         return jpa.countByUserProfileIdAndKeepEvidenceTrue(perfil);
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

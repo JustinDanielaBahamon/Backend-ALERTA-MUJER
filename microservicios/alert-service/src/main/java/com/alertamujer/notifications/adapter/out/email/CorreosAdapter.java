@@ -33,8 +33,8 @@ class CorreosAdapter implements CorreosPort {
     }
 
     @Override
-    public void codigoRecuperacion(String para, String nombre, String codigo, int minutosValidez) {
-        enviar(CodigoRecuperacionTemplate.construir(para, nombre, codigo, minutosValidez, logoUrl));
+    public void codigoRecuperacion(String para, String name, String codigo, int minutosValidez) {
+        enviar(CodigoRecuperacionTemplate.construir(para, name, codigo, minutosValidez, logoUrl));
     }
 
     private void enviar(EmailMessage mensaje) {

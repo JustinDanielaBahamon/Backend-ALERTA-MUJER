@@ -16,11 +16,11 @@ public class EventosSeguridadService implements RegistrarEventoSeguridadUseCase 
 
     private static final Logger log = LoggerFactory.getLogger(EventosSeguridadService.class);
 
-    private final AuditoriaRepositorio repositorio;
+    private final AuditoriaRepositorio repository;
     private final ContextoPeticionPort peticion;
 
-    public EventosSeguridadService(AuditoriaRepositorio repositorio, ContextoPeticionPort peticion) {
-        this.repositorio = repositorio;
+    public EventosSeguridadService(AuditoriaRepositorio repository, ContextoPeticionPort peticion) {
+        this.repository = repository;
         this.peticion = peticion;
     }
 
@@ -32,7 +32,7 @@ public class EventosSeguridadService implements RegistrarEventoSeguridadUseCase 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void registrar(Long accountId, String accion, String detalle) {
         try {
-            repositorio.guardar(AuditLog.eventoDeSesion(accountId, accion, detalle, peticion.dispositivo(), peticion.ip(),
+            repository.save(AuditLog.eventoDeSesion(accountId, accion, detalle, peticion.dispositivo(), peticion.ip(),
                     peticion.origen()));
         } catch (RuntimeException e) {
             log.warn("No se pudo registrar el evento de seguridad {}: {}", accion, e.getMessage());

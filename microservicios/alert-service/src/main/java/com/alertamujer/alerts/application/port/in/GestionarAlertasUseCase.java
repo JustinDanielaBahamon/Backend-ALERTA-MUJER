@@ -32,5 +32,5 @@ public interface GestionarAlertasUseCase {
     /** Conservar (o no) las evidencias de la alerta más allá de 60 días. */
     Alert conservarEvidencias(Long id, boolean conservar, Long userId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 }

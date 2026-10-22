@@ -15,13 +15,13 @@ public interface ZonasUseCase {
 
     List<Zone> deCiudad(String ciudad);
 
-    List<Zone> deTipo(String tipo);
+    List<Zone> deTipo(String type);
 
-    Zone crear(DatosZona datos);
+    Zone create(DatosZona data);
 
-    Zone reemplazar(Long id, DatosZona datos);
+    Zone reemplazar(Long id, DatosZona data);
 
-    void eliminar(Long id);
+    void delete(Long id);
 
     /** Zonas activas (estadísticas del panel). */
     long contarActivas();

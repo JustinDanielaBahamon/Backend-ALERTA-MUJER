@@ -21,11 +21,11 @@ public class ModerationAction {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static ModerationAction de(Long casoId, Long adminId, String tipo, String nota) {
+    public static ModerationAction de(Long casoId, Long adminId, String type, String nota) {
         ModerationAction a = new ModerationAction();
         a.userReportId = casoId;
         a.adminPerfilId = adminId.intValue();
-        a.actionType = tipo;
+        a.actionType = type;
         a.notes = nota;
         return a;
     }

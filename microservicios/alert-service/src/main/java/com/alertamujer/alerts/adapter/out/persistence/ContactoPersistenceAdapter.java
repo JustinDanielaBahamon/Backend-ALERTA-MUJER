@@ -24,7 +24,7 @@ class ContactoPersistenceAdapter implements ContactoRepositorio {
     }
 
     @Override
-    public Optional<EmergencyContact> buscar(Long id) {
+    public Optional<EmergencyContact> find(Long id) {
         return jpa.findById(id).map(ContactoPersistenceAdapter::aDominio);
     }
 
@@ -35,17 +35,17 @@ class ContactoPersistenceAdapter implements ContactoRepositorio {
     }
 
     @Override
-    public List<EmergencyContact> deLaUsuaria(Long perfil) {
+    public List<EmergencyContact> ofUser(Long perfil) {
         return jpa.findByUserProfileId(perfil).stream().map(ContactoPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public EmergencyContact guardar(EmergencyContact contacto) {
+    public EmergencyContact save(EmergencyContact contacto) {
         return aDominio(jpa.save(aFila(contacto)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

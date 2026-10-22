@@ -19,14 +19,14 @@ public class EventosRemotos {
     private final RestClient http;
     private final ObjectMapper json;
 
-    public EventosRemotos(String urlServicio, String clave, ObjectMapper json) {
+    public EventosRemotos(String urlServicio, String key, ObjectMapper json) {
         SimpleClientHttpRequestFactory tiempos = new SimpleClientHttpRequestFactory();
         tiempos.setConnectTimeout(90_000);
         tiempos.setReadTimeout(90_000);
         this.http = RestClient.builder()
                 .baseUrl(urlServicio.replaceAll("/+$", "") + "/internal/events")
                 .requestFactory(tiempos)
-                .defaultHeader(ClaveInterna.CABECERA, clave)
+                .defaultHeader(ClaveInterna.CABECERA, key)
                 .build();
         this.json = json;
     }

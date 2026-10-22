@@ -23,7 +23,7 @@ class RecursoPersistenceAdapter implements RecursoRepositorio {
     }
 
     @Override
-    public Optional<EmergencyResource> buscar(Long id) {
+    public Optional<EmergencyResource> find(Long id) {
         return jpa.findById(id).map(RecursoPersistenceAdapter::aDominio);
     }
 
@@ -33,17 +33,17 @@ class RecursoPersistenceAdapter implements RecursoRepositorio {
     }
 
     @Override
-    public List<EmergencyResource> deTipo(String tipo) {
-        return jpa.findByResourceType(tipo).stream().map(RecursoPersistenceAdapter::aDominio).toList();
+    public List<EmergencyResource> deTipo(String type) {
+        return jpa.findByResourceType(type).stream().map(RecursoPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public EmergencyResource guardar(EmergencyResource recurso) {
+    public EmergencyResource save(EmergencyResource recurso) {
         return aDominio(jpa.save(aFila(recurso)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

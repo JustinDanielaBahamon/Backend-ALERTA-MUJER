@@ -1,6 +1,6 @@
 package com.alertamujer.devices.adapter.out.identity;
 
-import com.alertamujer.devices.application.port.out.IdentidadPort;
+import com.alertamujer.devices.application.port.out.IdentityPort;
 import com.alertamujer.identity.api.IdentityApi;
 import com.alertamujer.identity.api.UserSummary;
 import com.alertamujer.shared.exception.ResourceNotFoundException;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /** Adaptador de salida hacia identity (mismo microservicio) por su contrato IdentityApi. */
 @Component
-class DispositivosIdentidadAdapter implements IdentidadPort {
+class DispositivosIdentidadAdapter implements IdentityPort {
 
     private final IdentityApi identityApi;
 
@@ -34,7 +34,7 @@ class DispositivosIdentidadAdapter implements IdentidadPort {
     }
 
     @Override
-    public Optional<Long> usuariaDelPerfil(Long perfil) {
+    public Optional<Long> userOfProfile(Long perfil) {
         return identityApi.findUserByProfileId(perfil).map(UserSummary::id);
     }
 

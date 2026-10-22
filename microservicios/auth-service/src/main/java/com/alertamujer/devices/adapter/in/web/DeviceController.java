@@ -30,7 +30,7 @@ public class DeviceController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<AdminDeviceView>> getAllDevices() {
-        return ResponseEntity.ok(administracion.listar().stream().map(AdminDeviceView::of).toList());
+        return ResponseEntity.ok(administracion.listAll().stream().map(AdminDeviceView::of).toList());
     }
 
     @GetMapping("/user")
@@ -92,9 +92,9 @@ public class DeviceController {
     public ResponseEntity<Void> deleteDevice(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId,
                                              Authentication authentication) {
         if (esAdmin(authentication)) {
-            administracion.eliminar(id);
+            administracion.delete(id);
         } else {
-            misDispositivos.eliminar(id, currentUserId);
+            misDispositivos.delete(id, currentUserId);
         }
         return ResponseEntity.noContent().build();
     }

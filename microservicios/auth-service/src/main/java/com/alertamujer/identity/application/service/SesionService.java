@@ -36,18 +36,18 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
     private final CifradoPort cifrado;
     private final TokensPort tokens;
     private final VerificadorGooglePort google;
-    private final EventosIdentidadPort eventos;
+    private final EventosIdentidadPort events;
 
     public SesionService(UsuariaRepositorio usuarias, CuentaRepositorio cuentas, PerfilRepositorio perfiles,
                          CifradoPort cifrado, TokensPort tokens, VerificadorGooglePort google,
-                         EventosIdentidadPort eventos) {
+                         EventosIdentidadPort events) {
         this.usuarias = usuarias;
         this.cuentas = cuentas;
         this.perfiles = perfiles;
         this.cifrado = cifrado;
         this.tokens = tokens;
         this.google = google;
-        this.eventos = eventos;
+        this.events = events;
     }
 
     // ── Registro ────────────────────────────────────────────────────
@@ -71,14 +71,14 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
         if (!repetidos.isEmpty()) throw new DuplicateFieldsException(repetidos);
 
         usuarias.asegurarRolUsuaria();
-        User nueva = User.nueva(d.nombre(), d.email(), d.telefono(), d.tipoDocumento(),
+        User nueva = User.nueva(d.name(), d.email(), d.telefono(), d.tipoDocumento(),
                 d.numeroDocumento(), User.fechaDeFormulario(d.fechaNacimiento()));
         // Solo queda constancia si la casilla llegó marcada (las apps anteriores no la envían)
         if (Boolean.TRUE.equals(d.aceptaTerminos())) nueva.aceptarTerminos(LocalDateTime.now());
-        User usuaria = usuarias.guardar(nueva);
-        cuentas.guardar(Account.nueva(usuaria.getId(), cifrado.cifrar(d.password())));
+        User usuaria = usuarias.save(nueva);
+        cuentas.save(Account.nueva(usuaria.getId(), cifrado.cifrar(d.password())));
         // Sin perfil no puede crear alertas, contactos ni ubicaciones
-        if (!perfiles.existeDeUsuaria(usuaria.getId())) perfiles.guardar(UserProfile.de(usuaria.getId()));
+        if (!perfiles.existeDeUsuaria(usuaria.getId())) perfiles.save(UserProfile.de(usuaria.getId()));
         return abrir(usuaria);
     }
 
@@ -116,7 +116,7 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
     @Override
     public String renovar(String refreshToken) {
         try {
-            User usuaria = usuarias.buscar(tokens.usuariaDeRenovacion(refreshToken)).orElseThrow();
+            User usuaria = usuarias.find(tokens.usuariaDeRenovacion(refreshToken)).orElseThrow();
             if (!cuentaDe(usuaria).puedeRenovarSesion()) throw new InvalidCredentialsException("Account blocked");
             return tokens.acceso(usuaria.getId(), usuaria.rolDelToken());
         } catch (RuntimeException e) {
@@ -128,15 +128,15 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
     @Override
     public void cerrar(Long userId, String motivo) {
         if (userId == null) return;
-        usuarias.buscar(userId).filter(User::esAdmin).ifPresent(u -> cuentas.deUsuaria(userId).ifPresent(c ->
-                eventos.sesionAdmin(c.getId(), AdminSessionEvent.LOGOUT, "inactividad".equals(motivo) ? "Por inactividad" : "Voluntario")));
+        usuarias.find(userId).filter(User::esAdmin).ifPresent(u -> cuentas.deUsuaria(userId).ifPresent(c ->
+                events.sesionAdmin(c.getId(), AdminSessionEvent.LOGOUT, "inactividad".equals(motivo) ? "Por inactividad" : "Voluntario")));
     }
 
     // ── Apoyo ───────────────────────────────────────────────────────
 
     private Sesion entrar(User usuaria, Account cuenta, String como) {
         cuenta.registrarAcceso(LocalDateTime.now());
-        cuentas.guardar(cuenta);
+        cuentas.save(cuenta);
         auditar(usuaria, cuenta, AdminSessionEvent.LOGIN_SUCCESS, como);
         return abrir(usuaria);
     }
@@ -150,10 +150,10 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
         User nueva = User.desdeGoogle(id.email(), id.name(), id.givenName(), id.familyName());
         // La pantalla de inicio avisa que continuar con Google es aceptar los términos
         nueva.aceptarTerminos(LocalDateTime.now());
-        User usuaria = usuarias.guardar(nueva);
+        User usuaria = usuarias.save(nueva);
         // Contraseña aleatoria imposible de adivinar: la cuenta se usa con Google
-        cuentas.guardar(Account.nueva(usuaria.getId(), cifrado.cifrar(UUID.randomUUID() + UUID.randomUUID().toString())));
-        perfiles.guardar(UserProfile.de(usuaria.getId()));
+        cuentas.save(Account.nueva(usuaria.getId(), cifrado.cifrar(UUID.randomUUID() + UUID.randomUUID().toString())));
+        perfiles.save(UserProfile.de(usuaria.getId()));
         return usuaria;
     }
 
@@ -162,6 +162,6 @@ public class SesionService implements RegistrarUsuariaUseCase, IniciarSesionUseC
     }
 
     private void auditar(User usuaria, Account cuenta, String accion, String detalle) {
-        if (usuaria.esAdmin()) eventos.sesionAdmin(cuenta.getId(), accion, detalle);
+        if (usuaria.esAdmin()) events.sesionAdmin(cuenta.getId(), accion, detalle);
     }
 }

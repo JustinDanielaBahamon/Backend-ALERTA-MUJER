@@ -12,12 +12,12 @@ public interface ReporteUsuariaRepositorio {
 
     List<UserReport> conEstado(String estado);
 
-    Optional<UserReport> buscar(Long id);
+    Optional<UserReport> find(Long id);
 
     /** Casos sobre una usuaria (users.id). */
     List<UserReport> deUsuaria(Long userId);
 
-    UserReport guardar(UserReport reporte);
+    UserReport save(UserReport reporte);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

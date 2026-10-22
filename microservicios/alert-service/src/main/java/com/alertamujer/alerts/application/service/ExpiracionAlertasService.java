@@ -19,18 +19,18 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ExpiracionAlertasService.class);
 
-    private final AlertaRepositorio repositorio;
+    private final AlertaRepositorio repository;
     private final AjustesPort ajustes;
-    private final EventosAlertaPort eventos;
+    private final EventosAlertaPort events;
 
     // Última ejecución, para el estado del sistema en el panel
     private volatile LocalDateTime ultimaRevision;
     private volatile int expiradasUltimaRevision;
 
-    public ExpiracionAlertasService(AlertaRepositorio repositorio, AjustesPort ajustes, EventosAlertaPort eventos) {
-        this.repositorio = repositorio;
+    public ExpiracionAlertasService(AlertaRepositorio repository, AjustesPort ajustes, EventosAlertaPort events) {
+        this.repository = repository;
         this.ajustes = ajustes;
-        this.eventos = eventos;
+        this.events = events;
     }
 
     @Override
@@ -57,10 +57,10 @@ public class ExpiracionAlertasService implements ExpirarAlertasUseCase {
         int minutos = ajustes.duracionMaximaAlertaMinutos();
         if (minutos <= 0) return 0;
         LocalDateTime limite = ahora.minusMinutes(minutos);
-        List<Alert> vencidas = repositorio.activas().stream().filter(a -> a.vencida(limite)).toList();
+        List<Alert> vencidas = repository.activas().stream().filter(a -> a.vencida(limite)).toList();
         vencidas.forEach(a -> a.expirar(ahora));
-        repositorio.guardarTodas(vencidas);
-        vencidas.forEach(a -> eventos.alertaTerminada(a, ahora));
+        repository.guardarTodas(vencidas);
+        vencidas.forEach(a -> events.alertaTerminada(a, ahora));
         return vencidas.size();
     }
 }

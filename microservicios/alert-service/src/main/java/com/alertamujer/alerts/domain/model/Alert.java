@@ -103,8 +103,8 @@ public class Alert {
      * Marca (o desmarca) la alerta para conservar sus evidencias más allá de 60 días.
      * conservadas = cuántas alertas tiene ya marcadas la usuaria.
      */
-    public void conservarEvidencias(boolean conservar, long conservadas) {
-        if (conservar && !keepEvidence && conservadas >= MAX_ALERTAS_CONSERVADAS) {
+    public void conservarEvidencias(boolean conservar, long kept) {
+        if (conservar && !keepEvidence && kept >= MAX_ALERTAS_CONSERVADAS) {
             throw new IllegalArgumentException("Puedes conservar hasta " + MAX_ALERTAS_CONSERVADAS
                     + " alertas. Deja de conservar otra para guardar esta.");
         }

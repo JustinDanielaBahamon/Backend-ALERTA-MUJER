@@ -10,11 +10,11 @@ public interface DestinatarioRepositorio {
 
     void guardarTodos(List<AlertContact> destinatarios);
 
-    AlertContact guardar(AlertContact destinatario);
+    AlertContact save(AlertContact destinatario);
 
-    Optional<AlertContact> buscar(Long id);
+    Optional<AlertContact> find(Long id);
 
-    List<AlertContact> deLaAlerta(Long alertId);
+    List<AlertContact> ofAlert(Long alertId);
 
     /** Alertas en las que se avisó a este correo (el contacto que tiene cuenta en la app). */
     List<Long> alertasAvisadasA(String correo);

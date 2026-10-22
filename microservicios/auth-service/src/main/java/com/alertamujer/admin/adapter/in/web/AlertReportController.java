@@ -29,12 +29,12 @@ public class AlertReportController {
 
     @GetMapping
     public ResponseEntity<List<AlertReportView>> list() {
-        return ResponseEntity.ok(informes.listar());
+        return ResponseEntity.ok(informes.listAll());
     }
 
     @GetMapping("/stats")
     public ResponseEntity<ReportStats> stats() {
-        return ResponseEntity.ok(informes.estadisticas());
+        return ResponseEntity.ok(informes.stats());
     }
 
     @GetMapping("/{id}")
@@ -44,7 +44,7 @@ public class AlertReportController {
 
     @PostMapping
     public ResponseEntity<AlertReportView> create(@RequestBody AlertReportRequest request, @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(informes.crear(request.aCambios(), currentUserId));
+        return ResponseEntity.ok(informes.create(request.aCambios(), currentUserId));
     }
 
     @PutMapping("/{id}")
@@ -54,7 +54,7 @@ public class AlertReportController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        informes.eliminar(id);
+        informes.delete(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -63,11 +63,11 @@ public class AlertReportController {
     public ResponseEntity<byte[]> export(@PathVariable Long id, @RequestParam(defaultValue = "pdf") String format) {
         boolean pdf = "pdf".equalsIgnoreCase(format);
         if (!pdf && !"csv".equalsIgnoreCase(format)) throw new IllegalArgumentException("Formato no válido: " + format);
-        byte[] archivo = informes.exportar(id, pdf);
+        byte[] file = informes.exportar(id, pdf);
         return ResponseEntity.ok()
                 .contentType(pdf ? MediaType.APPLICATION_PDF : new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename("informe-" + id + (pdf ? ".pdf" : ".csv")).build().toString())
-                .body(archivo);
+                .body(file);
     }
 }

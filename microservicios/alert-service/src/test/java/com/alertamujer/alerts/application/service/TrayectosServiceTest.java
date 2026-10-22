@@ -31,8 +31,8 @@ import static org.mockito.Mockito.*;
 class TrayectosServiceTest {
 
     @Mock private TrayectoRepositorio trayectos;
-    @Mock private IdentidadPort identidad;
-    @Mock private GestionarAlertasUseCase alertas;
+    @Mock private IdentityPort identidad;
+    @Mock private GestionarAlertasUseCase alerts;
     @Mock private UbicacionRepositorio ubicaciones;
     @Mock private CelularesPort celulares;
     @Mock private PushPort push;
@@ -44,7 +44,7 @@ class TrayectosServiceTest {
     @BeforeEach
     void setUp() {
         lenient().when(identidad.perfilRequerido(1L)).thenReturn(10L);
-        lenient().when(trayectos.guardar(any(SafeTrip.class))).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(trayectos.save(any(SafeTrip.class))).thenAnswer(inv -> inv.getArgument(0));
     }
 
     private static SafeTrip trayecto(int minutos) {
@@ -58,7 +58,7 @@ class TrayectosServiceTest {
         when(trayectos.activoDe(10L)).thenReturn(Optional.of(trayecto(30)));
 
         assertThrows(ConflictException.class, () -> service.iniciar(new NuevoTrayecto("Casa", 30, 2L, null, null), 1L));
-        verify(trayectos, never()).guardar(any());
+        verify(trayectos, never()).save(any());
     }
 
     @Test
@@ -71,7 +71,7 @@ class TrayectosServiceTest {
 
     @Test
     void soloLaDuenaConfirmaOCancela() {
-        when(trayectos.buscar(7L)).thenReturn(Optional.of(trayecto(30)));
+        when(trayectos.find(7L)).thenReturn(Optional.of(trayecto(30)));
         when(identidad.perfilRequerido(99L)).thenReturn(99L);
 
         assertThrows(ResourceNotFoundException.class, () -> service.llegue(7L, 99L));
@@ -89,12 +89,12 @@ class TrayectosServiceTest {
         when(ubicaciones.ultima(10L)).thenReturn(Optional.of(ultima));
         Alert creada = new Alert();
         creada.setId(55L);
-        when(alertas.activar(any(NuevaAlerta.class), eq(1L))).thenReturn(creada);
+        when(alerts.activar(any(NuevaAlerta.class), eq(1L))).thenReturn(creada);
 
         assertEquals(1, service.revisar(SALIDA.plusMinutes(33)));
 
         ArgumentCaptor<NuevaAlerta> nueva = ArgumentCaptor.forClass(NuevaAlerta.class);
-        verify(alertas).activar(nueva.capture(), eq(1L));
+        verify(alerts).activar(nueva.capture(), eq(1L));
         assertEquals("timer", nueva.getValue().activationMethod());
         assertEquals(new BigDecimal("2.93"), nueva.getValue().latitude());
         assertTrue(nueva.getValue().message().contains("Casa"));
@@ -112,7 +112,7 @@ class TrayectosServiceTest {
 
         verify(push).enviarDatos(eq(List.of("token")), argThat((Map<String, String> m) -> "TRAYECTO_POR_VENCER".equals(m.get("tipo"))));
         assertTrue(t.isReminderSent());
-        verify(alertas, never()).activar(any(), any());
+        verify(alerts, never()).activar(any(), any());
     }
 
     @Test
@@ -124,7 +124,7 @@ class TrayectosServiceTest {
         when(ubicaciones.ultima(10L)).thenReturn(Optional.empty());
         Alert creada = new Alert();
         creada.setId(56L);
-        when(alertas.activar(any(), eq(1L))).thenThrow(new RuntimeException("caída")).thenReturn(creada);
+        when(alerts.activar(any(), eq(1L))).thenThrow(new RuntimeException("caída")).thenReturn(creada);
 
         assertEquals(1, service.revisar(SALIDA.plusMinutes(40)));
         assertEquals(SafeTrip.ALERTADO, bueno.getStatus());

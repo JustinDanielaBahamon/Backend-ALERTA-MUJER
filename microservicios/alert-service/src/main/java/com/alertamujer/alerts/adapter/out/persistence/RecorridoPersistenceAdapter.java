@@ -18,12 +18,12 @@ class RecorridoPersistenceAdapter implements RecorridoRepositorio {
     }
 
     @Override
-    public List<SavedRoute> deLaUsuaria(Long perfil) {
+    public List<SavedRoute> ofUser(Long perfil) {
         return jpa.findByUserProfileIdOrderByCreatedAtDesc(perfil).stream().map(RecorridoPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public Optional<SavedRoute> buscar(Long id) {
+    public Optional<SavedRoute> find(Long id) {
         return jpa.findById(id).map(RecorridoPersistenceAdapter::aDominio);
     }
 
@@ -38,12 +38,12 @@ class RecorridoPersistenceAdapter implements RecorridoRepositorio {
     }
 
     @Override
-    public SavedRoute guardar(SavedRoute recorrido) {
+    public SavedRoute save(SavedRoute recorrido) {
         return aDominio(jpa.save(aFila(recorrido)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

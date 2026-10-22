@@ -35,7 +35,7 @@ class SesionServiceTest {
     @Mock private CifradoPort cifrado;
     @Mock private TokensPort tokens;
     @Mock private VerificadorGooglePort google;
-    @Mock private EventosIdentidadPort eventos;
+    @Mock private EventosIdentidadPort events;
 
     @InjectMocks private SesionService service;
 
@@ -63,7 +63,7 @@ class SesionServiceTest {
 
     @Test
     void registrar_creaPersonaCuentaYPerfilYAbreLaSesion() {
-        when(usuarias.guardar(any(User.class))).thenAnswer(inv -> {
+        when(usuarias.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setId(1L);
             return u;
@@ -77,10 +77,10 @@ class SesionServiceTest {
         assertEquals("3001234567", s.usuaria().getTelephone());
         assertEquals(LocalDate.of(1995, 5, 5), s.usuaria().getBirthdate());
         ArgumentCaptor<Account> c = ArgumentCaptor.forClass(Account.class);
-        verify(cuentas).guardar(c.capture());
+        verify(cuentas).save(c.capture());
         assertEquals("hash", c.getValue().getPasswordHash());
         assertEquals(1L, c.getValue().getUserId());
-        verify(perfiles).guardar(any(UserProfile.class));
+        verify(perfiles).save(any(UserProfile.class));
         verify(usuarias).asegurarRolUsuaria();
         assertNotNull(s.usuaria().getTermsAcceptedAt());
         assertEquals(User.TERMINOS_VIGENTES, s.usuaria().getTermsVersion());
@@ -89,12 +89,12 @@ class SesionServiceTest {
     @Test
     void registrar_rechazaSiNoAceptaLosTerminos() {
         assertThrows(IllegalArgumentException.class, () -> service.registrar(registro(false)));
-        verify(usuarias, never()).guardar(any());
+        verify(usuarias, never()).save(any());
     }
 
     @Test
     void registrar_sinLaCasilla_noInventaLaConstancia() {
-        when(usuarias.guardar(any(User.class))).thenAnswer(inv -> {
+        when(usuarias.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setId(1L);
             return u;
@@ -116,7 +116,7 @@ class SesionServiceTest {
         DuplicateFieldsException e = assertThrows(DuplicateFieldsException.class, () -> service.registrar(registro()));
 
         assertEquals(3, e.getFieldErrors().size());
-        verify(usuarias, never()).guardar(any());
+        verify(usuarias, never()).save(any());
     }
 
     @Test
@@ -130,7 +130,7 @@ class SesionServiceTest {
         assertSame(ana, s.usuaria());
         assertNotNull(cuenta.getLastAccess());
         verify(tokens).acceso(1L, "user");
-        verifyNoInteractions(eventos);
+        verifyNoInteractions(events);
     }
 
     @Test
@@ -147,7 +147,7 @@ class SesionServiceTest {
         InvalidCredentialsException e = assertThrows(InvalidCredentialsException.class,
                 () -> service.conCorreo("ana@correo.com", "Secreta123"));
         assertEquals("Account blocked", e.getMessage());
-        verify(cuentas, never()).guardar(any());
+        verify(cuentas, never()).save(any());
     }
 
     @Test
@@ -161,8 +161,8 @@ class SesionServiceTest {
         assertThrows(InvalidCredentialsException.class, () -> service.conCorreo("ana@correo.com", "mala"));
         service.conCorreo("ana@correo.com", "Secreta123");
 
-        verify(eventos).sesionAdmin(4L, AdminSessionEvent.LOGIN_FAILED, "Contraseña incorrecta");
-        verify(eventos).sesionAdmin(4L, AdminSessionEvent.LOGIN_SUCCESS, "Con correo y contraseña");
+        verify(events).sesionAdmin(4L, AdminSessionEvent.LOGIN_FAILED, "Contraseña incorrecta");
+        verify(events).sesionAdmin(4L, AdminSessionEvent.LOGIN_SUCCESS, "Con correo y contraseña");
         verify(tokens).acceso(1L, "admin");
     }
 
@@ -170,7 +170,7 @@ class SesionServiceTest {
     void conGoogle_creaLaUsuariaSiNoExiste() {
         when(google.verificar("token")).thenReturn(new IdentidadGoogle("eva@correo.com", "Eva Ruiz", "Eva", "Ruiz"));
         when(usuarias.porCorreo("eva@correo.com")).thenReturn(Optional.empty());
-        when(usuarias.guardar(any(User.class))).thenAnswer(inv -> {
+        when(usuarias.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
             u.setId(9L);
             return u;
@@ -183,14 +183,14 @@ class SesionServiceTest {
 
         assertEquals("Eva", s.usuaria().getFirstName());
         assertEquals(User.TERMINOS_VIGENTES, s.usuaria().getTermsVersion());
-        verify(perfiles).guardar(any(UserProfile.class));
-        verify(cuentas, times(2)).guardar(any(Account.class));
+        verify(perfiles).save(any(UserProfile.class));
+        verify(cuentas, times(2)).save(any(Account.class));
     }
 
     @Test
     void renovar_entregaUnTokenNuevoSoloSiLaCuentaSigueActiva() {
         when(tokens.usuariaDeRenovacion("r")).thenReturn(1L);
-        when(usuarias.buscar(1L)).thenReturn(Optional.of(ana));
+        when(usuarias.find(1L)).thenReturn(Optional.of(ana));
         when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
 
         assertEquals("acceso", service.renovar("r"));
@@ -210,14 +210,14 @@ class SesionServiceTest {
 
     @Test
     void cerrar_soloAuditaAdministradoras() {
-        when(usuarias.buscar(1L)).thenReturn(Optional.of(ana));
+        when(usuarias.find(1L)).thenReturn(Optional.of(ana));
         service.cerrar(1L, "inactividad");
         service.cerrar(null, null);
-        verifyNoInteractions(eventos);
+        verifyNoInteractions(events);
 
         ana.setRoleId(User.ROL_ADMIN);
         when(cuentas.deUsuaria(1L)).thenReturn(Optional.of(cuenta));
         service.cerrar(1L, "inactividad");
-        verify(eventos).sesionAdmin(4L, AdminSessionEvent.LOGOUT, "Por inactividad");
+        verify(events).sesionAdmin(4L, AdminSessionEvent.LOGOUT, "Por inactividad");
     }
 }

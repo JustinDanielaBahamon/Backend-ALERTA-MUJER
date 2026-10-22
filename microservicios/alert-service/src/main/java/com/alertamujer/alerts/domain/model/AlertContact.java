@@ -30,12 +30,12 @@ public class AlertContact {
 
     // ── Reglas ──────────────────────────────────────────────────────
 
-    public static AlertContact nuevo(Long alertId, Long contactoId, String canal, String destino) {
+    public static AlertContact nuevo(Long alertId, Long contactoId, String canal, String target) {
         AlertContact d = new AlertContact();
         d.alertId = alertId;
         d.emergencyContactId = contactoId;
         d.channel = canal;
-        d.destination = destino;
+        d.destination = target;
         return d;
     }
 

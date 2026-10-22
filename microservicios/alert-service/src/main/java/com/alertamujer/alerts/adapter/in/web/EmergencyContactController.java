@@ -44,7 +44,7 @@ public class EmergencyContactController {
     @PostMapping
     public ResponseEntity<EmergencyContactResponse> createContact(@RequestBody EmergencyContactRequest request,
                                                                   @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.crear(request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(EmergencyContactResponse.of(contactos.create(request.aDatos(), currentUserId)));
     }
 
     @PutMapping("/{id}")
@@ -55,7 +55,7 @@ public class EmergencyContactController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContact(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        contactos.eliminar(id, currentUserId);
+        contactos.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -13,14 +13,14 @@ public interface MisDispositivosUseCase {
     Device uno(Long id, Long userId);
 
     /** Registra el dispositivo en la cuenta; si es otro celular, avisa a los demás celulares. */
-    Device registrar(DatosDispositivo datos, Long userId);
+    Device registrar(DatosDispositivo data, Long userId);
 
-    Device reemplazar(Long id, DatosDispositivo datos, Long userId);
+    Device reemplazar(Long id, DatosDispositivo data, Long userId);
 
     /** La app informa los datos actuales del celular, sus permisos y la última conexión. */
-    Device registrarUso(Long id, DatosDispositivo datos, Long userId);
+    Device registrarUso(Long id, DatosDispositivo data, Long userId);
 
     void cambiarTokenPush(Long id, String token, Long userId);
 
-    void eliminar(Long id, Long userId);
+    void delete(Long id, Long userId);
 }

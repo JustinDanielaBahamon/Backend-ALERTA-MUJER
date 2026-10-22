@@ -9,5 +9,5 @@ public interface ConfiguracionRepositorio {
 
     Optional<SystemConfiguration> actual();
 
-    SystemConfiguration guardar(SystemConfiguration configuracion);
+    SystemConfiguration save(SystemConfiguration config);
 }

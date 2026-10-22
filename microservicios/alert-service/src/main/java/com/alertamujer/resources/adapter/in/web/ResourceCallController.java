@@ -72,11 +72,11 @@ public class ResourceCallController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCall(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        llamadas.eliminar(id, currentUserId);
+        llamadas.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 
-    private static List<ResourceCallResponse> vistas(List<ResourceCall> lista) {
-        return lista.stream().map(ResourceCallResponse::of).toList();
+    private static List<ResourceCallResponse> vistas(List<ResourceCall> list) {
+        return list.stream().map(ResourceCallResponse::of).toList();
     }
 }

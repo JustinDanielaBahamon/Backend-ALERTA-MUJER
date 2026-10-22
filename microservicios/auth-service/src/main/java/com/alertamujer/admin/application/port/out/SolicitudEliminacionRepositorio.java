@@ -11,9 +11,9 @@ public interface SolicitudEliminacionRepositorio {
     /** De la más reciente a la más antigua. */
     List<AccountDeletionRequest> todas();
 
-    Optional<AccountDeletionRequest> buscar(Long id);
+    Optional<AccountDeletionRequest> find(Long id);
 
     boolean hayPendiente(Long userId);
 
-    AccountDeletionRequest guardar(AccountDeletionRequest solicitud);
+    AccountDeletionRequest save(AccountDeletionRequest solicitud);
 }

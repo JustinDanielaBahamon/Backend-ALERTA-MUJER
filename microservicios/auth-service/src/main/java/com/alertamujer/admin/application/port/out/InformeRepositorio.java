@@ -10,9 +10,9 @@ public interface InformeRepositorio {
 
     List<AlertReport> todos();
 
-    Optional<AlertReport> buscar(Long id);
+    Optional<AlertReport> find(Long id);
 
-    AlertReport guardar(AlertReport informe);
+    AlertReport save(AlertReport informe);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

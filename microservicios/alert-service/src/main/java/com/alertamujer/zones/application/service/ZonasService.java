@@ -15,55 +15,55 @@ import java.util.Optional;
 @Service
 public class ZonasService implements ZonasUseCase {
 
-    private final ZonaRepositorio repositorio;
+    private final ZonaRepositorio repository;
 
-    public ZonasService(ZonaRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public ZonasService(ZonaRepositorio repository) {
+        this.repository = repository;
     }
 
     @Override
     public List<Zone> todas() {
-        return repositorio.todas();
+        return repository.todas();
     }
 
     @Override
     public Optional<Zone> una(Long id) {
-        return repositorio.buscar(id);
+        return repository.find(id);
     }
 
     @Override
     public List<Zone> deCiudad(String ciudad) {
-        return repositorio.deCiudad(ciudad);
+        return repository.deCiudad(ciudad);
     }
 
     @Override
-    public List<Zone> deTipo(String tipo) {
-        return repositorio.deTipo(tipo);
-    }
-
-    @Override
-    @Transactional
-    public Zone crear(DatosZona datos) {
-        return repositorio.guardar(Zone.nueva(datos));
+    public List<Zone> deTipo(String type) {
+        return repository.deTipo(type);
     }
 
     @Override
     @Transactional
-    public Zone reemplazar(Long id, DatosZona datos) {
-        Zone zona = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("Zone", id));
-        zona.reemplazar(datos);
-        return repositorio.guardar(zona);
+    public Zone create(DatosZona data) {
+        return repository.save(Zone.nueva(data));
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id) {
-        repositorio.eliminar(id);
+    public Zone reemplazar(Long id, DatosZona data) {
+        Zone zona = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("Zone", id));
+        zona.reemplazar(data);
+        return repository.save(zona);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(id);
     }
 
     @Override
     @Transactional(readOnly = true)
     public long contarActivas() {
-        return repositorio.todas().stream().filter(Zone::activa).count();
+        return repository.todas().stream().filter(Zone::activa).count();
     }
 }

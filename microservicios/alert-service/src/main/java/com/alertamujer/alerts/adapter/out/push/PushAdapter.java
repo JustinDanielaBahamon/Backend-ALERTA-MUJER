@@ -18,7 +18,7 @@ class PushAdapter implements PushPort {
     }
 
     @Override
-    public List<String> enviarDatos(List<String> tokens, Map<String, String> datos) {
-        return fcmService.sendEmergencyAlert(tokens, datos);
+    public List<String> enviarDatos(List<String> tokens, Map<String, String> data) {
+        return fcmService.sendEmergencyAlert(tokens, data);
     }
 }

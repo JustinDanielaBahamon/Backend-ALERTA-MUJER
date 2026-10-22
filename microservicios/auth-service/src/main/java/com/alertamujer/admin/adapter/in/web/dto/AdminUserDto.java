@@ -13,6 +13,6 @@ public record AdminUserDto(Long id, Long userProfileId, String firstName, String
     public static AdminUserDto of(UsuariaConAlertas u) {
         UserAccountView v = u.cuenta();
         return new AdminUserDto(v.userId(), v.profileId(), v.firstName(), v.lastName(), v.email(), v.telephone(),
-                v.roleName(), v.accountStatus(), v.createdAt(), v.lastAccess(), u.alertas());
+                v.roleName(), v.accountStatus(), v.createdAt(), v.lastAccess(), u.alerts());
     }
 }

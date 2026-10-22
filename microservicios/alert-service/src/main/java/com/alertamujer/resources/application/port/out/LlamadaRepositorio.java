@@ -10,7 +10,7 @@ public interface LlamadaRepositorio {
 
     List<ResourceCall> todas();
 
-    Optional<ResourceCall> buscar(Long id);
+    Optional<ResourceCall> find(Long id);
 
     /** De la más reciente a la más antigua. */
     List<ResourceCall> dePerfil(Long perfil);
@@ -19,7 +19,7 @@ public interface LlamadaRepositorio {
 
     List<ResourceCall> deAlerta(Long alertId);
 
-    ResourceCall guardar(ResourceCall llamada);
+    ResourceCall save(ResourceCall llamada);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

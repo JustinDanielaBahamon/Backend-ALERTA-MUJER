@@ -16,16 +16,16 @@ public class BorradoDatosUsuariaService implements BorrarDatosDeUsuariaUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(BorradoDatosUsuariaService.class);
 
-    private final DatosDeUsuariaRepositorio datos;
+    private final DatosDeUsuariaRepositorio data;
 
-    public BorradoDatosUsuariaService(DatosDeUsuariaRepositorio datos) {
-        this.datos = datos;
+    public BorradoDatosUsuariaService(DatosDeUsuariaRepositorio data) {
+        this.data = data;
     }
 
     @Override
     public void borrarDatosDe(Long userProfileId) {
         if (userProfileId == null) return;
-        int filas = datos.borrarDe(userProfileId);
+        int filas = data.borrarDe(userProfileId);
         log.info("Cuenta eliminada: datos del perfil {} borrados ({} filas)", userProfileId, filas);
     }
 }

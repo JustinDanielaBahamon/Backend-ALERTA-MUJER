@@ -12,14 +12,14 @@ class LimpiezaUbicacionesServiceTest {
 
     @Test
     void borraLoDelDiaADiaALos7DiasYLasAlertasALos30() {
-        UbicacionRepositorio repositorio = mock(UbicacionRepositorio.class);
+        UbicacionRepositorio repository = mock(UbicacionRepositorio.class);
         LocalDateTime ahora = LocalDateTime.of(2026, 10, 19, 3, 30);
-        when(repositorio.borrarSinAlertaAntesDe(ahora.minusDays(7))).thenReturn(120);
-        when(repositorio.borrarDeAlertasAntesDe(ahora.minusDays(30))).thenReturn(15);
+        when(repository.borrarSinAlertaAntesDe(ahora.minusDays(7))).thenReturn(120);
+        when(repository.borrarDeAlertasAntesDe(ahora.minusDays(30))).thenReturn(15);
 
-        assertEquals(135, new LimpiezaUbicacionesService(repositorio, 7, 30).limpiar(ahora));
+        assertEquals(135, new LimpiezaUbicacionesService(repository, 7, 30).limpiar(ahora));
 
-        verify(repositorio).borrarSinAlertaAntesDe(ahora.minusDays(7));
-        verify(repositorio).borrarDeAlertasAntesDe(ahora.minusDays(30));
+        verify(repository).borrarSinAlertaAntesDe(ahora.minusDays(7));
+        verify(repository).borrarDeAlertasAntesDe(ahora.minusDays(30));
     }
 }

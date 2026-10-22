@@ -45,9 +45,9 @@ class NombresDeBeansTest {
         }
     }
 
-    private static boolean esBean(Path archivo) {
+    private static boolean esBean(Path file) {
         try {
-            return BEAN.matcher(Files.readString(archivo)).find();
+            return BEAN.matcher(Files.readString(file)).find();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }

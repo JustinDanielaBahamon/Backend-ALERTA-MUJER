@@ -15,49 +15,49 @@ import java.util.Optional;
 @Service
 public class RecursosService implements RecursosUseCase {
 
-    private final RecursoRepositorio repositorio;
+    private final RecursoRepositorio repository;
 
-    public RecursosService(RecursoRepositorio repositorio) {
-        this.repositorio = repositorio;
+    public RecursosService(RecursoRepositorio repository) {
+        this.repository = repository;
     }
 
     @Override
     public List<EmergencyResource> todos() {
-        return repositorio.todos();
+        return repository.todos();
     }
 
     @Override
     public Optional<EmergencyResource> uno(Long id) {
-        return repositorio.buscar(id);
+        return repository.find(id);
     }
 
     @Override
     public List<EmergencyResource> deCiudad(String ciudad) {
-        return repositorio.deCiudad(ciudad);
+        return repository.deCiudad(ciudad);
     }
 
     @Override
-    public List<EmergencyResource> deTipo(String tipo) {
-        return repositorio.deTipo(tipo);
-    }
-
-    @Override
-    @Transactional
-    public EmergencyResource crear(DatosRecurso datos) {
-        return repositorio.guardar(EmergencyResource.nuevo(datos));
+    public List<EmergencyResource> deTipo(String type) {
+        return repository.deTipo(type);
     }
 
     @Override
     @Transactional
-    public EmergencyResource reemplazar(Long id, DatosRecurso datos) {
-        EmergencyResource r = repositorio.buscar(id).orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", id));
-        r.reemplazar(datos);
-        return repositorio.guardar(r);
+    public EmergencyResource create(DatosRecurso data) {
+        return repository.save(EmergencyResource.nuevo(data));
     }
 
     @Override
     @Transactional
-    public void eliminar(Long id) {
-        repositorio.eliminar(id);
+    public EmergencyResource reemplazar(Long id, DatosRecurso data) {
+        EmergencyResource r = repository.find(id).orElseThrow(() -> new ResourceNotFoundException("EmergencyResource", id));
+        r.reemplazar(data);
+        return repository.save(r);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        repository.delete(id);
     }
 }

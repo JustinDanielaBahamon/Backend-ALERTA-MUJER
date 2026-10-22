@@ -42,10 +42,10 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
 
     /** CSV con separador ";" y BOM UTF-8, que es como Excel en español lo abre bien. */
     @Override
-    public byte[] csv(AlertReportView informe, List<AdminAlertView> alertas) {
+    public byte[] csv(AlertReportView informe, List<AdminAlertView> alerts) {
         StringBuilder sb = new StringBuilder("\uFEFF");
         sb.append(String.join(";", COLUMNAS)).append("\r\n");
-        for (AdminAlertView a : alertas) {
+        for (AdminAlertView a : alerts) {
             String[] fila = fila(a);
             for (int i = 0; i < fila.length; i++) {
                 if (i > 0) sb.append(';');
@@ -57,7 +57,7 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
     }
 
     @Override
-    public byte[] pdf(AlertReportView informe, List<AdminAlertView> alertas) {
+    public byte[] pdf(AlertReportView informe, List<AdminAlertView> alerts) {
         ByteArrayOutputStream salida = new ByteArrayOutputStream();
         Document doc = new Document(PageSize.A4.rotate(), 28, 28, 28, 36);
         PdfWriter escritor = PdfWriter.getInstance(doc, salida);
@@ -78,8 +78,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         doc.add(espacio(8));
 
         // Datos del informe en dos columnas
-        PdfPTable datos = new PdfPTable(new float[]{1, 3, 1, 3});
-        datos.setWidthPercentage(100);
+        PdfPTable data = new PdfPTable(new float[]{1, 3, 1, 3});
+        data.setWidthPercentage(100);
         String periodo = informe.fromDate() == null && informe.toDate() == null ? null
                 : (informe.fromDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.fromDate()))) + " a "
                 + (informe.toDate() == null ? "…" : FECHA.format(HoraColombia.de(informe.toDate())));
@@ -89,10 +89,10 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
                 {"Usuaria", informe.userLabel()}, {"Acontecimiento", informe.event()},
         };
         for (String[] par : pares) {
-            datos.addCell(sinBorde(par[0], fuente(true, 8.5f, GRIS)));
-            datos.addCell(sinBorde(par[1] == null || par[1].isBlank() ? "—" : par[1], fuente(false, 9, TEXTO)));
+            data.addCell(sinBorde(par[0], fuente(true, 8.5f, GRIS)));
+            data.addCell(sinBorde(par[1] == null || par[1].isBlank() ? "—" : par[1], fuente(false, 9, TEXTO)));
         }
-        doc.add(datos);
+        doc.add(data);
         if (informe.description() != null && !informe.description().isBlank()) {
             doc.add(espacio(4));
             doc.add(new Paragraph(informe.description(), fuente(false, 9, TEXTO)));
@@ -104,11 +104,11 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         doc.add(espacio(4));
         PdfPTable resumen = new PdfPTable(new float[]{1, 1, 1});
         resumen.setWidthPercentage(100);
-        resumen.addCell(cajaResumen("Total de alertas", List.<String[]>of(new String[]{"", String.valueOf(alertas.size())})));
-        resumen.addCell(cajaResumen("Por estado", conteo(alertas, a -> ESTADOS.getOrDefault(a.status(), a.status()))));
-        resumen.addCell(cajaResumen("Por activación", conteo(alertas, a -> METODOS.getOrDefault(a.activationMethod(), a.activationMethod()))));
+        resumen.addCell(cajaResumen("Total de alertas", List.<String[]>of(new String[]{"", String.valueOf(alerts.size())})));
+        resumen.addCell(cajaResumen("Por estado", conteo(alerts, a -> ESTADOS.getOrDefault(a.status(), a.status()))));
+        resumen.addCell(cajaResumen("Por activación", conteo(alerts, a -> METODOS.getOrDefault(a.activationMethod(), a.activationMethod()))));
         doc.add(resumen);
-        String promedio = duracionPromedio(alertas);
+        String promedio = duracionPromedio(alerts);
         if (promedio != null) {
             doc.add(espacio(4));
             doc.add(new Paragraph("Duración promedio de las alertas terminadas: " + promedio, fuente(false, 8.5f, GRIS)));
@@ -130,7 +130,7 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
             tabla.addCell(cel);
         }
         int n = 0;
-        for (AdminAlertView a : alertas) {
+        for (AdminAlertView a : alerts) {
             Color fondo = n++ % 2 == 0 ? Color.WHITE : LILA_FILA;
             String usuaria = (a.userName() == null ? "" : a.userName()) + (a.userEmail() == null ? "" : "\n" + a.userEmail());
             String ubicacion = a.latitude() == null || a.longitude() == null ? "—"
@@ -150,7 +150,7 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
                 tabla.addCell(cel);
             }
         }
-        if (alertas.isEmpty()) {
+        if (alerts.isEmpty()) {
             PdfPCell vacia = new PdfPCell(new Phrase("El informe no incluye alertas.", fuente(false, 8, GRIS)));
             vacia.setColspan(columnas.length);
             vacia.setPadding(8);
@@ -186,8 +186,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
     private static final Color TEXTO = new Color(0x1E, 0x1B, 0x4B);
     private static final Color GRIS = new Color(0x6B, 0x5B, 0x95);
 
-    private static Font fuente(boolean negrita, float tamano, Color color) {
-        return FontFactory.getFont(negrita ? FontFactory.HELVETICA_BOLD : FontFactory.HELVETICA, tamano, color);
+    private static Font fuente(boolean negrita, float size, Color color) {
+        return FontFactory.getFont(negrita ? FontFactory.HELVETICA_BOLD : FontFactory.HELVETICA, size, color);
     }
 
     private static Paragraph espacio(float alto) {
@@ -219,9 +219,9 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         return caja;
     }
 
-    private static List<String[]> conteo(List<AdminAlertView> alertas, java.util.function.Function<AdminAlertView, String> clave) {
+    private static List<String[]> conteo(List<AdminAlertView> alerts, java.util.function.Function<AdminAlertView, String> key) {
         Map<String, Long> cuenta = new java.util.TreeMap<>();
-        for (AdminAlertView a : alertas) cuenta.merge(clave.apply(a) == null ? "Sin dato" : clave.apply(a), 1L, Long::sum);
+        for (AdminAlertView a : alerts) cuenta.merge(key.apply(a) == null ? "Sin dato" : key.apply(a), 1L, Long::sum);
         return cuenta.entrySet().stream().map(e -> new String[]{e.getKey(), String.valueOf(e.getValue())}).toList();
     }
 
@@ -236,8 +236,8 @@ class InformeExportadorAdapter implements ExportadorInformesPort {
         return formatoMinutos(Math.max(0, java.time.Duration.between(a.startedAt(), fin).toMinutes()));
     }
 
-    private static String duracionPromedio(List<AdminAlertView> alertas) {
-        var minutos = alertas.stream().filter(a -> a.startedAt() != null && fin(a) != null)
+    private static String duracionPromedio(List<AdminAlertView> alerts) {
+        var minutos = alerts.stream().filter(a -> a.startedAt() != null && fin(a) != null)
                 .mapToLong(a -> Math.max(0, java.time.Duration.between(a.startedAt(), fin(a)).toMinutes())).toArray();
         if (minutos.length == 0) return null;
         return formatoMinutos(Math.round(java.util.Arrays.stream(minutos).average().orElse(0)));

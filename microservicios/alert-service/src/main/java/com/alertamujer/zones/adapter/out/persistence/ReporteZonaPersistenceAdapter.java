@@ -23,7 +23,7 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
     }
 
     @Override
-    public Optional<ZoneReport> buscar(Long id) {
+    public Optional<ZoneReport> find(Long id) {
         return jpa.findById(id).map(ReporteZonaPersistenceAdapter::aDominio);
     }
 
@@ -43,12 +43,12 @@ class ReporteZonaPersistenceAdapter implements ReporteZonaRepositorio {
     }
 
     @Override
-    public ZoneReport guardar(ZoneReport reporte) {
+    public ZoneReport save(ZoneReport reporte) {
         return aDominio(jpa.save(aFila(reporte)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

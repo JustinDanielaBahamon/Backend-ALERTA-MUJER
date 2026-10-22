@@ -59,7 +59,7 @@ public class ZoneReportController {
     public ResponseEntity<ZoneReportResponse> createReport(@RequestBody ZoneReportRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
         return ResponseEntity.ok(ZoneReportResponse.of(
-                reportes.crear(request.zoneId(), request.classification(), request.comment(), currentUserId)));
+                reportes.create(request.zoneId(), request.classification(), request.comment(), currentUserId)));
     }
 
     @PutMapping("/{id}/approve")
@@ -76,12 +76,12 @@ public class ZoneReportController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReport(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        reportes.eliminar(id, currentUserId);
+        reportes.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 
-    private static List<ZoneReportResponse> vistas(List<ZoneReport> lista) {
-        return lista.stream().map(ZoneReportResponse::of).toList();
+    private static List<ZoneReportResponse> vistas(List<ZoneReport> list) {
+        return list.stream().map(ZoneReportResponse::of).toList();
     }
 
     private static boolean esAdmin(Authentication authentication) {

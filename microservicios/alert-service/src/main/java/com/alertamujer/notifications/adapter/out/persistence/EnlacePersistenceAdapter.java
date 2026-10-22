@@ -17,7 +17,7 @@ class EnlacePersistenceAdapter implements EnlaceRepositorio {
     }
 
     @Override
-    public TrackingLink guardar(TrackingLink enlace) {
+    public TrackingLink save(TrackingLink enlace) {
         return aDominio(jpa.save(aFila(enlace)));
     }
 

@@ -22,13 +22,13 @@ class ExpiracionAlertasServiceTest {
 
     private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 20, 10, 0);
 
-    @Mock private AlertaRepositorio repositorio;
+    @Mock private AlertaRepositorio repository;
     @Mock private AjustesPort ajustes;
-    @Mock private EventosAlertaPort eventos;
+    @Mock private EventosAlertaPort events;
 
     @InjectMocks private ExpiracionAlertasService service;
 
-    private static Alert alerta(LocalDateTime inicio) {
+    private static Alert alert(LocalDateTime inicio) {
         Alert a = new Alert();
         a.setStartedAt(inicio);
         return a;
@@ -36,19 +36,19 @@ class ExpiracionAlertasServiceTest {
 
     @Test
     void expiraSoloLasQuePasanLaDuracionMaximaYAvisa() {
-        Alert vieja = alerta(AHORA.minusMinutes(31));
-        Alert reciente = alerta(AHORA.minusMinutes(10));
+        Alert vieja = alert(AHORA.minusMinutes(31));
+        Alert reciente = alert(AHORA.minusMinutes(10));
         when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(30);
-        when(repositorio.activas()).thenReturn(List.of(vieja, reciente));
+        when(repository.activas()).thenReturn(List.of(vieja, reciente));
 
         assertEquals(1, service.revisar(AHORA));
 
         assertEquals("expired", vieja.getStatus());
         assertEquals(AHORA, vieja.getEndedAt());
         assertEquals("active", reciente.getStatus());
-        verify(repositorio).guardarTodas(List.of(vieja));
-        verify(eventos).alertaTerminada(vieja, AHORA);
-        verifyNoMoreInteractions(eventos);
+        verify(repository).guardarTodas(List.of(vieja));
+        verify(events).alertaTerminada(vieja, AHORA);
+        verifyNoMoreInteractions(events);
         assertEquals(AHORA, service.ultimaRevision());
         assertEquals(1, service.expiradasUltimaRevision());
     }
@@ -58,15 +58,15 @@ class ExpiracionAlertasServiceTest {
         when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(0);
 
         assertEquals(0, service.revisar(AHORA));
-        verifyNoInteractions(repositorio, eventos);
+        verifyNoInteractions(repository, events);
     }
 
     @Test
     void laRevisionRegistraElOrigenDeLaTareaParaLaAuditoria() {
         when(ajustes.duracionMaximaAlertaMinutos()).thenReturn(30);
-        when(repositorio.activas()).thenReturn(List.of());
+        when(repository.activas()).thenReturn(List.of());
         String[] origen = new String[1];
-        when(repositorio.guardarTodas(List.of())).thenAnswer(inv -> {
+        when(repository.guardarTodas(List.of())).thenAnswer(inv -> {
             origen[0] = AuditSource.actual();
             return List.of();
         });

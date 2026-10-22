@@ -19,12 +19,12 @@ class TrayectoPersistenceAdapter implements TrayectoRepositorio {
     }
 
     @Override
-    public SafeTrip guardar(SafeTrip trayecto) {
+    public SafeTrip save(SafeTrip trayecto) {
         return aDominio(jpa.save(aFila(trayecto)));
     }
 
     @Override
-    public Optional<SafeTrip> buscar(Long id) {
+    public Optional<SafeTrip> find(Long id) {
         return jpa.findById(id).map(TrayectoPersistenceAdapter::aDominio);
     }
 

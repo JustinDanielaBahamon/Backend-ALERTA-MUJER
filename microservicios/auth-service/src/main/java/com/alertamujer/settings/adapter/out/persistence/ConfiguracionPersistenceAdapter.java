@@ -22,8 +22,8 @@ class ConfiguracionPersistenceAdapter implements ConfiguracionRepositorio {
     }
 
     @Override
-    public SystemConfiguration guardar(SystemConfiguration configuracion) {
-        return aDominio(jpa.save(aFila(configuracion)));
+    public SystemConfiguration save(SystemConfiguration config) {
+        return aDominio(jpa.save(aFila(config)));
     }
 
     static SystemConfiguration aDominio(SystemConfigurationJpaEntity f) {

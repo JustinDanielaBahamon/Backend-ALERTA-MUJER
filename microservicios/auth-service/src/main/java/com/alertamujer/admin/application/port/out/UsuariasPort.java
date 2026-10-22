@@ -8,7 +8,7 @@ import java.util.Optional;
 /** Puerto de salida hacia identity: nombres y correos para las vistas del panel. */
 public interface UsuariasPort {
 
-    Optional<UserSummary> buscar(Long userId);
+    Optional<UserSummary> find(Long userId);
 
     Optional<UserSummary> conCorreo(String correo);
 

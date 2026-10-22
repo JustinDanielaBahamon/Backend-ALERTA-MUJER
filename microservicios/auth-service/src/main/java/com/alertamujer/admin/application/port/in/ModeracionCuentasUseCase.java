@@ -27,7 +27,7 @@ public interface ModeracionCuentasUseCase {
 
     record Bloqueo(String reason, String description, String evidence) {}
 
-    record HistorialItem(LocalDateTime fecha, String tipo, String adminNombre, String motivo, String nota,
+    record HistorialItem(LocalDateTime date, String type, String adminNombre, String motivo, String nota,
                          Long casoId, boolean tieneEvidencia) {}
 
     record SolicitudView(Long id, Long userId, String userName, String userEmail, Long requestedBy,

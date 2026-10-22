@@ -41,7 +41,7 @@ public class FrequentLocationController {
     @PostMapping
     public ResponseEntity<FrequentLocationResponse> create(@RequestBody FrequentLocationRequest request,
                                                            @AuthenticationPrincipal Long currentUserId) {
-        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.crear(request.aDatos(), currentUserId)));
+        return ResponseEntity.ok(FrequentLocationResponse.of(lugares.create(request.aDatos(), currentUserId)));
     }
 
     @RequestMapping(value = "/{id}", method = {RequestMethod.PUT, RequestMethod.PATCH})
@@ -52,7 +52,7 @@ public class FrequentLocationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal Long currentUserId) {
-        lugares.eliminar(id, currentUserId);
+        lugares.delete(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
 }

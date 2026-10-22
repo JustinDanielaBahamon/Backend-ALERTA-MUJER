@@ -23,7 +23,7 @@ class ZonaPersistenceAdapter implements ZonaRepositorio {
     }
 
     @Override
-    public Optional<Zone> buscar(Long id) {
+    public Optional<Zone> find(Long id) {
         return jpa.findById(id).map(ZonaPersistenceAdapter::aDominio);
     }
 
@@ -33,17 +33,17 @@ class ZonaPersistenceAdapter implements ZonaRepositorio {
     }
 
     @Override
-    public List<Zone> deTipo(String tipo) {
-        return jpa.findByZoneType(tipo).stream().map(ZonaPersistenceAdapter::aDominio).toList();
+    public List<Zone> deTipo(String type) {
+        return jpa.findByZoneType(type).stream().map(ZonaPersistenceAdapter::aDominio).toList();
     }
 
     @Override
-    public Zone guardar(Zone zona) {
+    public Zone save(Zone zona) {
         return aDominio(jpa.save(aFila(zona)));
     }
 
     @Override
-    public void eliminar(Long id) {
+    public void delete(Long id) {
         jpa.deleteById(id);
     }
 

@@ -9,12 +9,12 @@ import java.util.List;
 public interface AuditoriaRepositorio {
 
     /** Página de registros que cumplen el filtro, del más reciente al más antiguo. */
-    Pagina pagina(FiltroAuditoria filtro, int pagina, int tamano);
+    Pagina pagina(FiltroAuditoria filtro, int pagina, int size);
 
     /** Los primeros registros que cumplen el filtro (para exportar). */
     List<AuditLog> primeros(FiltroAuditoria filtro, int maximo);
 
-    AuditLog guardar(AuditLog registro);
+    AuditLog save(AuditLog registro);
 
     record Pagina(List<AuditLog> registros, long total, int numero) {}
 }

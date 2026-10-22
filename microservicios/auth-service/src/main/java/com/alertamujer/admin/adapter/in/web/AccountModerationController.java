@@ -48,8 +48,8 @@ public class AccountModerationController {
     /** Captura adjunta a un caso de moderación (data URI). */
     @GetMapping("/user-reports/{id}/evidence")
     public ResponseEntity<Map<String, String>> evidence(@PathVariable Long id) {
-        String evidencia = reportes.evidencia(id);
-        return evidencia == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(Map.of("evidence", evidencia));
+        String evidence = reportes.evidence(id);
+        return evidence == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(Map.of("evidence", evidence));
     }
 
     @PostMapping("/users/{id}/deletion-requests")

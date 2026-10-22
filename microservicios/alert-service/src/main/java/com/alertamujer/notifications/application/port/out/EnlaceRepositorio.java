@@ -7,7 +7,7 @@ import java.util.Optional;
 /** Puerto de salida: los enlaces de seguimiento. */
 public interface EnlaceRepositorio {
 
-    TrackingLink guardar(TrackingLink enlace);
+    TrackingLink save(TrackingLink enlace);
 
     Optional<TrackingLink> porHash(String tokenHash);
 }

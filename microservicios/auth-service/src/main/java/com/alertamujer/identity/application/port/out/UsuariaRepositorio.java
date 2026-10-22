@@ -8,9 +8,9 @@ import java.util.Optional;
 /** Puerto de salida: las personas registradas. */
 public interface UsuariaRepositorio {
 
-    User guardar(User usuaria);
+    User save(User usuaria);
 
-    Optional<User> buscar(Long id);
+    Optional<User> find(Long id);
 
     Optional<User> porCorreo(String correo);
 

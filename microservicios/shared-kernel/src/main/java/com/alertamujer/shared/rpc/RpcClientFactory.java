@@ -24,15 +24,15 @@ import java.util.Arrays;
 public class RpcClientFactory {
 
     private final ObjectMapper json;
-    private final String clave;
+    private final String key;
 
-    public RpcClientFactory(ObjectMapper json, @Value("${internal.api-key:}") String clave) {
+    public RpcClientFactory(ObjectMapper json, @Value("${internal.api-key:}") String key) {
         this.json = json;
-        this.clave = clave;
+        this.key = key;
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T crear(Class<T> contrato, String urlServicio) {
+    public <T> T create(Class<T> contrato, String urlServicio) {
         SimpleClientHttpRequestFactory tiempos = new SimpleClientHttpRequestFactory();
         // Render despierta un servicio dormido en ~1 minuto: se espera hasta 90 s la primera vez
         tiempos.setConnectTimeout(90_000);
@@ -40,7 +40,7 @@ public class RpcClientFactory {
         RestClient http = RestClient.builder()
                 .baseUrl(urlServicio.replaceAll("/+$", "") + "/internal/rpc/" + contrato.getSimpleName())
                 .requestFactory(tiempos)
-                .defaultHeader(ClaveInterna.CABECERA, clave)
+                .defaultHeader(ClaveInterna.CABECERA, key)
                 .build();
 
         return (T) Proxy.newProxyInstance(contrato.getClassLoader(), new Class<?>[]{contrato}, (proxy, metodo, args) -> {
@@ -60,9 +60,9 @@ public class RpcClientFactory {
                         .retrieve()
                         .body(String.class);
                 if (metodo.getReturnType() == void.class) return null;
-                JavaType tipo = json.getTypeFactory().constructType(metodo.getGenericReturnType());
-                if (respuesta == null || respuesta.isBlank()) return json.readValue("null", tipo);
-                return json.readValue(respuesta, tipo);
+                JavaType type = json.getTypeFactory().constructType(metodo.getGenericReturnType());
+                if (respuesta == null || respuesta.isBlank()) return json.readValue("null", type);
+                return json.readValue(respuesta, type);
             } catch (RestClientResponseException e) {
                 throw traducir(e);
             }

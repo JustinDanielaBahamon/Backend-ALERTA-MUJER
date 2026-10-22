@@ -9,14 +9,14 @@ import java.util.List;
 public interface AdministrarDispositivosUseCase {
 
     /** Del usado más recientemente al más antiguo. */
-    List<DispositivoConDuena> listar();
+    List<DispositivoConDuena> listAll();
 
     DispositivoConDuena obtener(Long id);
 
     /** active, inactive, blocked o lost. */
     DispositivoConDuena cambiarEstado(Long id, String estado);
 
-    void eliminar(Long id);
+    void delete(Long id);
 
-    record DispositivoConDuena(Device dispositivo, UserSummary duena) {}
+    record DispositivoConDuena(Device dispositivo, UserSummary owner) {}
 }

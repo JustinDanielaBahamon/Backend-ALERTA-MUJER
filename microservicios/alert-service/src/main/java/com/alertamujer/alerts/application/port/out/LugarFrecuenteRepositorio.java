@@ -12,9 +12,9 @@ public interface LugarFrecuenteRepositorio {
 
     List<FrequentLocation> activosDeLaUsuaria(Long perfil);
 
-    Optional<FrequentLocation> buscar(Long id);
+    Optional<FrequentLocation> find(Long id);
 
-    FrequentLocation guardar(FrequentLocation lugar);
+    FrequentLocation save(FrequentLocation lugar);
 
-    void eliminar(Long id);
+    void delete(Long id);
 }

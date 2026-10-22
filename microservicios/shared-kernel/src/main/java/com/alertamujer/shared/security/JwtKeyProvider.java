@@ -22,14 +22,14 @@ public class JwtKeyProvider {
     private final SecretKey key;
 
     public JwtKeyProvider(@Value("${jwt.secret:}") String secreto) {
-        this.key = Keys.hmacShaKeyFor(validar(secreto).getBytes(StandardCharsets.UTF_8));
+        this.key = Keys.hmacShaKeyFor(validate(secreto).getBytes(StandardCharsets.UTF_8));
     }
 
     public SecretKey key() {
         return key;
     }
 
-    static String validar(String secreto) {
+    static String validate(String secreto) {
         if (secreto == null || secreto.isBlank()) {
             throw new IllegalStateException("Falta JWT_SECRET: define un secreto aleatorio de al menos 32 caracteres");
         }

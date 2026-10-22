@@ -9,19 +9,19 @@ import java.util.List;
 public interface ReportesUsuariaUseCase {
 
     /** Todos (estado null) o los de un estado, del más reciente al más antiguo. */
-    List<UserReportView> listar(String estado);
+    List<UserReportView> listAll(String estado);
 
     UserReportView obtener(Long id);
 
     /** Reporte de la administración sobre una usuaria identificada por su correo. */
-    UserReportView crear(String correoReportada, String motivo, String descripcion, String gravedad, Long adminId);
+    UserReportView create(String correoReportada, String motivo, String descripcion, String gravedad, Long adminId);
 
     UserReportView actualizar(Long id, CambiosReporte cambios, Long adminId);
 
-    void eliminar(Long id);
+    void delete(Long id);
 
     /** Captura adjunta al caso (data URI) o null. */
-    String evidencia(Long id);
+    String evidence(Long id);
 
     record UserReportView(Long id, Long reportedUserId, String reportedUserName, String reportedUserEmail,
                           Long reporterUserId, String reporterName, String reason, String description,
