@@ -45,7 +45,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- Las mismas dependencias del monolito para los tres servicios -->
+    <!-- The same monolith dependencies for the three services -->
     <dependencies>
       <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -76,7 +76,7 @@
             <artifactId>firebase-admin</artifactId>
             <version>8.1.0</version>
         </dependency>
-        <!-- PDF de los informes de alertas del panel de administración -->
+        <!-- PDF of the admin panel alert reports -->
         <dependency>
             <groupId>com.github.librepdf</groupId>
             <artifactId>openpdf</artifactId>
@@ -113,12 +113,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Evidencias (video y audio) en almacenamiento S3: Backblaze B2 en producción, MinIO en local -->
+        <!-- Evidence (video and audio) in S3 storage: Backblaze B2 in production, MinIO locally -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <version>2.56.0</version>
-            <!-- Sus clientes HTTP Apache chocan con el httpclient5 que fija Spring Boot 3.2 -->
+            <!-- Its Apache HTTP clients clash with the httpclient5 pinned by Spring Boot 3.2 -->
             <exclusions>
                 <exclusion>
                     <groupId>software.amazon.awssdk</groupId>
@@ -139,12 +139,12 @@
             <artifactId>url-connection-client</artifactId>
             <version>2.56.0</version>
         </dependency>
-        <!-- Monolito modular: anotaciones para declarar la API pública de cada módulo -->
+        <!-- Modular monolith: annotations to declare each module's public API -->
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-api</artifactId>
         </dependency>
-        <!-- Verifica que los módulos no se usen por dentro y genera sus diagramas -->
+        <!-- Checks that modules are not used from the inside and generates their diagrams -->
         <dependency>
             <groupId>org.springframework.modulith</groupId>
             <artifactId>spring-modulith-starter-test</artifactId>

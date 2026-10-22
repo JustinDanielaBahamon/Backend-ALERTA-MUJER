@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script para iniciar alert-service manualmente
-# Puerto: 8082
+# Script to start alert-service manually
+# Port: 8082
 
 echo "🚀 Iniciando ALERT-SERVICE en puerto 8082..."
 echo "======================================"
@@ -9,14 +9,14 @@ echo ""
 
 cd "$(dirname "$0")/alert-service"
 
-# Verificar si existe el JAR
+# Check that the JAR exists
 if [ ! -f "target/app.jar" ]; then
     echo "❌ Error: No se encontró el JAR compilado."
     echo "Ejecuta primero: mvn clean package -DskipTests"
     exit 1
 fi
 
-# Variables de entorno necesarias
+# Required environment variables
 export SERVER_PORT=8082
 export SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://localhost:5432/alerta_mujer}
 export SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
@@ -35,5 +35,5 @@ echo ""
 echo "🔧 Para detener: Ctrl+C"
 echo ""
 
-# Iniciar el servicio
+# Start the service
 java -jar target/app.jar

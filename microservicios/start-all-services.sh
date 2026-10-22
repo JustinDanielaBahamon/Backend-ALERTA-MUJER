@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script para iniciar todos los microservicios en terminales separadas
-# Requiere: gnome-terminal, xterm, o konsole
+# Script to start all microservices in separate terminals
+# Requires: gnome-terminal, xterm or konsole
 
 echo "🚀 Iniciando todos los microservicios de AlertaMujer..."
 echo "========================================================="
@@ -9,7 +9,7 @@ echo ""
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Verificar que los JARs estén compilados
+# Check that the JARs are built
 if [ ! -f "$SCRIPT_DIR/auth-service/target/app.jar" ] || \
    [ ! -f "$SCRIPT_DIR/alert-service/target/app.jar" ] || \
    [ ! -f "$SCRIPT_DIR/evidence-service/target/app.jar" ]; then
@@ -25,7 +25,7 @@ if [ ! -f "$SCRIPT_DIR/auth-service/target/app.jar" ] || \
     fi
 fi
 
-# Función para abrir terminal según el sistema
+# Function to open a terminal depending on the system
 open_terminal() {
     local title="$1"
     local script="$2"
@@ -49,7 +49,7 @@ open_terminal() {
 echo "📱 Abriendo terminales para cada servicio..."
 echo ""
 
-# Iniciar cada servicio en su propia terminal
+# Start each service in its own terminal
 sleep 1
 open_terminal "Auth Service (8081)" "start-auth-service.sh"
 echo "✅ Auth Service iniciándose en puerto 8081..."

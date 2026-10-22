@@ -1,4 +1,4 @@
-# Se construye desde la carpeta microservicios (contexto): necesita el pom padre y shared-kernel
+# Built from the microservicios folder (context): it needs the parent pom and shared-kernel
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
