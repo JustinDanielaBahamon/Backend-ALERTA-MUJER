@@ -1,78 +1,6 @@
-# Render blueprint: backend (Docker) + PostgreSQL, both on the free plan.
-# Steps and variables: see DEPLOY_RENDER.md.
+# Render blueprint: the 3 microservices (Docker) + PostgreSQL, all on the free plan.
+# See ARQUITECTURA_MICROSERVICIOS.md.
 services:
-  - type: web
-    name: alerta-mujer-backend
-    runtime: docker
-    plan: free
-    region: virginia
-    rootDir: backend-monolith
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    healthCheckPath: /actuator/health
-    envVars:
-      # Database connection (Render provides host, port, name, user and password separately)
-      - key: DB_HOST
-        fromDatabase:
-          name: alerta-mujer-db
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: alerta-mujer-db
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: alerta-mujer-db
-          property: database
-      # Liquibase migrates with the database owner...
-      - key: LIQUIBASE_USER
-        fromDatabase:
-          name: alerta-mujer-db
-          property: user
-      - key: LIQUIBASE_PASSWORD
-        fromDatabase:
-          name: alerta-mujer-db
-          property: password
-      # ...and the backend connects with alerta_app, which can only read and write data.
-      # Liquibase creates that role with APP_DB_PASSWORD; POSTGRES_PASSWORD reuses it (Spring
-      # resolves the ${...}).
-      - key: POSTGRES_USER
-        value: alerta_app
-      - key: APP_DB_PASSWORD
-        generateValue: true
-      - key: POSTGRES_PASSWORD
-        value: ${APP_DB_PASSWORD}
-      # Only roles and base configuration: no test accounts with known passwords
-      - key: LIQUIBASE_CONTEXTS
-        value: prod
-      - key: JWT_SECRET
-        generateValue: true
-      # Web panel domain (Vercel); add the own domain here when it exists
-      - key: CORS_ORIGIN
-        value: "https://alerta-mujer*.vercel.app"
-      # Emails to the emergency contacts (Resend or Brevo). The key is typed by hand in the
-      # dashboard; EMAIL_FROM must belong to a domain verified with the provider.
-      - key: EMAIL_PROVIDER
-        value: resend
-      - key: EMAIL_API_KEY
-        sync: false
-      - key: EMAIL_FROM
-        sync: false
-      # Web panel where the contacts open the tracking link
-      - key: WEB_BASE_URL
-        value: https://alerta-mujer.vercel.app
-      # Firebase service account file: uploaded as a Secret File in the dashboard
-      - key: FIREBASE_CONFIG_PATH
-        value: /etc/secrets/firebase-service-account.json
-      # The free plan disk is wiped on every deploy or restart
-      - key: EVIDENCE_STORAGE_DIR
-        value: /tmp/evidence
-      - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
-        value: never
-      # The free instance has 512 MB
-      - key: JAVA_TOOL_OPTIONS
-        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
-
   # ── alerta-mujer-auth (microservice) ─────────────────────────────────────
   - type: web
     name: alerta-mujer-auth
@@ -98,16 +26,6 @@ services:
           property: database
       - key: POSTGRES_USER
         value: alerta_app
-      - key: APP_DB_PASSWORD
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: APP_DB_PASSWORD
-      - key: JWT_SECRET
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: JWT_SECRET
       - fromGroup: alerta-mujer-microservicios
       - key: POSTGRES_PASSWORD
         value: ${APP_DB_PASSWORD}
@@ -155,16 +73,6 @@ services:
           property: database
       - key: POSTGRES_USER
         value: alerta_app
-      - key: APP_DB_PASSWORD
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: APP_DB_PASSWORD
-      - key: JWT_SECRET
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: JWT_SECRET
       - fromGroup: alerta-mujer-microservicios
       - key: POSTGRES_PASSWORD
         value: ${APP_DB_PASSWORD}
@@ -214,16 +122,6 @@ services:
           property: database
       - key: POSTGRES_USER
         value: alerta_app
-      - key: APP_DB_PASSWORD
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: APP_DB_PASSWORD
-      - key: JWT_SECRET
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: JWT_SECRET
       - fromGroup: alerta-mujer-microservicios
       - key: POSTGRES_PASSWORD
         value: ${APP_DB_PASSWORD}
@@ -234,35 +132,17 @@ services:
       - key: SERVICES_EVIDENCE_URL
         value: https://alerta-mujer-evidence.onrender.com
       - key: EVIDENCE_STORAGE
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_STORAGE
+        value: s3
       - key: EVIDENCE_S3_ENDPOINT
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_S3_ENDPOINT
+        sync: false
       - key: EVIDENCE_S3_REGION
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_S3_REGION
+        sync: false
       - key: EVIDENCE_S3_BUCKET
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_S3_BUCKET
+        sync: false
       - key: EVIDENCE_S3_ACCESS_KEY
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_S3_ACCESS_KEY
+        sync: false
       - key: EVIDENCE_S3_SECRET_KEY
-        fromService:
-          name: alerta-mujer-backend
-          type: web
-          envVarKey: EVIDENCE_S3_SECRET_KEY
+        sync: false
       - key: EVIDENCE_STORAGE_DIR
         value: /tmp/evidence
 
@@ -273,6 +153,13 @@ envVarGroups:
       # Key for the /internal/** calls between services (Render generates it)
       - key: INTERNAL_API_KEY
         generateValue: true
+      # Password of the runtime database role alerta_app (set by Liquibase) and JWT signing key.
+      # Typed by hand: they must keep the values already in use, or the services cannot connect
+      # to the database and every session is invalidated.
+      - key: APP_DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: CORS_ORIGIN
         value: "https://alerta-mujer*.vercel.app"
       - key: JAVA_TOOL_OPTIONS
