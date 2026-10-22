@@ -28,6 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtKey = jwtKeyProvider.key();
     }
 
+    /**
+     * El seguimiento público (enlace del correo a los contactos) no usa sesión: si el navegador manda
+     * un token viejo o vencido se ignora, para que un 401 nunca le cierre la página a quien ayuda.
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getRequestURI().startsWith("/api/public/");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
