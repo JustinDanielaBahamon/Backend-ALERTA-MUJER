@@ -3,7 +3,7 @@ package com.alertamujer.evidence.application.port.in;
 import java.time.LocalDateTime;
 
 /**
- * Use case: delete expired evidence (60 days) except for kept alerts, and all evidence of a user who
+ * Use case: delete expired evidence (30 days by default, evidence.retention.days) except for kept alerts, and all evidence of a user who
  * deleted her account.
  */
 public interface CleanUpEvidenceUseCase {

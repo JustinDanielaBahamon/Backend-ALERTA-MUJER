@@ -29,7 +29,7 @@ public interface ManageOwnAlertsUseCase {
 
     Alert update(Long id, AlertChanges changes, Long userId);
 
-    /** Keep (or not) the alert's evidence beyond 60 days. */
+    /** Keep (or not) the alert's evidence beyond the retention days. */
     Alert keepEvidence(Long id, boolean keep, Long userId);
 
     void delete(Long id, Long userId);

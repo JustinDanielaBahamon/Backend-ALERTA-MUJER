@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Deletes evidence (file and record) after 60 days, as the app promises, except for alerts the user
+ * Deletes evidence (file and record) after the retention days (30), as the app promises, except for alerts the user
  * marked to keep. This way the storage (B2, 10 GB free) does not fill up.
  */
 @Service
@@ -31,7 +31,7 @@ public class EvidenceCleanupService implements CleanUpEvidenceUseCase {
     private final int days;
 
     public EvidenceCleanupService(EvidenceRepository repository, EvidenceStorage storage,
-                                     AlertsPort alerts, @Value("${evidence.retention.days:60}") int days) {
+                                     AlertsPort alerts, @Value("${evidence.retention.days:30}") int days) {
         this.repository = repository;
         this.storage = storage;
         this.alerts = alerts;

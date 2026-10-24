@@ -119,7 +119,7 @@ public class AlertController {
 
     public record MessageRequest(String body) {}
 
-    /** Keep the alert's evidence (not deleted after 60 days). Body: {"keep": true}. */
+    /** Keep the alert's evidence (not deleted after the retention days). Body: {"keep": true}. */
     @PatchMapping("/{id}/keep-evidence")
     public ResponseEntity<AlertResponse> keepEvidence(@PathVariable Long id, @RequestBody Map<String, Boolean> body,
                                                       @AuthenticationPrincipal Long currentUserId) {
