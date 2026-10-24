@@ -20,7 +20,8 @@ final class AlertEmailTemplate {
      * @param logoUrl public address of the logo (EmailLayout.logoUrl)
      */
     static EmailMessage build(String to, String contactName, String userName, LocalDateTime start,
-                                  String trackingUrl, String mapsUrl, String emergencyNumber, String logoUrl) {
+                                  String trackingUrl, String mapsUrl, String emergencyNumber, String logoUrl,
+                                  String openedPixelUrl) {
         String who = userName == null || userName.isBlank() ? "Una persona" : userName;
         String time = start == null ? "hace un momento"
                 : "a las " + time(start);
@@ -39,7 +40,10 @@ final class AlertEmailTemplate {
                 + EmailLayout.highlighted("Si crees que está en peligro inmediato, llama al <strong>"
                         + HtmlUtils.htmlEscape(emergencyNumber) + "</strong>.")
                 + EmailLayout.note("El enlace es personal y deja de funcionar 2 horas después de que termine la alerta. "
-                        + "No lo compartas en redes sociales.");
+                        + "No lo compartas en redes sociales.")
+                // Tells the user the email was opened (it does not identify anything else)
+                + (openedPixelUrl == null ? "" : "<img src=\"" + HtmlUtils.htmlEscape(openedPixelUrl)
+                        + "\" width=\"1\" height=\"1\" alt=\"\" style=\"display:block;border:0\" />");
         String html = EmailLayout.page(logoUrl, who + " activó una alerta. Toca para ver dónde está.",
                 "🚨 " + who + " necesita ayuda", body,
                 "Recibes este correo porque " + HtmlUtils.htmlEscape(who) + " te registró como contacto de emergencia.");

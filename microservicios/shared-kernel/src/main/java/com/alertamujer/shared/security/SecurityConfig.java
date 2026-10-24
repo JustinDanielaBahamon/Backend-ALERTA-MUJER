@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/public/tracking/**").permitAll()
                 // The contact writes in the alert chat with her tracking code (no session)
                 .requestMatchers(HttpMethod.POST, "/api/public/tracking/*/messages").permitAll()
+                // The contact's app confirms the alert push arrived
+                .requestMatchers(HttpMethod.POST, "/api/public/tracking/*/received").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -52,6 +52,7 @@ class RecipientPersistenceAdapter implements RecipientRepository {
         d.setStatus(f.getStatus());
         d.setSentAt(f.getSentAt());
         d.setDeliveredAt(f.getDeliveredAt());
+        d.setSeenAt(f.getSeenAt());
         d.setAttempts(f.getAttempts());
         d.setErrorMessage(f.getErrorMessage());
         d.setCreatedAt(f.getCreatedAt());
@@ -68,6 +69,7 @@ class RecipientPersistenceAdapter implements RecipientRepository {
         f.setStatus(d.getStatus());
         f.setSentAt(d.getSentAt());
         f.setDeliveredAt(d.getDeliveredAt());
+        f.setSeenAt(d.getSeenAt());
         f.setAttempts(d.getAttempts());
         f.setErrorMessage(d.getErrorMessage());
         f.setCreatedAt(d.getCreatedAt());

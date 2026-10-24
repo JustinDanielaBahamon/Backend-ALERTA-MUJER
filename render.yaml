@@ -184,6 +184,9 @@ services:
         value: "AlertaMujer <alertas@alertamujer.me>"
       - key: WEB_BASE_URL
         value: https://alerta-mujer.vercel.app
+      # Its own public address: invisible image that tells the alert email was opened
+      - key: PUBLIC_API_URL
+        value: https://alerta-mujer-alert.onrender.com
       - key: FIREBASE_CONFIG_PATH
         value: /etc/secrets/firebase-service-account.json
   # ── alerta-mujer-evidence (microservice) ─────────────────────────────────────

@@ -31,7 +31,7 @@ class AlertNoticesServiceTest {
     private final EmailsPort emails = mock(EmailsPort.class);
     private final PushPort push = mock(PushPort.class);
     private final AlertNoticesService service = new AlertNoticesService(alerts, identity, devices, settings,
-            tracking, emails, push, "https://web.app/");
+            tracking, emails, push, "https://web.app/", "https://api.app/");
 
     private static final AlertRecipient EMAIL = new AlertRecipient(100L, 1L, "Mamá", "email", "mama@correo.com");
     private static final AlertRecipient PUSH = new AlertRecipient(101L, 1L, "Mamá", "push", "App Alerta Mujer");
@@ -51,8 +51,9 @@ class AlertNoticesServiceTest {
 
         service.alertActivated(5L, 10L, START);
 
-        verify(emails).alertNotice("mama@correo.com", "Mamá", "Ana Gómez", START, "https://web.app/seguimiento/CODIGO",
-                "https://www.google.com/maps/search/?api=1&query=4.6,-74.1", "123");
+        verify(emails).alertNotice("mama@correo.com", "Mamá", "Ana Gómez", START, "https://web.app/seguimiento/CODIGO?c=100",
+                "https://www.google.com/maps/search/?api=1&query=4.6,-74.1", "123",
+                "https://api.app/api/public/tracking/CODIGO/opened.gif?c=100");
         verify(alerts).recordDelivery(100L, "sent", null);
     }
 
@@ -60,7 +61,7 @@ class AlertNoticesServiceTest {
     void failedEmailIsRecordedWithTheReason() {
         when(alerts.recipients(5L)).thenReturn(List.of(EMAIL));
         doThrow(new EmailNotSentException("Rechazado")).when(emails)
-                .alertNotice(any(), any(), any(), any(), any(), any(), any());
+                .alertNotice(any(), any(), any(), any(), any(), any(), any(), any());
 
         service.alertActivated(5L, 10L, START);
 
@@ -77,7 +78,7 @@ class AlertNoticesServiceTest {
         service.alertActivated(5L, 10L, START);
 
         verify(push).send(List.of("token-mama"),
-                Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez", "codigo", "CODIGO"));
+                Map.of("tipo", "ALERTA_SOS", "alertaId", "5", "nombre", "Ana Gómez", "codigo", "CODIGO", "envioId", "101"));
         verify(alerts).recordDelivery(101L, "sent", null);
         verify(tracking, times(1)).createLink(5L);
     }
@@ -137,9 +138,9 @@ class AlertNoticesServiceTest {
         service.alertReminder(5L, 10L, START);
 
         verify(emails).alertReminder("mama@correo.com", "Mamá", "Ana Gómez", START,
-                "https://web.app/seguimiento/CODIGO", null, "123");
+                "https://web.app/seguimiento/CODIGO?c=100", null, "123");
         verify(push).send(List.of("token-mama"), Map.of("tipo", "ALERTA_SOS", "alertaId", "5",
-                "nombre", "Ana Gómez", "codigo", "CODIGO", "recordatorio", "1"));
+                "nombre", "Ana Gómez", "codigo", "CODIGO", "envioId", "101", "recordatorio", "1"));
         verify(alerts, never()).recordDelivery(any(), any(), any());
     }
 

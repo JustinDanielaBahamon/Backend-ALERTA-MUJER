@@ -21,9 +21,9 @@ class EmailsAdapter implements EmailsPort {
 
     @Override
     public void alertNotice(String to, String contactName, String userName, LocalDateTime start,
-                              String trackingUrl, String mapsUrl, String emergencyNumber) {
+                              String trackingUrl, String mapsUrl, String emergencyNumber, String openedPixelUrl) {
         send(AlertEmailTemplate.build(to, contactName, userName, start, trackingUrl, mapsUrl,
-                emergencyNumber, logoUrl));
+                emergencyNumber, logoUrl, openedPixelUrl));
     }
 
     @Override

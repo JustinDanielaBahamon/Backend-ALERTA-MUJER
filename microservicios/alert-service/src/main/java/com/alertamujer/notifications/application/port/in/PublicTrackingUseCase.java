@@ -24,6 +24,13 @@ public interface PublicTrackingUseCase {
      */
     TrackingView query(String code, String visitor, LocalDateTime now);
 
+    /**
+     * The contact got the notice of one delivery (recipientId) of this link's alert: the push reached
+     * her phone or she opened the email; with seen, she opened the tracking from that channel.
+     * Ignored if the link no longer works or the delivery is not of that alert.
+     */
+    void reached(String code, Long recipientId, boolean seen, LocalDateTime now);
+
     /** File of a recording of the link's alert. */
     EvidenceFile evidence(String code, Long evidenceId, LocalDateTime now);
 

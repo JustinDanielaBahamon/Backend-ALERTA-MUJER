@@ -37,6 +37,9 @@ class AlertContactJpaEntity {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
+    @Column(name = "seen_at")
+    private LocalDateTime seenAt;
+
     private Integer attempts;
 
     @Column(name = "error_message")

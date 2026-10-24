@@ -103,7 +103,7 @@ class AlertAdministrationServiceTest {
         when(repository.find(5L)).thenReturn(Optional.of(alert));
         when(locations.ofAlert(5L)).thenReturn(List.of(dot(1, 2.91), dot(7, 2.93), dot(3, 2.92)));
         when(recipients.contactsOf(alert)).thenReturn(List.of(new NotifiedContact(9L, "Eva Ruiz", "Madre",
-                List.of(new DeliveryChannel("email", "eva@correo.com", "sent", LocalDateTime.of(2026, 10, 20, 10, 0), null)))));
+                List.of(new DeliveryChannel("email", "eva@correo.com", "sent", LocalDateTime.of(2026, 10, 20, 10, 0), null, null)))));
 
         AdminDetail d = service.detail(5L);
 

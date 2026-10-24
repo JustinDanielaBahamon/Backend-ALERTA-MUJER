@@ -8,9 +8,12 @@ import java.time.LocalDateTime;
  */
 public interface EmailsPort {
 
-    /** Notice to the contact that the user activated an alert. mapsUrl may be null. */
+    /**
+     * Notice to the contact that the user activated an alert. mapsUrl may be null; openedPixelUrl (may be
+     * null) is an invisible image that tells the email was opened.
+     */
     void alertNotice(String to, String contactName, String userName, LocalDateTime start,
-                       String trackingUrl, String mapsUrl, String emergencyNumber);
+                       String trackingUrl, String mapsUrl, String emergencyNumber, String openedPixelUrl);
 
     /** Second notice: the alert is still active and nobody opened the tracking yet. reason may be null. */
     void alertReminder(String to, String contactName, String userName, LocalDateTime start,

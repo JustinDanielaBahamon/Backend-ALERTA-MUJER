@@ -18,6 +18,8 @@ public class AlertContact {
     private String status = "pending";
     private LocalDateTime sentAt;
     private LocalDateTime deliveredAt;
+    /** When the contact opened the tracking from this channel. */
+    private LocalDateTime seenAt;
     private Integer attempts = 0;
     private String errorMessage;
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -47,8 +49,24 @@ public class AlertContact {
         errorMessage = error == null ? null : error.length() > MAX_ERROR ? error.substring(0, MAX_ERROR) : error;
     }
 
-    /** Status the user sees: an open delivery of an ended alert is reported as "expired". */
+    /** The contact's phone or email client confirmed it arrived (push received, email opened). */
+    public void markDelivered(LocalDateTime now) {
+        if (deliveredAt == null) deliveredAt = now;
+        if (OPEN_STATUSES.contains(status) || "failed".equals(status)) status = "delivered";
+    }
+
+    /** The contact opened the tracking from this channel: it also arrived. */
+    public void markSeen(LocalDateTime now) {
+        markDelivered(now);
+        if (seenAt == null) seenAt = now;
+    }
+
+    /**
+     * Status the user sees: "seen" once the contact opened it, and an open delivery of an ended alert
+     * is reported as "expired".
+     */
     public String visibleStatus(boolean alertEnded) {
+        if (seenAt != null) return "seen";
         return alertEnded && OPEN_STATUSES.contains(status) ? "expired" : status;
     }
 
@@ -70,6 +88,8 @@ public class AlertContact {
     public void setSentAt(LocalDateTime sentAt) { this.sentAt = sentAt; }
     public LocalDateTime getDeliveredAt() { return deliveredAt; }
     public void setDeliveredAt(LocalDateTime deliveredAt) { this.deliveredAt = deliveredAt; }
+    public LocalDateTime getSeenAt() { return seenAt; }
+    public void setSeenAt(LocalDateTime seenAt) { this.seenAt = seenAt; }
     public Integer getAttempts() { return attempts; }
     public void setAttempts(Integer attempts) { this.attempts = attempts; }
     public String getErrorMessage() { return errorMessage; }

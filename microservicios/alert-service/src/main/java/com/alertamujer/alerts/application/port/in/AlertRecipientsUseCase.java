@@ -18,11 +18,15 @@ public interface AlertRecipientsUseCase {
     /** Result of a delivery: "sent" or "failed" (with the reason). */
     void recordDelivery(Long recipientId, String status, String error);
 
+    /** The contact got the delivery's notice or, with seen, opened the tracking from it. */
+    void markReached(Long alertId, Long recipientId, boolean seen);
+
     /** Alerts in which this email was notified. */
     List<Long> alertsNotifiedTo(String email);
 
+    /** status: pending, sent, delivered, seen, failed or expired. */
     record DeliveryChannel(String channel, String destination, String status,
-                      LocalDateTime sentAt, LocalDateTime deliveredAt) {}
+                      LocalDateTime sentAt, LocalDateTime deliveredAt, LocalDateTime seenAt) {}
 
     record NotifiedContact(Long contactId, String name, String relationship, List<DeliveryChannel> channels) {}
 }

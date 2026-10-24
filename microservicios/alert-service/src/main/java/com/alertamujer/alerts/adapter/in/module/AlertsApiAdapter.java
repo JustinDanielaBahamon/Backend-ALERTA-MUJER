@@ -102,6 +102,12 @@ class AlertsApiAdapter implements AlertsApi {
     }
 
     @Override
+    @Transactional
+    public void markReached(Long alertId, Long recipientId, boolean seen) {
+        recipients.markReached(alertId, recipientId, seen);
+    }
+
+    @Override
     public List<AlertMessageView> messagesOf(Long alertId, Long afterId) {
         return chat.messages(alertId, afterId).stream().map(AlertsApiAdapter::view).toList();
     }

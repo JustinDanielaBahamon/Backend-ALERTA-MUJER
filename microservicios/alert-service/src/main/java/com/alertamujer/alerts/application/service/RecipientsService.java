@@ -80,7 +80,7 @@ public class RecipientsService implements AlertRecipientsUseCase {
         for (AlertContact d : repository.ofAlert(alert.getId())) {
             channels.computeIfAbsent(d.getEmergencyContactId(), k -> new ArrayList<>())
                     .add(new DeliveryChannel(d.getChannel(), d.getDestination(), d.visibleStatus(ended),
-                            d.getSentAt(), d.getDeliveredAt()));
+                            d.getSentAt(), d.getDeliveredAt(), d.getSeenAt()));
         }
         List<NotifiedContact> result = new ArrayList<>();
         channels.forEach((contactId, list) -> {
@@ -112,6 +112,18 @@ public class RecipientsService implements AlertRecipientsUseCase {
     public void recordDelivery(Long recipientId, String status, String error) {
         repository.find(recipientId).ifPresent(d -> {
             d.recordAttempt(status, error, LocalDateTime.now());
+            repository.save(d);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void markReached(Long alertId, Long recipientId, boolean seen) {
+        if (alertId == null || recipientId == null) return;
+        repository.find(recipientId).filter(d -> alertId.equals(d.getAlertId())).ifPresent(d -> {
+            LocalDateTime now = LocalDateTime.now();
+            if (seen) d.markSeen(now);
+            else d.markDelivered(now);
             repository.save(d);
         });
     }

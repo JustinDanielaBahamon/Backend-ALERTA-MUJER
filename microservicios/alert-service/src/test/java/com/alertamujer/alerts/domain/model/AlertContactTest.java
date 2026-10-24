@@ -42,4 +42,45 @@ class AlertContactTest {
         assertEquals("expired", pending.visibleStatus(true));
         assertEquals("failed", failed.visibleStatus(true));
     }
+
+    // ── Received and seen (history of the alert) ──
+
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 10, 23, 23, 0);
+
+    private static AlertContact sent() {
+        AlertContact d = AlertContact.created(5L, 1L, AlertContact.EMAIL_CHANNEL, "mama@correo.com");
+        d.recordAttempt("sent", null, NOW.minusMinutes(2));
+        return d;
+    }
+
+    @Test
+    void receivedNoticeMarksItDelivered() {
+        AlertContact d = sent();
+        d.markDelivered(NOW);
+        assertEquals("delivered", d.visibleStatus(false));
+        assertEquals(NOW, d.getDeliveredAt());
+    }
+
+    @Test
+    void openingTheTrackingMarksItSeenAndDelivered() {
+        AlertContact d = sent();
+        d.markSeen(NOW);
+        assertEquals("seen", d.visibleStatus(false));
+        assertEquals(NOW, d.getDeliveredAt());
+        assertEquals(NOW, d.getSeenAt());
+    }
+
+    @Test
+    void seenStaysSeenAfterTheAlertEndsAndKeepsTheFirstTime() {
+        AlertContact d = sent();
+        d.markSeen(NOW);
+        d.markSeen(NOW.plusMinutes(5));
+        assertEquals("seen", d.visibleStatus(true));
+        assertEquals(NOW, d.getSeenAt());
+    }
+
+    @Test
+    void anUnreadDeliveryOfAnEndedAlertExpires() {
+        assertEquals("expired", sent().visibleStatus(true));
+    }
 }

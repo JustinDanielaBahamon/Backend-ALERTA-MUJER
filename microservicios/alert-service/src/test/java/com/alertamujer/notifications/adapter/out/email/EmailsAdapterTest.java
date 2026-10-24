@@ -24,7 +24,7 @@ class EmailsAdapterTest {
 
     @Test
     void theNoticeHasTheLogoTheLinkAndEscapesTheContactName() {
-        emails.alertNotice("a@b.co", "<script>x</script>", "Ana", null, "https://x/seguimiento/C", null, "123");
+        emails.alertNotice("a@b.co", "<script>x</script>", "Ana", null, "https://x/seguimiento/C", null, "123", null);
 
         EmailMessage m = sent();
         assertTrue(m.html().contains("&lt;script&gt;"));

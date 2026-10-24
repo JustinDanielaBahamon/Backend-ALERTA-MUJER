@@ -22,6 +22,9 @@ public interface AlertsPort {
     /** "sent" or "failed" with the reason. */
     void recordDelivery(Long recipientId, String status, String error);
 
+    /** The contact got the notice of that delivery or, with seen, opened the tracking from it. */
+    void markReached(Long alertId, Long recipientId, boolean seen);
+
     /** Alerts in which this email was notified as an emergency contact. */
     List<Long> notifiedTo(String email);
 

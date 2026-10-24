@@ -30,14 +30,39 @@ public class PublicTrackingController {
         this.tracking = tracking;
     }
 
-    /** v: anonymous identifier of the watching browser or app (to count the views). */
+    /**
+     * v: anonymous identifier of the watching browser or app (to count the views). c: the delivery the
+     * contact came from (email link or push), marked as seen in the history of the alert.
+     */
     @GetMapping("/api/public/tracking/{code}")
     public ResponseEntity<TrackingView> query(@PathVariable String code,
-                                                  @RequestParam(name = "v", required = false) String visitor) {
+                                                  @RequestParam(name = "v", required = false) String visitor,
+                                                  @RequestParam(name = "c", required = false) Long recipientId) {
+        LocalDateTime now = LocalDateTime.now();
+        TrackingView view = tracking.query(code, visitor, now);
+        tracking.reached(code, recipientId, true, now);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(tracking.query(code, visitor, LocalDateTime.now()));
+                .body(view);
     }
+
+    /** The contact's app confirms the alert push arrived (delivery c). */
+    @PostMapping("/api/public/tracking/{code}/received")
+    public ResponseEntity<Void> received(@PathVariable String code, @RequestParam("c") Long recipientId) {
+        tracking.reached(code, recipientId, false, LocalDateTime.now());
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Invisible image of the alert email: when it loads, the contact opened the email (delivery c). */
+    @GetMapping(value = "/api/public/tracking/{code}/opened.gif", produces = "image/gif")
+    public ResponseEntity<byte[]> opened(@PathVariable String code, @RequestParam("c") Long recipientId) {
+        tracking.reached(code, recipientId, false, LocalDateTime.now());
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).contentType(MediaType.IMAGE_GIF).body(PIXEL);
+    }
+
+    /** 1x1 transparent GIF. */
+    private static final byte[] PIXEL = java.util.Base64.getDecoder()
+            .decode("R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
 
     /** Alert chat for the contact. after: id of the last message she already has (0 = all). */
     @GetMapping("/api/public/tracking/{code}/messages")

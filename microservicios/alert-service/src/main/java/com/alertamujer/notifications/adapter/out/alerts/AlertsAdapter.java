@@ -43,6 +43,11 @@ class AlertsAdapter implements AlertsPort {
     }
 
     @Override
+    public void markReached(Long alertId, Long recipientId, boolean seen) {
+        alertsApi.markReached(alertId, recipientId, seen);
+    }
+
+    @Override
     public List<Long> notifiedTo(String email) {
         return alertsApi.alertsNotifiedTo(email);
     }

@@ -37,6 +37,12 @@ public interface AlertsApi {
     /** Saves the result of a delivery: "sent" or "failed" (with the reason). */
     void markDelivery(Long recipientId, String status, String errorMessage);
 
+    /**
+     * The contact got the notice of that delivery (push received, email opened) or, with seen, opened the
+     * tracking from it. Ignored if the delivery is not of that alert.
+     */
+    void markReached(Long alertId, Long recipientId, boolean seen);
+
     /** Alert chat: messages after afterId (null = all). */
     List<AlertMessageView> messagesOf(Long alertId, Long afterId);
 

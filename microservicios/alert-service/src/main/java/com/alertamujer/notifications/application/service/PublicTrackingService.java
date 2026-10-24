@@ -67,6 +67,17 @@ public class PublicTrackingService implements PublicTrackingUseCase {
         return view(alert);
     }
 
+    @Override
+    @Transactional
+    public void reached(String code, Long recipientId, boolean seen, LocalDateTime now) {
+        if (recipientId == null) return;
+        try {
+            alerts.markReached(liveAlert(code, now).id(), recipientId, seen);
+        } catch (RuntimeException e) {
+            // An expired link or someone else's code: there is nothing to mark
+        }
+    }
+
     private TrackingView view(AlertSummary alert) {
         String name = identity.profileFirstName(alert.userProfileId()).orElse("");
         List<LocationPoint> route = new ArrayList<>(alerts.route(alert.id()));

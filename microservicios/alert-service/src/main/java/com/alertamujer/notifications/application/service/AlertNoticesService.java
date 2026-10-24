@@ -43,10 +43,13 @@ public class AlertNoticesService implements NotifyContactsUseCase {
     private final EmailsPort emails;
     private final PushPort push;
     private final String webBaseUrl;
+    /** Public address of this service, for the invisible image that tells the email was opened (may be empty). */
+    private final String publicApiUrl;
 
     public AlertNoticesService(AlertsPort alerts, IdentityPort identity, DevicesPort devices,
                                SettingsPort settings, PublicTrackingUseCase tracking, EmailsPort emails,
-                               PushPort push, @Value("${notifications.web-base-url:http://localhost:4200}") String webBaseUrl) {
+                               PushPort push, @Value("${notifications.web-base-url:http://localhost:4200}") String webBaseUrl,
+                               @Value("${notifications.public-api-url:}") String publicApiUrl) {
         this.alerts = alerts;
         this.identity = identity;
         this.devices = devices;
@@ -55,6 +58,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         this.emails = emails;
         this.push = push;
         this.webBaseUrl = webBaseUrl.replaceAll("/+$", "");
+        this.publicApiUrl = publicApiUrl == null ? "" : publicApiUrl.replaceAll("/+$", "");
     }
 
     @Override
@@ -69,7 +73,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         String url = webBaseUrl + "/seguimiento/" + code;
         for (AlertRecipient delivery : deliveries) {
             if (EMAIL_CHANNEL.equals(delivery.channel())) {
-                sendEmail(delivery, name, start, alert, url);
+                sendEmail(delivery, name, start, alert, withDelivery(url, delivery), openedPixel(code, delivery));
             } else if (PUSH_CHANNEL.equals(delivery.channel())) {
                 sendPush(delivery, emailByContact.get(delivery.emergencyContactId()), name, alertId, code);
             }
@@ -89,8 +93,8 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         for (AlertRecipient delivery : deliveries) {
             try {
                 if (EMAIL_CHANNEL.equals(delivery.channel())) {
-                    emails.alertReminder(delivery.destination(), delivery.contactName(), name, start, url, reason,
-                            settings.emergencyNumber());
+                    emails.alertReminder(delivery.destination(), delivery.contactName(), name, start,
+                            withDelivery(url, delivery), reason, settings.emergencyNumber());
                 } else if (PUSH_CHANNEL.equals(delivery.channel()) && delivery.emergencyContactId() != null) {
                     List<String> tokens = contactTokens(emailByContact.get(delivery.emergencyContactId()));
                     if (!tokens.isEmpty()) {
@@ -99,6 +103,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
                                 "alertaId", String.valueOf(alertId),
                                 "nombre", name == null ? "" : name,
                                 "codigo", code,
+                                "envioId", String.valueOf(delivery.id()),
                                 "recordatorio", "1"));
                     }
                 }
@@ -139,16 +144,29 @@ public class AlertNoticesService implements NotifyContactsUseCase {
         }
     }
 
+    /** The link says which delivery the contact came from, so the history can show it was seen. */
+    static String withDelivery(String url, AlertRecipient delivery) {
+        return url + "?c=" + delivery.id();
+    }
+
+    /** Invisible image that marks the email as opened; null if the public address is not configured. */
+    String openedPixel(String code, AlertRecipient delivery) {
+        return publicApiUrl.isEmpty() ? null
+                : publicApiUrl + "/api/public/tracking/" + code + "/opened.gif?c=" + delivery.id();
+    }
+
     /** Google Maps link with the point (for the email, as a fallback if the page is slow). */
     static String googleMaps(BigDecimal lat, BigDecimal lng) {
         return "https://www.google.com/maps/search/?api=1&query=" + lat.toPlainString() + "," + lng.toPlainString();
     }
 
-    private void sendEmail(AlertRecipient delivery, String name, LocalDateTime start, AlertSummary alert, String url) {
+    private void sendEmail(AlertRecipient delivery, String name, LocalDateTime start, AlertSummary alert, String url,
+                           String pixel) {
         String maps = alert != null && alert.latitude() != null && alert.longitude() != null
                 ? googleMaps(alert.latitude(), alert.longitude()) : null;
         try {
-            emails.alertNotice(delivery.destination(), delivery.contactName(), name, start, url, maps, settings.emergencyNumber());
+            emails.alertNotice(delivery.destination(), delivery.contactName(), name, start, url, maps,
+                    settings.emergencyNumber(), pixel);
             alerts.recordDelivery(delivery.id(), "sent", null);
         } catch (EmailNotSentException e) {
             alerts.recordDelivery(delivery.id(), "failed", e.getMessage());
@@ -161,11 +179,13 @@ public class AlertNoticesService implements NotifyContactsUseCase {
             alerts.recordDelivery(delivery.id(), "failed", "El contacto no tiene la app con notificaciones activas");
             return;
         }
+        // envioId: her app confirms it arrived and marks it seen when she opens the alert
         List<String> failedOnes = push.send(tokens, Map.of(
                 "tipo", "ALERTA_SOS",
                 "alertaId", String.valueOf(alertId),
                 "nombre", name == null ? "" : name,
-                "codigo", code));
+                "codigo", code,
+                "envioId", String.valueOf(delivery.id())));
         if (failedOnes.size() == tokens.size()) {
             alerts.recordDelivery(delivery.id(), "failed", "FCM rechazó el envío a todos los dispositivos");
         } else {
