@@ -11,6 +11,12 @@ public interface NotifyContactsUseCase {
     /** Stores the result of each delivery in the alert (sent / failed). */
     void alertActivated(Long alertId, Long userProfile, LocalDateTime start);
 
+    /**
+     * The alert is still active and no contact opened its tracking: the notice is sent again with a new
+     * link. Does not change the recorded delivery status.
+     */
+    void alertReminder(Long alertId, Long userProfile, LocalDateTime start);
+
     /** Courtesy notice: does not change the delivery status and a failure is only logged. */
     void alertEnded(Long alertId, Long userProfile, String status, LocalDateTime end);
 }

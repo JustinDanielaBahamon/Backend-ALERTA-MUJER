@@ -12,6 +12,10 @@ public interface EmailsPort {
     void alertNotice(String to, String contactName, String userName, LocalDateTime start,
                        String trackingUrl, String mapsUrl, String emergencyNumber);
 
+    /** Second notice: the alert is still active and nobody opened the tracking yet. reason may be null. */
+    void alertReminder(String to, String contactName, String userName, LocalDateTime start,
+                       String trackingUrl, String reason, String emergencyNumber);
+
     /** Notice that the alert ended. status: resolved, cancelled or expired. */
     void alertEnd(String to, String contactName, String userName, String status, LocalDateTime end,
                      String emergencyNumber);

@@ -127,4 +127,38 @@ class AlertNoticesServiceTest {
         assertEquals("https://www.google.com/maps/search/?api=1&query=0.000001,-74.1",
                 AlertNoticesService.googleMaps(new BigDecimal("1E-6"), new BigDecimal("-74.1")));
     }
+
+    @Test
+    void reminderResendsEmailAndPushWithANewLinkWithoutTouchingTheDeliveries() {
+        when(alerts.recipients(5L)).thenReturn(List.of(EMAIL, PUSH));
+        when(identity.userWithEmail("mama@correo.com")).thenReturn(Optional.of(7L));
+        when(devices.tokensOf(7L)).thenReturn(List.of("token-mama"));
+
+        service.alertReminder(5L, 10L, START);
+
+        verify(emails).alertReminder("mama@correo.com", "Mamá", "Ana Gómez", START,
+                "https://web.app/seguimiento/CODIGO", null, "123");
+        verify(push).send(List.of("token-mama"), Map.of("tipo", "ALERTA_SOS", "alertaId", "5",
+                "nombre", "Ana Gómez", "codigo", "CODIGO", "recordatorio", "1"));
+        verify(alerts, never()).recordDelivery(any(), any(), any());
+    }
+
+    @Test
+    void reminderOfATripAlertExplainsWhyTheServerActivatedIt() {
+        when(alerts.recipients(5L)).thenReturn(List.of(EMAIL));
+        when(alerts.find(5L)).thenReturn(Optional.of(new AlertSummary(5L, 10L, "main", "signal_lost", "active",
+                "Se perdió la señal de su celular", START, null, null, null, null)));
+
+        service.alertReminder(5L, 10L, START);
+
+        verify(emails).alertReminder(any(), any(), any(), any(), any(), eq("Se perdió la señal de su celular"), any());
+    }
+
+    @Test
+    void onlyServerActivatedAlertsExposeTheirMessageAsReason() {
+        assertEquals(null, AlertNoticesService.serverReason(new AlertSummary(5L, 10L, "main", "panic_button",
+                "active", "texto privado", START, null, null, null, null)));
+        assertEquals("No confirmó", AlertNoticesService.serverReason(new AlertSummary(5L, 10L, "main", "timer",
+                "active", "No confirmó", START, null, null, null, null)));
+    }
 }

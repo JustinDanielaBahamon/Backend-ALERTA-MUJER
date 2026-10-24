@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Notices to the emergency contacts when an alert is activated and when it ends. Only knows ports. */
@@ -31,6 +32,8 @@ public class AlertNoticesService implements NotifyContactsUseCase {
     /** Channels the alerts module records for each contact. */
     static final String EMAIL_CHANNEL = "email";
     static final String PUSH_CHANNEL = "push";
+    /** Alerts the server activates for her ("Avísame si no llego"): their message explains why. */
+    static final Set<String> SERVER_METHODS = Set.of("timer", "signal_lost");
 
     private final AlertsPort alerts;
     private final IdentityPort identity;
@@ -71,6 +74,43 @@ public class AlertNoticesService implements NotifyContactsUseCase {
                 sendPush(delivery, emailByContact.get(delivery.emergencyContactId()), name, alertId, code);
             }
         }
+    }
+
+    @Override
+    public void alertReminder(Long alertId, Long userProfile, LocalDateTime start) {
+        List<AlertRecipient> deliveries = alerts.recipients(alertId);
+        if (deliveries.isEmpty()) return;
+        AlertSummary alert = alerts.find(alertId).orElse(null);
+        String name = identity.profileFullName(userProfile).orElse(null);
+        Map<Long, String> emailByContact = emailsByContact(deliveries);
+        String code = tracking.createLink(alertId);
+        String url = webBaseUrl + "/seguimiento/" + code;
+        String reason = alert == null ? null : serverReason(alert);
+        for (AlertRecipient delivery : deliveries) {
+            try {
+                if (EMAIL_CHANNEL.equals(delivery.channel())) {
+                    emails.alertReminder(delivery.destination(), delivery.contactName(), name, start, url, reason,
+                            settings.emergencyNumber());
+                } else if (PUSH_CHANNEL.equals(delivery.channel()) && delivery.emergencyContactId() != null) {
+                    List<String> tokens = contactTokens(emailByContact.get(delivery.emergencyContactId()));
+                    if (!tokens.isEmpty()) {
+                        push.send(tokens, Map.of(
+                                "tipo", "ALERTA_SOS",
+                                "alertaId", String.valueOf(alertId),
+                                "nombre", name == null ? "" : name,
+                                "codigo", code,
+                                "recordatorio", "1"));
+                    }
+                }
+            } catch (EmailNotSentException e) {
+                log.warn("No se pudo reenviar el aviso de la alerta {} al envío {}: {}", alertId, delivery.id(), e.getMessage());
+            }
+        }
+    }
+
+    /** The explanation the server wrote when it activated the alert for her (trips); null otherwise. */
+    static String serverReason(AlertSummary alert) {
+        return SERVER_METHODS.contains(alert.activationMethod()) ? alert.message() : null;
     }
 
     @Override

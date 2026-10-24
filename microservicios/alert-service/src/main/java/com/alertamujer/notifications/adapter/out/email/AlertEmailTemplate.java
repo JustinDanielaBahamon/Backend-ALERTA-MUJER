@@ -53,6 +53,39 @@ final class AlertEmailTemplate {
     }
 
     /**
+     * Second notice when nobody opened the tracking a few minutes after the alert started.
+     * @param reason why the server activated it (trips), or null
+     */
+    static EmailMessage buildReminder(String to, String contactName, String userName, LocalDateTime start,
+                                      String trackingUrl, String reason, String emergencyNumber, String logoUrl) {
+        String who = userName == null || userName.isBlank() ? "Una persona" : userName;
+        String time = start == null ? "hace unos minutos" : "a las " + time(start);
+        String greeting = contactName == null || contactName.isBlank() ? "Hola" : "Hola, " + contactName;
+        String subject = "⚠️ La alerta de " + who + " sigue activa y nadie la ha visto";
+
+        String body = "<p>" + HtmlUtils.htmlEscape(greeting) + ":</p>"
+                + "<p>La alerta de emergencia que <strong>" + HtmlUtils.htmlEscape(who) + "</strong> activó "
+                + HtmlUtils.htmlEscape(time) + " <strong>sigue activa</strong> y ninguno de sus contactos ha abierto "
+                + "el seguimiento todavía.</p>"
+                + (reason == null || reason.isBlank() ? "" : "<p>" + HtmlUtils.htmlEscape(reason) + "</p>")
+                + EmailLayout.button(trackingUrl, "Ver dónde está ahora")
+                + EmailLayout.highlighted("Si no logras comunicarte con ella y crees que está en peligro, llama al <strong>"
+                        + HtmlUtils.htmlEscape(emergencyNumber) + "</strong>.")
+                + EmailLayout.note("El enlace es personal y deja de funcionar 2 horas después de que termine la alerta. "
+                        + "No lo compartas en redes sociales.");
+        String html = EmailLayout.page(logoUrl, "La alerta de " + who + " sigue activa. Toca para ver dónde está.",
+                "⚠️ " + who + " sigue necesitando ayuda", body,
+                "Recibes este correo porque " + HtmlUtils.htmlEscape(who) + " te registró como contacto de emergencia.");
+
+        String text = greeting + ":\n\nLa alerta que " + who + " activó " + time + " sigue activa y nadie ha abierto "
+                + "el seguimiento.\n"
+                + (reason == null || reason.isBlank() ? "" : reason + "\n")
+                + "Ver su ubicación en tiempo real: " + trackingUrl + "\n"
+                + "\nSi no logras comunicarte con ella y crees que está en peligro, llama al " + emergencyNumber + ".";
+        return new EmailMessage(to, subject, html, text);
+    }
+
+    /**
      * Notice that the alert ended, so the contact stops waiting.
      * @param status resolved, cancelled or expired
      */
