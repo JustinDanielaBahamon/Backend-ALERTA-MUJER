@@ -7,6 +7,7 @@ import com.alertamujer.alerts.application.port.in.TripsUseCase;
 import com.alertamujer.alerts.application.port.out.PhonesPort;
 import com.alertamujer.alerts.application.port.out.IdentityPort;
 import com.alertamujer.alerts.application.port.out.PushPort;
+import com.alertamujer.alerts.application.port.out.RiskZonesPort;
 import com.alertamujer.alerts.application.port.out.TripRepository;
 import com.alertamujer.alerts.application.port.out.LocationRepository;
 import com.alertamujer.alerts.domain.model.Alert;
@@ -30,7 +31,9 @@ import java.util.Optional;
 /**
  * "Avísame si no llego". If the user does not confirm her arrival in time, a normal alert is activated
  * (email and push to her contacts) with her last known location: it works even if her phone has
- * no data or credit, because the server activates it.
+ * no data or credit, because the server activates it. During the trip her phone sends signals of life:
+ * if they stop (phone off, no signal, taken away) the alert goes out before the arrival time, sooner
+ * inside a high-risk zone.
  */
 @Service
 public class TripsService implements TripsUseCase, ReviewTripsUseCase {
@@ -46,15 +49,17 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
     private final LocationRepository locations;
     private final PhonesPort phones;
     private final PushPort push;
+    private final RiskZonesPort riskZones;
 
     public TripsService(TripRepository trips, IdentityPort identity, ManageOwnAlertsUseCase alerts,
-                            LocationRepository locations, PhonesPort phones, PushPort push) {
+                            LocationRepository locations, PhonesPort phones, PushPort push, RiskZonesPort riskZones) {
         this.trips = trips;
         this.identity = identity;
         this.alerts = alerts;
         this.locations = locations;
         this.phones = phones;
         this.push = push;
+        this.riskZones = riskZones;
     }
 
     @Override
@@ -101,16 +106,36 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
         return trips.save(t);
     }
 
+    @Override
+    @Transactional
+    public SafeTrip heartbeat(Long id, Heartbeat point, Long userId) {
+        SafeTrip t = own(id, userId);
+        LocalDateTime now = LocalDateTime.now();
+        if (point.latitude() != null && point.longitude() != null) {
+            LocationLog l = LocationLog.created(t.getUserProfileId(), point.latitude(), point.longitude(), point.accuracy());
+            l.recordTime(point.recordedAt(), now);
+            // After the server alerted, the route the phone kept offline belongs to that alert
+            if (!t.active()) l.setAlertId(t.getAlertId());
+            locations.save(l);
+        }
+        if (!t.active()) return t;
+        t.heartbeat(point.latitude(), point.longitude(), now);
+        return trips.save(t);
+    }
+
     // ── Periodic review ──────────────────────────────────────────
 
     @Override
     @Transactional
     public int review(LocalDateTime now) {
         int alerted = 0;
-        for (SafeTrip t : trips.activeArrivingBefore(now.plus(SafeTrip.REMINDER_LEAD))) {
+        for (SafeTrip t : trips.allActive()) {
             try {
                 if (t.expired(now)) {
-                    raiseAlert(t, now);
+                    raiseAlert(t, now, SafeTrip.REASON_NOT_CONFIRMED);
+                    alerted++;
+                } else if (t.signalLost(now, signalTimeout(t))) {
+                    raiseAlert(t, now, SafeTrip.REASON_SIGNAL_LOST);
                     alerted++;
                 } else if (t.dueSoon(now)) {
                     askIfArrived(t, now);
@@ -123,19 +148,33 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
         return alerted;
     }
 
-    private void raiseAlert(SafeTrip t, LocalDateTime now) {
+    /** Inside a high-risk zone the server waits less for her signal of life. */
+    private Duration signalTimeout(SafeTrip t) {
+        return riskZones.isHighRisk(t.getLastLatitude(), t.getLastLongitude())
+                ? SafeTrip.SIGNAL_TIMEOUT_RISK_ZONE : SafeTrip.SIGNAL_TIMEOUT;
+    }
+
+    private void raiseAlert(SafeTrip t, LocalDateTime now, String reason) {
         Optional<LocationLog> latest = locations.latest(t.getUserProfileId());
-        String message = "No confirmó que llegó a " + t.getDestination() + ". Salió a las "
-                + TIME.format(ColombiaTime.of(t.getStartedAt())) + " y debía llegar a las "
-                + TIME.format(ColombiaTime.of(t.getExpectedArrival())) + "."
-                + latest.map(l -> " Última ubicación hace " + minutesSince(l.getRecordedAt(), now) + " min.").orElse("");
-        Alert alert = alerts.activate(new NewAlert(t.getDeviceId(), "main", "timer", "active", message,
-                latest.map(LocationLog::getLatitude).orElse(t.getDestinationLatitude()),
-                latest.map(LocationLog::getLongitude).orElse(t.getDestinationLongitude()),
-                null, null), t.getUserId());
-        t.markAlerted(alert.getId(), now);
+        boolean signalLost = SafeTrip.REASON_SIGNAL_LOST.equals(reason);
+        String message = signalLost
+                ? "Se perdió la señal de su celular durante el trayecto a " + t.getDestination()
+                        + ". Última señal a las " + TIME.format(ColombiaTime.of(t.getLastSeenAt()))
+                        + "; debía llegar a las " + TIME.format(ColombiaTime.of(t.getExpectedArrival())) + "."
+                : "No confirmó que llegó a " + t.getDestination() + ". Salió a las "
+                        + TIME.format(ColombiaTime.of(t.getStartedAt())) + " y debía llegar a las "
+                        + TIME.format(ColombiaTime.of(t.getExpectedArrival())) + "."
+                        + latest.map(l -> " Última ubicación hace " + minutesSince(l.getRecordedAt(), now) + " min.").orElse("");
+        // The last signal of life is the freshest location; then the route; then the destination
+        var lat = t.getLastLatitude() != null ? t.getLastLatitude()
+                : latest.map(LocationLog::getLatitude).orElse(t.getDestinationLatitude());
+        var lng = t.getLastLongitude() != null ? t.getLastLongitude()
+                : latest.map(LocationLog::getLongitude).orElse(t.getDestinationLongitude());
+        Alert alert = alerts.activate(new NewAlert(t.getDeviceId(), "main", signalLost ? "signal_lost" : "timer",
+                "active", message, lat, lng, null, null), t.getUserId());
+        t.markAlerted(alert.getId(), now, reason);
         trips.save(t);
-        log.info("Trayecto {} sin confirmar: alerta {} activada", t.getId(), alert.getId());
+        log.info("Trayecto {} ({}): alerta {} activada", t.getId(), reason, alert.getId());
     }
 
     private void askIfArrived(SafeTrip t, LocalDateTime now) {

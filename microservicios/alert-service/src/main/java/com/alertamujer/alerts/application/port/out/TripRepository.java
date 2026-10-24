@@ -15,9 +15,9 @@ public interface TripRepository {
 
     Optional<SafeTrip> activeOf(Long profile);
 
-    /** Active ones whose arrival time is before this moment (to notify or alert). */
-    List<SafeTrip> activeArrivingBefore(LocalDateTime moment);
 
+    /** All active trips (to check their signals of life). */
+    List<SafeTrip> allActive();
     /** Trips started by the user since that moment (daily limit). */
     long startedSince(Long profile, LocalDateTime since);
 }

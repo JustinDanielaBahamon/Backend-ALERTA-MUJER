@@ -56,4 +56,16 @@ class SafeTripJpaEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "last_seen_at")
+    private LocalDateTime lastSeenAt;
+
+    @Column(name = "last_latitude", precision = 9, scale = 6)
+    private BigDecimal lastLatitude;
+
+    @Column(name = "last_longitude", precision = 9, scale = 6)
+    private BigDecimal lastLongitude;
+
+    @Column(name = "alert_reason")
+    private String alertReason;
 }

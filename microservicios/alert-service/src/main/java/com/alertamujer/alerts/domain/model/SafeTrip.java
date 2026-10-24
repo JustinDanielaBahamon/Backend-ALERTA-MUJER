@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 
 /**
  * "Avísame si no llego": a trip with an arrival time. If the user does not confirm in time, the
- * server activates an alert for her. Domain model: knows neither the database nor Spring.
+ * server activates an alert for her. During the trip the phone sends a signal of life with its
+ * location; if it stops arriving (phone off, no signal, taken away) the server alerts before the
+ * arrival time. Domain model: knows neither the database nor Spring.
  */
 public class SafeTrip {
 
@@ -14,6 +16,10 @@ public class SafeTrip {
     public static final String ARRIVED = "arrived";
     public static final String CANCELLED = "cancelled";
     public static final String ALERTED = "alerted";
+
+    /** Why the server activated the alert. */
+    public static final String REASON_NOT_CONFIRMED = "not_confirmed";
+    public static final String REASON_SIGNAL_LOST = "signal_lost";
 
     /** Time limits: avoid absurd trips or timers forgotten for days. */
     public static final int MIN_MINUTES = 5;
@@ -24,6 +30,9 @@ public class SafeTrip {
     public static final Duration GRACE = Duration.ofMinutes(2);
     /** She is asked "¿ya llegaste?" this long before the arrival time. */
     public static final Duration REMINDER_LEAD = Duration.ofMinutes(5);
+    /** Without a signal of life for this long the server alerts (shorter inside a high-risk zone). */
+    public static final Duration SIGNAL_TIMEOUT = Duration.ofMinutes(15);
+    public static final Duration SIGNAL_TIMEOUT_RISK_ZONE = Duration.ofMinutes(5);
     private static final int MAX_DESTINATION = 120;
 
     private Long id;
@@ -40,6 +49,11 @@ public class SafeTrip {
     private Long alertId;
     private LocalDateTime endedAt;
     private LocalDateTime createdAt = LocalDateTime.now();
+    /** Last signal of life received (null: her phone does not send them, e.g. an old app version). */
+    private LocalDateTime lastSeenAt;
+    private BigDecimal lastLatitude;
+    private BigDecimal lastLongitude;
+    private String alertReason;
 
     // ── Reglas ──────────────────────────────────────────────────────
 
@@ -104,14 +118,34 @@ public class SafeTrip {
         reminderSent = false; // she is asked again before the new time
     }
 
+    /** Signal of life from her phone. Only counts while the trip is active. */
+    public void heartbeat(BigDecimal lat, BigDecimal lng, LocalDateTime now) {
+        requireActive();
+        lastSeenAt = now;
+        if (lat != null && lng != null) {
+            lastLatitude = lat;
+            lastLongitude = lng;
+        }
+    }
+
+    /**
+     * Her phone was sending signals of life and they stopped for longer than the timeout. Only before the
+     * arrival time: after it, the trip is alerted as not confirmed. Without any signal (an app that does
+     * not send them) it never applies, so it gives no false alarms.
+     */
+    public boolean signalLost(LocalDateTime now, Duration timeout) {
+        return active() && lastSeenAt != null && now.isAfter(lastSeenAt.plus(timeout)) && !expired(now);
+    }
+
     public void markReminder() {
         reminderSent = true;
     }
 
-    public void markAlerted(Long alert, LocalDateTime now) {
+    public void markAlerted(Long alert, LocalDateTime now, String reason) {
         status = ALERTED;
         alertId = alert;
         endedAt = now;
+        alertReason = reason;
     }
 
     public boolean esDe(Long profile) {
@@ -152,4 +186,12 @@ public class SafeTrip {
     public void setEndedAt(LocalDateTime endedAt) { this.endedAt = endedAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getLastSeenAt() { return lastSeenAt; }
+    public void setLastSeenAt(LocalDateTime lastSeenAt) { this.lastSeenAt = lastSeenAt; }
+    public BigDecimal getLastLatitude() { return lastLatitude; }
+    public void setLastLatitude(BigDecimal v) { this.lastLatitude = v; }
+    public BigDecimal getLastLongitude() { return lastLongitude; }
+    public void setLastLongitude(BigDecimal v) { this.lastLongitude = v; }
+    public String getAlertReason() { return alertReason; }
+    public void setAlertReason(String alertReason) { this.alertReason = alertReason; }
 }

@@ -171,3 +171,7 @@ databaseChangeLog:
   - include:
       file: changesets/v1.6.0/20-alert-activation-power-button.sql
       relativeToChangelogFile: true
+
+  - include:
+      file: changesets/v1.6.0/21-safe-trip-signal.sql
+      relativeToChangelogFile: true

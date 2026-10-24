@@ -34,9 +34,8 @@ class TripPersistenceAdapter implements TripRepository {
     }
 
     @Override
-    public List<SafeTrip> activeArrivingBefore(LocalDateTime moment) {
-        return jpa.findByStatusAndExpectedArrivalBefore(SafeTrip.ACTIVE, moment).stream()
-                .map(TripPersistenceAdapter::toDomain).toList();
+    public List<SafeTrip> allActive() {
+        return jpa.findByStatus(SafeTrip.ACTIVE).stream().map(TripPersistenceAdapter::toDomain).toList();
     }
 
     @Override
@@ -60,6 +59,10 @@ class TripPersistenceAdapter implements TripRepository {
         d.setAlertId(f.getAlertId());
         d.setEndedAt(f.getEndedAt());
         d.setCreatedAt(f.getCreatedAt());
+        d.setLastSeenAt(f.getLastSeenAt());
+        d.setLastLatitude(f.getLastLatitude());
+        d.setLastLongitude(f.getLastLongitude());
+        d.setAlertReason(f.getAlertReason());
         return d;
     }
 
@@ -79,6 +82,10 @@ class TripPersistenceAdapter implements TripRepository {
         f.setAlertId(d.getAlertId());
         f.setEndedAt(d.getEndedAt());
         f.setCreatedAt(d.getCreatedAt());
+        f.setLastSeenAt(d.getLastSeenAt());
+        f.setLastLatitude(d.getLastLatitude());
+        f.setLastLongitude(d.getLastLongitude());
+        f.setAlertReason(d.getAlertReason());
         return f;
     }
 }

@@ -50,15 +50,27 @@ public class SafeTripController {
         return ResponseEntity.ok(SafeTripView.of(trips.cancel(id, userId)));
     }
 
+    /** Signal of life from her phone during the trip (every few minutes, also queued while offline). */
+    @PostMapping("/{id}/heartbeat")
+    public ResponseEntity<SafeTripView> heartbeat(@PathVariable Long id, @RequestBody HeartbeatRequest r,
+                                                  @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(SafeTripView.of(trips.heartbeat(id,
+                new TripsUseCase.Heartbeat(r.latitude(), r.longitude(), r.accuracy(), r.recordedAt()), userId)));
+    }
+
+    public record HeartbeatRequest(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, LocalDateTime recordedAt) {}
+
     public record StartRequest(String destination, int minutes, Long deviceId, BigDecimal latitude, BigDecimal longitude) {}
 
     public record ExtendRequest(int minutes) {}
 
     public record SafeTripView(Long id, String destination, BigDecimal destinationLatitude, BigDecimal destinationLongitude,
-                               LocalDateTime startedAt, LocalDateTime expectedArrival, String status, Long alertId) {
+                               LocalDateTime startedAt, LocalDateTime expectedArrival, String status, Long alertId,
+                               LocalDateTime lastSeenAt, String alertReason) {
         static SafeTripView of(SafeTrip t) {
             return new SafeTripView(t.getId(), t.getDestination(), t.getDestinationLatitude(), t.getDestinationLongitude(),
-                    t.getStartedAt(), t.getExpectedArrival(), t.getStatus(), t.getAlertId());
+                    t.getStartedAt(), t.getExpectedArrival(), t.getStatus(), t.getAlertId(), t.getLastSeenAt(),
+                    t.getAlertReason());
         }
     }
 }
