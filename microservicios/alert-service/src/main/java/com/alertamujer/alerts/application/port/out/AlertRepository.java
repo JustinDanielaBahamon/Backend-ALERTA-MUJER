@@ -2,6 +2,7 @@ package com.alertamujer.alerts.application.port.out;
 
 import com.alertamujer.alerts.domain.model.Alert;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +32,7 @@ public interface AlertRepository {
     long kept(Long profile);
 
     void delete(Long id);
+
+    /** A location of the active alert arrived now (its phone is still sending). */
+    void markSignal(Long id, LocalDateTime when);
 }

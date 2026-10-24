@@ -19,6 +19,10 @@ public interface EmailsPort {
     void alertReminder(String to, String contactName, String userName, LocalDateTime start,
                        String trackingUrl, String reason, String emergencyNumber);
 
+    /** The alert goes on with a warning (unanswered, signal_lost, duress). at: when it happened. */
+    void alertWarning(String to, String contactName, String userName, String kind, LocalDateTime at,
+                      String trackingUrl, String emergencyNumber);
+
     /** Notice that the alert ended. status: resolved, cancelled or expired. */
     void alertEnd(String to, String contactName, String userName, String status, LocalDateTime end,
                      String emergencyNumber);

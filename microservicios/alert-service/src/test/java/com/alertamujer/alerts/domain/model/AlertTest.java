@@ -2,6 +2,7 @@ package com.alertamujer.alerts.domain.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,18 +96,44 @@ class AlertTest {
     }
 
     @Test
-    void expiresOnlyTheActiveOneOverTheLimit() {
-        Alert old = active();
-        old.setStartedAt(NOW.minusMinutes(31));
-        Alert recent = active();
+    void checkInDeadlineAndAbsoluteLimit() {
+        Alert a = active(); // started 5 min ago
+        Duration twoHours = Duration.ofHours(2);
 
-        assertTrue(old.expired(NOW.minusMinutes(30)));
-        assertFalse(recent.expired(NOW.minusMinutes(30)));
+        assertEquals(NOW.plusMinutes(25), a.deadline(30));
+        assertFalse(a.unanswered(NOW, 30));
+        assertTrue(a.unanswered(NOW.plusMinutes(25), 30));
+        assertFalse(a.overHardLimit(NOW.plusMinutes(114), twoHours));
+        assertTrue(a.overHardLimit(NOW.plusMinutes(115), twoHours));
 
-        old.expire(NOW);
-        assertEquals("expired", old.getStatus());
-        assertEquals(NOW, old.getEndedAt());
-        assertFalse(old.expired(NOW.minusMinutes(30)));
+        a.expire(NOW);
+        assertEquals("expired", a.getStatus());
+        assertFalse(a.unanswered(NOW.plusHours(1), 30));
+    }
+
+    @Test
+    void stillInDangerAddsTheCheckInMinutesWithoutPassingTheLimit() {
+        Alert a = active();
+        Duration twoHours = Duration.ofHours(2);
+        a.markUnanswered(NOW);
+
+        a.extend(NOW, 30, twoHours); // before the deadline: counted from it
+        assertEquals(NOW.plusMinutes(55), a.getExtendedUntil());
+        assertNull(a.getUnansweredAt());
+
+        a.extend(NOW.plusMinutes(100), 30, twoHours); // late: from now, capped at the limit
+        assertEquals(NOW.plusMinutes(115), a.getExtendedUntil());
+    }
+
+    @Test
+    void duressIsMarkedOnceAndOnlyOnAnActiveAlert() {
+        Alert a = active();
+        assertTrue(a.markDuress(NOW));
+        assertFalse(a.markDuress(NOW.plusMinutes(1)));
+        assertEquals(NOW, a.getDuressAt());
+
+        a.expire(NOW);
+        assertThrows(IllegalArgumentException.class, () -> a.extend(NOW, 30, Duration.ofHours(2)));
     }
 
     @Test

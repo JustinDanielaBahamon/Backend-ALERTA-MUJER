@@ -4,6 +4,7 @@ import com.alertamujer.alerts.application.port.out.AlertRepository;
 import com.alertamujer.alerts.domain.model.Alert;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +70,11 @@ class AlertPersistenceAdapter implements AlertRepository {
         jpa.deleteById(id);
     }
 
+    @Override
+    public void markSignal(Long id, LocalDateTime when) {
+        jpa.markSignal(id, when);
+    }
+
     static Alert toDomain(AlertJpaEntity f) {
         Alert d = new Alert();
         d.setId(f.getId());
@@ -85,6 +91,9 @@ class AlertPersistenceAdapter implements AlertRepository {
         d.setCancelledAt(f.getCancelledAt());
         d.setCreatedAt(f.getCreatedAt());
         d.setKeepEvidence(f.isKeepEvidence());
+        d.setExtendedUntil(f.getExtendedUntil());
+        d.setUnansweredAt(f.getUnansweredAt());
+        d.setDuressAt(f.getDuressAt());
         return d;
     }
 
@@ -104,6 +113,9 @@ class AlertPersistenceAdapter implements AlertRepository {
         f.setCancelledAt(d.getCancelledAt());
         f.setCreatedAt(d.getCreatedAt());
         f.setKeepEvidence(d.isKeepEvidence());
+        f.setExtendedUntil(d.getExtendedUntil());
+        f.setUnansweredAt(d.getUnansweredAt());
+        f.setDuressAt(d.getDuressAt());
         return f;
     }
 }

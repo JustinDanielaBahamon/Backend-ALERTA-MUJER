@@ -46,8 +46,12 @@ public class LocationsService implements LocationsUseCase {
         if (!location.belongsToAlert() && !phones.isTheNewest(userId, newOne.deviceId())) {
             return Optional.empty();
         }
-        location.recordTime(newOne.recordedAt(), LocalDateTime.now());
-        return Optional.of(repository.save(location));
+        LocalDateTime now = LocalDateTime.now();
+        location.recordTime(newOne.recordedAt(), now);
+        LocationLog saved = repository.save(location);
+        // Server time of the last signal: if it stops, the contacts are told (notifications module)
+        if (saved.belongsToAlert()) alerts.markSignal(saved.getAlertId(), now);
+        return Optional.of(saved);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.alertamujer.alerts.domain.model;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -25,8 +26,14 @@ public class Alert {
     private LocalDateTime endedAt;
     private LocalDateTime cancelledAt;
     private LocalDateTime createdAt = LocalDateTime.now();
-    /** true = its evidence is not deleted after 60 days (marked by the user). */
+    /** true = its evidence is not deleted after the retention days (marked by the user). */
     private boolean keepEvidence = false;
+    /** Until when she confirmed she is still in danger ("Sigo en peligro"); null = the first period. */
+    private LocalDateTime extendedUntil;
+    /** The check-in time passed without an answer and the contacts were told (the alert goes on). */
+    private LocalDateTime unansweredAt;
+    /** She "cancelled" with her duress PIN: it looks cancelled on her phone but it goes on. */
+    private LocalDateTime duressAt;
 
     public static final String ACTIVE = "active";
     /** Statuses the administration can assign. */
@@ -57,9 +64,52 @@ public class Alert {
                 || (status != null && ENDED_STATUSES.contains(status.toLowerCase()));
     }
 
-    /** Still active since before the limit (exceeded the maximum duration). */
-    public boolean expired(LocalDateTime limit) {
-        return isActive() && startedAt != null && startedAt.isBefore(limit);
+    /**
+     * When she is asked again whether she is still in danger: the configured minutes after the start,
+     * or the moment she extended it to.
+     */
+    public LocalDateTime deadline(int checkInMinutes) {
+        return extendedUntil != null ? extendedUntil : startedAt.plusMinutes(checkInMinutes);
+    }
+
+    /** No alert lasts longer than this, answered or not. */
+    public LocalDateTime hardLimit(Duration hardCap) {
+        return startedAt.plus(hardCap);
+    }
+
+    /** Reached the absolute limit: it is closed. */
+    public boolean overHardLimit(LocalDateTime now, Duration hardCap) {
+        return isActive() && startedAt != null && !now.isBefore(hardLimit(hardCap));
+    }
+
+    /** The check-in time passed and she did not answer (it is told to the contacts only once). */
+    public boolean unanswered(LocalDateTime now, int checkInMinutes) {
+        return isActive() && startedAt != null && unansweredAt == null && !now.isBefore(deadline(checkInMinutes));
+    }
+
+    public void markUnanswered(LocalDateTime now) {
+        unansweredAt = now;
+    }
+
+    /**
+     * "Sigo en peligro": the check-in minutes more, counted from the current deadline if it has not
+     * passed yet (or from now), never beyond the absolute limit.
+     */
+    public void extend(LocalDateTime now, int checkInMinutes, Duration hardCap) {
+        if (!isActive()) throw new IllegalArgumentException("Esta alerta ya terminó");
+        LocalDateTime current = deadline(checkInMinutes);
+        LocalDateTime next = (current.isAfter(now) ? current : now).plusMinutes(checkInMinutes);
+        LocalDateTime limit = hardLimit(hardCap);
+        extendedUntil = next.isAfter(limit) ? limit : next;
+        unansweredAt = null;
+    }
+
+    /** Duress PIN: true the first time (the contacts are told only once). */
+    public boolean markDuress(LocalDateTime now) {
+        if (!isActive()) throw new IllegalArgumentException("Esta alerta ya terminó");
+        if (duressAt != null) return false;
+        duressAt = now;
+        return true;
     }
 
     /**
@@ -100,7 +150,7 @@ public class Alert {
     }
 
     /**
-     * Marks (or unmarks) the alert to keep its evidence beyond 60 days.
+     * Marks (or unmarks) the alert to keep its evidence beyond the retention days.
      * kept = how many alerts the user has already marked.
      */
     public void keepEvidence(boolean keep, long kept) {
@@ -144,6 +194,12 @@ public class Alert {
     public void setCancelledAt(LocalDateTime cancelledAt) { this.cancelledAt = cancelledAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getExtendedUntil() { return extendedUntil; }
+    public void setExtendedUntil(LocalDateTime extendedUntil) { this.extendedUntil = extendedUntil; }
+    public LocalDateTime getUnansweredAt() { return unansweredAt; }
+    public void setUnansweredAt(LocalDateTime unansweredAt) { this.unansweredAt = unansweredAt; }
+    public LocalDateTime getDuressAt() { return duressAt; }
+    public void setDuressAt(LocalDateTime duressAt) { this.duressAt = duressAt; }
     public boolean isKeepEvidence() { return keepEvidence; }
     public void setKeepEvidence(boolean keepEvidence) { this.keepEvidence = keepEvidence; }
 }

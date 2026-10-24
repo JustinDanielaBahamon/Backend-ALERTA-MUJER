@@ -89,6 +89,48 @@ final class AlertEmailTemplate {
         return new EmailMessage(to, subject, html, text);
     }
 
+    /** What each warning says: subject, headline and explanation. */
+    private record Warning(String subject, String headline, String text) {}
+
+    private static Warning warning(String kind, String who, String time) {
+        return switch (kind) {
+            case "signal_lost" -> new Warning(
+                    "⚠️ El celular de " + who + " dejó de enviar su ubicación",
+                    "⚠️ Se perdió la señal del celular de " + who,
+                    "Su alerta sigue activa, pero desde las " + time + " su celular no envía ubicación: puede estar "
+                            + "apagado, sin batería o sin señal. En el enlace ves la última ubicación que recibimos.");
+            case "duress" -> new Warning(
+                    "🚨 " + who + " podría estar siendo obligada a cancelar su alerta",
+                    "🚨 " + who + " canceló la alerta con su código de emergencia",
+                    "En su celular la alerta aparece cancelada, pero sigue activa y sigue enviando su ubicación: "
+                            + "es la señal de que podría estar siendo obligada. No la llames si eso puede ponerla en riesgo.");
+            default -> new Warning(
+                    "⚠️ " + who + " no responde: su alerta sigue activa",
+                    "⚠️ " + who + " no responde",
+                    "Le preguntamos a las " + time + " si sigue en peligro y no contestó. Su alerta sigue activa y "
+                            + "su ubicación se sigue compartiendo.");
+        };
+    }
+
+    /** The alert goes on and something changed (she does not answer, lost signal, duress). */
+    static EmailMessage buildWarning(String to, String contactName, String userName, String kind, LocalDateTime at,
+                                     String trackingUrl, String emergencyNumber, String logoUrl) {
+        String who = userName == null || userName.isBlank() ? "Una persona" : userName;
+        String greeting = contactName == null || contactName.isBlank() ? "Hola" : "Hola, " + contactName;
+        String hour = at == null ? "hace un momento" : time(at).replaceAll(" del .*$", "");
+        Warning w = warning(kind, who, hour);
+        String body = "<p>" + HtmlUtils.htmlEscape(greeting) + ":</p>"
+                + "<p>" + HtmlUtils.htmlEscape(w.text()) + "</p>"
+                + EmailLayout.button(trackingUrl, "Ver dónde está ahora")
+                + EmailLayout.highlighted("Si crees que está en peligro, llama al <strong>"
+                        + HtmlUtils.htmlEscape(emergencyNumber) + "</strong>.");
+        String html = EmailLayout.page(logoUrl, w.text(), w.headline(), body,
+                "Recibes este correo porque " + HtmlUtils.htmlEscape(who) + " te registró como contacto de emergencia.");
+        String text = greeting + ":\n\n" + w.text() + "\nVer su ubicación: " + trackingUrl
+                + "\n\nSi crees que está en peligro, llama al " + emergencyNumber + ".";
+        return new EmailMessage(to, w.subject(), html, text);
+    }
+
     /**
      * Notice that the alert ended, so the contact stops waiting.
      * @param status resolved, cancelled or expired
@@ -101,7 +143,7 @@ final class AlertEmailTemplate {
         String what = switch (status == null ? "" : status) {
             case "resolved" -> "fue marcada como atendida";
             case "cancelled" -> "fue cancelada";
-            default -> "terminó automáticamente al superar la duración máxima";
+            default -> "se cerró automáticamente después de 2 horas";
         };
         String subject = "La alerta de " + who + " terminó";
         String sentence = "La alerta de emergencia de " + who + " " + what + " " + time + ".";

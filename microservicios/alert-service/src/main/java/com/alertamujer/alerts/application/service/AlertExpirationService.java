@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.api.AlertWarningEvent;
 import com.alertamujer.alerts.application.port.in.ExpireAlertsUseCase;
 import com.alertamujer.alerts.application.port.out.SettingsPort;
 import com.alertamujer.alerts.application.port.out.AlertRepository;
@@ -8,12 +9,20 @@ import com.alertamujer.alerts.domain.model.Alert;
 import com.alertamujer.shared.web.AuditSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-/** Expires the alerts that exceed the maximum duration configured by the administration. */
+/**
+ * Check-in of the active alerts. When the duration configured by the administration (30 min) passes
+ * without her saying she is still in danger, the alert is NOT closed: if she cannot answer she may be
+ * in danger, so her contacts are told she does not respond and it goes on. It is only closed at the
+ * absolute limit (2 h by default).
+ */
 @Service
 public class AlertExpirationService implements ExpireAlertsUseCase {
 
@@ -27,10 +36,14 @@ public class AlertExpirationService implements ExpireAlertsUseCase {
     private volatile LocalDateTime lastRun;
     private volatile int expiredLastRun;
 
-    public AlertExpirationService(AlertRepository repository, SettingsPort settings, AlertEventsPort events) {
+    private final int hardCapMinutes;
+
+    public AlertExpirationService(AlertRepository repository, SettingsPort settings, AlertEventsPort events,
+                                  @Value("${alerts.hard-cap-minutes:120}") int hardCapMinutes) {
         this.repository = repository;
         this.settings = settings;
         this.events = events;
+        this.hardCapMinutes = hardCapMinutes;
     }
 
     @Override
@@ -54,13 +67,25 @@ public class AlertExpirationService implements ExpireAlertsUseCase {
     }
 
     int expireOverdue(LocalDateTime now) {
-        int minutes = settings.maxAlertDurationMinutes();
-        if (minutes <= 0) return 0;
-        LocalDateTime limit = now.minusMinutes(minutes);
-        List<Alert> overdue = repository.active().stream().filter(a -> a.expired(limit)).toList();
-        overdue.forEach(a -> a.expire(now));
-        repository.saveAll(overdue);
-        overdue.forEach(a -> events.alertEnded(a, now));
-        return overdue.size();
+        int checkIn = settings.maxAlertDurationMinutes();
+        if (checkIn <= 0) return 0;
+        Duration hardCap = Duration.ofMinutes(Math.max(hardCapMinutes, checkIn));
+        List<Alert> expired = new ArrayList<>();
+        List<Alert> unanswered = new ArrayList<>();
+        for (Alert a : repository.active()) {
+            if (a.overHardLimit(now, hardCap)) {
+                a.expire(now);
+                expired.add(a);
+            } else if (a.unanswered(now, checkIn)) {
+                a.markUnanswered(now);
+                unanswered.add(a);
+            }
+        }
+        List<Alert> changed = new ArrayList<>(expired);
+        changed.addAll(unanswered);
+        repository.saveAll(changed);
+        expired.forEach(a -> events.alertEnded(a, now));
+        unanswered.forEach(a -> events.alertWarning(a, AlertWarningEvent.UNANSWERED, now));
+        return expired.size();
     }
 }

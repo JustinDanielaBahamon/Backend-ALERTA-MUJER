@@ -15,4 +15,7 @@ public interface AlertEventsPort {
 
     /** An active alert ended (attended, cancelled or expired). */
     void alertEnded(Alert alert, LocalDateTime when);
+
+    /** Something the contacts must know while it goes on (AlertWarningEvent: unanswered, duress...). */
+    void alertWarning(Alert alert, String kind, LocalDateTime at);
 }

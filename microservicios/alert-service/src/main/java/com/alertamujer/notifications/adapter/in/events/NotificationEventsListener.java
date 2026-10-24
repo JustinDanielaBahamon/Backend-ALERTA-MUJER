@@ -2,6 +2,7 @@ package com.alertamujer.notifications.adapter.in.events;
 
 import com.alertamujer.alerts.api.AlertActivatedEvent;
 import com.alertamujer.alerts.api.AlertEndedEvent;
+import com.alertamujer.alerts.api.AlertWarningEvent;
 import com.alertamujer.devices.api.NewPhoneSignedInEvent;
 import com.alertamujer.identity.api.PasswordRecoveryRequestedEvent;
 import com.alertamujer.notifications.application.port.in.NotifyContactsUseCase;
@@ -52,6 +53,16 @@ class NotificationEventsListener {
             notices.alertEnded(e.alertId(), e.userProfileId(), e.status(), e.endedAt());
         } catch (RuntimeException ex) {
             log.error("No se pudo avisar el fin de la alerta {}: {}", e.alertId(), ex.getMessage());
+        }
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void onAlertWarning(AlertWarningEvent e) {
+        try {
+            notices.alertWarning(e.alertId(), e.userProfileId(), e.kind(), e.at());
+        } catch (RuntimeException ex) {
+            log.error("No se pudo avisar a los contactos ({}) de la alerta {}: {}", e.kind(), e.alertId(), ex.getMessage());
         }
     }
 

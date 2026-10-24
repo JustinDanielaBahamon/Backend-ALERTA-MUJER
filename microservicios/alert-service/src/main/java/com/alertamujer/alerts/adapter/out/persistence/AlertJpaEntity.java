@@ -55,4 +55,16 @@ class AlertJpaEntity {
 
     @Column(name = "keep_evidence", nullable = false)
     private boolean keepEvidence;
+
+    @Column(name = "extended_until")
+    private LocalDateTime extendedUntil;
+
+    @Column(name = "unanswered_at")
+    private LocalDateTime unansweredAt;
+
+    @Column(name = "duress_at")
+    private LocalDateTime duressAt;
+
+    // last_signal_at and signal_lost_at are written with targeted updates (see markSignal and the
+    // notifications module): mapping them here would overwrite them with stale values on every save
 }

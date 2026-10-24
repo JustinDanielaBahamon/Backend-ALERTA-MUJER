@@ -43,10 +43,11 @@ public interface PublicTrackingUseCase {
      * Only the user's first name: the link may be forwarded. activationMethod tells how it started
      * (timer / signal_lost: the server activated it in a trip) and reason is the server's explanation
      * for those ("No confirmó que llegó a…", "Se perdió la señal…"); null for the alerts she activated.
+     * warning: what the contact must know while it goes on (unanswered, signal_lost, duress) or null.
      */
     record TrackingView(String firstName, String status, boolean active, LocalDateTime startedAt,
                         LocalDateTime endedAt, List<LocationPoint> route, String emergencyNumber,
-                        List<PublicEvidence> evidence, String activationMethod, String reason) {
+                        List<PublicEvidence> evidence, String activationMethod, String reason, String warning) {
         public LocationPoint lastPoint() {
             return route.isEmpty() ? null : route.get(route.size() - 1);
         }

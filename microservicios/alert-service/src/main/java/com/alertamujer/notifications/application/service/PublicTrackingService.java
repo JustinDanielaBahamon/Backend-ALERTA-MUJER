@@ -10,6 +10,7 @@ import com.alertamujer.notifications.application.port.out.AlertsPort;
 import com.alertamujer.notifications.application.port.out.LinkRepository;
 import com.alertamujer.notifications.application.port.out.EvidencePort;
 import com.alertamujer.notifications.application.port.out.IdentityPort;
+import com.alertamujer.notifications.application.port.out.AlertSignalRepository;
 import com.alertamujer.notifications.application.port.out.ViewsRepository;
 import com.alertamujer.notifications.domain.model.ContactMessageLimit;
 import com.alertamujer.notifications.domain.model.TrackingLink;
@@ -31,16 +32,19 @@ public class PublicTrackingService implements PublicTrackingUseCase {
     private final SettingsPort settings;
     private final EvidencePort evidences;
     private final ViewsRepository views;
+    private final AlertSignalRepository signals;
     private final ContactMessageLimit limit = new ContactMessageLimit();
 
     public PublicTrackingService(LinkRepository links, AlertsPort alerts, IdentityPort identity,
-                                     SettingsPort settings, EvidencePort evidences, ViewsRepository views) {
+                                     SettingsPort settings, EvidencePort evidences, ViewsRepository views,
+                                     AlertSignalRepository signals) {
         this.links = links;
         this.alerts = alerts;
         this.identity = identity;
         this.settings = settings;
         this.evidences = evidences;
         this.views = views;
+        this.signals = signals;
     }
 
     @Override
@@ -90,7 +94,7 @@ public class PublicTrackingService implements PublicTrackingUseCase {
                 .toList();
         return new TrackingView(name, alert.status(), "active".equals(alert.status()), alert.startedAt(),
                 end(alert), route, settings.emergencyNumber(), recordings, alert.activationMethod(),
-                AlertNoticesService.serverReason(alert));
+                AlertNoticesService.serverReason(alert), signals.currentWarning(alert.id()).orElse(null));
     }
 
     @Override

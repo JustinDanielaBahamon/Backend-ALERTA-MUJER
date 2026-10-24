@@ -34,7 +34,9 @@ class PublicTrackingServiceTest {
     private final SettingsPort settings = mock(SettingsPort.class);
     private final EvidencePort evidences = mock(EvidencePort.class);
     private final ViewsRepository views = mock(ViewsRepository.class);
-    private final PublicTrackingService service = new PublicTrackingService(links, alerts, identity, settings, evidences, views);
+    private final AlertSignalRepository signals = mock(AlertSignalRepository.class);
+    private final PublicTrackingService service = new PublicTrackingService(links, alerts, identity, settings, evidences, views,
+            signals);
 
     private TrackingLink link;
 

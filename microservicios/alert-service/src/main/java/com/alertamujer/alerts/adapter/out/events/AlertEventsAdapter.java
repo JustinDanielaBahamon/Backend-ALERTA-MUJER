@@ -2,6 +2,7 @@ package com.alertamujer.alerts.adapter.out.events;
 
 import com.alertamujer.alerts.api.AlertActivatedEvent;
 import com.alertamujer.alerts.api.AlertEndedEvent;
+import com.alertamujer.alerts.api.AlertWarningEvent;
 import com.alertamujer.alerts.application.port.out.AlertEventsPort;
 import com.alertamujer.alerts.domain.model.Alert;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,5 +31,10 @@ class AlertEventsAdapter implements AlertEventsPort {
     @Override
     public void alertEnded(Alert alert, LocalDateTime when) {
         publisher.publishEvent(new AlertEndedEvent(alert.getId(), alert.getUserProfileId(), alert.getStatus(), when));
+    }
+
+    @Override
+    public void alertWarning(Alert alert, String kind, LocalDateTime at) {
+        publisher.publishEvent(new AlertWarningEvent(alert.getId(), alert.getUserProfileId(), kind, at));
     }
 }

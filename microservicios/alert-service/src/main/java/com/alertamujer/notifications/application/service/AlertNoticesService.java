@@ -11,6 +11,7 @@ import com.alertamujer.notifications.application.port.out.EmailsPort.EmailNotSen
 import com.alertamujer.notifications.application.port.out.DevicesPort;
 import com.alertamujer.notifications.application.port.out.IdentityPort;
 import com.alertamujer.notifications.application.port.out.PushPort;
+import com.alertamujer.shared.web.ColombiaTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +37,7 @@ public class AlertNoticesService implements NotifyContactsUseCase {
     static final String PUSH_CHANNEL = "push";
     /** Alerts the server activates for her ("Avísame si no llego"): their message explains why. */
     static final Set<String> SERVER_METHODS = Set.of("timer", "signal_lost");
+    private static final DateTimeFormatter PUSH_TIME = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
 
     private final AlertsPort alerts;
     private final IdentityPort identity;
@@ -111,6 +115,53 @@ public class AlertNoticesService implements NotifyContactsUseCase {
                 log.warn("No se pudo reenviar el aviso de la alerta {} al envío {}: {}", alertId, delivery.id(), e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void alertWarning(Long alertId, Long userProfile, String kind, LocalDateTime at) {
+        List<AlertRecipient> deliveries = alerts.recipients(alertId);
+        if (deliveries.isEmpty()) return;
+        String name = identity.profileFullName(userProfile).orElse(null);
+        Map<Long, String> emailByContact = emailsByContact(deliveries);
+        String code = tracking.createLink(alertId);
+        String url = webBaseUrl + "/seguimiento/" + code;
+        String notice = shortWarning(kind, at);
+        for (AlertRecipient delivery : deliveries) {
+            try {
+                if (EMAIL_CHANNEL.equals(delivery.channel())) {
+                    emails.alertWarning(delivery.destination(), delivery.contactName(), name, kind, at,
+                            withDelivery(url, delivery), settings.emergencyNumber());
+                } else if (PUSH_CHANNEL.equals(delivery.channel()) && delivery.emergencyContactId() != null) {
+                    List<String> tokens = contactTokens(emailByContact.get(delivery.emergencyContactId()));
+                    if (!tokens.isEmpty()) {
+                        // The SOS alarm sounds again on her phone, with what happened
+                        push.send(tokens, Map.of(
+                                "tipo", "ALERTA_SOS",
+                                "alertaId", String.valueOf(alertId),
+                                "nombre", name == null ? "" : name,
+                                "codigo", code,
+                                "envioId", String.valueOf(delivery.id()),
+                                "recordatorio", "1",
+                                "aviso", notice));
+                    }
+                }
+            } catch (EmailNotSentException e) {
+                log.warn("No se pudo enviar el aviso ({}) de la alerta {} al envío {}: {}", kind, alertId, delivery.id(), e.getMessage());
+            }
+        }
+    }
+
+    /** One line for the contact's push notification. */
+    static String shortWarning(String kind, LocalDateTime at) {
+        // The hour ends in "p. m.": it never closes a sentence (no double period)
+        String hour = at == null ? null : PUSH_TIME.format(ColombiaTime.of(at)).replace("AM", "a. m.").replace("PM", "p. m.");
+        return switch (kind) {
+            case "signal_lost" -> hour == null
+                    ? "Su celular dejó de enviar ubicación. Toca para ver la última."
+                    : "Desde las " + hour + " su celular no envía ubicación. Toca para ver la última.";
+            case "duress" -> "Canceló con su código de emergencia: podría estar siendo obligada. La alerta sigue activa.";
+            default -> "No responde y su alerta sigue activa. Toca para ver dónde está.";
+        };
     }
 
     /** The explanation the server wrote when it activated the alert for her (trips); null otherwise. */

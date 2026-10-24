@@ -162,4 +162,28 @@ class AlertNoticesServiceTest {
         assertEquals("No confirmó", AlertNoticesService.serverReason(new AlertSummary(5L, 10L, "main", "timer",
                 "active", "No confirmó", START, null, null, null, null)));
     }
+
+    @Test
+    void aWarningResendsEmailAndTheSosPushWithWhatHappened() {
+        when(alerts.recipients(5L)).thenReturn(List.of(EMAIL, PUSH));
+        when(identity.userWithEmail("mama@correo.com")).thenReturn(Optional.of(7L));
+        when(devices.tokensOf(7L)).thenReturn(List.of("token-mama"));
+
+        service.alertWarning(5L, 10L, "duress", START);
+
+        verify(emails).alertWarning("mama@correo.com", "Mamá", "Ana Gómez", "duress", START,
+                "https://web.app/seguimiento/CODIGO?c=100", "123");
+        verify(push).send(eq(List.of("token-mama")), argThat(data ->
+                "ALERTA_SOS".equals(data.get("tipo")) && "1".equals(data.get("recordatorio"))
+                        && data.get("aviso").contains("código de emergencia") && "101".equals(data.get("envioId"))));
+        verify(alerts, never()).recordDelivery(any(), any(), any());
+    }
+
+    @Test
+    void theLostSignalNoticeSaysWhenItStopped() {
+        // 20:42 UTC on the server is 3:42 p. m. in Colombia
+        String text = AlertNoticesService.shortWarning("signal_lost", LocalDateTime.of(2026, 10, 24, 20, 42)
+                .atZone(java.time.ZoneOffset.UTC).withZoneSameInstant(java.time.ZoneId.systemDefault()).toLocalDateTime());
+        assertEquals("Desde las 3:42 p. m. su celular no envía ubicación. Toca para ver la última.", text);
+    }
 }
