@@ -78,7 +78,8 @@ public class PublicTrackingService implements PublicTrackingUseCase {
                 .map(e -> new PublicEvidence(e.id(), e.mediaType(), e.contentType(), e.createdAt()))
                 .toList();
         return new TrackingView(name, alert.status(), "active".equals(alert.status()), alert.startedAt(),
-                end(alert), route, settings.emergencyNumber(), recordings);
+                end(alert), route, settings.emergencyNumber(), recordings, alert.activationMethod(),
+                AlertNoticesService.serverReason(alert));
     }
 
     @Override

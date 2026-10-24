@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -74,6 +75,9 @@ class PublicTrackingServiceTest {
         assertEquals(dot, v.lastPoint());
         assertEquals("123", v.emergencyNumber());
         assertEquals(9L, v.evidence().get(0).id());
+        // An alert she activated does not expose its message
+        assertEquals("panic_button", v.activationMethod());
+        assertNull(v.reason());
     }
 
     @Test
