@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,7 +42,8 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase {
     private static final Logger log = LoggerFactory.getLogger(TripsService.class);
     /** Prevents abuse (thousands of timers) without getting in the way of normal use. */
     static final int MAX_PER_DAY = 20;
-    private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a");
+    /** Spanish 12-hour time ("10:00 p. m."): the server locale is English and wrote "10:00 PM". */
+    static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("h:mm a", Locale.forLanguageTag("es-CO"));
 
     private final TripRepository trips;
     private final IdentityPort identity;

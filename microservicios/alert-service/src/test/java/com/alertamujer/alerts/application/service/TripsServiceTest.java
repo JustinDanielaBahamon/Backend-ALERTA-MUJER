@@ -194,4 +194,12 @@ class TripsServiceTest {
         assertEquals(59L, point.getValue().getAlertId());
         verify(trips, never()).save(any());
     }
+
+    @Test
+    void timesInTheMessageAreInSpanish() {
+        String text = TripsService.TIME.format(java.time.LocalTime.of(22, 5));
+        assertTrue(text.startsWith("10:05"), text);
+        assertFalse(text.contains("PM"), text);
+        assertTrue(text.contains("p"), text);
+    }
 }
