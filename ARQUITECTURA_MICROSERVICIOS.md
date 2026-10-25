@@ -9,7 +9,7 @@ desplegados en Render y compartiendo **una sola base de datos PostgreSQL**.
 |---|---|---|---|
 | **Auth Service** | https://alerta-mujer-auth.onrender.com | Seguridad: registro, login (JWT y Google), sesiones, celulares, configuración y panel de administración | `identity`, `devices`, `settings`, `admin` |
 | **Alert Service** | https://alerta-mujer-alert.onrender.com | Núcleo SOS: alertas, ubicación en tiempo real, chat, contactos, notificaciones (correo y push), zonas y recursos de ayuda | `alerts`, `notifications`, `zones`, `resources` |
-| **Evidence Service** | https://alerta-mujer-evidence.onrender.com | Diferenciador: fotos, videos y audios en Backblaze B2, huella SHA-256, retención de 60 días | `evidence` |
+| **Evidence Service** | https://alerta-mujer-evidence.onrender.com | Diferenciador: fotos, videos y audios en Backblaze B2, huella SHA-256, retención de 30 días con aviso 5 días antes | `evidence` |
 
 Cada servicio tiene su documentación interactiva en `/swagger-ui/index.html` y su estado en
 `/actuator/health`.
