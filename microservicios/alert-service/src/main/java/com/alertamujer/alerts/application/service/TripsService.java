@@ -196,7 +196,26 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
                 "active", message, lat, lng, null, null), t.getUserId());
         t.markAlerted(alert.getId(), now, reason);
         trips.save(t);
+        tellHer(t, alert.getId(), reason);
         log.info("Trayecto {} ({}): alerta {} activada", t.getId(), reason, alert.getId());
+    }
+
+    /**
+     * Her own phones learn that the server activated the alert for her: opening the app shows the
+     * active alert screen right away (and keeps sending her location from there).
+     */
+    private void tellHer(SafeTrip t, Long alertId, String reason) {
+        List<String> tokens = phones.phoneTokens(t.getUserId());
+        if (tokens.isEmpty()) return;
+        String why = SafeTrip.REASON_SIGNAL_LOST.equals(reason) ? "Tu celular dejó de enviar señal"
+                : SafeTrip.REASON_NO_ANSWER.equals(reason) ? "No respondiste si estabas bien"
+                : "No confirmaste que llegaste a " + t.getDestination();
+        try {
+            push.sendData(tokens, Map.of("tipo", "ALERTA_PROPIA", "alertaId", String.valueOf(alertId), "motivo", why));
+        } catch (RuntimeException e) {
+            // Her contacts were already warned: this notice is only a convenience
+            log.warn("No se pudo avisar a la usuaria de la alerta {}: {}", alertId, e.getMessage());
+        }
     }
 
     /** What her contacts read when the automatic protection alerts. */

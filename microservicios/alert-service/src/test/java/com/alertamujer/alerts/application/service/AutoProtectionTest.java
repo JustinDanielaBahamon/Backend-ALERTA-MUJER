@@ -174,6 +174,21 @@ class AutoProtectionTest {
     }
 
     @Test
+    void herOwnPhonesAreToldTheAlertStarted() {
+        SafeTrip t = auto();
+        when(trips.find(5L)).thenReturn(Optional.of(t));
+        Alert created = new Alert();
+        created.setId(52L);
+        when(alerts.activate(any(), eq(1L))).thenReturn(created);
+        when(phones.phoneTokens(1L)).thenReturn(List.of("su-celular"));
+
+        service.noAnswer(KEY, 5L);
+
+        verify(push).sendData(eq(List.of("su-celular")), argThat((java.util.Map<String, String> m) ->
+                "ALERTA_PROPIA".equals(m.get("tipo")) && "52".equals(m.get("alertaId"))));
+    }
+
+    @Test
     void heartbeat_keepsTheProtectionAlive() {
         SafeTrip t = auto();
         when(trips.find(5L)).thenReturn(Optional.of(t));
