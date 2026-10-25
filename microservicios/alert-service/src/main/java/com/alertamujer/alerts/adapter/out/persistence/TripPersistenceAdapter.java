@@ -63,6 +63,8 @@ class TripPersistenceAdapter implements TripRepository {
         d.setLastLatitude(f.getLastLatitude());
         d.setLastLongitude(f.getLastLongitude());
         d.setAlertReason(f.getAlertReason());
+        d.setMode(f.getMode());
+        d.setLowBatteryAt(f.getLowBatteryAt());
         return d;
     }
 
@@ -86,6 +88,8 @@ class TripPersistenceAdapter implements TripRepository {
         f.setLastLatitude(d.getLastLatitude());
         f.setLastLongitude(d.getLastLongitude());
         f.setAlertReason(d.getAlertReason());
+        f.setMode(d.getMode());
+        f.setLowBatteryAt(d.getLowBatteryAt());
         return f;
     }
 }

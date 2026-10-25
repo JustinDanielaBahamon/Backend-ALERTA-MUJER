@@ -66,11 +66,11 @@ public class SafeTripController {
 
     public record SafeTripView(Long id, String destination, BigDecimal destinationLatitude, BigDecimal destinationLongitude,
                                LocalDateTime startedAt, LocalDateTime expectedArrival, String status, Long alertId,
-                               LocalDateTime lastSeenAt, String alertReason) {
+                               LocalDateTime lastSeenAt, String alertReason, String mode) {
         static SafeTripView of(SafeTrip t) {
             return new SafeTripView(t.getId(), t.getDestination(), t.getDestinationLatitude(), t.getDestinationLongitude(),
                     t.getStartedAt(), t.getExpectedArrival(), t.getStatus(), t.getAlertId(), t.getLastSeenAt(),
-                    t.getAlertReason());
+                    t.getAlertReason(), t.getMode());
         }
     }
 }

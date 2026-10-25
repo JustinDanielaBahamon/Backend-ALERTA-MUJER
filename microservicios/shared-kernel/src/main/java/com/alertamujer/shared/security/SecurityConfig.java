@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/public/tracking/*/messages").permitAll()
                 // The contact's app confirms the alert push arrived
                 .requestMatchers(HttpMethod.POST, "/api/public/tracking/*/received").permitAll()
+                // Automatic protection: her phone authenticates with its own key (checked by the use case)
+                .requestMatchers(HttpMethod.POST, "/api/public/auto-protection/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

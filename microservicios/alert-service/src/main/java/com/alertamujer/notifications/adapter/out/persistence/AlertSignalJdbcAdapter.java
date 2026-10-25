@@ -26,7 +26,7 @@ class AlertSignalJdbcAdapter implements AlertSignalRepository {
     public List<SilentAlert> silent(LocalDateTime silentSince, LocalDateTime startedAfter) {
         return jdbc.query("SELECT a.id, a.user_profile_id, " + LAST_SIGNAL + " FROM alert.alert a "
                         + "WHERE a.status = 'active' AND a.started_at > ? AND " + LAST_SIGNAL + " <= ? "
-                        + "AND a.activation_method NOT IN ('timer', 'signal_lost') "
+                        + "AND a.activation_method NOT IN ('timer', 'signal_lost', 'auto') "
                         + "AND (a.signal_lost_at IS NULL OR a.signal_lost_at < " + LAST_SIGNAL + ")",
                 (rs, n) -> new SilentAlert(rs.getLong(1), rs.getLong(2), rs.getTimestamp(3).toLocalDateTime()),
                 Timestamp.valueOf(startedAfter), Timestamp.valueOf(silentSince));

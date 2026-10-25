@@ -38,6 +38,7 @@ class TripsServiceTest {
     @Mock private PhonesPort phones;
     @Mock private PushPort push;
     @Mock private RiskZonesPort riskZones;
+    @Mock private ProtectionDeviceRepository protectedPhones;
 
     @InjectMocks private TripsService service;
 

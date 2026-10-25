@@ -68,4 +68,10 @@ class SafeTripJpaEntity {
 
     @Column(name = "alert_reason")
     private String alertReason;
+
+    @Column(nullable = false)
+    private String mode;
+
+    @Column(name = "low_battery_at")
+    private LocalDateTime lowBatteryAt;
 }

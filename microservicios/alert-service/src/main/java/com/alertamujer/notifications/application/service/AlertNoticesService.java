@@ -35,8 +35,8 @@ public class AlertNoticesService implements NotifyContactsUseCase {
     /** Channels the alerts module records for each contact. */
     static final String EMAIL_CHANNEL = "email";
     static final String PUSH_CHANNEL = "push";
-    /** Alerts the server activates for her ("Avísame si no llego"): their message explains why. */
-    static final Set<String> SERVER_METHODS = Set.of("timer", "signal_lost");
+    /** Alerts the server activates for her (trips and automatic protection): their message explains why. */
+    static final Set<String> SERVER_METHODS = Set.of("timer", "signal_lost", "auto");
     private static final DateTimeFormatter PUSH_TIME = DateTimeFormatter.ofPattern("h:mm a", Locale.US);
 
     private final AlertsPort alerts;
