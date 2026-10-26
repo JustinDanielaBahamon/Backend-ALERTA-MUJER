@@ -209,6 +209,7 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
         if (tokens.isEmpty()) return;
         String why = SafeTrip.REASON_SIGNAL_LOST.equals(reason) ? "Tu celular dejó de enviar señal"
                 : SafeTrip.REASON_NO_ANSWER.equals(reason) ? "No respondiste si estabas bien"
+                : SafeTrip.REASON_UNCONFIRMED.equals(reason) ? "No confirmaste que llegaste bien"
                 : "No confirmaste que llegaste a " + t.getDestination();
         try {
             push.sendData(tokens, Map.of("tipo", "ALERTA_PROPIA", "alertaId", String.valueOf(alertId), "motivo", why));
@@ -223,6 +224,9 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
         String since = "Salió de uno de sus lugares frecuentes a las " + TIME.format(ColombiaTime.of(t.getStartedAt())) + ". ";
         String lastSignal = "Última señal a las " + TIME.format(ColombiaTime.of(t.getLastSeenAt())) + ".";
         String battery = t.getLowBatteryAt() != null ? " Su batería estaba por debajo del 10 %." : "";
+        if (SafeTrip.REASON_UNCONFIRMED.equals(reason)) {
+            return "Lleva un rato quieta en un mismo lugar y no confirmó que llegó bien. " + since + lastSignal;
+        }
         return SafeTrip.REASON_NO_ANSWER.equals(reason)
                 ? "Se detuvo en una zona de riesgo y no respondió si estaba bien. " + since + lastSignal
                 : "Su celular dejó de enviar señal mientras iba de camino. " + since + lastSignal + battery;
@@ -285,6 +289,14 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
             t.end(LocalDateTime.now());
             trips.save(t);
         }
+        return t;
+    }
+
+    @Override
+    @Transactional
+    public SafeTrip unconfirmed(String key, Long tripId) {
+        SafeTrip t = autoTrip(key, tripId);
+        if (t.active()) raiseAlert(t, LocalDateTime.now(), SafeTrip.REASON_UNCONFIRMED);
         return t;
     }
 

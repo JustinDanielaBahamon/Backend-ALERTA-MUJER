@@ -70,6 +70,11 @@ public class AutoProtectionController {
         return ResponseEntity.ok(SafeTripView.of(protection.noAnswer(key, id)));
     }
 
+    @PostMapping("/api/public/auto-protection/{id}/unconfirmed")
+    public ResponseEntity<SafeTripView> unconfirmed(@RequestHeader(KEY_HEADER) String key, @PathVariable Long id) {
+        return ResponseEntity.ok(SafeTripView.of(protection.unconfirmed(key, id)));
+    }
+
     public record DeviceRequest(Long deviceId) {}
 
     public record StartRequest(BigDecimal latitude, BigDecimal longitude) {}

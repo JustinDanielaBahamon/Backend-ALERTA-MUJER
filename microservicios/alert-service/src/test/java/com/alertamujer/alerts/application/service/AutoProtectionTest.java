@@ -189,6 +189,22 @@ class AutoProtectionTest {
     }
 
     @Test
+    void notConfirmingSheArrivedWellAlerts() {
+        SafeTrip t = auto();
+        when(trips.find(5L)).thenReturn(Optional.of(t));
+        Alert created = new Alert();
+        created.setId(53L);
+        when(alerts.activate(any(), eq(1L))).thenReturn(created);
+        ArgumentCaptor<NewAlert> alert = ArgumentCaptor.forClass(NewAlert.class);
+
+        service.unconfirmed(KEY, 5L);
+
+        verify(alerts).activate(alert.capture(), eq(1L));
+        assertTrue(alert.getValue().message().contains("no confirmó que llegó bien"));
+        assertEquals(SafeTrip.REASON_UNCONFIRMED, t.getAlertReason());
+    }
+
+    @Test
     void heartbeat_keepsTheProtectionAlive() {
         SafeTrip t = auto();
         when(trips.find(5L)).thenReturn(Optional.of(t));

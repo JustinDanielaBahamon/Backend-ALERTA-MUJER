@@ -34,6 +34,12 @@ public interface AutoProtectionUseCase {
     /** She stopped inside a risk zone and did not answer "¿Todo bien?": her contacts are alerted. */
     SafeTrip noAnswer(String key, Long tripId);
 
+    /**
+     * She stayed still in a place that is not frequent and did not answer "¿Llegaste bien?" twice (20 and 35
+     * minutes): her contacts are told, with her last location.
+     */
+    SafeTrip unconfirmed(String key, Long tripId);
+
     record AutoHeartbeat(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, LocalDateTime recordedAt,
                          boolean lowBattery) {}
 }
