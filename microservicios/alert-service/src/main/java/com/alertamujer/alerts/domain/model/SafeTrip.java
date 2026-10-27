@@ -39,6 +39,8 @@ public class SafeTrip {
     public static final String REASON_NO_ANSWER = "no_answer";
     /** She stayed still somewhere for a long while and never confirmed she arrived well (automatic protection). */
     public static final String REASON_UNCONFIRMED = "unconfirmed";
+    /** She stopped the automatic protection with her duress PIN (someone may be forcing her). */
+    public static final String REASON_DURESS = "duress";
 
     /** Time limits: avoid absurd trips or timers forgotten for days. */
     public static final int MIN_MINUTES = 5;

@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.application.port.in.AlertCheckInUseCase;
 import com.alertamujer.alerts.application.port.in.AutoProtectionUseCase.AutoHeartbeat;
 import com.alertamujer.alerts.application.port.in.ManageOwnAlertsUseCase;
 import com.alertamujer.alerts.application.port.in.NewAlert;
@@ -37,6 +38,7 @@ class AutoProtectionTest {
     @Mock private PushPort push;
     @Mock private RiskZonesPort riskZones;
     @Mock private ProtectionDeviceRepository protectedPhones;
+    @Mock private AlertCheckInUseCase checkIn;
 
     @InjectMocks private TripsService service;
 
@@ -214,5 +216,38 @@ class AutoProtectionTest {
 
         assertEquals(new BigDecimal("2.94"), t.getLastLatitude());
         verify(locations).save(any());
+    }
+
+    @Test
+    void theDuressPinAlertsHerContactsWithoutTellingHerPhone() {
+        SafeTrip t = auto();
+        when(trips.find(5L)).thenReturn(Optional.of(t));
+        Alert created = new Alert();
+        created.setId(54L);
+        when(alerts.activate(any(), eq(1L))).thenReturn(created);
+        ArgumentCaptor<NewAlert> alert = ArgumentCaptor.forClass(NewAlert.class);
+
+        service.duress(KEY, 5L);
+
+        verify(alerts).activate(alert.capture(), eq(1L));
+        assertEquals("auto", alert.getValue().activationMethod());
+        assertTrue(alert.getValue().message().contains("PIN de coacción"));
+        assertEquals(SafeTrip.REASON_DURESS, t.getAlertReason());
+        assertEquals(SafeTrip.ALERTED, t.getStatus());
+        // Her screens show it cancelled and nothing reaches her phone that could give her away
+        verify(checkIn).duress(54L, 1L);
+        verify(push, never()).sendData(any(), any());
+    }
+
+    @Test
+    void theDuressPinOnAnEndedProtectionDoesNothing() {
+        SafeTrip t = auto();
+        t.end(OUT.plusMinutes(5));
+        when(trips.find(5L)).thenReturn(Optional.of(t));
+
+        service.duress(KEY, 5L);
+
+        verify(alerts, never()).activate(any(), any());
+        verify(checkIn, never()).duress(any(), any());
     }
 }

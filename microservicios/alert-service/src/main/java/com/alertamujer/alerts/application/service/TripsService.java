@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.application.port.in.AlertCheckInUseCase;
 import com.alertamujer.alerts.application.port.in.AutoProtectionUseCase;
 import com.alertamujer.alerts.application.port.in.ManageOwnAlertsUseCase;
 import com.alertamujer.alerts.application.port.in.NewAlert;
@@ -61,10 +62,11 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
     private final PushPort push;
     private final RiskZonesPort riskZones;
     private final ProtectionDeviceRepository protectedPhones;
+    private final AlertCheckInUseCase checkIn;
 
     public TripsService(TripRepository trips, IdentityPort identity, ManageOwnAlertsUseCase alerts,
                             LocationRepository locations, PhonesPort phones, PushPort push, RiskZonesPort riskZones,
-                            ProtectionDeviceRepository protectedPhones) {
+                            ProtectionDeviceRepository protectedPhones, AlertCheckInUseCase checkIn) {
         this.trips = trips;
         this.identity = identity;
         this.alerts = alerts;
@@ -73,6 +75,7 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
         this.push = push;
         this.riskZones = riskZones;
         this.protectedPhones = protectedPhones;
+        this.checkIn = checkIn;
     }
 
     @Override
@@ -175,7 +178,7 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
         return t.automatic() ? SafeTrip.AUTO_SIGNAL_TIMEOUT : SafeTrip.SIGNAL_TIMEOUT;
     }
 
-    private void raiseAlert(SafeTrip t, LocalDateTime now, String reason) {
+    private Alert raiseAlert(SafeTrip t, LocalDateTime now, String reason) {
         Optional<LocationLog> latest = locations.latest(t.getUserProfileId());
         boolean signalLost = SafeTrip.REASON_SIGNAL_LOST.equals(reason);
         String message = t.automatic() ? autoMessage(t, reason) : signalLost
@@ -196,8 +199,10 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
                 "active", message, lat, lng, null, null), t.getUserId());
         t.markAlerted(alert.getId(), now, reason);
         trips.save(t);
-        tellHer(t, alert.getId(), reason);
+        // With the duress PIN her phone must keep looking stopped: it is not told about the alert
+        if (!SafeTrip.REASON_DURESS.equals(reason)) tellHer(t, alert.getId(), reason);
         log.info("Trayecto {} ({}): alerta {} activada", t.getId(), reason, alert.getId());
+        return alert;
     }
 
     /**
@@ -224,6 +229,9 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
         String since = "Salió de uno de sus lugares frecuentes a las " + TIME.format(ColombiaTime.of(t.getStartedAt())) + ". ";
         String lastSignal = "Última señal a las " + TIME.format(ColombiaTime.of(t.getLastSeenAt())) + ".";
         String battery = t.getLowBatteryAt() != null ? " Su batería estaba por debajo del 10 %." : "";
+        if (SafeTrip.REASON_DURESS.equals(reason)) {
+            return "Detuvo la protección automática con su PIN de coacción: puede que la estén obligando. " + since + lastSignal;
+        }
         if (SafeTrip.REASON_UNCONFIRMED.equals(reason)) {
             return "Lleva un rato quieta en un mismo lugar y no confirmó que llegó bien. " + since + lastSignal;
         }
@@ -305,6 +313,17 @@ public class TripsService implements TripsUseCase, ReviewTripsUseCase, AutoProte
     public SafeTrip noAnswer(String key, Long tripId) {
         SafeTrip t = autoTrip(key, tripId);
         if (t.active()) raiseAlert(t, LocalDateTime.now(), SafeTrip.REASON_NO_ANSWER);
+        return t;
+    }
+
+    @Override
+    @Transactional
+    public SafeTrip duress(String key, Long tripId) {
+        SafeTrip t = autoTrip(key, tripId);
+        if (!t.active()) return t;
+        Alert alert = raiseAlert(t, LocalDateTime.now(), SafeTrip.REASON_DURESS);
+        // Marked like the duress PIN of an alert: her screens show it cancelled, her contacts are warned
+        checkIn.duress(alert.getId(), t.getUserId());
         return t;
     }
 

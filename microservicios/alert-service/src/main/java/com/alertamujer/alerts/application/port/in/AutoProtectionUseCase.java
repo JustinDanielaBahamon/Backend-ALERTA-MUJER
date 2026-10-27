@@ -40,6 +40,12 @@ public interface AutoProtectionUseCase {
      */
     SafeTrip unconfirmed(String key, Long tripId);
 
+    /**
+     * She "stopped" it with her duress PIN: on her phone it looks stopped, but her contacts are alerted
+     * silently (her own phones are not told, so nothing gives her away).
+     */
+    SafeTrip duress(String key, Long tripId);
+
     record AutoHeartbeat(BigDecimal latitude, BigDecimal longitude, BigDecimal accuracy, LocalDateTime recordedAt,
                          boolean lowBattery) {}
 }

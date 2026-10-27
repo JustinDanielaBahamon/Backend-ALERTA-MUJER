@@ -75,6 +75,11 @@ public class AutoProtectionController {
         return ResponseEntity.ok(SafeTripView.of(protection.unconfirmed(key, id)));
     }
 
+    @PostMapping("/api/public/auto-protection/{id}/duress")
+    public ResponseEntity<SafeTripView> duress(@RequestHeader(KEY_HEADER) String key, @PathVariable Long id) {
+        return ResponseEntity.ok(SafeTripView.of(protection.duress(key, id)));
+    }
+
     public record DeviceRequest(Long deviceId) {}
 
     public record StartRequest(BigDecimal latitude, BigDecimal longitude) {}

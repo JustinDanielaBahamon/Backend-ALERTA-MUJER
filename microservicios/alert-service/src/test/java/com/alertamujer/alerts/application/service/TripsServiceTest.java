@@ -1,5 +1,6 @@
 package com.alertamujer.alerts.application.service;
 
+import com.alertamujer.alerts.application.port.in.AlertCheckInUseCase;
 import com.alertamujer.alerts.application.port.in.ManageOwnAlertsUseCase;
 import com.alertamujer.alerts.application.port.in.NewAlert;
 import com.alertamujer.alerts.application.port.in.TripsUseCase.Heartbeat;
@@ -39,6 +40,7 @@ class TripsServiceTest {
     @Mock private PushPort push;
     @Mock private RiskZonesPort riskZones;
     @Mock private ProtectionDeviceRepository protectedPhones;
+    @Mock private AlertCheckInUseCase checkIn;
 
     @InjectMocks private TripsService service;
 
