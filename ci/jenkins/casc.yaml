@@ -1,0 +1,58 @@
+# Configuración de Jenkins como código (plugin configuration-as-code).
+# La contraseña del usuario admin llega por la variable JENKINS_ADMIN_PASSWORD (archivo .env, no se sube).
+jenkins:
+  systemMessage: "ALERTA MUJER · integración continua"
+  # Uno a la vez: Maven y Angular juntos no caben en los 2 GB del contenedor
+  numExecutors: 1
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "${JENKINS_URL:-http://localhost:8090/}"
+
+# Un trabajo multirrama por repositorio. Revisa GitHub cada 5 minutos (no hace falta exponer el
+# equipo a internet) y construye main y las ramas feature/*.
+# En el script no se usa ${...}: CasC lo tomaría como variable de entorno; por eso se concatena.
+jobs:
+  - script: >
+      [
+        ['backend', 'Backend-ALERTA-MUJER', 'Backend Spring Boot: pruebas, imagen Docker y despliegue en Render'],
+        ['web',     'Frond-end-Web',        'Panel web Angular: build, pruebas y despliegue en Vercel'],
+        ['movil',   'AlertaMujer',          'App móvil Expo: tipos, pruebas y APK con EAS (manual)'],
+      ].each { nombre, repo, descripcion ->
+        multibranchPipelineJob(nombre) {
+          displayName("ALERTA MUJER · " + nombre)
+          description(descripcion)
+          branchSources {
+            branchSource {
+              source {
+                git {
+                  id("alerta-mujer-" + nombre)
+                  remote("https://github.com/JustinDanielaBahamon/" + repo + ".git")
+                  traits {
+                    gitBranchDiscovery()
+                    headWildcardFilter {
+                      includes('main feature/*')
+                      excludes('')
+                    }
+                  }
+                }
+              }
+            }
+          }
+          triggers {
+            periodicFolderTrigger { interval('5m') }
+          }
+          orphanedItemStrategy {
+            discardOldItems { numToKeep(10) }
+          }
+        }
+      }

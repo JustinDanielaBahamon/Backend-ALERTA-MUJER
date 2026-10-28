@@ -1,0 +1,50 @@
+package com.alertamujer.alerts.adapter.out.identity;
+
+import com.alertamujer.alerts.application.port.out.IdentityPort;
+import com.alertamujer.identity.api.IdentityApi;
+import com.alertamujer.identity.api.UserSummary;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
+import java.util.Optional;
+
+/** Output adapter to identity: in Alert Service, IdentityApi is an HTTP client to Auth Service. */
+@Component
+class IdentityAdapter implements IdentityPort {
+
+    private final IdentityApi identityApi;
+
+    IdentityAdapter(IdentityApi identityApi) {
+        this.identityApi = identityApi;
+    }
+
+    @Override
+    public Optional<Long> profileOf(Long userId) {
+        return identityApi.findProfileId(userId);
+    }
+
+    @Override
+    public Long requiredProfile(Long userId) {
+        return identityApi.requireProfileId(userId);
+    }
+
+    @Override
+    public Optional<UserSummary> user(Long userId) {
+        return identityApi.findUser(userId);
+    }
+
+    @Override
+    public Map<Long, UserSummary> usersByProfile() {
+        return identityApi.usersByProfileId();
+    }
+
+    @Override
+    public boolean hasAccount(String email) {
+        return identityApi.findUserByEmail(email).isPresent();
+    }
+
+    @Override
+    public Optional<Long> userByEmail(String email) {
+        return identityApi.findUserByEmail(email).map(UserSummary::id);
+    }
+}

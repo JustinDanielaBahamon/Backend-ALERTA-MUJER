@@ -1,0 +1,79 @@
+package com.alertamujer.resources.domain.model;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+/**
+ * Record that the user called a help resource from the app.
+ */
+public class ResourceCall {
+
+    private Long id;
+    private Long emergencyResourceId;
+    private Long userProfileId;
+    private Long alertId;
+    private Long deviceId;
+    private String telephoneDialed;
+    /** initiated if the app does not say otherwise. */
+    private String status;
+    private LocalDateTime startedAt = LocalDateTime.now();
+    private LocalDateTime endedAt;
+    private Integer durationSeconds;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    // ── Reglas ──────────────────────────────────────────────────────
+
+    /**
+     * New call: the number is the one the app dialed or, if not sent, the resource's. The owner
+     * comes from the token, never from the body.
+     */
+    public static ResourceCall newOne(Long profile, EmergencyResource resource, Long alertId, Long deviceId,
+                                     String dialedNumber, String status, LocalDateTime now) {
+        ResourceCall c = new ResourceCall();
+        c.userProfileId = profile;
+        c.emergencyResourceId = resource.getId();
+        c.alertId = alertId;
+        c.deviceId = deviceId;
+        c.telephoneDialed = dialedNumber != null && !dialedNumber.isBlank() ? dialedNumber.trim() : resource.getTelephone();
+        if (c.telephoneDialed == null) throw new IllegalArgumentException("El recurso no tiene teléfono");
+        c.status = status != null ? status : "initiated";
+        c.startedAt = now;
+        return c;
+    }
+
+    public boolean esDe(Long profile) {
+        return profile != null && Objects.equals(userProfileId, profile);
+    }
+
+    /** Result of the call: only the data that arrives. */
+    public void update(String newStatus, LocalDateTime end, Integer newDurationSeconds) {
+        if (newStatus != null) status = newStatus;
+        if (end != null) endedAt = end;
+        if (newDurationSeconds != null) durationSeconds = newDurationSeconds;
+    }
+
+    // ── Datos ───────────────────────────────────────────────────────
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Long getEmergencyResourceId() { return emergencyResourceId; }
+    public void setEmergencyResourceId(Long emergencyResourceId) { this.emergencyResourceId = emergencyResourceId; }
+    public Long getUserProfileId() { return userProfileId; }
+    public void setUserProfileId(Long userProfileId) { this.userProfileId = userProfileId; }
+    public Long getAlertId() { return alertId; }
+    public void setAlertId(Long alertId) { this.alertId = alertId; }
+    public Long getDeviceId() { return deviceId; }
+    public void setDeviceId(Long deviceId) { this.deviceId = deviceId; }
+    public String getTelephoneDialed() { return telephoneDialed; }
+    public void setTelephoneDialed(String telephoneDialed) { this.telephoneDialed = telephoneDialed; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public LocalDateTime getStartedAt() { return startedAt; }
+    public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
+    public LocalDateTime getEndedAt() { return endedAt; }
+    public void setEndedAt(LocalDateTime endedAt) { this.endedAt = endedAt; }
+    public Integer getDurationSeconds() { return durationSeconds; }
+    public void setDurationSeconds(Integer durationSeconds) { this.durationSeconds = durationSeconds; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}

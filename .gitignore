@@ -37,3 +37,6 @@ firebase-service-account.json
 coverage/
 target/
 src/main/resources/firebase-service-account.json
+
+# Maven
+target/

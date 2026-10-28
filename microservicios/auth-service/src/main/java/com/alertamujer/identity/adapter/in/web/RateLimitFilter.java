@@ -1,0 +1,81 @@
+package com.alertamujer.identity.adapter.in.web;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * Limits attempts per IP and per minute on the public authentication endpoints (brute force,
+ * mass registration, abuse of the recovery email). The IP is the real client's: behind the Render
+ * proxy Tomcat resolves it with X-Forwarded-For (server.forward-headers-strategy=native), without
+ * trusting a value the client itself could invent.
+ */
+@Component
+public class RateLimitFilter implements Filter {
+
+    static final int MAX_ATTEMPTS = 5;
+    static final long WINDOW_MS = 60_000;
+    private static final int MAX_ENTRIES = 10_000;
+    private static final Set<String> PATHS = Set.of(
+            "/api/auth/login", "/api/auth/google", "/api/auth/register",
+            "/api/auth/forgot-password", "/api/auth/verify-reset-code", "/api/auth/reset-password");
+
+    private final Map<String, RequestCounter> requestCounts = new ConcurrentHashMap<>();
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        String path = httpRequest.getRequestURI();
+        if ("POST".equalsIgnoreCase(httpRequest.getMethod()) && PATHS.contains(path)) {
+            long currentTime = System.currentTimeMillis();
+            if (requestCounts.size() > MAX_ENTRIES) {
+                requestCounts.values().removeIf(c -> currentTime - c.timestamp > WINDOW_MS);
+            }
+            RequestCounter counter = requestCounts.computeIfAbsent(httpRequest.getRemoteAddr() + "|" + path,
+                    k -> new RequestCounter(currentTime, new AtomicInteger(0)));
+
+            synchronized (counter) {
+                if (currentTime - counter.timestamp > WINDOW_MS) {
+                    counter.timestamp = currentTime;
+                    counter.count.set(0);
+                }
+
+                if (counter.count.incrementAndGet() > MAX_ATTEMPTS) {
+                    httpResponse.setStatus(429); // Too Many Requests
+                    httpResponse.setHeader("Retry-After", String.valueOf(WINDOW_MS / 1000));
+                    httpResponse.setContentType("application/json;charset=UTF-8");
+                    httpResponse.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() +
+                        "\",\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"Demasiados intentos. Espera un minuto e inténtalo de nuevo.\"}");
+                    return;
+                }
+            }
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    private static class RequestCounter {
+        long timestamp;
+        AtomicInteger count;
+
+        public RequestCounter(long timestamp, AtomicInteger count) {
+            this.timestamp = timestamp;
+            this.count = count;
+        }
+    }
+}
