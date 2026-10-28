@@ -1,0 +1,27 @@
+package com.alertamujer.devices.adapter.in.web.dto;
+
+import com.alertamujer.devices.application.port.in.ManageDevicesUseCase.DeviceWithOwner;
+import com.alertamujer.devices.domain.model.Device;
+import com.alertamujer.identity.api.UserSummary;
+
+import java.time.LocalDateTime;
+
+/** Device with its owner for the panel. Does not expose the push token, only whether it exists. */
+public record AdminDeviceView(Long id, Long accountId, Long userId, String ownerName, String ownerEmail,
+                              String ownerPhone, String deviceUuid, String brand, String model,
+                              String osName, String osVersion, String appVersion, String gpsStatus,
+                              String status, LocalDateTime lastAccess, LocalDateTime createdAt,
+                              boolean pushTokenRegistered, String deviceName,
+                              /** Permissions JSON the app reports ({"ubicacion":true,...}). */
+                              String permissions, LocalDateTime permissionsUpdatedAt) {
+
+    public static AdminDeviceView of(DeviceWithOwner dc) {
+        Device d = dc.device();
+        UserSummary u = dc.owner();
+        return new AdminDeviceView(d.getId(), d.getAccountId(), u != null ? u.id() : null,
+                u == null ? null : u.fullName(), u != null ? u.email() : null, u != null ? u.telephone() : null,
+                d.getDeviceUuid(), d.getBrand(), d.getModel(), d.getOsName(), d.getOsVersion(),
+                d.getAppVersion(), d.getGpsStatus(), d.getStatus(), d.getLastAccess(), d.getCreatedAt(),
+                d.hasPushToken(), d.getDeviceName(), d.getPermissions(), d.getPermissionsUpdatedAt());
+    }
+}

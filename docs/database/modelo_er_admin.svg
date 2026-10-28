@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="982" viewBox="0 0 1120 982" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1120" height="982" fill="#ffffff"/>
+<text x="40" y="48" font-size="20" font-weight="bold" fill="#1f2937">Esquema admin — configuración, auditoría, moderación e informes</text>
+<line x1="139.8" y1="868.0" x2="448.2" y2="434.0" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="147.9" cy="856.6" r="8" fill="#ffffff" stroke="#64748b"/><text x="147.9" y="860.6" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="440.1" cy="445.4" r="8" fill="#ffffff" stroke="#64748b"/><text x="440.1" y="449.4" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<line x1="934.9" y1="504.0" x2="956.8" y2="294.0" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="936.3" cy="490.1" r="8" fill="#ffffff" stroke="#64748b"/><text x="936.3" y="494.1" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="955.4" cy="307.9" r="8" fill="#ffffff" stroke="#64748b"/><text x="955.4" y="311.9" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<line x1="184.2" y1="354.0" x2="174.6" y2="504.0" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="183.3" cy="368.0" r="8" fill="#ffffff" stroke="#64748b"/><text x="183.3" y="372.0" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="175.5" cy="490.0" r="8" fill="#ffffff" stroke="#64748b"/><text x="175.5" y="494.0" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<line x1="117.8" y1="868.0" x2="177.2" y2="354.0" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="119.4" cy="854.1" r="8" fill="#ffffff" stroke="#64748b"/><text x="119.4" y="858.1" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="175.6" cy="367.9" r="8" fill="#ffffff" stroke="#64748b"/><text x="175.6" y="371.9" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<line x1="117.8" y1="868.0" x2="177.2" y2="354.0" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="119.4" cy="854.1" r="8" fill="#ffffff" stroke="#64748b"/><text x="119.4" y="858.1" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="175.6" cy="367.9" r="8" fill="#ffffff" stroke="#64748b"/><text x="175.6" y="371.9" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<line x1="187.0" y1="872.3" x2="856.0" y2="574.4" stroke="#64748b" stroke-width="1.4"/>
+<circle cx="199.8" cy="866.6" r="8" fill="#ffffff" stroke="#64748b"/><text x="199.8" y="870.6" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">1</text>
+<circle cx="843.2" cy="580.1" r="8" fill="#ffffff" stroke="#64748b"/><text x="843.2" y="584.1" font-size="10" font-weight="bold" text-anchor="middle" fill="#334155">N</text>
+<g opacity="1"><rect x="436" y="80" width="276" height="354" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/><path d="M436,108 v-22 a6,6 0 0 1 6,-6 h264 a6,6 0 0 1 6,6 v22 z" fill="#0f766e"/><text x="444" y="99" font-size="14" font-weight="bold" fill="#ffffff">admin.alert_report</text>
+<text x="444" y="122" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="478" y="122" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="619.15625" y="122" font-size="12" fill="#6b7280">bigint</text>
+<rect x="437" y="128" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="142" font-size="13" fill="#111827">name *</text><text x="619.15625" y="142" font-size="12" fill="#6b7280">varchar(200)</text>
+<text x="478" y="162" font-size="13" fill="#111827">city</text><text x="619.15625" y="162" font-size="12" fill="#6b7280">varchar(100)</text>
+<rect x="437" y="168" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="182" font-size="13" fill="#111827">status *</text><text x="619.15625" y="182" font-size="12" fill="#6b7280">varchar(20)</text>
+<text x="478" y="202" font-size="13" fill="#111827">user_label</text><text x="619.15625" y="202" font-size="12" fill="#6b7280">varchar(200)</text>
+<rect x="437" y="208" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="222" font-size="13" fill="#111827">event</text><text x="619.15625" y="222" font-size="12" fill="#6b7280">varchar(200)</text>
+<text x="478" y="242" font-size="13" fill="#111827">description</text><text x="619.15625" y="242" font-size="12" fill="#6b7280">text</text>
+<rect x="437" y="248" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="262" font-size="13" fill="#111827">format *</text><text x="619.15625" y="262" font-size="12" fill="#6b7280">varchar(10)</text>
+<text x="478" y="282" font-size="13" fill="#111827">alert_ids</text><text x="619.15625" y="282" font-size="12" fill="#6b7280">text</text>
+<rect x="437" y="288" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="302" font-size="13" fill="#111827">from_date</text><text x="619.15625" y="302" font-size="12" fill="#6b7280">timestamp</text>
+<text x="478" y="322" font-size="13" fill="#111827">to_date</text><text x="619.15625" y="322" font-size="12" fill="#6b7280">timestamp</text>
+<rect x="437" y="328" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="342" font-size="13" fill="#111827">alert_status</text><text x="619.15625" y="342" font-size="12" fill="#6b7280">varchar(20)</text>
+<text x="478" y="362" font-size="13" fill="#111827">export_count *</text><text x="619.15625" y="362" font-size="12" fill="#6b7280">int</text>
+<rect x="437" y="368" width="274" height="20" fill="#f5f3ff"/>
+<text x="444" y="382" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="478" y="382" font-size="13" fill="#111827">created_by_user_id</text><text x="619.15625" y="382" font-size="12" fill="#6b7280">bigint</text>
+<text x="478" y="402" font-size="13" fill="#111827">created_at *</text><text x="619.15625" y="402" font-size="12" fill="#6b7280">timestamp</text>
+<rect x="437" y="408" width="274" height="20" fill="#f5f3ff"/>
+<text x="478" y="422" font-size="13" fill="#111827">updated_at</text><text x="619.15625" y="422" font-size="12" fill="#6b7280">timestamp</text>
+</g>
+<g opacity="1"><rect x="856" y="80" width="224" height="214" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/><path d="M856,108 v-22 a6,6 0 0 1 6,-6 h212 a6,6 0 0 1 6,6 v22 z" fill="#0f766e"/><text x="864" y="99" font-size="14" font-weight="bold" fill="#ffffff">admin.audit_log</text>
+<text x="864" y="122" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="898" y="122" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="987.25" y="122" font-size="12" fill="#6b7280">bigint</text>
+<rect x="857" y="128" width="222" height="20" fill="#f5f3ff"/>
+<text x="864" y="142" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="898" y="142" font-size="13" fill="#111827">account_id</text><text x="987.25" y="142" font-size="12" fill="#6b7280">bigint</text>
+<text x="898" y="162" font-size="13" fill="#111827">action *</text><text x="987.25" y="162" font-size="12" fill="#6b7280">varchar(100)</text>
+<rect x="857" y="168" width="222" height="20" fill="#f5f3ff"/>
+<text x="898" y="182" font-size="13" fill="#111827">entity_type *</text><text x="987.25" y="182" font-size="12" fill="#6b7280">varchar(50)</text>
+<text x="898" y="202" font-size="13" fill="#111827">entity_id</text><text x="987.25" y="202" font-size="12" fill="#6b7280">int</text>
+<rect x="857" y="208" width="222" height="20" fill="#f5f3ff"/>
+<text x="898" y="222" font-size="13" fill="#111827">description</text><text x="987.25" y="222" font-size="12" fill="#6b7280">varchar(500)</text>
+<text x="898" y="242" font-size="13" fill="#111827">ip_address</text><text x="987.25" y="242" font-size="12" fill="#6b7280">varchar(45)</text>
+<rect x="857" y="248" width="222" height="20" fill="#f5f3ff"/>
+<text x="898" y="262" font-size="13" fill="#111827">created_at *</text><text x="987.25" y="262" font-size="12" fill="#6b7280">timestamp</text>
+<text x="898" y="282" font-size="13" fill="#111827">source</text><text x="987.25" y="282" font-size="12" fill="#6b7280">varchar(120)</text>
+</g>
+<g opacity="1"><rect x="40" y="504" width="258" height="174" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/><path d="M40,532 v-22 a6,6 0 0 1 6,-6 h246 a6,6 0 0 1 6,6 v22 z" fill="#0f766e"/><text x="48" y="523" font-size="14" font-weight="bold" fill="#ffffff">admin.moderation_action</text>
+<text x="48" y="546" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="82" y="546" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="196.96875" y="546" font-size="12" fill="#6b7280">bigint</text>
+<rect x="41" y="552" width="256" height="20" fill="#f5f3ff"/>
+<text x="48" y="566" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="82" y="566" font-size="13" fill="#111827">user_report_id *</text><text x="196.96875" y="566" font-size="12" fill="#6b7280">bigint</text>
+<text x="82" y="586" font-size="13" fill="#111827">admin_perfil_id *</text><text x="196.96875" y="586" font-size="12" fill="#6b7280">int</text>
+<rect x="41" y="592" width="256" height="20" fill="#f5f3ff"/>
+<text x="82" y="606" font-size="13" fill="#111827">action_type *</text><text x="196.96875" y="606" font-size="12" fill="#6b7280">varchar(30)</text>
+<text x="82" y="626" font-size="13" fill="#111827">notes</text><text x="196.96875" y="626" font-size="12" fill="#6b7280">varchar(1000)</text>
+<rect x="41" y="632" width="256" height="20" fill="#f5f3ff"/>
+<text x="82" y="646" font-size="13" fill="#111827">created_at *</text><text x="196.96875" y="646" font-size="12" fill="#6b7280">timestamp</text>
+<text x="82" y="666" font-size="13" fill="#111827">updated_at</text><text x="196.96875" y="666" font-size="12" fill="#6b7280">timestamp</text>
+</g>
+<g opacity="1"><rect x="436" y="504" width="330" height="294" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/><path d="M436,532 v-22 a6,6 0 0 1 6,-6 h318 a6,6 0 0 1 6,6 v22 z" fill="#0f766e"/><text x="444" y="523" font-size="14" font-weight="bold" fill="#ffffff">admin.system_configuration</text>
+<text x="444" y="546" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="478" y="546" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="672.703125" y="546" font-size="12" fill="#6b7280">bigint</text>
+<rect x="437" y="552" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="566" font-size="13" fill="#111827">singleton_key *</text><text x="672.703125" y="566" font-size="12" fill="#6b7280">varchar(10)</text>
+<text x="478" y="586" font-size="13" fill="#111827">sos_max_duration_minutes *</text><text x="672.703125" y="586" font-size="12" fill="#6b7280">int</text>
+<rect x="437" y="592" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="606" font-size="13" fill="#111827">emergency_phone_number *</text><text x="672.703125" y="606" font-size="12" fill="#6b7280">varchar(20)</text>
+<text x="478" y="626" font-size="13" fill="#111827">admin_email *</text><text x="672.703125" y="626" font-size="12" fill="#6b7280">varchar(150)</text>
+<rect x="437" y="632" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="646" font-size="13" fill="#111827">notifications_enabled *</text><text x="672.703125" y="646" font-size="12" fill="#6b7280">boolean</text>
+<text x="478" y="666" font-size="13" fill="#111827">default_notification_priority *</text><text x="672.703125" y="666" font-size="12" fill="#6b7280">varchar(20)</text>
+<rect x="437" y="672" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="686" font-size="13" fill="#111827">default_theme *</text><text x="672.703125" y="686" font-size="12" fill="#6b7280">varchar(20)</text>
+<text x="478" y="706" font-size="13" fill="#111827">updated_by_admin_id</text><text x="672.703125" y="706" font-size="12" fill="#6b7280">int</text>
+<rect x="437" y="712" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="726" font-size="13" fill="#111827">created_at *</text><text x="672.703125" y="726" font-size="12" fill="#6b7280">timestamp</text>
+<text x="478" y="746" font-size="13" fill="#111827">updated_at</text><text x="672.703125" y="746" font-size="12" fill="#6b7280">timestamp</text>
+<rect x="437" y="752" width="328" height="20" fill="#f5f3ff"/>
+<text x="478" y="766" font-size="13" fill="#111827">max_emergency_contacts *</text><text x="672.703125" y="766" font-size="12" fill="#6b7280">int</text>
+<text x="478" y="786" font-size="13" fill="#111827">min_app_version</text><text x="672.703125" y="786" font-size="12" fill="#6b7280">varchar(20)</text>
+</g>
+<g opacity="1"><rect x="40" y="80" width="306" height="274" rx="6" fill="#ffffff" stroke="#0f766e" stroke-width="1.5"/><path d="M40,108 v-22 a6,6 0 0 1 6,-6 h294 a6,6 0 0 1 6,6 v22 z" fill="#0f766e"/><text x="48" y="99" font-size="14" font-weight="bold" fill="#ffffff">admin.user_report</text>
+<text x="48" y="122" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="82" y="122" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="245.25" y="122" font-size="12" fill="#6b7280">bigint</text>
+<rect x="41" y="128" width="304" height="20" fill="#f5f3ff"/>
+<text x="48" y="142" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="82" y="142" font-size="13" fill="#111827">reported_user_id *</text><text x="245.25" y="142" font-size="12" fill="#6b7280">bigint</text>
+<text x="48" y="162" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="82" y="162" font-size="13" fill="#111827">reporter_user_id</text><text x="245.25" y="162" font-size="12" fill="#6b7280">int</text>
+<rect x="41" y="168" width="304" height="20" fill="#f5f3ff"/>
+<text x="82" y="182" font-size="13" fill="#111827">reason *</text><text x="245.25" y="182" font-size="12" fill="#6b7280">varchar(100)</text>
+<text x="82" y="202" font-size="13" fill="#111827">description *</text><text x="245.25" y="202" font-size="12" fill="#6b7280">varchar(1000)</text>
+<rect x="41" y="208" width="304" height="20" fill="#f5f3ff"/>
+<text x="82" y="222" font-size="13" fill="#111827">status *</text><text x="245.25" y="222" font-size="12" fill="#6b7280">varchar(20)</text>
+<text x="82" y="242" font-size="13" fill="#111827">reviewed_by_admin_id</text><text x="245.25" y="242" font-size="12" fill="#6b7280">int</text>
+<rect x="41" y="248" width="304" height="20" fill="#f5f3ff"/>
+<text x="82" y="262" font-size="13" fill="#111827">reviewed_at</text><text x="245.25" y="262" font-size="12" fill="#6b7280">timestamp</text>
+<text x="82" y="282" font-size="13" fill="#111827">resolution_notes</text><text x="245.25" y="282" font-size="12" fill="#6b7280">varchar(1000)</text>
+<rect x="41" y="288" width="304" height="20" fill="#f5f3ff"/>
+<text x="82" y="302" font-size="13" fill="#111827">created_at *</text><text x="245.25" y="302" font-size="12" fill="#6b7280">timestamp</text>
+<text x="82" y="322" font-size="13" fill="#111827">updated_at</text><text x="245.25" y="322" font-size="12" fill="#6b7280">timestamp</text>
+<rect x="41" y="328" width="304" height="20" fill="#f5f3ff"/>
+<text x="82" y="342" font-size="13" fill="#111827">severity *</text><text x="245.25" y="342" font-size="12" fill="#6b7280">varchar(10)</text>
+</g>
+<g opacity="0.55"><rect x="856" y="504" width="150" height="74" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/><path d="M856,532 v-22 a6,6 0 0 1 6,-6 h138 a6,6 0 0 1 6,6 v22 z" fill="#7c3aed"/><text x="864" y="523" font-size="14" font-weight="bold" fill="#ffffff">identity.account</text>
+<text x="864" y="546" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="898" y="546" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="960.703125" y="546" font-size="12" fill="#6b7280">bigint</text>
+<rect x="857" y="552" width="148" height="20" fill="#f5f3ff"/>
+<text x="864" y="566" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="898" y="566" font-size="13" fill="#111827">user_id *</text><text x="960.703125" y="566" font-size="12" fill="#6b7280">bigint</text>
+</g>
+<g opacity="0.55"><rect x="40" y="868" width="147" height="74" rx="6" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/><path d="M40,896 v-22 a6,6 0 0 1 6,-6 h135 a6,6 0 0 1 6,6 v22 z" fill="#7c3aed"/><text x="48" y="887" font-size="14" font-weight="bold" fill="#ffffff">identity.users</text>
+<text x="48" y="910" font-size="10" font-weight="bold" fill="#b45309">PK</text>
+<text x="82" y="910" font-size="13" fill="#111827" font-weight="bold">id *</text><text x="140.984375" y="910" font-size="12" fill="#6b7280">bigint</text>
+<rect x="41" y="916" width="145" height="20" fill="#f5f3ff"/>
+<text x="48" y="930" font-size="10" font-weight="bold" fill="#2563eb">FK</text>
+<text x="82" y="930" font-size="13" fill="#111827">role_id *</text><text x="140.984375" y="930" font-size="12" fill="#6b7280">bigint</text>
+</g>
+<text x="40" y="968" font-size="12" fill="#475569">PK llave primaria · FK llave foránea · * obligatorio · 1 / N cardinalidad de la relación · las tablas tenues pertenecen a otro esquema</text></svg>
