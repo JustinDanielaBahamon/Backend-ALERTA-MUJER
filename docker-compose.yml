@@ -1,0 +1,133 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: alerta-mujer-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-alerta_mujer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en el archivo .env}
+      POSTGRES_DB: ${POSTGRES_DB:-alerta_mujer}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alerta_mujer} -d ${POSTGRES_DB:-alerta_mujer}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Local S3 storage for evidence (in production: Backblaze B2). Only on this machine:
+  # the keys in docker/seaweedfs/s3.json are for development. (MinIO no longer publishes free images.)
+  s3:
+    image: chrislusf/seaweedfs:latest
+    container_name: alerta-mujer-s3
+    restart: unless-stopped
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports:
+      - "127.0.0.1:8333:8333"   # API S3
+    volumes:
+      - s3_data:/data
+      - ./docker/seaweedfs/s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8333"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # ── Microservices ─────────────────────────────────────────────────
+  auth-service:
+    build:
+      context: ./microservicios
+      dockerfile: auth-service/Dockerfile
+    container_name: alerta-mujer-auth
+    ports:
+      - "8081:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - LIQUIBASE_USER=${POSTGRES_USER:-alerta_mujer}
+      - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en el archivo .env}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
+  alert-service:
+    build:
+      context: ./microservicios
+      dockerfile: alert-service/Dockerfile
+    container_name: alerta-mujer-alert
+    ports:
+      - "8082:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-log}
+      - EMAIL_API_KEY=${EMAIL_API_KEY:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
+      - WEB_BASE_URL=${WEB_BASE_URL:-http://localhost:4200}
+    depends_on:
+      - auth-service
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
+  evidence-service:
+    build:
+      context: ./microservicios
+      dockerfile: evidence-service/Dockerfile
+    container_name: alerta-mujer-evidence
+    ports:
+      - "8083:8080"
+    environment:
+      - DATABASE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-alerta_mujer}
+      - POSTGRES_USER=alerta_app
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
+      - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
+      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
+      - SERVICES_AUTH_URL=http://auth-service:8080
+      - SERVICES_ALERT_URL=http://alert-service:8080
+      - SERVICES_EVIDENCE_URL=http://evidence-service:8080
+      - PORT=8080
+      - EVIDENCE_STORAGE=${EVIDENCE_STORAGE:-s3}
+      - EVIDENCE_S3_ENDPOINT=${EVIDENCE_S3_ENDPOINT:-http://s3:8333}
+      - EVIDENCE_S3_PUBLIC_ENDPOINT=${EVIDENCE_S3_PUBLIC_ENDPOINT:-http://localhost:8333}
+      - EVIDENCE_S3_REGION=${EVIDENCE_S3_REGION:-us-east-1}
+      - EVIDENCE_S3_BUCKET=${EVIDENCE_S3_BUCKET:-alerta-mujer-evidencias}
+      - EVIDENCE_S3_ACCESS_KEY=${EVIDENCE_S3_ACCESS_KEY:-alerta_s3_local}
+      - EVIDENCE_S3_SECRET_KEY=${EVIDENCE_S3_SECRET_KEY:-alerta_s3_local_secret}
+      - EVIDENCE_S3_CREATE_BUCKET=true
+    depends_on:
+      s3:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+
+volumes:
+  postgres_data:
+  evidence_data:
+  s3_data:

@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "alerta-mujer-local",
+      "credentials": [
+        { "accessKey": "alerta_s3_local", "secretKey": "alerta_s3_local_secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

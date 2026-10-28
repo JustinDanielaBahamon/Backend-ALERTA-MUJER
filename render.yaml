@@ -1,0 +1,176 @@
+# Render blueprint: the 3 microservices (Docker) + PostgreSQL, all on the free plan.
+# See ARQUITECTURA_MICROSERVICIOS.md.
+services:
+  # ── alerta-mujer-auth (microservice) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-auth
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./auth-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      # Only Auth applies the migrations of the shared database
+      - key: LIQUIBASE_USER
+        fromDatabase:
+          name: alerta-mujer-db
+          property: user
+      - key: LIQUIBASE_PASSWORD
+        fromDatabase:
+          name: alerta-mujer-db
+          property: password
+      - key: LIQUIBASE_CONTEXTS
+        value: prod
+      - key: FIREBASE_CONFIG_PATH
+        value: /etc/secrets/firebase-service-account.json
+  # ── alerta-mujer-alert (microservice) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-alert
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./alert-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      # Emails (contact notices and recovery codes) through the Resend API, from the
+      # verified domain alertamujer.me. The key is typed by hand in this service's dashboard.
+      - key: EMAIL_PROVIDER
+        value: resend
+      - key: EMAIL_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        value: "AlertaMujer <alertas@alertamujer.me>"
+      - key: WEB_BASE_URL
+        value: https://alerta-mujer.vercel.app
+      # Its own public address: invisible image that tells the alert email was opened
+      - key: PUBLIC_API_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: FIREBASE_CONFIG_PATH
+        value: /etc/secrets/firebase-service-account.json
+  # ── alerta-mujer-evidence (microservice) ─────────────────────────────────────
+  - type: web
+    name: alerta-mujer-evidence
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: microservicios
+    dockerfilePath: ./evidence-service/Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: alerta-mujer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: alerta-mujer-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: alerta-mujer-db
+          property: database
+      - key: POSTGRES_USER
+        value: alerta_app
+      - fromGroup: alerta-mujer-microservicios
+      - key: POSTGRES_PASSWORD
+        value: ${APP_DB_PASSWORD}
+      - key: SERVICES_AUTH_URL
+        value: https://alerta-mujer-auth.onrender.com
+      - key: SERVICES_ALERT_URL
+        value: https://alerta-mujer-alert.onrender.com
+      - key: SERVICES_EVIDENCE_URL
+        value: https://alerta-mujer-evidence.onrender.com
+      - key: EVIDENCE_STORAGE
+        value: s3
+      - key: EVIDENCE_S3_ENDPOINT
+        sync: false
+      - key: EVIDENCE_S3_REGION
+        sync: false
+      - key: EVIDENCE_S3_BUCKET
+        sync: false
+      - key: EVIDENCE_S3_ACCESS_KEY
+        sync: false
+      - key: EVIDENCE_S3_SECRET_KEY
+        sync: false
+      - key: EVIDENCE_STORAGE_DIR
+        value: /tmp/evidence
+
+envVarGroups:
+  # Shared by the 3 microservices
+  - name: alerta-mujer-microservicios
+    envVars:
+      # Key for the /internal/** calls between services (Render generates it)
+      - key: INTERNAL_API_KEY
+        generateValue: true
+      # Password of the runtime database role alerta_app (set by Liquibase) and JWT signing key.
+      # Typed by hand: they must keep the values already in use, or the services cannot connect
+      # to the database and every session is invalidated.
+      - key: APP_DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        value: "https://alerta-mujer*.vercel.app"
+      - key: JAVA_TOOL_OPTIONS
+        value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
+      - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS
+        value: never
+
+databases:
+  - name: alerta-mujer-db
+    plan: free
+    region: virginia
+    databaseName: alerta_mujer
+    postgresMajorVersion: "16"
+    user: alerta_admin

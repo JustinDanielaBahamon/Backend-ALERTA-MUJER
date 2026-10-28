@@ -1,0 +1,28 @@
+# Jenkins local para ALERTA MUJER (backend, web y móvil). Uso, desde esta carpeta:
+#   cp .env.example .env        # y definir JENKINS_ADMIN_PASSWORD y DOCKER_GID
+#   docker compose up -d --build
+#   http://localhost:8090  → usuario admin. Los trabajos backend, web y movil se crean solos.
+# Credenciales opcionales (Administrar Jenkins → Credentials, tipo "Secret text"):
+#   render-deploy-hook-auth, render-deploy-hook-alert, render-deploy-hook-evidence (un hook por
+#   microservicio), vercel-deploy-hook (despliegue al pasar las pruebas en main), expo-token (APK).
+name: alerta-mujer-ci
+services:
+  jenkins:
+    build: .
+    container_name: alerta-mujer-jenkins
+    restart: unless-stopped
+    ports:
+      - "8090:8080"   # el 8080 lo usa el backend
+    environment:
+      - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD:?Define JENKINS_ADMIN_PASSWORD en ci/jenkins/.env}
+      - JENKINS_URL=${JENKINS_URL:-http://localhost:8090/}
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      # Construye la imagen del backend con el Docker del equipo
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID:-999}"
+    mem_limit: 2g
+
+volumes:
+  jenkins_home:
