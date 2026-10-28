@@ -20,9 +20,9 @@ fi
 export SERVER_PORT=8081
 export SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://localhost:5432/alerta_mujer}
 export SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
-export SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
-export JWT_SECRET=${JWT_SECRET:-tu-secreto-jwt-muy-largo-y-seguro-para-desarrollo-local}
-export INTERNAL_API_KEY=${INTERNAL_API_KEY:-dev-internal-key-12345}
+export SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:?define la contraseña de la base local}
+export JWT_SECRET=${JWT_SECRET:?define un secreto aleatorio de 32+ caracteres (openssl rand -base64 48)}
+export INTERNAL_API_KEY=${INTERNAL_API_KEY:?define la clave interna compartida por los 3 servicios}
 
 echo "📊 Configuración:"
 echo "   Puerto: $SERVER_PORT"

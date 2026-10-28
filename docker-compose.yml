@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-alerta_mujer}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alerta_mujer_2026}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en el archivo .env}
       POSTGRES_DB: ${POSTGRES_DB:-alerta_mujer}
     ports:
       - "5433:5432"
@@ -51,13 +51,13 @@ services:
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
       - SERVICES_EVIDENCE_URL=http://evidence-service:8080
       - PORT=8080
       - LIQUIBASE_USER=${POSTGRES_USER:-alerta_mujer}
-      - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:-alerta_mujer_2026}
+      - LIQUIBASE_PASSWORD=${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en el archivo .env}
     depends_on:
       postgres:
         condition: service_healthy
@@ -79,7 +79,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
       - SERVICES_EVIDENCE_URL=http://evidence-service:8080
@@ -108,7 +108,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
       - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
-      - INTERNAL_API_KEY=${INTERNAL_API_KEY:-clave-interna-solo-local}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
       - SERVICES_EVIDENCE_URL=http://evidence-service:8080

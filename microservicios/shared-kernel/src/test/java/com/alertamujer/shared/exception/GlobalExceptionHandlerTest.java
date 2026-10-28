@@ -1,5 +1,7 @@
 package com.alertamujer.shared.exception;
 
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -23,6 +25,16 @@ class GlobalExceptionHandlerTest {
         var r = handler.handleSpringErrorResponse(new HttpRequestMethodNotSupportedException("PATCH"));
         assertEquals(405, r.getStatusCode().value());
     }
+
+    @Test
+    void missingHeaderReturns400() throws NoSuchMethodException {
+        var parameter = new MethodParameter(getClass().getDeclaredMethod("withKey", String.class), 0);
+        var r = handler.handleSpringErrorResponse(new MissingRequestHeaderException("X-Protection-Key", parameter));
+        assertEquals(400, r.getStatusCode().value());
+    }
+
+    @SuppressWarnings("unused")
+    private void withKey(String key) {}
 
     @Test
     void internalErrorDoesNotExposeTheMessage() {

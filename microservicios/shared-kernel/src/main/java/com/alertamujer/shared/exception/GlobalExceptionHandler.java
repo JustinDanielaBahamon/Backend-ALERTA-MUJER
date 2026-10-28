@@ -23,13 +23,14 @@ public class GlobalExceptionHandler {
 
     /**
      * Spring MVC errors with their HTTP code (unknown path 404, method not allowed 405,
-     * missing required parameter 400, unsupported content type 415, ResponseStatusException...).
+     * missing required parameter or header 400, unsupported content type 415, ResponseStatusException...).
      */
     @ExceptionHandler({
         org.springframework.web.servlet.resource.NoResourceFoundException.class,
         org.springframework.web.HttpRequestMethodNotSupportedException.class,
         org.springframework.web.HttpMediaTypeNotSupportedException.class,
         org.springframework.web.bind.MissingServletRequestParameterException.class,
+        org.springframework.web.bind.MissingRequestHeaderException.class,
         org.springframework.web.server.ResponseStatusException.class
     })
     public ResponseEntity<ErrorResponse> handleSpringErrorResponse(Exception ex) {
