@@ -56,3 +56,13 @@ cd microservicios && mvn test
   en Auth y Alert.
 - **Jenkins** (`Jenkinsfile`): pruebas, una imagen Docker por servicio y, en `main`, despliegue en
   Render con el *deploy hook* de cada servicio.
+
+## Seguridad
+
+- **Clave de Firebase del historial:** la clave de la cuenta de servicio
+  `firebase-adminsdk-fbsvc@alerta-mujer-b4fae.iam.gserviceaccount.com` con ID `5da5d00d…`, que
+  quedó en el commit `bdcebab`, fue revocada: ya no existe en la cuenta de servicio. La clave
+  vigente (ID `9908742e…`) se creó el 14 de octubre de 2026 y vive solo como *Secret File* en
+  Render y, en local, en `secrets/` (ignorado por git).
+- **Clave JWT que estuvo publicada:** se reemplazó y el backend se niega a arrancar si alguien la
+  vuelve a usar, si falta `JWT_SECRET` o si tiene menos de 32 caracteres (`JwtKeyProvider`).
