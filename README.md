@@ -27,10 +27,12 @@ Las migraciones de la base las aplica solo Auth Service con Liquibase
 
 ## Ejecutar en local
 
-1. Crear `.env` a partir de `.env.example` con al menos `APP_DB_PASSWORD` y `JWT_SECRET`
-   (aleatorio, 32 caracteres o más).
-2. Para el login con Google y las notificaciones push, poner la cuenta de servicio de Firebase en
-   `src/main/resources/firebase-service-account.json` (nunca se sube al repositorio).
+1. Crear `.env` a partir de `.env.example` con al menos `POSTGRES_PASSWORD`, `APP_DB_PASSWORD`,
+   `JWT_SECRET` (aleatorio, 32 caracteres o más) e `INTERNAL_API_KEY`.
+2. Opcional: para el login con Google desde la web y las notificaciones push, copiar la cuenta de
+   servicio de Firebase en `secrets/firebase-service-account.json` (nunca se sube al repositorio) y
+   poner `FIREBASE_ENABLED=true` en `.env`. Sin ella los servicios arrancan igual, solo con esas dos
+   funciones apagadas (ver [secrets/README.md](secrets/README.md)).
 3. Levantar todo:
 
    ```bash

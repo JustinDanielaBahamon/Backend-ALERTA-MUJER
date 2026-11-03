@@ -1,6 +1,7 @@
 package com.alertamujer.config;
 
 import com.alertamujer.devices.api.DevicesApi;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +19,13 @@ import com.google.firebase.messaging.Message;
 @Service
 public class FcmServiceImpl implements FcmService {
 
-    private final FirebaseConfig firebaseConfig;
+    // Absent with FIREBASE_ENABLED=false: FirebaseMessaging then throws, so every token counts as
+    // failed and the delivery is recorded as not sent (never as sent).
+    private final ObjectProvider<FirebaseConfig> firebaseConfig;
     private final DevicesApi devicesApi;
 
     @Autowired
-    public FcmServiceImpl(FirebaseConfig firebaseConfig, DevicesApi devicesApi) {
+    public FcmServiceImpl(ObjectProvider<FirebaseConfig> firebaseConfig, DevicesApi devicesApi) {
         this.firebaseConfig = firebaseConfig;
         this.devicesApi = devicesApi;
     }
@@ -55,7 +58,7 @@ public class FcmServiceImpl implements FcmService {
     @Override
     public String sendSingleNotification(String deviceToken, String title, String body, String alertId, String action) {
         try {
-            return firebaseConfig.sendToDevice(deviceToken, title, body);
+            return firebaseConfig.getObject().sendToDevice(deviceToken, title, body);
         } catch (Exception e) {
             throw new RuntimeException("Error sending single notification", e);
         }
@@ -64,7 +67,7 @@ public class FcmServiceImpl implements FcmService {
     @Override
     public List<String> sendBatchNotification(List<String> deviceTokens, String title, String body, String alertId, String action) {
         try {
-            return firebaseConfig.sendToMultipleDevices(deviceTokens, title, body);
+            return firebaseConfig.getObject().sendToMultipleDevices(deviceTokens, title, body);
         } catch (Exception e) {
             throw new RuntimeException("Error sending batch notification", e);
         }
