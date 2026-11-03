@@ -11,6 +11,11 @@ RUN mvn -q -pl auth-service -am package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+# Runs without root: a compromised process cannot change the image or install anything.
+# /app/data is the only writable folder (evidence on disk when EVIDENCE_STORAGE=disk).
+RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin alerta \
+    && mkdir -p /app/data && chown alerta /app/data
 COPY --from=build /app/auth-service/target/app.jar app.jar
 EXPOSE 8080
+USER 10001
 ENTRYPOINT ["java", "-jar", "app.jar"]
