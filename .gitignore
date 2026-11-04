@@ -33,6 +33,10 @@ yarn-error.log*
 # Firebase
 firebase-service-account.json
 
+# Local secrets for docker compose (see secrets/README.md)
+secrets/*
+!secrets/README.md
+
 # Testing
 coverage/
 target/

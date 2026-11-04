@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -39,11 +40,13 @@ class GoogleVerifierAdapter implements GoogleVerifierPort {
     private static final String FIREBASE_ISSUER_PREFIX = "https://securetoken.google.com/";
     private static final List<String> GOOGLE_ISSUERS = List.of("accounts.google.com", "https://accounts.google.com");
 
-    private final FirebaseApp firebaseApp;
+    // Absent with FIREBASE_ENABLED=false (local docker compose without the service account): only
+    // web sign-in with Google stops working; the mobile app's Google tokens do not need it.
+    private final ObjectProvider<FirebaseApp> firebaseApp;
     private final GoogleIdTokenVerifier googleVerifier;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    GoogleVerifierAdapter(FirebaseApp firebaseApp,
+    GoogleVerifierAdapter(ObjectProvider<FirebaseApp> firebaseApp,
                                   @Value("${google.client-ids:}") String clientIds) {
         this.firebaseApp = firebaseApp;
         List<String> audiences = Arrays.stream(clientIds.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
@@ -67,8 +70,13 @@ class GoogleVerifierAdapter implements GoogleVerifierPort {
     }
 
     private GoogleIdentity verifyFirebase(String idToken) {
+        FirebaseApp app = firebaseApp.getIfAvailable();
+        if (app == null) {
+            log.warn("Token de Firebase rechazado: Firebase está desactivado (FIREBASE_ENABLED=false)");
+            throw new InvalidCredentialsException("El inicio de sesión con Google no está disponible en este servidor");
+        }
         try {
-            FirebaseToken token = FirebaseAuth.getInstance(firebaseApp).verifyIdToken(idToken, true);
+            FirebaseToken token = FirebaseAuth.getInstance(app).verifyIdToken(idToken, true);
             if (token.getEmail() == null || !token.isEmailVerified()) {
                 throw new InvalidCredentialsException("La cuenta de Google no tiene un correo verificado");
             }

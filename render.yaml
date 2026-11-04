@@ -160,8 +160,10 @@ envVarGroups:
         sync: false
       - key: JWT_SECRET
         sync: false
+      # Exact web domain (comma separated if there are more). No pattern: anyone can create a
+      # Vercel project called alerta-mujer-something and its domain would match alerta-mujer*.vercel.app.
       - key: CORS_ORIGIN
-        value: "https://alerta-mujer*.vercel.app"
+        value: "https://alerta-mujer.vercel.app"
       - key: JAVA_TOOL_OPTIONS
         value: -XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Xss512k
       - key: MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS

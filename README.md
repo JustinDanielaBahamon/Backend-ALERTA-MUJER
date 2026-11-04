@@ -27,10 +27,12 @@ Las migraciones de la base las aplica solo Auth Service con Liquibase
 
 ## Ejecutar en local
 
-1. Crear `.env` a partir de `.env.example` con al menos `APP_DB_PASSWORD` y `JWT_SECRET`
-   (aleatorio, 32 caracteres o más).
-2. Para el login con Google y las notificaciones push, poner la cuenta de servicio de Firebase en
-   `src/main/resources/firebase-service-account.json` (nunca se sube al repositorio).
+1. Crear `.env` a partir de `.env.example` con al menos `POSTGRES_PASSWORD`, `APP_DB_PASSWORD`,
+   `JWT_SECRET` (aleatorio, 32 caracteres o más) e `INTERNAL_API_KEY`.
+2. Opcional: para el login con Google desde la web y las notificaciones push, copiar la cuenta de
+   servicio de Firebase en `secrets/firebase-service-account.json` (nunca se sube al repositorio) y
+   poner `FIREBASE_ENABLED=true` en `.env`. Sin ella los servicios arrancan igual, solo con esas dos
+   funciones apagadas (ver [secrets/README.md](secrets/README.md)).
 3. Levantar todo:
 
    ```bash
@@ -54,3 +56,13 @@ cd microservicios && mvn test
   en Auth y Alert.
 - **Jenkins** (`Jenkinsfile`): pruebas, una imagen Docker por servicio y, en `main`, despliegue en
   Render con el *deploy hook* de cada servicio.
+
+## Seguridad
+
+- **Clave de Firebase del historial:** la clave de la cuenta de servicio
+  `firebase-adminsdk-fbsvc@alerta-mujer-b4fae.iam.gserviceaccount.com` con ID `5da5d00d…`, que
+  quedó en el commit `bdcebab`, fue revocada: ya no existe en la cuenta de servicio. La clave
+  vigente (ID `9908742e…`) se creó el 14 de octubre de 2026 y vive solo como *Secret File* en
+  Render y, en local, en `secrets/` (ignorado por git).
+- **Clave JWT que estuvo publicada:** se reemplazó y el backend se niega a arrancar si alguien la
+  vuelve a usar, si falta `JWT_SECRET` o si tiene menos de 32 caracteres (`JwtKeyProvider`).

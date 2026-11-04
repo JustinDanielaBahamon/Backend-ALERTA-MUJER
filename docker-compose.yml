@@ -50,7 +50,10 @@ services:
       - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
-      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      # Without secrets/firebase-service-account.json the service still starts: set FIREBASE_ENABLED=true in .env
+      # only after copying the file (web Google sign-in and push need it).
+      - FIREBASE_ENABLED=${FIREBASE_ENABLED:-false}
+      - FIREBASE_CONFIG_PATH=/app/secrets/firebase-service-account.json
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
@@ -62,7 +65,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+      - ./secrets:/app/secrets:ro
 
   alert-service:
     build:
@@ -78,7 +81,10 @@ services:
       - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
-      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
+      # Without secrets/firebase-service-account.json the service still starts: set FIREBASE_ENABLED=true in .env
+      # only after copying the file (web Google sign-in and push need it).
+      - FIREBASE_ENABLED=${FIREBASE_ENABLED:-false}
+      - FIREBASE_CONFIG_PATH=/app/secrets/firebase-service-account.json
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
@@ -91,7 +97,7 @@ services:
     depends_on:
       - auth-service
     volumes:
-      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
+      - ./secrets:/app/secrets:ro
 
   evidence-service:
     build:
@@ -107,7 +113,6 @@ services:
       - APP_DB_PASSWORD=${APP_DB_PASSWORD:?Define APP_DB_PASSWORD en el archivo .env}
       - JWT_SECRET=${JWT_SECRET:?Define JWT_SECRET en el archivo .env (aleatorio, 32+ caracteres)}
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:*,http://127.0.0.1:*}
-      - FIREBASE_CONFIG_PATH=/app/firebase-service-account.json
       - INTERNAL_API_KEY=${INTERNAL_API_KEY:?define INTERNAL_API_KEY en el archivo .env}
       - SERVICES_AUTH_URL=http://auth-service:8080
       - SERVICES_ALERT_URL=http://alert-service:8080
@@ -124,8 +129,6 @@ services:
     depends_on:
       s3:
         condition: service_healthy
-    volumes:
-      - ./src/main/resources/firebase-service-account.json:/app/firebase-service-account.json:ro
 
 volumes:
   postgres_data:
