@@ -1,5 +1,5 @@
 # Render blueprint: the 3 microservices (Docker) + PostgreSQL, all on the free plan.
-# See ARQUITECTURA_MICROSERVICIOS.md.
+# See docs/architecture.md.
 services:
   # ── alerta-mujer-auth (microservice) ─────────────────────────────────────
   - type: web

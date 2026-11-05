@@ -7,7 +7,7 @@ echo "🚀 Iniciando EVIDENCE-SERVICE en puerto 8083..."
 echo "======================================"
 echo ""
 
-cd "$(dirname "$0")/evidence-service"
+cd "$(dirname "$0")/../../microservicios/evidence-service"
 
 # Check that the JAR exists
 if [ ! -f "target/app.jar" ]; then

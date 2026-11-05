@@ -7,7 +7,7 @@ echo "🚀 Iniciando ALERT-SERVICE en puerto 8082..."
 echo "======================================"
 echo ""
 
-cd "$(dirname "$0")/alert-service"
+cd "$(dirname "$0")/../../microservicios/alert-service"
 
 # Check that the JAR exists
 if [ ! -f "target/app.jar" ]; then

@@ -7,7 +7,7 @@ echo "🚀 Iniciando AUTH-SERVICE en puerto 8081..."
 echo "======================================"
 echo ""
 
-cd "$(dirname "$0")/auth-service"
+cd "$(dirname "$0")/../../microservicios/auth-service"
 
 # Check that the JAR exists
 if [ ! -f "target/app.jar" ]; then

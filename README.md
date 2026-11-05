@@ -2,7 +2,7 @@
 
 Backend de AlertaMujer: **3 microservicios** en Java 17 y Spring Boot 3.2, con arquitectura
 hexagonal y una base de datos PostgreSQL 16 compartida. Atiende a la app móvil (Expo) y a la web
-(Angular). El diseño completo está en [ARQUITECTURA_MICROSERVICIOS.md](ARQUITECTURA_MICROSERVICIOS.md).
+(Angular). El diseño completo está en [docs/architecture.md](docs/architecture.md).
 
 | Servicio | Puerto local | Responsabilidad |
 |---|---|---|
@@ -15,9 +15,11 @@ hexagonal y una base de datos PostgreSQL 16 compartida. Atiende a la app móvil 
 ```
 microservicios/        proyecto Maven: shared-kernel + auth-service, alert-service, evidence-service
 docker/                configuración del S3 local (SeaweedFS)
+docs/                  arquitectura, equipo y guía para correr sin Docker
 docs/database/         modelo entidad-relación, diccionario de datos y esquema SQL
 ci/jenkins/            Jenkins local para el pipeline (Jenkinsfile)
 scripts/               despertar los servicios de producción antes de una demostración
+scripts/local/         iniciar los 3 servicios sin Docker (ver docs/run-without-docker.md)
 docker-compose.yml     PostgreSQL, S3 local y los 3 servicios
 render.yaml            despliegue en Render (3 servicios + base de datos)
 ```
