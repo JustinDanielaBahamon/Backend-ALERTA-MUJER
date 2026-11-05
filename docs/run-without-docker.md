@@ -24,11 +24,11 @@ sudo systemctl start postgresql
 
 ## 🚀 OPCIÓN 1: Iniciar Todos los Servicios Automáticamente
 
-El script `start-all-services.sh` abre 3 terminales automáticamente:
+El script `scripts/local/start-all-services.sh` abre 3 terminales automáticamente:
 
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios
-./start-all-services.sh
+# desde la raíz del repositorio
+./scripts/local/start-all-services.sh
 ```
 
 Esto abrirá 3 terminales:
@@ -40,39 +40,39 @@ Esto abrirá 3 terminales:
 
 ### Terminal 1 - Auth Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios
-./start-auth-service.sh
+# desde la raíz del repositorio
+./scripts/local/start-auth-service.sh
 ```
 
 ### Terminal 2 - Alert Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios
-./start-alert-service.sh
+# desde la raíz del repositorio
+./scripts/local/start-alert-service.sh
 ```
 
 ### Terminal 3 - Evidence Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios
-./start-evidence-service.sh
+# desde la raíz del repositorio
+./scripts/local/start-evidence-service.sh
 ```
 
 ## 🚀 OPCIÓN 3: Usar Maven directamente
 
 ### Terminal 1
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/auth-service
+cd microservicios/auth-service
 mvn spring-boot:run
 ```
 
 ### Terminal 2
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/alert-service
+cd microservicios/alert-service
 mvn spring-boot:run
 ```
 
 ### Terminal 3
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/evidence-service
+cd microservicios/evidence-service
 mvn spring-boot:run
 ```
 
@@ -82,19 +82,19 @@ Si ya compilaste con `mvn clean package`:
 
 ### Terminal 1 - Auth Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/auth-service
+cd microservicios/auth-service
 java -jar target/app.jar
 ```
 
 ### Terminal 2 - Alert Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/alert-service
+cd microservicios/alert-service
 java -jar target/app.jar
 ```
 
 ### Terminal 3 - Evidence Service
 ```bash
-cd /home/maicol/Documentos/proyecto\ /Backend-ALERTA-MUJER/microservicios/evidence-service
+cd microservicios/evidence-service
 java -jar target/app.jar
 ```
 
