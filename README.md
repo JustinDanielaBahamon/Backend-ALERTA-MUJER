@@ -4,6 +4,28 @@ Backend de AlertaMujer: **3 microservicios** en Java 17 y Spring Boot 3.2, con a
 hexagonal y una base de datos PostgreSQL 16 compartida. Atiende a la app móvil (Expo) y a la web
 (Angular). El diseño completo está en [docs/architecture.md](docs/architecture.md).
 
+## URL en producción
+
+| Componente | Dirección |
+|---|---|
+| Plataforma web | https://alerta-mujer.vercel.app |
+| Auth Service | https://alerta-mujer-auth.onrender.com |
+| Alert Service | https://alerta-mujer-alert.onrender.com |
+| Evidence Service | https://alerta-mujer-evidence.onrender.com |
+
+La aplicación móvil se distribuye como APK de Android generado con EAS (Expo Application Services).
+
+## Repositorios del proyecto
+
+| Repositorio | Contenido |
+|---|---|
+| [AlertaMujer](https://github.com/JustinDanielaBahamon/AlertaMujer) | Aplicación móvil |
+| [Frond-end-Web](https://github.com/JustinDanielaBahamon/Frond-end-Web) | Plataforma web |
+| [Backend-ALERTA-MUJER](https://github.com/JustinDanielaBahamon/Backend-ALERTA-MUJER) | Backend |
+| [wal-docs](https://github.com/code-sena/wal-docs) | Documentación del proyecto |
+
+## Servicios
+
 | Servicio | Puerto local | Responsabilidad |
 |---|---|---|
 | Auth Service | 8081 | Registro, login (JWT y Google), sesiones, celulares, configuración y panel de administración |
